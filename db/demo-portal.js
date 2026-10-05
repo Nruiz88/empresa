@@ -259,19 +259,36 @@ async function limpiar(cliente) {
   }
 
   /* ---------- Catálogo de módulos ----------
-     `url` se deja a null a propósito: el dominio del servicio se
-     deduce de SITE_URL, no de un texto guardado en la base. Es lo que
-     hace que cambiar de dominio no obligue a tocar datos, y evita el
-     problema que ya pasó: "https://bot.midominio.com" guardado como si
-     fuera real, con el botón "Abrir" llevando a un sitio inexistente. */
+
+     `url` se pone con el dominio REAL de este despliegue.
+
+     Lo contrario parecía mejor (no guardar direcciones, deducirlas del
+     SITE_URL) y resulted equivocado: al dejar `url` vacía, el panel la
+     dedujo como "bot." + SITE_URL, que con SITE_URL siendo
+     empresa.panel-... da "bot.empresa.panel-...". Funciona, porque ese
+     subdominio también enruta, pero es el dominio equivocado y no hace
+     falta depender de esa deducción para algo que se puede escribir
+     bien.
+
+     Lo que sí NO se hace es volver al dominio de ejemplo
+     ("bot.midominio.com"), que es lo que había antes. Ese no enruta. */
+  const BOT_URL =
+    process.env.BOT_URL || "https://bot.panel-niconqn.duckdns.org";
+
   for (const m of MODULOS) {
     const { error } = await db.from("modules").upsert(
-      { ...m, disponible: true, url: null, retirado: false },
+      {
+        ...m,
+        disponible: true,
+        url: m.id === "bot_whatsapp" ? BOT_URL : null,
+        retirado: false,
+      },
       { onConflict: "id" }
     );
     if (error) throw new Error("módulo " + m.id + ": " + error.message);
   }
   console.log("✓ " + MODULOS.length + " módulos a la venta");
+  console.log("  el bot apunta a " + BOT_URL);
 
   /* ---------- Suscripciones ----------
      Las tres, con periodos distintos para ver en el portal los tres
