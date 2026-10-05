@@ -139,8 +139,33 @@ app.use(require("./routes/panel"));
 /* Y después la web pública, con su 404 al final */
 app.use(require("./routes/web"));
 
-const servidor = app.listen(PORT, "127.0.0.1", () => {
-  console.log(`Nexo Studio escuchando en http://127.0.0.1:${PORT}`);
+/* A QUÉ INTERFAZ SE ATA
+   ---------------------
+   Antes: "127.0.0.1", fijo. En desarrollo está bien. En un contenedor
+   NO: el proceso se ata al loopback INTERIOR, así que el proxy de
+   entrada (Traefik en Coolify, nginx donde sea) no lo alcanza, porque
+   entra desde fuera de la red del contenedor. El síntoma es un 502
+   con la aplicación perfectamente sana: por dentro responde 200 y
+   por fuera no entra nadie. Es de los fallos más caros de
+   diagnosticar, porque todo lo que se mira desde dentro funciona.
+
+   Regla: dentro de un contenedor hay que escuchar en 0.0.0.0. Se deja
+   configurable con HOST por si en algún sitio hace falta otra cosa,
+   y se avisa si alguien ata a 127.0.0.1 en producción. */
+const HOST = (process.env.HOST || "").trim();
+
+if (process.env.NODE_ENV === "production" && HOST === "127.0.0.1") {
+  console.warn("");
+  console.warn("  ⚠️  HOST=127.0.0.1 en producción: el proxy de entrada no");
+  console.warn("      podrá alcanzar el servicio. Quítalo, o pon 0.0.0.0.");
+  console.warn("");
+}
+
+const servidor = app.listen(PORT, HOST || "0.0.0.0", () => {
+  console.log(
+    `Nexo Studio escuchando en http://${HOST || "0.0.0.0"}:${PORT}` +
+      (HOST ? "" : "  (sin HOST: todas las interfaces)")
+  );
 
   /* Aviso de dominio sin definir. Publicar con 'midominio.com' en las
      etiquetas canonical, el sitemap y los correos es una forma

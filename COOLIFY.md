@@ -52,6 +52,22 @@ propiedad que justifica separarlos.
 
 ---
 
+## ⚠️ `server.js` tiene que escuchar en 0.0.0.0
+
+Es el tercer error que aparece al desplegar, y el más confuso de
+diagnosticar. Si `server.js` se ata a `127.0.0.1`, **dentro del
+contenedor todo funciona**: los logs dicen que escucha, una prueba
+desde dentro devuelve 200, el health check pasa. Pero Traefik entra
+desde fuera de la red del contenedor y no lo alcanza, así que desde
+el navegador sale **502**.
+
+El `502` con la aplicación sana es la pista: significa "el proxy no
+llega", no "la aplicación está caída".
+
+La aplicación ahora usa `HOST` si está puesto y `0.0.0.0` si no. **No
+hay que declarar `HOST` en Coolify.** Si algún día se declara con
+`127.0.0.1`, avisa al arrancar y el servicio queda inaccesible.
+
 ## Variables de entorno
 
 ### Servicio web (el que sirve web + panel)
