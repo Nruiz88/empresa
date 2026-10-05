@@ -119,8 +119,17 @@ let botB = null;
   const userB = await usuario(MARCA + "b@ejemplo.com", clientB, "B");
 
   /* UN servidor de Evolution compartido por los dos bots: es el caso
-     real y el que hace peligroso tener la clave a la vista. */
-  const { data: servidor, error: eServ } = await db
+     real y el que hace peligroso tener la clave a la vista.
+
+     OJO con el `const` en la desestructuración: aquí dentro crearía
+     una variable NUEVA que tapa la `let servidor` de módulo, y la
+     limpieza del `finally` (que está fuera de esta función) seguiría
+     viendo `null`. El borrado se descartaba en silencio por el
+     guardián de `paso()`, sin error, y `evolution_servers` crecía una
+     fila por cada ejecución. Por eso se ASIGNA a la variable de
+     módulo, sin declararla: es lo que hace `clientA` un par de líneas
+     más abajo y sí se limpiaba. */
+  const { data: srv, error: eServ } = await db
     .from("evolution_servers")
     .insert({
       name: "Servidor de pruebas " + MARCA,
@@ -130,18 +139,21 @@ let botB = null;
     .select("id")
     .single();
   if (eServ) throw new Error("servidor: " + eServ.message);
+  servidor = srv;
 
-  const { data: botA, error: eBotA } = await db
+  const { data: bA, error: eBotA } = await db
     .from("bots")
     .insert({ client_id: clientA, server_id: servidor.id, name: "Bot A", instance_name: "inst-a", slug: SLUG + "aa" })
     .select("id").single();
   if (eBotA) throw new Error("botA: " + eBotA.message);
+  botA = bA;
 
-  const { data: botB, error: eBotB } = await db
+  const { data: bB, error: eBotB } = await db
     .from("bots")
     .insert({ client_id: clientB, server_id: servidor.id, name: "Bot B", instance_name: "inst-b", slug: SLUG + "bb" })
     .select("id").single();
   if (eBotB) throw new Error("botB: " + eBotB.message);
+  botB = bB;
 
   await db.from("suscripciones").insert({
     client_id: clientA, module_id: "bot_whatsapp", estado: "activo", inicia_en: "2026-01-01",
