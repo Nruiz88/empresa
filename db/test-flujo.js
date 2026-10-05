@@ -36,7 +36,10 @@ const MODULO = process.env.TEST_MODULO || "bot_whatsapp";
 const ROL = process.env.TEST_ROL || "staff";
 const VUELTA_DE_STAFF = "/panel";
 const VUELTA_DE_CLIENTE = "/panel/mis-servicios";
-const VUELTA_ESPERADA = ROL === "client" ? VUELTA_DE_CLIENTE : VUELTA_DE_STAFF;
+
+/* La pantalla de inicio del servicio, según lo declara en
+   `acceso.crear({ raiz })`. Es donde hay que caer al entrar. */
+const RAIZ_SERVICIO = process.env.TEST_RAIZ || "/mi-bot";
 
 const ES_HTTPS = PANEL.startsWith("https://");
 
@@ -234,16 +237,32 @@ async function pedir(url, opciones = {}) {
   const canje = await rCanje.json();
 
   comprobar("el bot acepta el ticket", rCanje.status === 200 && canje.ok === true, "estado " + rCanje.status + " · " + (canje.error || ""));
+  /* Al entrar hay que caer en la PANTALLA DEL SERVICIO, no en el
+     panel. El botón decía "Abrir" y lo que se abre es la aplicación.
+
+     Esto estuvo mal: el canje devolvía la URL del panel, así que
+     pulsar "Abrir" te devolvía al panel y nunca llegabas a ver el bot.
+     La prueba lo daba por bueno porque comprobaba lo que el código
+     hacía, no lo que debía hacer. */
   comprobar(
-    ROL === "client" ? "vuelve al portal del cliente" : "vuelve al panel del equipo",
-    (canje.volver || "").endsWith(VUELTA_ESPERADA),
-    canje.volver + "  (se esperaba ... " + VUELTA_ESPERADA + ")"
+    "cae en la pantalla del servicio, no en el panel",
+    (canje.destino || "") === RAIZ_SERVICIO,
+    "destino='" + (canje.destino || "") + "'  se esperaba '" + RAIZ_SERVICIO + "'"
   );
-  comprobar("y con URL completa", /^https?:\/\//.test(canje.volver || ""), canje.volver);
   comprobar(
-    "la vuelta es al panel que estamos probando",
-    (canje.volver || "").startsWith(PANEL),
-    canje.volver
+    "y en ningún caso es el panel",
+    !(canje.destino || "").includes("/panel"),
+    canje.destino
+  );
+  comprobar(
+    "el destino es relativo a ESTE host, para que no se salga",
+    typeof canje.destino === "string" && canje.destino.startsWith("/") && !canje.destino.startsWith("//"),
+    canje.destino
+  );
+  comprobar(
+    "el panel sigue disponible para los enlaces de vuelta",
+    (canje.panel || "").startsWith(PANEL),
+    canje.panel
   );
 
   const cookieBot = (rCanje.headers.getSetCookie ? rCanje.headers.getSetCookie() : [])[0] || "";

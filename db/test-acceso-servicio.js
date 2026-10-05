@@ -43,18 +43,36 @@ const STAFF_PASSWORD = process.env.TEST_STAFF_PASSWORD || "PanelPrueba2026";
 let ok = 0;
 let fallos = 0;
 
-function comprobar(desc, condicion) {
+/* El tercer argumento (detalle) se imprimía solo cuando la
+   comprobación PASABA, y cuando fallaba se perdía. Con un "✗" sin
+   explicación no hay forma de saber qué mirar, que es justo cuando
+   hace falta. */
+function comprobar(desc, condicion, extra) {
+  const cola = extra ? "  → " + extra : "";
   if (condicion) {
-    console.log("  ✓ " + desc);
+    console.log("  ✓ " + desc + cola);
     ok++;
   } else {
-    console.log("  ✗ " + desc);
+    console.log("  ✗ " + desc + cola);
     fallos++;
   }
 }
 
 function seccion(t) {
   console.log("\n── " + t + " " + "─".repeat(Math.max(0, 46 - t.length)));
+}
+
+/* Recorta un destino que lleva el ticket dentro.
+
+   El ticket contiene el access_token del usuario. Caduca en 60 s, pero
+   eso no lo hace seguro: se queda escrito en el log de la consola, en
+   el historial de CI, en un screenshot... Imprimirlo entero en el
+   detalle de una comprobación es justo el fallo que el diseño del
+   fragmento evita en los logs del servidor. */
+function sinTicket(url) {
+  const s = String(url || "");
+  if (s.length <= 70) return s;
+  return s.slice(0, 45) + "… (ticket dentro)";
 }
 
 const dormir = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -297,30 +315,38 @@ async function irAlBot(cookie) {
   comprobar("el bot acepta el ticket", ida.status === 200 && ida.cuerpo.ok === true);
   comprobar("el bot pone su propia cookie (nexo_bot)", /nexo_bot=/.test(ida.cookieBot));
 
-  /* A dónde manda el navegador DESPUÉS de canjear. Este es el fallo
-     que había: la vuelta era "/panel/mis-servicios", una ruta
-     RELATIVA. En el host del bot esa ruta no existe, así que el
-     acceso funcionaba (ticket verificado, cookie montada) y a
-     continuación el cliente caía en el 404 del bot con un "esta
-     página no existe" que no hablaba de permisos y hacía sospechar
-     del sistema de acceso entero.
+  /* A dónde manda el navegador DESPUÉS de canjear.
 
-     Tiene que ser una URL COMPLETA del panel. */
+     Histórico de esta comprobación, que ha cambiado dos veces:
+     1. La vuelta era "/panel/mis-servicios", una ruta RELATIVA. En el
+        host del bot esa ruta no existe, así que el acceso funcionaba
+        (ticket verificado, cookie montada) y a continuación el
+        cliente caía en el 404 del bot con un "esta página no
+        existe" que no hablaba de permisos.
+     2. Corregido eso, la vuelta pasó a ser la URL COMPLETA del
+        panel. Tampoco era lo correcto: el botón decía "Abrir" y
+        quien lo pulsaba volvía al panel sin llegar a ver nunca el
+        bot. Ahora cae en la pantalla del propio servicio.
+
+     Se exige `destino`, relativo a este host: es el servicio, así
+     que una ruta relativa no puede salirse a otro sitio. */
   comprobar(
-    "la vuelta apunta al panel, en URL completa",
-    /^https?:\/\/[^/]+\/panel\/mis-servicios$/.test(ida.cuerpo.volver || ""),
-    ida.cuerpo.volver
+    "la vuelta cae en la pantalla del servicio",
+    (ida.cuerpo.destino || "") === "/mi-bot",
+    "destino=" + JSON.stringify(ida.cuerpo.destino)
   );
-  /* Que apunte a UN panel y no al bot ya lo dice la comprobación de
-     arriba, que exige `http(s)://<host>/panel/mis-servicios`: el bot
-     no tiene esa ruta. Comprobar el puerto exacto aquí ataría la
-     prueba al .env de esta máquina, donde PANEL_URL no está puesta y
-     la vuelta cae al puerto del servidor web (3000), no al del
-     panel de la prueba (3101). */
   comprobar(
-    "y no vuelve al bot",
-    !(ida.cuerpo.volver || "").includes(String(PUERTO_BOT)),
-    ida.cuerpo.volver
+    "y en ningún caso al panel",
+    !(ida.cuerpo.destino || "").includes("/panel"),
+    "destino=" + JSON.stringify(ida.cuerpo.destino)
+  );
+  /* El panel se sigue mandando aparte, para los enlaces de vuelta de
+     las pantallas de error. Que no falte: si desaparece, el usuario
+     que se equivoca se queda sin salida. */
+  comprobar(
+    "el panel sigue disponible para volver",
+    typeof ida.cuerpo.panel === "string" && ida.cuerpo.panel.length > 0,
+    ida.cuerpo.panel
   );
   comprobar("la cookie del bot es httpOnly", /HttpOnly/i.test(ida.cookieBot));
   comprobar("y va con su propio Path", /Path=\//.test(ida.cookieBot));
@@ -545,12 +571,25 @@ async function irAlBot(cookie) {
     rStaff.status === 200 && cStaff.ok === true,
     "estado " + rStaff.status + " · " + (cStaff.error || "")
   );
+  /* Al entrar hay que caer en la pantalla DEL SERVICIO, no en el
+     panel, ni el del equipo ni el del cliente. El botón decía
+     "Abrir" y lo que se abre es la aplicación. Antes devolvía la URL
+     del panel y el usuario nunca llegaba a ver el bot. */
   comprobar(
-    "vuelve al panel del equipo, no al portal del cliente",
-    (cStaff.volver || "").endsWith("/panel"),
-    cStaff.volver
+    "cae en la pantalla del bot, no en el panel",
+    (cStaff.destino || "") === "/mi-bot",
+    cStaff.destino
   );
-  comprobar("y con URL completa", /^https?:\/\//.test(cStaff.volver || ""), cStaff.volver);
+  comprobar(
+    "ni siquiera el panel del equipo",
+    !(cStaff.destino || "").includes("/panel"),
+    cStaff.destino
+  );
+  comprobar(
+    "y el panel sigue disponible para los enlaces de vuelta",
+    typeof cStaff.panel === "string" && cStaff.panel.length > 0,
+    cStaff.panel
+  );
 
   const cookieStaff = (rStaff.headers.getSetCookie ? rStaff.headers.getSetCookie() : [])[0] || "";
   const tokenStaffBot = (cookieStaff.match(/nexo_bot=([^;]+)/) || [])[1];
@@ -603,12 +642,12 @@ async function irAlBot(cookie) {
   comprobar(
     "sin url escrita, deduce el subdominio del bot",
     destino.startsWith("http://127.0.0.1:" + PUERTO_BOT),
-    destino
+    sinTicket(destino)
   );
   comprobar(
     "y no manda a un dominio inventado",
     !destino.includes("midominio"),
-    destino
+    sinTicket(destino)
   );
   /* Lo deduce el PANEL, que es quien manda: el subdominio sale de
      SITE_URL. En la prueba el dominio es 127.0.0.1, así que sale el
@@ -618,12 +657,12 @@ async function irAlBot(cookie) {
   comprobar(
     "el panel sabe el puerto del bot (BOT_URL)",
     destino.includes(":" + PUERTO_BOT),
-    "esperado :" + PUERTO_BOT + ", obtenido " + destino
+    "esperado :" + PUERTO_BOT + ", obtenido " + sinTicket(destino)
   );
   comprobar(
     "el ticket va en el fragmento, no en la query",
     destino.includes("#ticket=") && !destino.includes("?ticket="),
-    destino.includes("#ticket=") ? "#ticket=..." : "no lleva ticket"
+    destino.includes("#ticket=") ? "#ticket=…" : "no lleva ticket"
   );
 
   /* Y lo de antes: si la URL guardada es el marcador de ejemplo, se
@@ -642,7 +681,7 @@ async function irAlBot(cookie) {
     "con el marcador de ejemplo puesto, se deduce igualmente",
     destinoMarcador.startsWith("http://127.0.0.1:" + PUERTO_BOT) &&
       !destinoMarcador.includes("midominio"),
-    destinoMarcador
+    sinTicket(destinoMarcador)
   );
 
   /* Una URL REAL escrita sí manda. Es lo que permite un servicio que
@@ -658,7 +697,7 @@ async function irAlBot(cookie) {
   comprobar(
     "una url real escrita manda sobre la deducida",
     (rReal.headers.get("location") || "").startsWith("https://proveedor-externo.example/entrar#"),
-    rReal.headers.get("location")
+    sinTicket(rReal.headers.get("location"))
   );
 
   console.log("\n" + "─".repeat(54));

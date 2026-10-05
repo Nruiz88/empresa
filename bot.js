@@ -100,6 +100,10 @@ const bot = acceso.crear({
   cookie: "nexo_bot",
   exige: "bot_whatsapp",
   mostrar: "Bot de WhatsApp",
+  /* Dónde cae el cliente al entrar. Antes esto devolvía al panel y el
+     botón "Abrir" no abría nada: te devolvía al panel sin llegar a
+     ver el bot nunca. */
+  raiz: "/mi-bot",
 });
 
 app.get("/entrar", bot.entrar);

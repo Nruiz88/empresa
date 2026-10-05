@@ -105,7 +105,10 @@
         giro.style.display = "none";
         ventana.className = "bien";
         ventana.textContent = "Listo. Entrando…";
-        window.location.href = r.datos.volver || "/panel/mis-servicios";
+        /* Se va a la pantalla del PROPIO servicio, que es lo que el botón
+           decía ("Abrir"). Antes esto saltaba al panel y el usuario
+           acababa allí sin ver nunca la aplicación que quería abrir. */
+        window.location.href = r.datos.destino || "/";
       } else {
         fallo((r.datos && r.datos.error) || "No se pudo comprobar el acceso.");
       }
