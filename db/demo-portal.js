@@ -152,13 +152,25 @@ const RESPUESTAS = [
     response_type: "menu",
     /* Un menú de verdad, con botones, porque es lo que de verdad se
        quiere ver: que el bot reconozca la palabra y mande las
-       opciones en vez de un texto. */
+       opciones en vez de un texto.
+
+       La forma es la que espera el bot: `buttons` con `id`, `text` y
+       `target_id`, NO `opciones` con `etiqueta` y `descripcion`. Con el
+       formato inventado, el bot reventaba con un TypeError al pintar
+       el menú —`b.text` de un undefined— y la respuesta se quedaba a
+       medias: el evento llegaba, se registraba, y no pasaba nada.
+
+       `target_id` es a dónde lleva la opción. Con `null` es una opción
+       de texto: el usuario la elige escribiendo el número, y de eso se
+       ocupa el manejador de menús. */
     menu_config: {
-      titulo: "¿Qué quieres pedir?",
-      opciones: [
-        { etiqueta: "Pan", descripcion: "Barra del día y hogazas" },
-        { etiqueta: "Bollería", descripcion: "Croissants, magdalenas, palmeras" },
-        { etiqueta: "Pastelería", descripcion: "Tarta del día y más" },
+      title: "¿Qué quieres pedir?",
+      description: "Elegí con el número",
+      footer: "Panadería La Espiga · demo",
+      buttons: [
+        { id: "pedir_pan", text: "Pan", target_id: null },
+        { id: "pedir_bolleria", text: "Bollería", target_id: null },
+        { id: "pedir_pasteleria", text: "Pastelería", target_id: null },
       ],
     },
     response_text: "Aquí tienes lo que tenemos:",
@@ -251,9 +263,30 @@ async function limpiar(cliente) {
   const cliente = await clienteDePrueba();
   console.log("\nCliente: " + (cliente.empresa || cliente.nombre));
 
+  /* El bot se borra SIEMPRE, también sin --limpiar.
+
+     Es lo que hace que esto se pueda ejecutar otra vez. Con el slug
+     único en `bots`, un segundo intento fallaba con
+     `duplicate key value violates unique constraint "bots_slug_key"` a
+     medias: las suscripciones ya estaban puestas y el bot no, dejando
+     el cliente sin bot y con la suscripción cobrada.
+
+     O sea: el fallo no era del primer intento, sino del segundo. Y
+     quien lo nota es quien lo ejecuta dos veces, que es exactamente
+     cuando ya no se está pensando en el script. */
+  const { data: botsPrevios } = await db
+    .from("bots")
+    .select("id")
+    .eq("client_id", cliente.id);
+
+  if (botsPrevios && botsPrevios.length) {
+    await db.from("bots").delete().eq("client_id", cliente.id);
+    console.log("✓ bot anterior fuera (" + botsPrevios.length + ")");
+  }
+
   if (limpiarDemo) {
     await limpiar(cliente);
-    console.log("✓ bot, suscripciones, ficha y facturación borradas");
+    console.log("✓ suscripciones, ficha y facturación borradas");
     console.log("  Los módulos siguen en la tabla, pero no a la venta.\n");
     process.exit(0);
   }
