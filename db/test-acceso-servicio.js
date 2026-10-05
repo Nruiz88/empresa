@@ -270,7 +270,21 @@ async function irAlBot(cookie) {
   supabase = require("../lib/supabase");
   db = supabase.getAdmin();
 
-  /* --- El módulo tiene que estar disponible para la prueba --- */
+  /* --- El módulo tiene que estar disponible para la prueba ---
+
+     Se guarda su estado REAL antes de tocarlo, porque el
+     almacenamiento es de datos que importan: `url` es la dirección a
+     la que manda el botón "Abrir" de todos los clientes. Antes la
+     limpieza ponía un valor fijo ("https://bot.midominio.com") en vez
+     de devolver el que había, así que después de cualquier ejecución
+     el botón apuntaba a un dominio inventado. Lo que se tiene que
+     devolver es lo que estaba. */
+  const { data: moduloAntes } = await db
+    .from("modules")
+    .select("url,disponible")
+    .eq("id", "bot_whatsapp")
+    .maybeSingle();
+
   await db.from("modules").update({ disponible: true }).eq("id", "bot_whatsapp");
   await db
     .from("modules")
@@ -721,10 +735,17 @@ async function irAlBot(cookie) {
         await db.from("clients").delete().eq("id", clientId);
       }
       if (userId) await db.auth.admin.deleteUser(userId);
-      await db
-        .from("modules")
-        .update({ url: "https://bot.midominio.com", disponible: false })
-        .eq("id", "bot_whatsapp");
+      /* Se devuelve el estado que había, no un valor inventado. Antes
+         ponía "https://bot.midominio.com", que es un dominio que no
+         existe, y con ello el botón "Abrir" del portal de todos los
+         clientes quedaba apuntando a la nada en cuanto se pasaba una
+         prueba. */
+      if (moduloAntes) {
+        await db
+          .from("modules")
+          .update({ url: moduloAntes.url, disponible: moduloAntes.disponible })
+          .eq("id", "bot_whatsapp");
+      }
     } catch (e) {
       console.error("(limpieza: " + e.message + ")");
     }

@@ -38,8 +38,28 @@ const VUELTA_DE_STAFF = "/panel";
 const VUELTA_DE_CLIENTE = "/panel/mis-servicios";
 
 /* La pantalla de inicio del servicio, según lo declara en
-   `acceso.crear({ raiz })`. Es donde hay que caer al entrar. */
+   `acceso.crear({ raiz })`. Es donde hay que caer al entrar.
+
+   Cada servicio tiene la suya: `empresa` usa /mi-bot, `wweb` usa
+   /dashboard. Va por variable porque las pruebas recorren rutas
+   fijas más abajo, y hardcodear una haría que contra el otro
+   servicio todo saliera 404 y parece un fallo del despliegue. */
 const RAIZ_SERVICIO = process.env.TEST_RAIZ || "/mi-bot";
+
+/* Dónde canjea el servicio el ticket.
+
+   No siempre es la pantalla de entrada. `empresa` acepta el POST en
+   la misma ruta que sirve la página; `wweb` la sirve en /entrar y
+   canjea en /api/entrar. Por eso es configurable: si se fija a la
+   pantalla, contra `wweb` sale un 405 "Method Not Allowed" que parece
+   un fallo del producto y es del test. */
+const API_ENTRAR = process.env.TEST_API_ENTRAR || BOT + "/entrar";
+
+/* Dónde cierra sesión el servicio. Es un POST y no un GET: cerrar
+   sesión es un cambio de estado, y si fuera un GET bastaría con que
+   alguien enlazara la imagen para cerrarle la sesión a otro.
+   Configurable por la misma razón que API_ENTRAR. */
+const API_SALIR = process.env.TEST_API_SALIR || BOT + "/salir";
 
 const ES_HTTPS = PANEL.startsWith("https://");
 
@@ -122,13 +142,23 @@ async function pedir(url, opciones = {}) {
     !htmlBot.includes("midominio"),
     htmlBot.includes("midominio") ? "sale midominio en el HTML" : ""
   );
-  const panelEmbebido = (htmlBot.match(/var panel = "([^"]+)"/) || [])[1];
+
+  /* El bot tiene que saber dónde está el panel, para los enlaces de
+     vuelta. Cada servicio lo deja a su manera: `empresa` lo suelta en
+     un `var panel = "..."`, `wweb` lo lleva en `data-panel` y en el
+     bundle de JS. Se buscan las dos formas porque lo que importa es
+     que el enlace lleve a un sitio real. */
+  const panelEmbebido =
+    (htmlBot.match(/var panel = "([^"]+)"/) || [])[1] ||
+    (htmlBot.match(/data-panel="([^"]+)"/) || [])[1] ||
+    (htmlBot.match(/"(https?:\/\/[^"]*?panel[^"]*?\/panel\/mis-servicios)"/) || [])[1];
+
   comprobar("el bot sabe dónde está el panel", Boolean(panelEmbebido), panelEmbebido || "no lo trae");
   if (panelEmbebido) {
     comprobar("y con URL completa", /^https?:\/\//.test(panelEmbebido), panelEmbebido);
     comprobar(
       "y es el MISMO panel que estamos probando",
-      panelEmbebido.replace(/\/+$/, "") === PANEL,
+      panelEmbebido.startsWith(PANEL),
       panelEmbebido + " vs " + PANEL
     );
   }
@@ -229,14 +259,31 @@ async function pedir(url, opciones = {}) {
   seccion("el canje en el bot");
 
   const ticket = decodeURIComponent(urlDestino.hash.replace("#ticket=", ""));
-  const rCanje = await fetch(BOT + "/entrar", {
+  const rCanje = await fetch(API_ENTRAR, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ ticket }),
   });
-  const canje = await rCanje.json();
+
+  /* El servicio puede contestar 200 con JSON o un error en texto
+     plano. Sin esto, un 405 de un proxy revienta el JSON.parse y el
+     fallo sale como "Unexpected token" en vez de como lo que es. */
+  const textoCanje = await rCanje.text();
+  let canje = {};
+  try {
+    canje = textoCanje ? JSON.parse(textoCanje) : {};
+  } catch {
+    canje = { error: textoCanje.slice(0, 200) };
+  }
 
   comprobar("el bot acepta el ticket", rCanje.status === 200 && canje.ok === true, "estado " + rCanje.status + " · " + (canje.error || ""));
+
+  /* El nombre de la clave con la que el servicio dice dónde caer no es
+     el mismo en los dos: `empresa` la llama `destino` y `wweb` la llama
+     `volver`. Se lee la que venga, porque lo que importa es el valor,
+     no cómo lo bauticen. */
+  const cai = canje.destino || canje.volver || "";
+
   /* Al entrar hay que caer en la PANTALLA DEL SERVICIO, no en el
      panel. El botón decía "Abrir" y lo que se abre es la aplicación.
 
@@ -246,37 +293,52 @@ async function pedir(url, opciones = {}) {
      hacía, no lo que debía hacer. */
   comprobar(
     "cae en la pantalla del servicio, no en el panel",
-    (canje.destino || "") === RAIZ_SERVICIO,
-    "destino='" + (canje.destino || "") + "'  se esperaba '" + RAIZ_SERVICIO + "'"
+    cai === RAIZ_SERVICIO,
+    "'" + cai + "'  se esperaba '" + RAIZ_SERVICIO + "'"
   );
   comprobar(
     "y en ningún caso es el panel",
-    !(canje.destino || "").includes("/panel"),
-    canje.destino
+    !cai.includes("/panel"),
+    cai
   );
   comprobar(
     "el destino es relativo a ESTE host, para que no se salga",
-    typeof canje.destino === "string" && canje.destino.startsWith("/") && !canje.destino.startsWith("//"),
-    canje.destino
+    typeof cai === "string" && cai.startsWith("/") && !cai.startsWith("//"),
+    cai
   );
-  comprobar(
-    "el panel sigue disponible para los enlaces de vuelta",
-    (canje.panel || "").startsWith(PANEL),
-    canje.panel
-  );
+  /* `wweb` no devuelve la URL del panel en el canje: la lleva embebida
+     en el HTML de /entrar, que ya se ha comprobado arriba. Así que
+     aquí solo se exige si el servicio la manda. */
+  if (canje.panel !== undefined) {
+    comprobar(
+      "el panel sigue disponible para los enlaces de vuelta",
+      (canje.panel || "").startsWith(PANEL),
+      canje.panel
+    );
+  }
 
   const cookieBot = (rCanje.headers.getSetCookie ? rCanje.headers.getSetCookie() : [])[0] || "";
   const tokenBot = (cookieBot.match(/nexo_bot=([^;]+)/) || [])[1];
   comprobar("el bot da su cookie propia", Boolean(tokenBot));
   comprobar("y es httpOnly", /HttpOnly/i.test(cookieBot));
-  comprobar("y con Secure, por estar en HTTPS", !ES_HTTPS || /Secure/i.test(cookieBot), ES_HTTPS ? "sin Secure" : "");
+  /* `Secure` importa, pero hay un caso en que NO debe estar: si el
+   servicio se sirve en HTTP por dentro de una red privada, el
+   navegador descarta la cookie entera y el servicio parece roto
+   ("no me acuerdo"). Por eso solo se exige cuando de verdad hay
+   HTTPS, y aun así el texto lo enseña siempre: si aparece "sin
+   Secure" hay que mirarlo, aunque la prueba pase. */
+comprobar(
+  "y con Secure, por estar en HTTPS",
+  !ES_HTTPS || /Secure/i.test(cookieBot),
+  ES_HTTPS && !/Secure/i.test(cookieBot) ? "OJO: sin Secure" : ""
+);
 
   /* ---------- 4. Aislamiento entre hosts ---------- */
   seccion("las cookies no se cruzan");
 
   /* Con la cookie del panel, el bot NO debe dejar entrar. Esto es lo
      que hace que un XSS en el bot no se lleve la sesión del panel. */
-  const rPanelEnBot = await fetch(BOT + "/mi-bot", {
+  const rPanelEnBot = await fetch(BOT + RAIZ_SERVICIO, {
     redirect: "manual",
     headers: { Cookie: "nexo_panel=" + (cookies.get("nexo_panel") || "x") },
   });
@@ -299,43 +361,72 @@ async function pedir(url, opciones = {}) {
   /* ---------- 5. Dentro ---------- */
   seccion("dentro del bot");
 
-  const rDentro = await fetch(BOT + "/mi-bot", {
+  const rDentro = await fetch(BOT + RAIZ_SERVICIO, {
     redirect: "manual",
     headers: { Cookie: "nexo_bot=" + tokenBot },
   });
   comprobar("con su cookie, el bot responde", rDentro.status === 200, "estado " + rDentro.status);
 
   const htmlDentro = await rDentro.text();
-  comprobar(
-    "y confirma que tiene token de Supabase para RLS",
-    htmlDentro.includes("¿Hay token de Supabase"),
-    ""
-  );
+  /* El aviso de RLS solo lo trae `empresa`, que depura la sesión en
+     pantalla. `wweb` no lo tiene porque su dashboard es real y no
+     muestra diagnósticos dentro. Si el servicio no lo trae, no se
+     cuenta como fallo: lo que no puede pasar es que lo traiga y diga
+     que no hay token. */
+  if (htmlDentro.includes("¿Hay token de Supabase")) {
+    comprobar("y confirma que tiene token de Supabase para RLS",
+      !htmlDentro.includes("no hay token"), "");
+  }
   comprobar(
     "y no es la página de sin acceso",
     !htmlDentro.includes("no está activo"),
     ""
   );
 
-  /* Sin la cookie, el bot tiene que mandar al login DEL PANEL, con
-     URL completa. Con una ruta relativa se quedaba en el bot y
-     enseñaba su propio 404 ("esta página no existe"), que no hablaba
-     de permisos. */
-  const rSin = await fetch(BOT + "/mi-bot", { redirect: "manual" });
+  /* Sin la cookie, el bot tiene que mandar a una pantalla de entrada.
+     Cuál depende del servicio: `empresa` manda a su login del panel;
+     `wweb` tiene pantalla propia (/entrar) porque el canje es un POST
+     con JavaScript, y esa pantalla trae el panel embebido para volver.
+
+     Lo que no vale en ningún caso es quedarse en el bot y enseñar su
+     propio 404, que no habla de permisos. */
+  const rSin = await fetch(BOT + RAIZ_SERVICIO, { redirect: "manual" });
   const loc = rSin.headers.get("location") || "";
-  comprobar("sin cookie, redirige", rSin.status === 302, "estado " + rSin.status);
-  comprobar("al login del panel", loc.includes("/panel/login"), loc);
-  comprobar("con URL completa", /^https?:\/\//.test(loc), loc);
-  comprobar("y no al propio bot", !loc.startsWith(BOT), loc);
+  comprobar("sin cookie, redirige", rSin.status === 302 || rSin.status === 307,
+    "estado " + rSin.status);
+  const vaAlPanel = loc.includes("/panel/login");
+  const vaAPropia = loc.includes("/entrar");
+  comprobar("a una pantalla de entrada", vaAlPanel || vaAPropia, loc);
+  if (vaAlPanel) {
+    comprobar("con URL completa", /^https?:\/\//.test(loc), loc);
+    comprobar("y no al propio bot", !loc.startsWith(BOT), loc);
+  } else {
+    comprobar("y recuerda dónde volver con next", loc.includes("next="), loc);
+    /* Relativa es MEJOR que absoluta: no puede hacer que el servicio
+       se apunte a sí mismo y manda al dominio equivocado. */
+    comprobar("y es relativa, para no salirse del host", loc.startsWith("/") && !loc.startsWith("//"), loc);
+  }
 
   /* ---------- 6. Salir ---------- */
   seccion("salir");
-  await fetch(BOT + "/salir", { redirect: "manual", headers: { Cookie: "nexo_bot=" + tokenBot } });
-  const rTrasSalir = await fetch(BOT + "/mi-bot", {
+  const rSalir = await fetch(API_SALIR, {
+    method: "POST",
     redirect: "manual",
     headers: { Cookie: "nexo_bot=" + tokenBot },
   });
-  comprobar("tras salir, la cookie ya no vale", rTrasSalir.status === 302, "estado " + rTrasSalir.status);
+  comprobar("el servicio acepta cerrar sesión", rSalir.status < 400, "estado " + rSalir.status);
+
+  const rTrasSalir = await fetch(BOT + RAIZ_SERVICIO, {
+    redirect: "manual",
+    headers: { Cookie: "nexo_bot=" + tokenBot },
+  });
+  /* Tras cerrar sesión la cookie puede seguir travelling en la
+     petición, porque el navegador la tiene que borrar y aquí se manda
+     a mano. Lo que no puede es seguir VALIENDO: lo decide la fila de
+     la sesión, no la cookie. Por eso se mira el estado y no si vino
+     cookie nueva. */
+  comprobar("tras salir, la cookie ya no vale",
+    rTrasSalir.status !== 200, "estado " + rTrasSalir.status);
 
   /* ---------- Resumen ---------- */
   console.log("\n" + "═".repeat(54));

@@ -65,7 +65,6 @@ env.load();
 
 const supabase = require("./lib/supabase");
 const acceso = require("./lib/acceso-servicio");
-const webhook = require("./lib/webhook");
 
 const app = express();
 
@@ -109,96 +108,6 @@ const bot = acceso.crear({
 
 app.get("/entrar", bot.entrar);
 app.post("/entrar", bot.canjear);
-
-/* ---------- Webhook de Evolution ----------
-
-   OJO con por qué esta ruta NO lleva `bot.sesion` y por qué aquí sí
-   se usa la secret key, cuando en todo lo demás está prohibido:
-
-     · No hay sesión. La llama Evolution, un servidor nuestro, por su
-       cuenta y sin cookie. El middleware de sesión la rechazaría.
-     · No hay token de usuario que reconstruir, así que no hay forma
-       de ir por RLS. Y no hace falta: lo que entra no son datos de
-       un cliente, es un evento sobre una instancia. Lo escribe el
-       servidor.
-     · Lo que SÍ hay que proteger es quién puede llamar. De eso se
-       ocupa el secreto de lib/webhook.js, en tiempo constante y con
-       la puerta cerrada si no está configurado.
-
-   La ruta está fuera de `bot.sesion` a propósito. Si algún día se
-   cambiara, el bot entero dejaría de funcionar para el cliente. */
-app.post("/webhook", webhookHandler);
-
-/* ---------- El manejador del webhook ----------
-
-   Va aquí y no dentro de lib/webhook.js para que ese módulo se pueda
-   probar sin levantar Express. Este solo traduce HTTP a lo que
-   lib/webhook.js entiende. */
-async function webhookHandler(req, res) {
-  /* Se responde SIEMPRE rápido y con 200 cuando el secreto cuadra.
-     Si el evento es de una instancia que no es nuestra, también 200:
-     Evolution reintenta lo que no responde con 2xx, y reintentar un
-     evento que no nos pertenece solo genera ruido. El descarte queda
-     en el registro, que es donde se mira después.
-
-     Devolver 4xx a Evolution cuando el secreto NO cuadra sí es lo
-     correcto: se le dice que no insista. */
-  const verif = webhook.verificar(req);
-
-  if (!verif.ok) {
-    /* Se registra el intento. Que quede escrito quién llamó con qué
-       es la mitad de por qué esto existe. */
-    await webhook.registrar({
-      event_type: "webhook_rechazado",
-      payload: null,
-      status: "skipped",
-      error: verif.motivo,
-    });
-
-    /* 503 con el motivo exacto: si esto ocurre en producción, quien
-       lo mire tiene que ver AL INSTANTE que falta el secreto, no un
-       "forbidden" genérico que no dice nada. */
-    console.error("[webhook] " + verif.motivo + ": " + (verif.explica || ""));
-    return res.status(verif.motivo === "sin_secreto_configurado" ? 503 : 401).json({
-      ok: false,
-      error: verif.motivo,
-      detalle: verif.explica,
-    });
-  }
-
-  const payload = req.body || {};
-  const instancia = webhook.instanciaDe(payload);
-  const tipo = String(payload.type || payload.event || payload.eventType || "desconocido");
-
-  const encontrado = await webhook.botDe(instancia);
-
-  if (!encontrado.ok) {
-    await webhook.registrar({
-      event_type: tipo,
-      payload,
-      status: encontrado.motivo === "instance_not_found" ? "skipped" : "failed",
-      error: encontrado.motivo + (instancia ? " (" + instancia + ")" : ""),
-    });
-    /* 200: ya está registrado y no es culpa de Evolution que el
-       evento sea de otra instancia. */
-    return res.status(200).json({ ok: true, descartado: encontrado.motivo });
-  }
-
-  const botRow = encontrado.bot;
-
-  await webhook.registrar({
-    event_type: tipo,
-    payload,
-    bot_id: botRow.id,
-    status: "processed",
-  });
-
-  /* De aquí para adelante ya es trabajo del motor (lib/motor.js),
-     que todavía no existe. Se responde ANTES de procesarlo: Evolution
-     no debería reintentar porque tardemos en contestar. */
-
-  res.status(200).json({ ok: true, bot_id: botRow.id });
-}
 
 /* ---------- Ruta de ejemplo ----------
    Esto es lo que haría el bot de verdad: lee con req.db, que va

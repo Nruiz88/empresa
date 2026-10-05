@@ -19,9 +19,15 @@
   nada, y las aplicaciones antes que los servicios porque son la
   razón de entrar aquí.
 
+  `esStaff` cambia el botón de "Abrir": el equipo va a /soporte/… para
+  decir a qué cliente entra y por qué, y el cliente va directo a su
+  bot. No es una diferencia estética: quien es del equipo está a punto
+  de ver datos de otra persona, y eso tiene que ser una decisión
+  consciente y no un clic.
+
   Variables: empresa, nombreCliente, servicios, cuenta, pendiente,
              modulos, etiquetaEstado, etiquetaTipo, periodo, dinero,
-             fecha, error, errorServicio
+             fecha, error, errorServicio, esStaff
 %>
 <%- include('../partials/panel-head', { title, site, base, current }) %>
 
@@ -151,10 +157,13 @@
               </div>
             <% } %>
 
+            <%# El equipo va a la pantalla de soporte: tiene que decir a
+                qué cliente entra y por qué. El cliente va directo a su
+                bot, que es suyo y no tiene que justificar nada. %>
             <a class="panel-btn panel-btn--primary portal-app-btn"
-               href="<%= base %>/servicios/<%= m.module_id %>/entrar">
+               href="<%= base %>/<%= esStaff ? 'soporte' : 'servicios' %>/<%= m.module_id %>/<%= esStaff ? '' : 'entrar' %>">
               <%- icono('arrow-up-right', { tamano: 15 }) %>
-              Abrir
+              <%= esStaff ? 'Atender a un cliente' : 'Abrir' %>
             </a>
           </li>
         <% }); %>

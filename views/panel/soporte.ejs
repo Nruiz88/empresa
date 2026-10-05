@@ -1,0 +1,133 @@
+<%#
+  Soporte — entrar en el bot de un cliente.
+
+  QUÉ ES ESTA PANTALLA Y POR QUÉ ESTÁ SEPARADA
+  ------------------------------------------
+  Antes, un member del equipo pulsaba "Abrir" en su servicio y el bot
+  le contestaba con un 403 ("este enlace no es de una cuenta de
+  cliente"). El panel lo dejaba pasar y el bot no, y los dos servicios
+  tenían reglas distintas sobre el mismo acceso.
+
+  Ahora staff tiene que pasar por aquí: elegir un cliente y escribir por
+  qué. No es un trámite. El motivo es lo que queda guardado y lo que
+  contesta a la pregunta de por qué alguien del equipo tocó la
+  configuración de un cliente.
+
+  Y el cliente de la lista es UNO, no "todos": la base solo deja ver
+  el bot de ese. Sin esto, soporte vería los de todos los clientes, y
+  eso no es soporte, es otro producto.
+
+  EL POR QUÉ ES UN CAMPO DE TEXTO, NO UNA LISTA
+  ---------------------------------------------
+  Una lista de casillas ("problema técnico", "alta de cliente") se
+  rellena en dos segundos y a los dos meses significa lo mismo que no
+  marcar nada. Escribir una frase cuesta más y es la única que sirve
+  para saber qué pasó. El campo se recuerda con lo que ya se escribió,
+  para no tener que escribirlo dos veces si se vuelve atrás.
+
+  Variables: modulo, clientes, motivo, error
+%>
+<%- include('../partials/panel-head', { title, site, base, current }) %>
+
+<div class="panel-page">
+
+  <header class="portal-cab">
+    <div class="portal-cab-texto">
+      <span class="portal-cab-saludo">Soporte</span>
+      <h1>Atender a un cliente</h1>
+      <span class="portal-cab-empresa"><%= modulo.nombre %></span>
+    </div>
+    <div class="portal-cab-accion">
+      <a class="panel-btn panel-btn--ghost" href="<%= base %>/mis-servicios">Volver</a>
+    </div>
+  </header>
+
+  <% if (error) { %>
+    <div class="panel-alert"><%= error %></div>
+  <% } %>
+
+  <% if (!clientes.length) { %>
+    <div class="panel-empty">
+      <h2>No hay ningún cliente con bot</h2>
+      <p>
+        Nadie tiene todavía una instancia de <%= modulo.nombre %>. Cuando
+        se dé de alta, aparecerá en esta lista.
+      </p>
+    </div>
+  <% } else { %>
+
+    <form class="panel-form soporte-form"
+          method="get"
+          action="<%= base %>/servicios/<%= modulo.id %>/entrar">
+
+      <div class="panel-card">
+        <label class="panel-label" for="cliente">Cliente</label>
+        <%# El buscador va en un input aparte, no en el select. Con 200
+            clientes un desplegable es inmanejable, y el filtro del
+            navegador no busca dentro de un select. %>
+        <input class="panel-input" type="search" id="buscar"
+               placeholder="Escribe para filtrar" autocomplete="off"
+               oninput="soporteFiltrar(this.value)">
+
+        <div class="soporte-lista" id="lista">
+          <% clientes.forEach(function (c) {
+               var texto = ((c.nombre || '') + ' ' + (c.email || '')).toLowerCase();
+          %>
+            <label class="soporte-item" data-busca="<%= texto %>">
+              <input type="radio" name="cliente" value="<%= c.id %>" required>
+              <span class="soporte-item-texto">
+                <strong><%= c.nombre || '(sin nombre)' %></strong>
+                <small><%= c.email || '' %></small>
+              </span>
+            </label>
+          <% }); %>
+        </div>
+
+        <p class="panel-help" id="soporte-vacio" hidden>
+          Ningún cliente coincide con eso.
+        </p>
+      </div>
+
+      <div class="panel-card">
+        <label class="panel-label" for="motivo">Por qué entras</label>
+        <textarea class="panel-input" id="motivo" name="motivo" rows="3"
+                  maxlength="200" required
+                  placeholder="El cliente dice que no le llegan los mensajes desde ayer"><%= motivo %></textarea>
+        <p class="panel-help">
+          Queda guardado con tu nombre y la hora. Es lo que se lee si
+          alguien pregunta por qué se cambió algo.
+        </p>
+      </div>
+
+      <div class="soporte-accion">
+        <button class="panel-btn panel-btn--primary" type="submit">
+          <%- icono('arrow-up-right', { tamano: 15 }) %>
+          Entrar
+        </button>
+        <a class="panel-btn panel-btn--ghost" href="<%= base %>/mis-servicios">Cancelar</a>
+      </div>
+    </form>
+  <% } %>
+
+</div>
+
+<%#
+  El filtro es JavaScript a propósito: son unos cientos de filas y
+  filtrar en el servidor recargaría la página en cada tecla. Aquí solo
+  se oculta lo que no coincide; el campo de radio sigue siendo lo que
+  viaja, así que no se puede enviar un cliente que no esté en la lista.
+%>
+<script>
+  function soporteFiltrar(texto) {
+    var t = String(texto || '').trim().toLowerCase();
+    var visibles = 0;
+    document.querySelectorAll('#lista .soporte-item').forEach(function (item) {
+      var coincide = !t || (item.dataset.busca || '').indexOf(t) !== -1;
+      item.hidden = !coincide;
+      if (coincide) visibles++;
+    });
+    document.getElementById('soporte-vacio').hidden = visibles > 0;
+  }
+</script>
+
+<%- include('../partials/panel-foot', { site }) %>

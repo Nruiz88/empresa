@@ -108,6 +108,9 @@ const ERRORES_SERVICIO = {
   "sin-url": "Ese servicio aún no tiene dirección de acceso.",
   ticket: "No se pudo preparar el acceso. Inténtalo otra vez.",
   "sesion-caducada": "Tu sesión es muy antigua. Vuelve a entrar.",
+  /* Los de soporte, en /soporte/:moduleId. */
+  cliente: "Ese cliente ya no está en la base. Elige otro de la lista.",
+  staff: "Esta pantalla es solo para el equipo.",
 };
 
 /* Los textos salen de lib/labels.js, la misma fuente que usan el
@@ -254,7 +257,48 @@ module.exports = function rutasPortal({ db, sitio, requiereLogin }) {
     const clientId = await clientIdDe(req.sesion.user_id);
 
     let modulos = [];
-    if (clientId) {
+
+    /* Un member del equipo no pertenece a ningún cliente, así que
+       `modulos_del_cliente` no le devuelve nada y su portal saldría
+       vacío. Para él la lista es la de MÓDULOS QUE EXISTEN: tiene que
+       ver "el bot" para poder entrar en el de un cliente, no solo para
+       consultarlo.
+
+       No es que staff tenga el bot contratado: es que su tarjeta es un
+       acceso a la herramienta de soporte, y el destino real se elige
+       después. Por eso el botón dice "Atender a un cliente" y no
+       "Abrir". */
+    if (req.sesion.rol === "staff") {
+      const { data: todos } = await supabase
+        .getAdmin()
+        .from("modules")
+        .select("id,componentes")
+        .eq("disponible", true);
+
+      /* El nombre sale de `modules`, que la consulta de arriba no trajo. Sin
+       él la tarjeta se queda sin título, que es justo el dato que
+       identifica qué herramienta se está abriendo. */
+      const { data: nombres } = await supabase
+        .getAdmin()
+        .from("modules")
+        .select("id,nombre,descripcion,icono");
+
+      const porId = new Map((nombres || []).map((m) => [m.id, m]));
+
+      modulos = (todos || []).map((m) => {
+        const ficha = porId.get(m.id) || {};
+        return {
+          module_id: m.id,
+          nombre: ficha.nombre || m.id,
+          descripcion: ficha.descripcion || "",
+          estado: "activo",
+          termina_en: null,
+          componentes: m.componentes || [],
+          dias: null,
+          icono: iconos.icono(iconos.iconoDeModulo(m.id), { tamano: 22 }),
+        };
+      });
+    } else if (clientId) {
       const { data: mods } = await supabase
         .getAdmin()
         .rpc("modulos_del_cliente", { cliente_uuid: clientId });
@@ -369,6 +413,14 @@ module.exports = function rutasPortal({ db, sitio, requiereLogin }) {
       cuenta: vista.cuenta,
       pendiente: vista.pendiente,
       modulos,
+      /* Si quien está aquí es del equipo, su tarjeta "Abrir" lleva a la
+         pantalla de soporte y no a un canje directo. Sin esto, un member
+         del equipo pulsaría Abrir, el servicio le pediría elegir cliente
+         y el motivo mediante una redirección, y parecería un fallo.
+
+         La vista decide qué botón pintar; la ruta de "Abrir" acepta
+         igual las dos formas. */
+      esStaff: req.sesion.rol === "staff",
       error: error ? "No se pudieron cargar tus servicios ahora mismo." : null,
     });
   });
@@ -446,7 +498,56 @@ module.exports = function rutasPortal({ db, sitio, requiereLogin }) {
       return res.redirect("/panel/login?error=sesion-caducada");
     }
 
-    const clientId = esStaff ? null : await clientIdDe(req.sesion.user_id);
+    /* ---------- Staff: a cuál cliente atiende y por qué ----------
+
+       Antes staff entraba con `cid = null` y el bot lo rechazaba con un
+       403 ("este enlace no es de una cuenta de cliente"), que era una
+       respuesta rara: al panel el staff ya lo dejaba pasar.
+
+       Ahora staff tiene que decir a qué cliente entra y por qué. Las dos
+       cosas van en el ticket, y la segunda no es opcional: el motivo es
+       lo que queda guardado y lo que se lee cuando hay que preguntar por
+       qué soporte tocó la configuración de alguien.
+
+       El cliente también elige, pero no tiene que justificar nada: es su
+       bot. */
+    let clientId = null;
+    let motivo = null;
+
+    if (esStaff) {
+      const elegido = String(req.query.cliente || "").trim();
+      const porQue = String(req.query.motivo || "").trim();
+
+      if (!elegido || !porQue) {
+        /* Sin los dos no se entra. Se vuelve al selector con el motivo
+           puesto, para que escribirlo no se tenga que hacer dos veces. */
+        return res.redirect(
+          "/panel/soporte/" +
+            moduleId +
+            "?motivo=" +
+            encodeURIComponent(porQue)
+        );
+      }
+
+      /* El cliente tiene que existir. No se fía del `?cliente=` sin
+         mirar: es un identificador que viene de la barra de direcciones,
+         y es exactamente el dato que un cambio de una letra pasa. */
+      const existe = await supabase
+        .getAdmin()
+        .from("clients")
+        .select("id")
+        .eq("id", elegido)
+        .maybeSingle();
+
+      if (!existe) {
+        return res.redirect("/panel/soporte/" + moduleId + "?error=cliente");
+      }
+
+      clientId = elegido;
+      motivo = porQue.slice(0, 200);
+    } else {
+      clientId = await clientIdDe(req.sesion.user_id);
+    }
 
     let ticket;
     try {
@@ -456,6 +557,7 @@ module.exports = function rutasPortal({ db, sitio, requiereLogin }) {
         clientId,
         rol: req.sesion.rol,
         accessToken: token,
+        motivo,
       });
     } catch (err) {
       console.error("[servicios] No se pudo firmar el ticket:", err.message);
@@ -466,6 +568,67 @@ module.exports = function rutasPortal({ db, sitio, requiereLogin }) {
        un patrón y otro, y es el detalle que más caro sale si se
        equivoca. */
     res.redirect(destinoServicio + "/entrar#ticket=" + ticket);
+  });
+
+  /* ---------- Soporte: elegir cliente ----------
+     La pantalla intermedia. No existe una ruta aparte para ella: es la
+     misma de "abrir el servicio", pero parada antes de firmar el ticket
+     cuando quien la abre es del equipo.
+
+     El motivo es un campo de texto y no una lista de casillas. Las
+     casillas se consultarían rápido y quedarían sin sentido al
+     cabo de un mes; escribir una frase es más lento y es la que sirve
+     para saber qué pasó. */
+  router.get("/soporte/:moduleId", requiereLogin, async (req, res) => {
+    /* Un cliente no ve ni la pantalla ni el mensaje de "esto es solo
+       para el equipo": se le manda a su portal, que es donde tiene
+       sentido que esté. Enseñar el error solo le daría la idea de que
+       la pantalla existe. */
+    if (req.sesion.rol !== "staff") {
+      return res.redirect("/panel/mis-servicios");
+    }
+
+    const { moduleId } = req.params;
+    const { data: modulo } = await supabase
+      .getAdmin()
+      .from("modules")
+      .select("id,nombre")
+      .eq("id", moduleId)
+      .maybeSingle();
+
+    if (!modulo) return res.redirect("/panel/mis-servicios?error=modulo");
+
+    /* Solo los clientes que TIENEN bot. La lista sale del propio cruce de
+       `bots` con `clients` que hace la consulta, en vez de leer todos
+       los clientes y luego ir descartando: con 400 clientes, la otra
+       forma trae 400 filas para enseñar 12. */
+    const { data: conBot } = await supabase
+      .getAdmin()
+      .from("bots")
+      .select("client_id, clients(id,nombre,email)");
+
+    const vistos = new Map();
+    for (const b of conBot || []) {
+      if (b.clients && b.clients.id) vistos.set(b.clients.id, b.clients);
+    }
+
+    const lista = [...vistos.values()].sort((a, b) =>
+      String(a.nombre || "").localeCompare(String(b.nombre || ""))
+    );
+
+    res.render("panel/soporte", {
+      title: "Atender a un cliente",
+      site: sitio,
+      base: "/panel",
+      current: "soporte",
+      modulo,
+      clientes: lista,
+      motivo: String(req.query.motivo || "").trim(),
+      /* Los errores de esta pantalla son los del servicio, no los de la
+         cuenta: "ese cliente ya no está" es del mismo grupo que "ese
+         servicio no existe". */
+      error: ERRORES_SERVICIO[req.query.error] || null,
+    });
   });
 
   /* ---------- Mi cuenta ----------
