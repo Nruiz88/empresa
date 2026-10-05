@@ -338,10 +338,15 @@ const router = express.Router();
         .eq("id", data.user.id)
         .then(() => {}, () => {});
 
+      /* `entidad: "sessions"` con el id de la sesión que se acaba de
+         crear. Antes ponía la tabla entera, y en el registro de
+         auditoría no había forma de saber a qué sesión se refería:
+         con muchas sesiones de la misma persona es imposible. */
       await auth.auditar(db, {
         actor: { id: data.user.id, email },
         accion: "login",
-        entidad: "sessions",
+        entidad: "session",
+        entidadId: token,
         req,
       });
 
@@ -353,7 +358,16 @@ const router = express.Router();
       res.clearCookie(CSRF_PRE, { ...cookieOpts(), maxAge: 0 });
       res.redirect(siguiente.startsWith(BASE) ? siguiente : BASE);
     } catch (err) {
-      console.error("[panel] Error en login:", err.message);
+      /* El mensaje solo no dice de dónde viene el fallo: los dos
+         sitios donde se inserta en `sessions` son el perfil y la
+         auditoría, y con el texto suelto no se distingue. El stack sí. */
+      console.error(
+        "[panel] Error en login:",
+        err.message,
+        "| code=" + (err.code || "sin código"),
+        "| donde=" + (err.detalle || "desconocido")
+      );
+      if (process.env.NODE_ENV !== "production") console.error(err.stack);
       vistaLogin("No se pudo contactar con la base de datos. Inténtalo en un momento.", 503);
     }
   });
