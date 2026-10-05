@@ -240,6 +240,24 @@ Coolify asigna puertos internos automáticamente. Si el bot escucha en
 3200, ponlo en el campo de puerto del servicio. Si usas un puerto
 aleatorio, actualiza `PORT` en las variables del bot.
 
+### Node
+
+Que instale **Node 22 o superior**. Coolify lee `engines.node` de
+`package.json`, así que basta con que ahí diga `>=22`.
+
+Con Node 18 (que es lo que instala si pone `>=18`) la aplicación no
+arranca: `@supabase/supabase-js` usa el `WebSocket` global, que no
+existe hasta Node 22, y revienta dentro de `createClient` con un error
+que menciona `realtime-js` y no dice nada de la versión de Node.
+
+### ⚠️ `NODE_ENV=production` en Coolify
+
+Coolify avisa de esto y acierta: con `NODE_ENV=production` en el
+build, `npm ci` salta las `devDependencies`. Aquí no importa (no hay
+ninguna), pero si algún día las hubiera, déjalas como
+"Available at Buildtime" o pon `NODE_ENV=development` solo durante el
+build.
+
 ### Logs
 
 Los dos servicios escriben a stdout, que Coolify recoge. Para el

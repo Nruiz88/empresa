@@ -143,6 +143,19 @@ Lo hecho y verificado:
 
 ---
 
+## Node
+
+**Node 22 o superior.** No es arbitrario: `@supabase/supabase-js`
+usa el `WebSocket` global, que no existe en Node 18. Con Node 18 el
+proceso muere nada más arrancar, dentro de `createClient`, con un
+error que habla de `realtime-js` y no de la versión de Node.
+
+Lo declarado en `package.json` (`engines.node`) es lo que le dice a
+Coolify qué versión instalar. Si se queda en `>=18`, el despliegue
+instala 18 y falla aunque en local todo vaya bien.
+
+---
+
 ## Antes de publicar
 
 Esto **no** está listo para producción. Lo que falta:
