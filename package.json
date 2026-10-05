@@ -29,6 +29,7 @@
     "test:env": "node db/test-env.js",
     "test:dominios": "node db/test-dominios.js",
     "test:bot:vuelta": "node db/test-vuelta-bot.js",
+    "test:flujo": "node db/test-flujo.js",
     "test:cobros": "node db/test-cobros-mensuales.js",
     "test:acceso": "node db/test-acceso.js",
     "test:modulos": "node db/test-modulos.js",

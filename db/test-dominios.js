@@ -193,5 +193,79 @@ console.log("\n── BOT_URL manda sobre lo deducido ──");
   restaurar();
 }
 
+console.log("\n── NO se coge solo el dominio pelado ──");
+
+/* Este bloque existe por un fallo del primer despliegue. La deducción
+   se quedaba con las dos últimas etiquetas del host, así que:
+
+     empresa.panel-niconqn.duckdns.org → duckdns.org → bot.duckdns.org
+
+   y el botón "Abrir" mandaba a un subdominio de DuckDNS que no es
+   nuestro. Las pruebas de arriba pasaban porque todas usaban
+   dominios de dos etiquetas, que es justo el caso donde el recorte
+   acierta.
+
+   Con más de dos niveles hay que anteponer el subdominio al host
+   ENTERO, quitando solo el www. */
+{
+  const { site, restaurar } = cargar("https://empresa.panel-niconqn.duckdns.org");
+  ok(site.dominio === "empresa.panel-niconqn.duckdns.org", "conserva todos los niveles", site.dominio);
+  ok(
+    site.urlDeServicio("bot", "", 3200) === "https://bot.empresa.panel-niconqn.duckdns.org",
+    "el bot va detrás, con la cadena entera",
+    site.urlDeServicio("bot", "", 3200)
+  );
+  ok(
+    !site.urlDeServicio("bot", "", 3200).includes("https://bot.duckdns.org"),
+    "y NO a un dominio ajeno que casualmente comparte sufijo"
+  );
+}
+
+{
+  /* .co.uk y .com.ar son de lo más normal. */
+  const { site, restaurar } = cargar("https://empresa.ejemplo.co.uk");
+  ok(site.dominio === "empresa.ejemplo.co.uk", "con .co.uk", site.dominio);
+  ok(
+    site.urlDeServicio("bot", "", 3200) === "https://bot.empresa.ejemplo.co.uk",
+    "el bot también",
+    site.urlDeServicio("bot", "", 3200)
+  );
+}
+
+{
+  const { site, restaurar } = cargar("https://www.empresa.nexoestudio.es");
+  ok(site.dominio === "empresa.nexoestudio.es", "quita el www y nada más", site.dominio);
+  ok(
+    site.urlDeServicio("bot", "", 3200) === "https://bot.empresa.nexoestudio.es",
+    "y el bot sale bien",
+    site.urlDeServicio("bot", "", 3200)
+  );
+}
+
+{
+  /* Con subdominio de servicio ya presente, se antepone el suyo: no
+     se come el que hay. */
+  const { site, restaurar } = cargar("https://panel.nexoestudio.es");
+  ok(site.dominio === "panel.nexoestudio.es", "con panel delante", site.dominio);
+  ok(
+    site.urlDeServicio("bot", "", 3200) === "https://bot.panel.nexoestudio.es",
+    "el bot delante, sin comerse el panel",
+    site.urlDeServicio("bot", "", 3200)
+  );
+}
+
+{
+  /* El marcador de ejemplo no sirve para deducir nada: es un
+     placeholder, no un dominio. Aunque se le anteponga el subdominio
+     sale un sitio que no existe, así que cae al puerto local. */
+  const { site, restaurar } = cargar("https://panel.midominio.com");
+  ok(
+    site.urlDeServicio("bot", "", 3200) === "http://127.0.0.1:3200",
+    "con el marcador no inventa bot.panel.midominio.com",
+    site.urlDeServicio("bot", "", 3200)
+  );
+  restaurar();
+}
+
 console.log(fallos ? `\n  ${fallos} fallo(s)\n` : "\n  Todo correcto\n");
 process.exit(fallos ? 1 : 0);
