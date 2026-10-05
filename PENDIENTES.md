@@ -81,15 +81,16 @@ Complementos, no sustitutos:
       ahí **todavía no existe**.
       `TODO` en `routes/panel-accesos.js`.
 - [ ] **Conectar el bot de verdad.** Acceso, aislamiento de cookies y
-      renovación del token: hechos y con tests (37 comprobaciones en
-      `db/test-acceso-servicio.js`). El destino ya se deduce del
-      dominio (`bot.<tu-dominio>`), sin dominio inventado guardado en
-      la base.
-      Falta lo de dentro: sustituir la ruta de ejemplo `/mi-bot` por
-      las del bot real (Evolution API, agenda de turnos). Las tablas
-      `bots_*` de la migración 011 ya existen con RLS cerrada.
-      Para desplegar, ver `COOLIFY.md`. Ojo con el `SERVICE_SECRET`
-      compartido: es lo que más silenciosamente rompe el acceso.
+      renovación del token: hechos y con tests (44 comprobaciones en
+      `db/test-acceso-servicio.js`). El equipo (staff) entra sin
+      suscripción, que es lo que hace falta para dar soporte.
+      El destino se deduce del dominio (`bot.<tu-dominio>`), sin
+      dominio inventado guardado en la base. Probado por HTTPS entre
+      los dos subdominios: `npm run test:flujo`.
+      ⚠️ Falta **elegir proveedor de WhatsApp**, y eso bloquea el
+      resto. Lo de dentro son las rutas del bot real; las tablas
+      `bots_*` de la migración 011 ya existen con RLS cerrada, así que
+      la base no es el problema. Ver COOLIFY.md.
 - [ ] **Caducar suscripciones.** Las que no tienen `termina_en` se
       renuevan solas para siempre. Hay que poner algo que cierre las no
       pagadas, o decidir que es manual.

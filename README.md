@@ -64,12 +64,31 @@ papel al día.
 ```bash
 npm run test:fechas       # zonas horarias
 npm run test:dominios     # deducción de subdominios
+npm run test:env          # arranque sin fichero .env (caso contenedor)
 npm run test:vencimientos # cálculo de renovaciones
 npm run test:acceso       # reglas de bloqueo por impago
 npm run test:cobros       # qué cobros crearía el generador
 npm run test:aislamiento  # que un cliente no vea datos de otro
 npm run test:bot:vuelta   # que el bot devuelva al panel (necesita el bot arriba)
 ```
+
+### El flujo contra un despliegue real
+
+`test-acceso-servicio.js` levanta dos servidores en `127.0.0.1` y
+prueba la lógica. `test-flujo.js` va a los servicios de verdad, por
+su dominio, con TLS, y salta de un host a otro. Comprueba lo que no
+se puede probar en local: que el subdominio exista, que el
+certificado valga, y que las cookies no crucen entre hosts.
+
+```bash
+TEST_PANEL=https://tudominio.com \
+TEST_BOT=https://bot.tudominio.com \
+  npm run test:flujo
+```
+
+Sin esas variables apunta a localhost y **avisa de que eso no valida
+un despliegue**. Es un aviso a propósito: una prueba que pasa en el
+sitio donde no importa es peor que no tenerla.
 
 ---
 
