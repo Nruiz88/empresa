@@ -1,0 +1,304 @@
+<%- include('partials/head') %>
+<%- include('partials/header', { current: "precios" }) %>
+
+<main>
+    <%- include('partials/page-hero', {
+      variant: "precios",
+      eyebrow: "Precios",
+      titleLines: ["Planes claros,", "precio cerrado"],
+      lead: "Publicamos nuestros precios porque creemos que mereces saberlo antes de escribirnos. El importe final se confirma tras una conversación de 30 minutos, sin compromiso."
+    }) %>
+
+    <section class="section" style="padding-top: 1rem;">
+      <div class="container">
+        <div class="price-grid">
+          <div class="price-card reveal">
+            <h3>Esencial</h3>
+            <p class="plan-desc">Para comercios y profesionales que necesitan una presencia online sólida.</p>
+            <div class="price"><span class="currency">desde</span><span class="amount">890</span><span class="currency">€</span></div>
+            <p class="price-note">Pago único · Entrega en 2–3 semanas</p>
+            <ul class="price-features">
+              <li>Web de hasta 5 páginas</li>
+              <li>Diseño responsive a medida</li>
+              <li>Formulario de contacto y Google Maps</li>
+              <li>SEO técnico básico</li>
+              <li>Hosting y dominio el primer año</li>
+              <li class="muted">Tienda online</li>
+              <li class="muted">Aplicación a medida</li>
+            </ul>
+            <a href="/contacto" class="btn btn-ghost btn-block">Solicitar presupuesto</a>
+          </div>
+
+          <div class="price-card featured reveal">
+            <span class="badge">Más elegido</span>
+            <h3>Negocio</h3>
+            <p class="plan-desc">Para empresas que quieren captar clientes y vender online de forma seria.</p>
+            <div class="price"><span class="currency">desde</span><span class="amount">1.990</span><span class="currency">€</span></div>
+            <p class="price-note">Pago único · Entrega en 4–6 semanas</p>
+            <ul class="price-features">
+              <li>Web de hasta 12 páginas + blog</li>
+              <li>Tienda online o reservas online</li>
+              <li>Textos y SEO on-page incluidos</li>
+              <li>Analítica y objetivos configurados</li>
+              <li>Integraciones (CRM, email, pagos)</li>
+              <li>3 meses de soporte incluido</li>
+              <li class="muted">Aplicación a medida</li>
+            </ul>
+            <a href="/contacto" class="btn btn-primary btn-block">Solicitar presupuesto</a>
+          </div>
+
+          <div class="price-card reveal">
+            <h3>A medida</h3>
+            <p class="plan-desc">Web apps, aplicativos y plataformas con lógica de negocio compleja.</p>
+            <div class="price"><span class="currency">desde</span><span class="amount">4.500</span><span class="currency">€</span></div>
+            <p class="price-note">Presupuesto por fases · 8–14 semanas</p>
+            <ul class="price-features">
+              <li>Arquitectura y diseño de producto</li>
+              <li>Usuarios, roles y paneles privados</li>
+              <li>API e integraciones con tu ERP</li>
+              <li>App móvil o PWA</li>
+              <li>Pruebas automatizadas y despliegue</li>
+              <li>SLA de soporte y evolución</li>
+              <li>Equipo dedicado</li>
+            </ul>
+            <a href="/contacto" class="btn btn-ghost btn-block">Hablemos del proyecto</a>
+          </div>
+        </div>
+
+        <p style="text-align:center; color:var(--text-dim); font-size:var(--fs-xs); margin-top:1.5rem;">
+          Precios sin IVA. Forma de pago: 50% al inicio y 50% en la entrega.
+        </p>
+      </div>
+    </section>
+
+    <!-- Comparativa -->
+    <section class="section section--soft">
+      <div class="container">
+        <div class="section-head section-head--center reveal">
+          <span class="eyebrow">Comparativa</span>
+          <h2>Qué incluye cada plan</h2>
+        </div>
+
+        <div class="compare-wrap reveal">
+          <table class="compare">
+            <thead>
+              <tr>
+                <th scope="col">Característica</th>
+                <th scope="col">Esencial</th>
+                <th scope="col">Negocio</th>
+                <th scope="col">A medida</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Páginas incluidas</td>
+                <td>Hasta 5</td>
+                <td>Hasta 12</td>
+                <td>Ilimitadas</td>
+              </tr>
+              <tr>
+                <td>Diseño a medida</td>
+                <td class="yes">✓</td>
+                <td class="yes">✓</td>
+                <td class="yes">✓</td>
+              </tr>
+              <tr>
+                <td>CMS autogestionable</td>
+                <td class="yes">✓</td>
+                <td class="yes">✓</td>
+                <td class="yes">✓</td>
+              </tr>
+              <tr>
+                <td>Blog / noticias</td>
+                <td class="no">—</td>
+                <td class="yes">✓</td>
+                <td class="yes">✓</td>
+              </tr>
+              <tr>
+                <td>Tienda online o reservas</td>
+                <td class="no">—</td>
+                <td class="yes">✓</td>
+                <td class="yes">✓</td>
+              </tr>
+              <tr>
+                <td>Textos y SEO on-page</td>
+                <td class="no">—</td>
+                <td class="yes">✓</td>
+                <td class="yes">✓</td>
+              </tr>
+              <tr>
+                <td>Integraciones (CRM, ERP, pagos)</td>
+                <td class="no">—</td>
+                <td class="yes">Básicas</td>
+                <td class="yes">Completa</td>
+              </tr>
+              <tr>
+                <td>Usuarios, roles y panel privado</td>
+                <td class="no">—</td>
+                <td class="no">—</td>
+                <td class="yes">✓</td>
+              </tr>
+              <tr>
+                <td>App móvil o PWA</td>
+                <td class="no">—</td>
+                <td class="no">—</td>
+                <td class="yes">✓</td>
+              </tr>
+              <tr>
+                <td>Soporte incluido</td>
+                <td>15 días</td>
+                <td>3 meses</td>
+                <td>SLA mensual</td>
+              </tr>
+              <tr>
+                <td>Entrega estimada</td>
+                <td>2–3 semanas</td>
+                <td>4–6 semanas</td>
+                <td>8–14 semanas</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Mantenimiento -->
+    <section class="section">
+      <div class="container">
+        <div class="section-head section-head--center reveal">
+          <span class="eyebrow">Extras y mantenimiento</span>
+          <h2>Servicios adicionales</h2>
+          <p>Puedes añadirlos a cualquier plan o contratarlos por separado si ya tienes web.</p>
+        </div>
+
+        <div class="grid grid-3">
+          <div class="card reveal">
+            <h3>Mantenimiento Básico</h3>
+            <p>Actualizaciones, copias diarias y monitorización de tu web.</p>
+            <div class="price" style="margin-top:1rem;"><span class="currency">desde</span><span class="amount" style="font-size:1.8rem;">29</span><span class="currency">€/mes</span></div>
+            <ul class="card-list">
+              <li>Copias de seguridad diarias</li>
+              <li>Actualizaciones de seguridad</li>
+              <li>Monitorización y alertas</li>
+            </ul>
+          </div>
+
+          <div class="card reveal">
+            <h3>Mantenimiento Pro</h3>
+            <p>Todo lo anterior más horas de mejoras y soporte prioritario.</p>
+            <div class="price" style="margin-top:1rem;"><span class="currency">desde</span><span class="amount" style="font-size:1.8rem;">89</span><span class="currency">€/mes</span></div>
+            <ul class="card-list">
+              <li>Todo lo del plan Básico</li>
+              <li>4 horas de mejoras al mes</li>
+              <li>Soporte prioritario en 24 h</li>
+            </ul>
+          </div>
+
+          <div class="card reveal">
+            <h3>SEO y contenidos</h3>
+            <p>Estrategia, artículos y optimización continua para crecer en Google.</p>
+            <div class="price" style="margin-top:1rem;"><span class="currency">desde</span><span class="amount" style="font-size:1.8rem;">350</span><span class="currency">€/mes</span></div>
+            <ul class="card-list">
+              <li>4 artículos optimizados al mes</li>
+              <li>Informe mensual de posiciones</li>
+              <li>SEO local para comercios</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="section section--soft">
+      <div class="container">
+        <div class="section-head section-head--center reveal">
+          <span class="eyebrow">Preguntas frecuentes</span>
+          <h2>Dudas habituales sobre precios</h2>
+        </div>
+
+        <div class="accordion reveal">
+          <div class="acc-item">
+            <button class="acc-trigger" aria-expanded="false">
+              ¿Los precios son definitivos?
+              <span class="acc-icon" aria-hidden="true">+</span>
+            </button>
+            <div class="acc-panel">
+              <p>Los publicados son precios de partida ("desde"). Tras una llamada de 30 minutos cerramos un presupuesto fijo por escrito: si el alcance no cambia, el precio no cambia.</p>
+            </div>
+          </div>
+
+          <div class="acc-item">
+            <button class="acc-trigger" aria-expanded="false">
+              ¿Cómo son los pagos?
+              <span class="acc-icon" aria-hidden="true">+</span>
+            </button>
+            <div class="acc-panel">
+              <p>50% al firmar el inicio y 50% en la entrega. En proyectos de más de 5.000 € dividimos el pago en fases mensuales ligadas a hitos.</p>
+            </div>
+          </div>
+
+          <div class="acc-item">
+            <button class="acc-trigger" aria-expanded="false">
+              ¿El hosting y el dominio están incluidos?
+              <span class="acc-icon" aria-hidden="true">+</span>
+            </button>
+            <div class="acc-panel">
+              <p>Sí, el primer año en todos los planes. A partir del segundo año se renueva por unos 15 €/mes o puedes contratarlo con tu propio proveedor.</p>
+            </div>
+          </div>
+
+          <div class="acc-item">
+            <button class="acc-trigger" aria-expanded="false">
+              ¿Qué pasa si necesito cambios después del lanzamiento?
+              <span class="acc-icon" aria-hidden="true">+</span>
+            </button>
+            <div class="acc-panel">
+              <p>Todos los proyectos incluyen un periodo de garantía para corregir cualquier defecto. Los cambios de alcance se presupuestan por horas (45 €/h) o con una cuota mensual de mantenimiento.</p>
+            </div>
+          </div>
+
+          <div class="acc-item">
+            <button class="acc-trigger" aria-expanded="false">
+              ¿Trabajáis con empresas fuera de España?
+              <span class="acc-icon" aria-hidden="true">+</span>
+            </button>
+            <div class="acc-panel">
+              <p>Sí. Trabajamos en remoto con clientes de toda Europa y Latinoamérica, con reuniones por videollamada y documentación compartida en español o inglés.</p>
+            </div>
+          </div>
+
+          <div class="acc-item">
+            <button class="acc-trigger" aria-expanded="false">
+              ¿Podemos empezar con un plan pequeño y crecer después?
+              <span class="acc-icon" aria-hidden="true">+</span>
+            </button>
+            <div class="acc-panel">
+              <p>Claro. Construimos sobre una base escalable, así que pasar de "Esencial" a "Negocio" o a una aplicación a medida es una evolución natural, no un reinicio.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <%- include('partials/proof', {
+          type: "quotes",
+          title: "Clientes que ya trabajan con nosotros",
+          lead: "Estas son sus palabras después de la entrega, sin guion ni retoque."
+        }) %>
+
+    <section class="section">
+      <div class="container">
+        <div class="cta-band reveal">
+          <span class="eyebrow">Presupuesto</span>
+          <h2>¿Quieres un precio exacto para tu caso?</h2>
+          <p>Escríbenos con tu proyecto y te enviamos una propuesta cerrada en menos de 48 horas.</p>
+          <div class="cta-actions">
+            <a href="/contacto" class="btn btn-primary btn-lg">Pedir presupuesto gratis</a>
+            <a href="/servicios" class="btn btn-ghost btn-lg">Ver servicios</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+<%- include('partials/footer') %>

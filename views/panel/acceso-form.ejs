@@ -1,0 +1,133 @@
+<%#
+  Alta de acceso, o pantalla de la contraseña recién generada.
+
+  Hay DOS modos aquí y a propósito es la misma pantalla:
+   - "nuevo":   el formulario.
+   - "creado":  la contraseña que se generó, para copiarla y
+                pasársela al cliente.
+
+  Que sea la misma vista importa: si tras crear saltara a otra
+  pantalla, cuando alguien llegue a /accesos/nuevo desde el menú
+  por error no sabría si está creando o viendo una contraseña.
+
+  La contraseña se ve UNA vez. Supabase guarda hashes, así que
+  después no se puede recuperar: solo volver a generar.
+%>
+<%- include('../partials/panel-head', { title, site, base, current }) %>
+
+<div class="panel-page panel-page--form">
+  <div class="panel-page-head">
+    <div>
+      <span class="panel-kicker">Accesos</span>
+      <h1><%= modo === 'creado' ? 'Acceso creado' : 'Nuevo acceso' %></h1>
+    </div>
+    <a href="<%= base %>/accesos" class="panel-btn panel-btn--ghost">← Volver</a>
+  </div>
+
+  <%# ---------- Contraseña recién generada ---------- %>
+  <% if (modo === 'creado') { %>
+    <div class="panel-alert panel-alert--ok">
+      Acceso creado para <strong><%= acceso.email %></strong>.
+    </div>
+
+    <div class="panel-secret">
+      <p class="panel-secret-aviso">
+        Esta contraseña <strong>no se vuelve a mostrar</strong>.
+        Cópiala ahora y pásasela por el canal que uses. Si se pierde,
+        se genera otra desde la lista de accesos.
+      </p>
+
+      <div class="panel-secret-caja">
+        <code><%= passwordGenerada %></code>
+        <button type="button" class="panel-btn panel-btn--ghost" data-copiar="<%= passwordGenerada %>">
+          Copiar
+        </button>
+      </div>
+
+      <p class="panel-help">
+        Al entrar, el panel le pedirá cambiar esta contraseña.
+      </p>
+    </div>
+
+    <div class="panel-form-actions">
+      <a href="<%= base %>/accesos" class="panel-btn panel-btn--primary">Listo</a>
+      <a href="<%= base %>/accesos/nuevo" class="panel-btn panel-btn--ghost">Dar otro acceso</a>
+    </div>
+  <% } else { %>
+
+    <% if (errores.general) { %>
+      <div class="panel-alert"><%= errores.general %></div>
+    <% } %>
+
+    <form method="post" action="<%= base %>/accesos/nuevo" class="panel-form-card">
+      <input type="hidden" name="_csrf" value="<%= csrf %>" />
+
+      <div class="panel-form-grid">
+        <label class="panel-field<%= errores.nombre ? ' has-error' : '' %>">
+          <span>Nombre *</span>
+          <input type="text" name="nombre" value="<%= acceso.nombre || '' %>" required />
+          <% if (errores.nombre) { %><em class="panel-error"><%= errores.nombre %></em><% } %>
+        </label>
+
+        <label class="panel-field<%= errores.email ? ' has-error' : '' %>">
+          <span>Email *</span>
+          <input type="email" name="email" value="<%= acceso.email || '' %>" required
+                 autocapitalize="none" spellcheck="false" />
+          <em class="panel-help">Con este correo entra al panel.</em>
+          <% if (errores.email) { %><em class="panel-error"><%= errores.email %></em><% } %>
+        </label>
+
+        <label class="panel-field panel-field--ancho">
+          <span>Tipo de cuenta</span>
+          <select name="rol">
+            <option value="client" <%= acceso.rol !== 'staff' ? 'selected' : '' %>>
+              Cliente — solo ve los servicios de su empresa
+            </option>
+            <option value="staff" <%= acceso.rol === 'staff' ? 'selected' : '' %>>
+              Equipo — ve clientes, servicios, consultas y cobros
+            </option>
+          </select>
+          <em class="panel-help">
+            Solo da "equipo" a gente de confianza. Un staff ve
+            todos los clientes y su facturación.
+          </em>
+        </label>
+
+        <label class="panel-field panel-field--ancho<%= errores.client_id ? ' has-error' : '' %>">
+          <span>Empresa</span>
+          <select name="client_id">
+            <option value="">— sin empresa (solo para el equipo) —</option>
+            <% clientes.forEach(function (c) { %>
+              <option value="<%= c.id %>" <%= acceso.client_id === c.id ? 'selected' : '' %>>
+                <%= c.empresa || c.nombre %>
+              </option>
+            <% }); %>
+          </select>
+          <em class="panel-help">
+            Obligatorio si la cuenta es de cliente: es lo que decide
+            qué puede ver.
+          </em>
+          <% if (errores.client_id) { %><em class="panel-error"><%= errores.client_id %></em><% } %>
+        </label>
+
+        <label class="panel-field panel-field--ancho<%= errores.password ? ' has-error' : '' %>">
+          <span>Contraseña</span>
+          <input type="text" name="password" value="<%= acceso.password || '' %>"
+                 autocomplete="off" spellcheck="false" />
+          <em class="panel-help">
+            Déjalo vacío y te genero una segura. Si la escribes,
+            mínimo 10 caracteres.
+          </em>
+          <% if (errores.password) { %><em class="panel-error"><%= errores.password %></em><% } %>
+        </label>
+      </div>
+
+      <div class="panel-form-actions">
+        <button type="submit" class="panel-btn panel-btn--primary">Crear acceso</button>
+        <a href="<%= base %>/accesos" class="panel-btn panel-btn--ghost">Cancelar</a>
+      </div>
+    </form>
+  <% } %>
+</div>
+
+<%- include('../partials/panel-foot', { site }) %>

@@ -1,0 +1,37 @@
+<%#
+  Encabezado simple para páginas legales.
+  Mismo fondo aurora que el resto, pero sin mockup ni CTAs:
+  en documentos legales sobran botones y estorban.
+
+  Parámetros:
+    eyebrow {string}
+    title   {string}
+    lead    {string}
+%>
+<section class="page-hero page-hero--premium page-hero--slim">
+  <div class="page-hero-bg" aria-hidden="true">
+    <div class="hero-grid"></div>
+    <span class="aurora aurora-1"></span>
+    <span class="aurora aurora-2"></span>
+    <div class="hero-noise"></div>
+  </div>
+
+  <div class="container">
+    <% if (typeof breadcrumbs !== 'undefined' && breadcrumbs && breadcrumbs.length > 1) { %>
+      <nav class="breadcrumb" aria-label="Migas de pan">
+        <% breadcrumbs.forEach(function (b, i) { %>
+          <% if (i > 0) { %><span>/</span><% } %>
+          <% if (b.url && i < breadcrumbs.length - 1) { %>
+            <a href="<%= b.url %>"><%= b.name %></a>
+          <% } else { %>
+            <span aria-current="page"><%= b.name %></span>
+          <% } %>
+        <% }); %>
+      </nav>
+    <% } %>
+
+    <span class="eyebrow eyebrow-pill"><span class="dot" aria-hidden="true"></span><%= eyebrow %></span>
+    <h1 class="page-hero-title"><span class="line"><span><%= title %></span></span></h1>
+    <p class="lead"><%= lead %></p>
+  </div>
+</section>

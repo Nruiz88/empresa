@@ -1,0 +1,2069 @@
+/* =========================================================
+   Nexo Studio — Estilos del panel
+   ------------------------------------------------------------
+   El panel reutiliza los tokens de themes.css (--bg, --surface,
+   --accent, --radius, tipografías) para que se vea parte de la
+   misma marca, pero NO carga la parte pública del sitio: sin
+   cabecera, sin heroes, sin GSAP.
+
+   Todo lo del panel va bajo <html data-panel> para que las reglas de
+   styles.css no le apliquen nada de la web pública.
+
+   ORDEN DEL ARCHIVO (de fuera hacia dentro)
+     1. Base y medidas
+     2. Estructura: lateral, barra superior, contenido
+     3. Tipografía de página
+     4. Botones
+     5. Métricas y avisos
+     6. Tablas
+     7. Etiquetas de estado
+     8. Listas (servicios, vencimientos, consultas, accesos)
+     9. Formularios
+    10. Filtros, pestañas y paginación
+    11. Estados vacíos, alertas y login
+    12. Portal del cliente
+    13. Responsive
+    14. Accesibilidad
+
+   Los nombres de clase no deben cambiar sin revisar todas las
+   vistas: son el contrato entre el HTML y este archivo.
+   ========================================================= */
+
+/* =========================================================
+   1. BASE Y MEDIDAS
+   ========================================================= */
+
+html[data-panel] {
+  /* Medidas del layout. El lateral es fijo porque el contenido se
+     lee en columna estrecha y no conviene quitarle espacio. */
+  --panel-sidebar: 248px;
+  --panel-topbar: 60px;
+  --panel-page-max: 1180px;
+
+  /* Ritmo vertical. Se usa en los paddings grandes para que todos
+     los bloques respiren igual, sin valeurs sueltas por ahí. */
+  --panel-gap-sm: 0.5rem;
+  --panel-gap: 1rem;
+  --panel-gap-lg: 1.5rem;
+  --panel-gap-xl: 2.25rem;
+
+  color-scheme: dark;
+}
+
+.panel-body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body, "Inter", system-ui, sans-serif);
+  font-size: 0.95rem;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* El login centra todo verticalmente; el resto, no. */
+.panel-body--centrado {
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+}
+
+/* Fallback si el CSS del sitio no cargara: el panel no puede
+   quedarse sin tipografía ni colores. */
+.panel-body {
+  --fs-xs: 0.75rem;
+  --fs-sm: 0.8125rem;
+  --fs-base: 0.9375rem;
+  --radius-sm: 8px;
+  --radius: 12px;
+  --radius-lg: 16px;
+  --accent-grad: linear-gradient(135deg, var(--accent), var(--accent-2));
+}
+
+/* =========================================================
+   2. ESTRUCTURA
+   ========================================================= */
+
+/* ---------- Lateral ---------- */
+.panel-side {
+  position: fixed;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: var(--panel-sidebar);
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-soft);
+  border-inline-end: 1px solid var(--border);
+  z-index: 40;
+}
+
+.panel-side-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 1.1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.panel-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  text-decoration: none;
+  color: var(--text);
+  min-width: 0;
+}
+
+.panel-brand-mark {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: var(--accent-grad);
+  color: var(--on-accent);
+  font-family: var(--font-display, "Space Grotesk", sans-serif);
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.panel-brand-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.25;
+}
+
+.panel-brand-text strong {
+  font-family: var(--font-display, "Space Grotesk", sans-serif);
+  font-size: 0.95rem;
+  letter-spacing: -0.01em;
+}
+
+.panel-brand-text small {
+  font-size: 0.7rem;
+  color: var(--text-dim);
+}
+
+.panel-side-cerrar {
+  display: none;
+  margin-inline-start: auto;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.panel-menu {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.9rem 0.7rem 1.25rem;
+}
+
+.panel-menu-titulo {
+  margin: 1.1rem 0 0.4rem;
+  padding-inline: 0.6rem;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.panel-menu-titulo:first-child {
+  margin-top: 0.25rem;
+}
+
+.panel-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.55rem 0.65rem;
+  border-radius: 9px;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+/* El icono no se encoge: es lo que da ritmo vertical al menú. */
+.panel-menu-item svg {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.8;
+}
+
+.panel-menu-item:hover {
+  background: var(--raise);
+  color: var(--text);
+}
+
+/* La sección actual se marca con un fondo Y con una barra a la
+   izquierda. Con seis secciones parecidas, el color solo no basta:
+   un daltonismo no distingue el morado del acento. */
+.panel-menu-item.is-active {
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+  color: var(--text);
+  font-weight: 600;
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+
+.panel-menu-item--externo {
+  color: var(--text-dim);
+  font-size: 0.8rem;
+}
+
+/* ---------- Pie del lateral ---------- */
+.panel-side-foot {
+  padding: 0.85rem 0.7rem 1rem;
+  border-top: 1px solid var(--border);
+  display: grid;
+  gap: 0.65rem;
+}
+
+.panel-side-user {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.35rem 0.4rem;
+}
+
+.panel-avatar {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent-2) 30%, transparent);
+  border: 1px solid var(--border-strong);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+/* ---------- El bloque de usuario de la barra simple ----------
+   En el portal del cliente esto es avatar + "Salir", y va pegado a
+   la derecha. Con flex y nowrap, para que en pantallas estrechas se
+   encoja el menú (que es lo prescindible) y no el botón de salir,
+   que es una acción. */
+.panel-topbar--simple .panel-user {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.panel-topbar--simple .panel-user form {
+  margin: 0;
+}
+
+.panel-salir {
+  gap: 0.4rem;
+  white-space: nowrap;
+  padding-inline: 0.75rem;
+}
+
+.panel-salir svg {
+  flex-shrink: 0;
+  opacity: 0.8;
+}
+
+.panel-salir:hover svg {
+  opacity: 1;
+}
+
+.panel-side-user-datos {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.3;
+}
+
+.panel-side-user-datos strong {
+  font-size: 0.82rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.panel-side-user-datos small {
+  font-size: 0.7rem;
+  color: var(--text-dim);
+}
+
+/* ---------- Contenido ---------- */
+.panel-shell {
+  margin-inline-start: var(--panel-sidebar);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  /* Sin esto, una tabla ancha (min-width 560px) ensancha el lateral
+     entero y la página entera se desplaza en horizontal: en el móvil
+     las tarjetas se salen de la pantalla y nada queda donde debe.
+     clip recorta sin crear un contenedor de scroll, así que el
+     scroll de la tabla sigue funcionando dentro de su caja. */
+  overflow-x: clip;
+  min-width: 0;
+}
+
+.panel-shell--simple {
+  margin-inline-start: 0;
+}
+
+.panel-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  height: var(--panel-topbar);
+  padding-inline: 1.5rem;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+}
+
+.panel-topbar--simple {
+  justify-content: space-between;
+}
+
+/* La navegación del cliente: cuatro enlaces en fila, en el centro.
+
+   EL BUG QUE ESTABA
+   -----------------
+   Los enlaces se partían en dos líneas ("Mis / servicios") y el
+   texto se salía de la pastilla. La causa no era el ancho: era que
+   no había `white-space: nowrap`. Una pastilla con
+   `border-radius: 999px` y texto que envuelve parece una gota
+   deformada, y encima el texto se sale por arriba y por abajo.
+
+   Por eso nowrap no es opcional: un enlace de navegación que se
+   parte en dos líneas deja de leerse como una sola cosa. */
+.panel-nav--simple {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.panel-nav--simple a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--text-muted);
+  text-decoration: none;
+  /* Lo de arriba. */
+  white-space: nowrap;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.panel-nav--simple a svg {
+  flex-shrink: 0;
+  opacity: 0.75;
+}
+
+.panel-nav--simple a:hover {
+  background: var(--raise);
+  color: var(--text);
+}
+
+.panel-nav--simple a:hover svg {
+  opacity: 1;
+}
+
+/* El activo se distingue por relleno Y por peso, no solo por color:
+   quien no distingue el morado sigue viendo cuál es. */
+.panel-nav--simple a.is-active {
+  background: var(--raise-strong);
+  border-color: var(--border);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.panel-nav--simple a.is-active svg {
+  opacity: 1;
+  color: var(--accent);
+}
+
+/* Foco visible en el menú. Sin esto, con teclado no se veía dónde
+   estabas. */
+.panel-nav--simple a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* En escritorio la barra superior solo existe para el móvil, así que
+   no muestra el título de la página: cada vista ya lo pone en su
+   encabezado y repetirlo ahí sería ruido. */
+.panel-topbar-titulo {
+  display: none;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text-dim);
+}
+
+.panel-burger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  width: 36px;
+  height: 36px;
+  padding: 0 8px;
+  border: 1px solid var(--border-strong);
+  border-radius: 9px;
+  background: var(--surface);
+  cursor: pointer;
+}
+
+.panel-burger span {
+  display: block;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--text);
+}
+
+.panel-main {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ---------- Página ---------- */
+.panel-page {
+  max-width: var(--panel-page-max);
+  margin-inline: auto;
+  padding: var(--panel-gap-xl) 1.5rem 4rem;
+}
+
+.panel-page--form {
+  max-width: 860px;
+}
+
+.panel-page--portal {
+  max-width: 940px;
+}
+
+.panel-page-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--panel-gap);
+  flex-wrap: wrap;
+  margin-bottom: 1.6rem;
+}
+
+.panel-page-head h1 {
+  margin: 0;
+  font-family: var(--font-display, "Space Grotesk", sans-serif);
+  font-size: clamp(1.5rem, 2.6vw, 1.95rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+}
+
+.panel-kicker {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-2);
+}
+
+.panel-count {
+  margin: 0.3rem 0 0;
+  font-size: var(--fs-sm);
+  color: var(--text-dim);
+}
+
+.panel-hoy {
+  font-size: var(--fs-sm);
+  color: var(--text-dim);
+  text-transform: capitalize;
+}
+
+.panel-head-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.panel-subtitle {
+  margin: 0 0 0.85rem;
+  font-family: var(--font-display, "Space Grotesk", sans-serif);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.panel-hint {
+  margin: 0 0 0.9rem;
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.panel-help {
+  display: block;
+  margin-top: 0.3rem;
+  font-style: normal;
+  font-size: var(--fs-xs);
+  line-height: 1.5;
+  color: var(--text-dim);
+}
+
+.panel-error {
+  display: block;
+  margin-top: 0.3rem;
+  font-style: normal;
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  color: var(--danger);
+}
+
+/* =========================================================
+   4. BOTONES
+   ========================================================= */
+
+.panel-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1rem;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: var(--raise);
+  color: var(--text);
+  font-family: inherit;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+}
+
+.panel-btn:hover {
+  background: var(--raise-strong);
+}
+
+.panel-btn:active {
+  transform: translateY(1px);
+}
+
+/* En una tabla, el morado repetido en cada fila se come la
+   atención de los datos. El botón de acción se queda discreto y el
+   morado se reserva para lo que abre algo nuevo. */
+.panel-table .panel-btn--primary,
+.panel-caduco .panel-btn--primary,
+.panel-lead .panel-btn--primary {
+  background: transparent;
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  color: color-mix(in srgb, var(--accent) 55%, var(--text));
+}
+
+.panel-table .panel-btn--primary:hover,
+.panel-caduco .panel-btn--primary:hover,
+.panel-lead .panel-btn--primary:hover {
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  color: var(--text);
+}
+
+.panel-btn--primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.panel-btn--primary:hover {
+  background: color-mix(in srgb, var(--accent) 85%, #fff);
+}
+
+.panel-btn--ghost {
+  background: transparent;
+  border-color: var(--border-strong);
+  color: var(--text-muted);
+}
+
+.panel-btn--ghost:hover {
+  background: var(--raise);
+  color: var(--text);
+}
+
+.panel-btn--xs {
+  padding: 0.35rem 0.7rem;
+  font-size: var(--fs-xs);
+  border-radius: 8px;
+}
+
+.panel-btn--ancho,
+.panel-btn--bloque {
+  width: 100%;
+}
+
+/* En tablas y listas el botón es pequeño: el texto manda. */
+.panel-table .panel-btn {
+  font-weight: 500;
+}
+
+/* =========================================================
+   5. MÉTRICAS Y AVISOS
+   ========================================================= */
+
+.panel-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.85rem;
+  margin-bottom: var(--panel-gap-xl);
+}
+
+.panel-stats--cobros {
+  grid-template-columns: repeat(auto-fit, minmax(195px, 1fr));
+}
+
+.panel-stat {
+  display: block;
+  padding: 1.15rem 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+a.panel-stat:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-2px);
+}
+
+.panel-stat strong {
+  display: block;
+  font-family: var(--font-display, "Space Grotesk", sans-serif);
+  font-size: 1.9rem;
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  background: var(--text-grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.panel-stat span {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+/* Lo que hay que cobrar va en rojo y con borde: es la única cifra
+   que obliga a hacer algo hoy. */
+.panel-stat--alerta {
+  border-color: color-mix(in srgb, var(--danger) 42%, transparent);
+  background: color-mix(in srgb, var(--danger) 7%, var(--surface));
+}
+
+.panel-stat--alerta strong {
+  background: none;
+  color: var(--danger);
+}
+
+.panel-stat-pie {
+  display: block;
+  margin-top: 0.2rem;
+  font-style: normal;
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--text-dim);
+}
+
+/* ---------- Bloques del resumen ---------- */
+.panel-bloque {
+  margin-bottom: var(--panel-gap-xl);
+}
+
+.panel-bloque-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--panel-gap);
+}
+
+/* =========================================================
+   6. TABLAS
+   ========================================================= */
+
+.panel-table-wrap {
+  max-width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow-x: auto;
+  background: var(--surface);
+}
+
+.panel-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-sm);
+  min-width: 560px;
+}
+
+.panel-table th {
+  padding: 0.7rem 1rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  text-align: start;
+  color: var(--text-dim);
+  background: var(--bg-soft);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.panel-table td {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+.panel-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.panel-table tbody tr:hover {
+  background: var(--raise);
+}
+
+.panel-table a {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.panel-table a:hover {
+  color: var(--accent-2);
+  text-decoration: underline;
+}
+
+.panel-cell-main {
+  display: block;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.panel-cell-sub {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: var(--fs-xs);
+  color: var(--text-dim);
+}
+
+.panel-th-email {
+  max-width: 210px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.panel-th-num {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.panel-th-actions {
+  text-align: end;
+  white-space: nowrap;
+}
+
+/* =========================================================
+   7. ETIQUETAS DE ESTADO
+   ------------------------------------------------------------
+   El color es un refuerzo, nunca la única señal: todas las
+   etiquetas llevan también su texto.
+   ========================================================= */
+
+.panel-chip {
+  display: inline-block;
+  padding: 0.2rem 0.55rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  background: var(--raise);
+  color: var(--text-muted);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.panel-chip--mantenimiento { color: #22d3ee; border-color: rgba(34,211,238,.4); background: rgba(34,211,238,.1); }
+.panel-chip--proyecto      { color: #a78bfa; border-color: rgba(167,139,250,.4); background: rgba(167,139,250,.1); }
+.panel-chip--presupuesto   { color: #fbbf24; border-color: rgba(251,191,36,.4); background: rgba(251,191,36,.1); }
+.panel-chip--mute          { color: var(--text-dim); }
+
+.panel-chip--estado-activo    { color: var(--success); border-color: var(--success-border); background: var(--success-bg); }
+.panel-chip--estado-en_curso  { color: var(--accent-2); border-color: color-mix(in srgb, var(--accent-2) 40%, transparent); background: color-mix(in srgb, var(--accent-2) 12%, transparent); }
+.panel-chip--estado-pendiente { color: #fbbf24; border-color: rgba(251,191,36,.4); background: rgba(251,191,36,.1); }
+.panel-chip--estado-pausado    { color: var(--text-dim); }
+.panel-chip--estado-finalizado { color: var(--text-muted); }
+.panel-chip--estado-cancelado  { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 40%, transparent); background: color-mix(in srgb, var(--danger) 10%, transparent); }
+
+.panel-chip--lead-nuevo        { color: #fff; background: var(--accent); border-color: var(--accent); }
+.panel-chip--lead-contactado   { color: var(--accent-2); border-color: color-mix(in srgb, var(--accent-2) 40%, transparent); background: color-mix(in srgb, var(--accent-2) 12%, transparent); }
+.panel-chip--lead-presupuestado{ color: #fbbf24; border-color: rgba(251,191,36,.4); background: rgba(251,191,36,.1); }
+.panel-chip--lead-ganado       { color: var(--success); border-color: var(--success-border); background: var(--success-bg); }
+.panel-chip--lead-descartado   { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 40%, transparent); background: color-mix(in srgb, var(--danger) 10%, transparent); }
+
+.panel-chip--cobro-pendiente { color: #fbbf24; border-color: rgba(251,191,36,.4); background: rgba(251,191,36,.1); }
+.panel-chip--cobro-pagado    { color: var(--success); border-color: var(--success-border); background: var(--success-bg); }
+.panel-chip--cobro-impagado  { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 45%, transparent); background: color-mix(in srgb, var(--danger) 12%, transparent); }
+.panel-chip--cobro-anulado   { color: var(--text-dim); }
+
+.panel-chip--equipo  { color: var(--accent-2); border-color: color-mix(in srgb, var(--accent-2) 40%, transparent); background: color-mix(in srgb, var(--accent-2) 12%, transparent); }
+.panel-chip--cliente { color: #22d3ee; border-color: rgba(34,211,238,.4); background: rgba(34,211,238,.1); }
+
+.panel-tag-soft {
+  display: inline-block;
+  padding: 0.1rem 0.55rem;
+  border-radius: 999px;
+  background: var(--raise);
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+}
+
+/* =========================================================
+   8. LISTAS
+   ========================================================= */
+
+/* ---------- Servicios ---------- */
+.panel-serv-list {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.panel-serv {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: var(--panel-gap);
+  align-items: start;
+  padding: 0.95rem 1.1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.panel-serv-main strong {
+  display: block;
+  margin: 0.25rem 0 0.3rem;
+  font-size: 0.98rem;
+}
+
+.panel-serv-main p {
+  margin: 0;
+  font-size: var(--fs-sm);
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+.panel-serv-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.3rem;
+}
+
+.panel-serv-price {
+  font-family: var(--font-display, "Space Grotesk", sans-serif);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.panel-serv-form {
+  display: flex;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+/* ---------- Vencimientos ----------
+   El color va en el borde izquierdo, no en el fondo: al recorrer la
+   lista de arriba abajo se leen los estados como una columna.
+
+   Y el ancho se queda en un máximo: una fila de vencimiento lleva
+   un título, una empresa y una fecha. Estirada a 1000px, el mismo
+   dato queda perdido en una línea vacía y cuesta más de leer que de
+   colocar. */
+.panel-caducos {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-width: 760px;
+}
+
+.panel-caduco {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: var(--panel-gap);
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-inline-start: 3px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+}
+
+.panel-caduco--vencido   { border-inline-start-color: var(--danger); }
+.panel-caduco--pendiente { border-inline-start-color: #fbbf24; }
+.panel-caduco--urgente   { border-inline-start-color: #fb923c; }
+.panel-caduco--aviso     { border-inline-start-color: #22d3ee; }
+.panel-caduco--tranquilo { border-inline-start-color: var(--success); }
+
+.panel-caduco-main strong {
+  display: block;
+  font-size: var(--fs-sm);
+}
+
+.panel-caduco-empresa {
+  font-size: var(--fs-xs);
+  color: var(--text-dim);
+}
+
+.panel-caduco-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.1rem;
+  text-align: end;
+}
+
+.panel-caduco-cuando {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.panel-caduco--vencido .panel-caduco-cuando {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.panel-caduco-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  justify-content: flex-end;
+  max-width: 260px;
+}
+
+/* Varias empresas en una fila: como etiquetas, no como un párrafo
+   con puntos. Encima van una al lado de otra si caben. */
+.panel-caduco-empresas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.3rem;
+}
+
+/* ---------- Consultas ---------- */
+.panel-leads {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.panel-lead {
+  padding: 1.05rem 1.15rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.panel-lead-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--panel-gap);
+  margin-bottom: 0.4rem;
+}
+
+.panel-lead-head strong {
+  font-size: 1rem;
+}
+
+.panel-lead-empresa {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: var(--fs-xs);
+  color: var(--text-dim);
+}
+
+.panel-lead-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.9rem;
+  margin-bottom: 0.55rem;
+  font-size: var(--fs-xs);
+  color: var(--text-dim);
+}
+
+.panel-lead-meta a {
+  color: var(--accent-2);
+  text-decoration: none;
+}
+
+.panel-lead-msg {
+  margin: 0 0 0.65rem;
+  padding-inline-start: 0.75rem;
+  border-inline-start: 2px solid var(--border-strong);
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+}
+
+.panel-lead-notes {
+  margin: 0 0 0.65rem;
+  padding: 0.55rem 0.75rem;
+  border-radius: var(--radius-sm);
+  background: var(--raise);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.panel-lead-notes strong {
+  color: var(--text);
+}
+
+.panel-lead-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--border);
+}
+
+.panel-lead-actions form {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.panel-note-edit summary {
+  cursor: pointer;
+  list-style: none;
+}
+
+.panel-note-edit summary::-webkit-details-marker {
+  display: none;
+}
+
+.panel-note-edit form {
+  display: grid;
+  justify-items: start;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+}
+
+.panel-note-edit textarea {
+  width: 100%;
+}
+
+/* ---------- Accesos ---------- */
+.panel-accesos {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.panel-acceso {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 1.25rem;
+  align-items: center;
+  padding: 0.85rem 1.1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.panel-acceso--inactivo {
+  opacity: 0.55;
+}
+
+.panel-acceso-main strong {
+  display: block;
+  font-size: var(--fs-sm);
+}
+
+.panel-acceso-mail {
+  display: block;
+  font-size: var(--fs-xs);
+  color: var(--text-dim);
+}
+
+.panel-acceso-empresa {
+  display: inline-block;
+  margin-top: 0.3rem;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  background: var(--raise);
+  color: var(--accent-2);
+  font-size: var(--fs-xs);
+  text-decoration: none;
+}
+
+.panel-acceso-empresa:hover {
+  background: var(--raise-strong);
+}
+
+.panel-acceso-side {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.panel-acceso-acciones {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.panel-acciones-cobro {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.35rem;
+}
+
+.panel-retraso {
+  display: block;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--danger);
+}
+
+/* ---------- Ficha de cliente ---------- */
+.panel-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.panel-split-side {
+  display: grid;
+  gap: var(--panel-gap);
+}
+
+.panel-box {
+  padding: 1.05rem 1.15rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.panel-box--peligro {
+  border-color: color-mix(in srgb, var(--danger) 30%, transparent);
+}
+
+.panel-dl {
+  display: grid;
+  gap: 0.65rem;
+  margin: 0;
+}
+
+.panel-dl dt {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.panel-dl dd {
+  margin: 0.15rem 0 0;
+  font-size: var(--fs-sm);
+}
+
+.panel-notes {
+  margin: 0;
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+  white-space: pre-wrap;
+  color: var(--text-muted);
+}
+
+.panel-list {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.panel-list li strong {
+  display: block;
+  font-size: var(--fs-sm);
+}
+
+.panel-list li span {
+  font-size: var(--fs-xs);
+  color: var(--text-dim);
+}
+
+.panel-code {
+  display: block;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-soft);
+  color: var(--text-muted);
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  font-size: 0.7rem;
+  line-height: 1.5;
+  word-break: break-all;
+}
+
+/* =========================================================
+   9. FORMULARIOS
+   ========================================================= */
+
+.panel-form-card {
+  display: grid;
+  gap: 1.15rem;
+  padding: clamp(1.15rem, 2.5vw, 1.85rem);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.panel-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.panel-field {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.panel-field--ancho {
+  grid-column: 1 / -1;
+}
+
+.panel-field > span {
+  margin-bottom: 0.35rem;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--text-muted);
+}
+
+.panel-field input,
+.panel-field select,
+.panel-field textarea,
+.panel-note-edit textarea {
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  background: var(--bg-soft);
+  color: var(--text);
+  font-family: inherit;
+  font-size: var(--fs-sm);
+  line-height: 1.45;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.panel-field textarea {
+  resize: vertical;
+  min-height: 2.5rem;
+}
+
+/* El foco se ve: en un panel se teclea mucho y sin esto no sabes
+   dónde estás. */
+.panel-field input:focus,
+.panel-field select:focus,
+.panel-field textarea:focus,
+.panel-note-edit textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 28%, transparent);
+}
+
+.panel-field.has-error input,
+.panel-field.has-error select,
+.panel-field.has-error textarea {
+  border-color: var(--danger);
+}
+
+.panel-field.has-error > span {
+  color: var(--danger);
+}
+
+/* ---------- Desplegables ----------
+   Sin esto el <select> se dibuja con el estilo del sistema: una
+   flechita clara sobre un campo oscuro, que es lo más despacho que
+   se puede ver en una pantalla oscura. appearance:none quita la
+   flecha nativa y se pone una propia. */
+.panel-field select,
+.panel-select,
+.panel-select-mini {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-inline-end: 2rem;
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%),
+    linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position: right 1rem center, right 0.7rem center;
+  background-size: 0.32rem 0.32rem, 0.32rem 0.32rem;
+  background-repeat: no-repeat;
+}
+
+/* La lista de opciones la pinta el navegador, pero con color-scheme
+   oscuro sale en oscuro en vez de una lista blanca que deslumbra. */
+.panel-field select option,
+.panel-select option,
+.panel-select-mini option {
+  background: var(--surface);
+  color: var(--text);
+}
+
+.panel-select {
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  background-color: var(--surface);
+  color: var(--text);
+  font-family: inherit;
+  font-size: var(--fs-sm);
+}
+
+.panel-select-mini {
+  max-width: 140px;
+  padding: 0.3rem 1.6rem 0.3rem 0.5rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  background-color: var(--bg-soft);
+  color: var(--text);
+  font-family: inherit;
+  font-size: var(--fs-xs);
+  background-position: right 0.85rem center, right 0.62rem center;
+}
+
+.panel-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--border);
+}
+
+/* La contraseña se muestra una vez: se hace evidente, no escondida. */
+.panel-secret {
+  display: grid;
+  gap: var(--panel-gap);
+  padding: 1.25rem 1.4rem;
+  background: var(--surface);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+}
+
+.panel-secret-aviso {
+  margin: 0;
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+}
+
+.panel-secret-caja {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.panel-secret-caja code {
+  flex: 1;
+  min-width: 220px;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--bg-soft);
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  font-size: 1.05rem;
+  letter-spacing: 0.05em;
+  user-select: all;
+}
+
+/* =========================================================
+   10. FILTROS, PESTAÑAS Y PAGINACIÓN
+   ========================================================= */
+
+.panel-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem;
+  margin-bottom: 1.15rem;
+}
+
+.panel-search {
+  flex: 1;
+  min-width: 200px;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  font-family: inherit;
+  font-size: var(--fs-sm);
+}
+
+.panel-search:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+.panel-clear {
+  font-size: var(--fs-sm);
+  color: var(--accent-2);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.panel-clear:hover {
+  text-decoration: underline;
+}
+
+.panel-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-bottom: 1.15rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.panel-tabs a {
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.panel-tabs a:hover {
+  background: var(--raise);
+  color: var(--text);
+}
+
+.panel-tabs a.is-active {
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.panel-pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--panel-gap);
+  margin-top: 1.4rem;
+  font-size: var(--fs-sm);
+  color: var(--text-dim);
+}
+
+.panel-pager a {
+  padding: 0.35rem 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--accent-2);
+  text-decoration: none;
+}
+
+.panel-pager a:hover {
+  background: var(--raise);
+}
+
+/* =========================================================
+   11. ESTADOS VACÍOS, ALERTAS Y LOGIN
+   ========================================================= */
+
+.panel-empty {
+  padding: 2.25rem 1.75rem;
+  margin-bottom: 1.35rem;
+  background: var(--surface);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-lg);
+  text-align: center;
+}
+
+.panel-empty--sm {
+  padding: 1.5rem 1.25rem;
+}
+
+.panel-empty h2 {
+  margin: 0 0 0.4rem;
+  font-family: var(--font-display, "Space Grotesk", sans-serif);
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.panel-empty p {
+  max-width: 46ch;
+  margin: 0 auto 1.1rem;
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.panel-alert {
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.15rem;
+  border: 1px solid color-mix(in srgb, var(--danger) 40%, transparent);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--danger) 8%, transparent);
+  color: var(--text);
+  font-size: var(--fs-sm);
+}
+
+.panel-alert--ok {
+  border-color: var(--success-border);
+  background: var(--success-bg);
+  color: var(--success-text);
+}
+
+.panel-note {
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--raise);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.panel-note p {
+  margin: 0;
+}
+
+.panel-note--portal {
+  margin-top: 1.4rem;
+}
+
+.panel-note--portal a {
+  color: var(--accent-2);
+}
+
+.panel-foot {
+  padding: 1.5rem;
+  border-top: 1px solid var(--border);
+  font-size: var(--fs-xs);
+  color: var(--text-dim);
+  text-align: center;
+}
+
+.panel-login {
+  width: 100%;
+  max-width: 400px;
+}
+
+.panel-login-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.panel-login-titulo {
+  margin: 0;
+  font-family: var(--font-display, "Space Grotesk", sans-serif);
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.panel-login-card {
+  padding: 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  display: grid;
+  gap: 1rem;
+}
+
+.panel-form {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.panel-login-sub {
+  margin: 0.3rem 0 0;
+  font-size: var(--fs-sm);
+  color: var(--text-dim);
+}
+
+.panel-login-foot a {
+  color: var(--text-dim);
+  text-decoration: none;
+}
+
+.panel-login-foot a:hover {
+  color: var(--text);
+  text-decoration: underline;
+}
+
+.panel-login-foot {
+  margin-top: 1.1rem;
+  font-size: var(--fs-xs);
+  color: var(--text-dim);
+  text-align: center;
+}
+
+/* ---------- 403 / 404 ---------- */
+.panel-error-page {
+  max-width: 420px;
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+}
+
+.panel-error-page h1 {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-display, "Space Grotesk", sans-serif);
+  font-size: 1.5rem;
+}
+
+.panel-error-page p {
+  margin: 0 0 1.25rem;
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+}
+
+/* =========================================================
+   12. PORTAL DEL CLIENTE
+   ========================================================= */
+
+.panel-serv-list--portal .panel-serv {
+  grid-template-columns: minmax(0, 1fr) auto;
+  padding: 1.2rem 1.4rem;
+}
+
+.panel-serv--portal {
+  border-radius: var(--radius-lg);
+}
+
+.panel-serv-pricepanel {
+  text-align: end;
+  white-space: nowrap;
+}
+
+.panel-serv-pricepanel strong {
+  display: block;
+  font-family: var(--font-display, "Space Grotesk", sans-serif);
+  font-size: 1.3rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.panel-serv-pricepanel span {
+  font-size: var(--fs-xs);
+  color: var(--text-dim);
+}
+
+.panel-serv-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.4rem;
+  margin: 0.7rem 0 0;
+}
+
+.panel-serv-facts dt {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.panel-serv-facts dd {
+  margin: 0.15rem 0 0;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+}
+
+/* =========================================================
+   PORTAL DEL CLIENTE — ESTADO DE ACCESO
+   ------------------------------------------------------------
+   Los cuatro niveles tienen que distinguirse de un vistazo, sin
+   tener que leer. Pero ninguno usa solo color: cada uno lleva su
+   etiqueta escrita, y el color va en el borde como refuerzo.
+
+     activo    → verde: en marcha
+     bloqueado → rojo: debe dinero
+     oferta    → morado: por decidir
+     inactivo  → gris: no en marcha
+   ========================================================= */
+
+.panel-serv--portal {
+  border-inline-start: 3px solid var(--border-strong);
+}
+
+.panel-serv--activo    { border-inline-start-color: var(--success); }
+.panel-serv--bloqueado { border-inline-start-color: var(--danger); }
+.panel-serv--oferta    { border-inline-start-color: var(--accent-2); }
+.panel-serv--inactivo  { border-inline-start-color: var(--border-strong); }
+
+.panel-serv-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-bottom: 0.35rem;
+}
+
+.panel-chip--acceso-activo    { color: var(--success); border-color: var(--success-border); background: var(--success-bg); }
+.panel-chip--acceso-bloqueado { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 45%, transparent); background: color-mix(in srgb, var(--danger) 12%, transparent); }
+.panel-chip--acceso-oferta    { color: var(--accent-2); border-color: color-mix(in srgb, var(--accent-2) 40%, transparent); background: color-mix(in srgb, var(--accent-2) 12%, transparent); }
+.panel-chip--acceso-inactivo  { color: var(--text-dim); }
+
+/* El motivo es lo que hace que "bloqueado" se entienda. Sin esta
+   frase, el candado es un muro sin explicación. */
+.panel-serv-motivo {
+  margin: 0.5rem 0 0;
+  font-size: var(--fs-sm);
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+.panel-serv--bloqueado {
+  background: color-mix(in srgb, var(--danger) 4%, var(--surface));
+}
+
+.panel-requiere-dinero {
+  color: var(--danger);
+  font-family: var(--font-display, "Space Grotesk", sans-serif);
+  font-size: 1.1rem;
+}
+
+.panel-serv-sinimporte {
+  font-size: var(--fs-sm);
+  color: var(--text-dim);
+}
+
+.panel-serv-accion {
+  margin-top: 0.6rem;
+}
+
+/* El aviso de arriba del todo: lo que hay que hacer al entrar. */
+/* La etiqueta "ve: ..." va en su propia columna, con el resto de
+   acciones. Dentro de la tarjeta se leería como otro estado, y no
+   lo es: es lo que ve el cliente, no lo que dice el servicio. */
+.panel-serv .panel-chip--acceso-activo,
+.panel-serv .panel-chip--acceso-bloqueado,
+.panel-serv .panel-chip--acceso-oferta,
+.panel-serv .panel-chip--acceso-inactivo {
+  font-size: 0.62rem;
+  align-self: center;
+}
+
+.panel-requiere {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--panel-gap);
+  padding: 1rem 1.2rem;
+  margin-bottom: 1.5rem;
+  background: color-mix(in srgb, var(--danger) 7%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--danger) 35%, transparent);
+  border-radius: var(--radius);
+}
+
+.panel-requiere-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.panel-requiere-texto strong {
+  font-size: 0.98rem;
+}
+
+.panel-requiere-texto span {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+
+/* Botón dentro del estado vacío. */
+.panel-empty-accion {
+  margin-top: 1.1rem;
+}
+
+/* ---------- Generar cobros del mes ---------- */
+.panel-plan-lista {
+  margin-bottom: var(--panel-gap);
+}
+
+/* La lista de lo que se va a crear es la parte importante: se lee
+   entera antes de pulsar nada. */
+.panel-plan-lista .panel-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--panel-gap);
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.panel-plan-lista .panel-list li:last-child {
+  border-bottom: 0;
+}
+
+.panel-plan-lista .panel-list li span {
+  text-align: end;
+  white-space: nowrap;
+}
+
+/* =========================================================
+   13. RESPONSIVE
+   ------------------------------------------------------------
+   En el lateral fijo no hay sitio para los seis botones, así que
+   por debajo de 1000px se convierte en un cajón que se abre con
+   el botón de la barra superior.
+   ========================================================= */
+
+/* Capa oscura detrás del cajón. Se muestra al abrirlo. */
+.panel-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 35;
+  background: rgba(0, 0, 0, 0.55);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.panel-scrim.is-visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+@media (max-width: 1000px) {
+  .panel-side {
+    transform: translateX(-100%);
+    transition: transform 0.22s ease;
+    box-shadow: none;
+  }
+
+  /* El lateral abierto se dibuja por encima de la página. */
+  .panel-side.is-open {
+    transform: translateX(0);
+    box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.5);
+  }
+
+  .panel-side-cerrar,
+  .panel-burger {
+    display: flex;
+  }
+
+  .panel-shell {
+    margin-inline-start: 0;
+  }
+
+  .panel-split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .panel-form-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .panel-serv,
+  .panel-serv-list--portal .panel-serv,
+  .panel-caduco,
+  .panel-acceso {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .panel-serv-side,
+  .panel-serv-pricepanel,
+  .panel-caduco-side,
+  .panel-acceso-side {
+    align-items: flex-start;
+    justify-content: flex-start;
+    text-align: start;
+  }
+
+  .panel-serv-form,
+  .panel-acceso-acciones,
+  .panel-lead-actions {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 560px) {
+  .panel-page {
+    padding: 1.35rem 1rem 3rem;
+  }
+
+  .panel-topbar {
+    padding-inline: 1rem;
+  }
+
+  .panel-page-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  /* Una columna: con dos, cada tarjeta queda en 150px y el importe
+     no cabe. */
+  .panel-stats,
+  .panel-stats--cobros {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .panel-stat strong {
+    font-size: 1.6rem;
+  }
+
+  /* Los filtros se apilan y la búsqueda ocupa el ancho entero. */
+  .panel-filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .panel-search,
+  .panel-select {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .panel-empty {
+    padding: 1.75rem 1.25rem;
+  }
+
+  .panel-plan-lista .panel-list li {
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .panel-plan-lista .panel-list li span {
+    text-align: start;
+  }
+}
+
+/* =========================================================
+   14. ACCESIBILIDAD
+   ========================================================= */
+
+/* Saltar el lateral: invisible hasta que recibe el foco. */
+.panel-skip {
+  position: absolute;
+  top: -100px;
+  inset-inline-start: 1rem;
+  z-index: 100;
+  padding: 0.6rem 1rem;
+  border-radius: 0 0 10px 10px;
+  background: var(--accent);
+  color: #fff;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.panel-skip:focus {
+  top: 0;
+}
+
+/* Foco visible en todo lo interactivo del panel. Sin esto, navegar
+   con teclado en el panel es adivinar dónde estás. */
+.panel-body :focus-visible {
+  outline: 2px solid var(--accent-2);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Quien pide menos movimiento, no lo tiene. El panel tiene
+   animaciones cortas, pero no son la razón para marearse. */
+@media (prefers-reduced-motion: reduce) {
+  .panel-body *,
+  .panel-body *::before,
+  .panel-body *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Imprimir: sin barras, sin botones. Si alguien imprime una ficha
+   de cliente, quiere el contenido y nada más. */
+@media print {
+  .panel-side,
+  .panel-topbar,
+  .panel-foot,
+  .panel-burger,
+  .panel-btn,
+  .panel-scrim {
+    display: none !important;
+  }
+
+  .panel-shell {
+    margin: 0;
+  }
+
+  .panel-page {
+    max-width: none;
+    padding: 0;
+  }
+
+  .panel-body {
+    background: #fff;
+    color: #000;
+  }
+}

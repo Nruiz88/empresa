@@ -1,0 +1,68 @@
+<%- include('partials/head') %>
+<%- include('partials/header', { current: "" }) %>
+
+<%- include('partials/legal-hero', {
+      eyebrow: "Legal",
+      title: "Política de privacidad",
+      lead: "Cómo recogemos, usamos y protegemos tus datos personales conforme al Reglamento (UE) 2016/679 (RGPD) y a la Ley Orgánica 3/2018 (LOPDGDD)."
+    }) %>
+
+<section class="section" style="padding-top: 1rem;">
+  <div class="container">
+    <article class="prose">
+      <div class="callout">
+        <p><strong>Última actualización:</strong> 1 de octubre de 2026.</p>
+      </div>
+
+      <h2>1. Responsable del tratamiento</h2>
+      <ul>
+        <li><strong>Responsable:</strong> <%= site.company %>
+      </li>
+      <li><strong>NIF:</strong> <%= site.nif %>
+      </li>
+      <li><strong>Domicilio:</strong> <%= site.address %></li>
+        <li><strong>Email:</strong> <a href="mailto:<%= site.email %>"><%= site.email %></a></li>
+      </ul>
+
+      <h2>2. Datos que recogemos</h2>
+      <ul>
+        <li><strong>Formulario de contacto:</strong> nombre, email, empresa, teléfono, tipo de proyecto, presupuesto estimado y mensaje.</li>
+        <li><strong>Datos de navegación:</strong> datos técnicos imprescindibles para la seguridad del sitio (dirección IP, agente de usuario, registros de acceso).</li>
+      </ul>
+      <p>No recogemos categorías especiales de datos ni elaboramos perfiles automatizados con decisiones jurídicas o significativas.</p>
+
+      <h2>3. Finalidades y base jurídica</h2>
+      <ul>
+        <li><strong>Responder a tu solicitud de información o presupuesto:</strong> base jurídica, tu consentimiento al marcar la casilla del formulario (art. 6.1.a RGPD).</li>
+        <li><strong>Elaborar y enviar una propuesta comercial:</strong> medidas precontractuales a petición tuya (art. 6.1.b RGPD).</li>
+        <li><strong>Seguridad, prevención de fraude y cumplimiento legal:</strong> interés legítimo (art. 6.1.f RGPD).</li>
+        <li><strong>Facturación y cumplimiento de obligaciones fiscales:</strong> obligación legal (art. 6.1.c RGPD).</li>
+      </ul>
+
+      <h2>4. Plazo de conservación</h2>
+      <ul>
+        <li><strong>Consultas que no acaban en contrato:</strong> un año desde la última comunicación.</li>
+        <li><strong>Datos de clientes:</strong> mientras dure la relación y, después, los plazos legales de prescripción (habitualmente 4–6 años para efectos mercantiles y fiscales).</li>
+        <li><strong>Registros de acceso y seguridad:</strong> un año como máximo.</li>
+      </ul>
+
+      <h2>5. Destinatarios y encargados</h2>
+      <p>No cedemos datos a terceros salvo obligación legal. Sí trabajamos con proveedores que actúan como encargados del tratamiento (alojamiento web, servicio de email, herramienta de gestión de clientes), con los que firmamos los contratos exigidos por el artículo 28 del RGPD.</p>
+      <p>Si en algún momento hubiera transferencias internacionales fuera del EEE, se realizarían con garantías adecuadas (cláusulas contractuales tipo u decisiones de adecuación).</p>
+
+      <h2>6. Tus derechos</h2>
+      <p>Puedes ejercer en cualquier momento los derechos de <strong>acceso, rectificación, supresión, oposición, limitación del tratamiento y portabilidad</strong>, así como retirar el consentimiento sin que ello afecte a la licitud del tratamiento previo.</p>
+      <div class="callout">
+        <p>Cómo ejercerlos: escribe a <a href="mailto:<%= site.email %>"><%= site.email %></a> indicando el derecho que quieres ejercer y el dato al que se refiere. Responderemos en el plazo máximo de un mes. Si consideras que no hemos atendido correctamente tu solicitud, puedes reclamar ante la Agencia Española de Protección de Datos (<a href="https://www.aepd.es" target="_blank" rel="noopener">www.aepd.es</a>).</p>
+      </div>
+
+      <h2>7. Seguridad</h2>
+      <p>Aplicamos medidas técnicas y organizativas apropiadas: cifrado TLS en la navegación, control de accesos al servidor, copias de seguridad periódicas y revisión de proveedores. Ningún sistema es infalible, pero actuamos con la diligencia exigible y notificamos cualquier incidente de seguridad conforme a la normativa.</p>
+
+      <h2>8. Cambios en esta política</h2>
+      <p>Podemos actualizar esta política para adaptarla a novedades legislativas o de tratamiento. Publicaremos siempre la fecha de la última revisión en esta misma página.</p>
+    </article>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,75 @@
+<%#
+  Login del panel.
+
+  Antes de publicar esto: crea el primer usuario. No hay registro
+  abierto a propósito; un alta automática sería una puerta abierta.
+
+  Para crear el primer usuario (staff) usa:
+    node db/create-user.js --email tucorreo@dominio.com --nombre "Tu Nombre" --staff
+%>
+<!DOCTYPE html>
+<html lang="es" data-panel>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title %></title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
+  <link rel="stylesheet" href="/css/styles.css" />
+  <link rel="stylesheet" href="/css/themes.css" />
+  <link rel="stylesheet" href="/css/panel.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet" />
+</head>
+<body class="panel-body panel-body--centrado">
+
+  <div class="panel-login">
+    <div class="panel-login-card">
+      <div class="panel-login-brand">
+        <span class="panel-brand-mark">N</span>
+        <span class="panel-brand-text">
+          <strong>Nexo Studio</strong>
+          <small>Panel de equipo</small>
+        </span>
+      </div>
+
+      <div>
+        <h1 class="panel-login-titulo">Acceso al panel</h1>
+        <p class="panel-login-sub">Zona privada. Necesitas una cuenta activa.</p>
+      </div>
+
+      <% if (typeof error !== 'undefined' && error) { %>
+        <div class="panel-alert" role="alert"><%= error %></div>
+      <% } %>
+
+      <form method="post" action="<%= base %>/login" class="panel-form">
+        <input type="hidden" name="siguiente" value="<%= siguiente %>" />
+        <%# Double-submit CSRF: mismo valor que la cookie nexo_csrf.
+            Si alguien intenta enviar este formulario desde otro
+            sitio, no puede leer la cookie y este campo no cuadra. %>
+        <input type="hidden" name="_csrf" value="<%= csrfPre %>" />
+
+        <label class="panel-field">
+          <span>Email</span>
+          <input type="email" name="email" required autocomplete="username"
+                 autocapitalize="none" spellcheck="false" />
+        </label>
+
+        <label class="panel-field">
+          <span>Contraseña</span>
+          <input type="password" name="password" required autocomplete="current-password" />
+        </label>
+
+        <button type="submit" class="panel-btn panel-btn--primary panel-btn--ancho">Entrar</button>
+      </form>
+
+      <p class="panel-login-foot">
+        <a href="/">← Volver a la web</a>
+      </p>
+    </div>
+  </div>
+
+  <script src="/js/panel.js"></script>
+</body>
+</html>

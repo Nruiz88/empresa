@@ -1,0 +1,64 @@
+﻿<%- include('partials/head') %>
+<%- include('partials/header', { current: "proyectos" }) %>
+
+<main>
+    <%- include('partials/page-hero', {
+      variant: "proyectos",
+      eyebrow: "Portafolio",
+      titleLines: ["Proyectos que", "hemos lanzado"],
+      lead: "Webs, tiendas, web apps y aplicaciones a medida. Filtra por tipo de proyecto para ver lo que más se parece a lo que necesitas."
+    }) %>
+
+    <section class="section" style="padding-top: 1rem;">
+      <div class="container">
+        <div class="filters" role="group" aria-label="Filtrar proyectos">
+          <% categorias.forEach(function (cat, i) { %>
+            <button class="filter-btn<%= i === 0 ? ' is-active' : '' %>" data-filter="<%= cat.slug %>"><%= cat.label %></button>
+          <% }) %>
+        </div>
+
+        <div class="grid grid-3" id="projectGrid">
+          <% projects.forEach(function (p) { %>
+            <a class="project-card project-card--link reveal" data-category="<%= p.category %>" href="/proyectos/<%= p.slug %>" aria-label="Ver el caso de <%= p.name %>">
+              <div class="project-thumb thumb-<%= p.thumb %>"><span class="thumb-art"><%= p.initials %></span></div>
+              <div class="project-body">
+                <div class="project-tags">
+                  <% p.tags.forEach(function (t) { %><span class="tag"><%= t %></span><% }); %>
+                </div>
+                <h3><%= p.name %></h3>
+                <p><%= p.summary %></p>
+                <div class="project-result">↑ <%= p.result %></div>
+              </div>
+            </a>
+          <% }) %>
+        </div>
+        </div>
+
+        <p id="noResults" style="display:none; text-align:center; color:var(--text-muted); margin-top:2rem;">
+          No hay proyectos en esta categoría todavía.
+        </p>
+      </div>
+    </section>
+
+    <%- include('partials/proof', {
+          type: "results",
+          title: "Lo que miden estos proyectos",
+          lead: "Cifras agregadas de clientes con proyectos en producción desde hace más de un año."
+        }) %>
+
+    <section class="section section--soft">
+      <div class="container">
+        <div class="cta-band reveal">
+          <span class="eyebrow">Tu proyecto</span>
+          <h2>¿Quieres que el próximo caso sea el tuyo?</h2>
+          <p>Trabajamos con presupuesto cerrado y plazos comprometidos. Cuéntanos tu idea y te decimos si encaja.</p>
+          <div class="cta-actions">
+            <a href="/contacto" class="btn btn-primary btn-lg">Empezar un proyecto</a>
+            <a href="/precios" class="btn btn-ghost btn-lg">Ver precios</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+<%- include('partials/footer') %>

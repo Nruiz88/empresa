@@ -1,0 +1,25 @@
+# Fin de línea
+#
+# Se fija a LF dentro del repo para que no cambien los ficheros cada
+# vez que alguien los toca en un sistema distinto. Sin esto, el
+# desarrollo en Windows marca los .js y .ejs como modificados aunque no
+# se haya escrito nada, y los diffs se llenan de ruido de ^M.
+#
+# La razón de fijarlo: el despliegue es en Linux (Coolify) y el
+# desarrollo aquí es en Windows. SinLF fijo, cada commit trae cambios
+# de fin de línea que no son cambios.
+
+* text=auto eol=lf
+
+# Los ficheros que tienen que ser LF sí o sí (scripts que ejecuta el
+# sistema con el shebang).
+*.sh text eol=lf
+
+# Binarios: que nadie los toque.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary

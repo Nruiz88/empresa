@@ -1,0 +1,14 @@
+<%- include('../partials/panel-head', { title, site, base, current: '' }) %>
+
+<div class="panel-page">
+  <div class="panel-empty">
+    <span class="panel-kicker">Error 404</span>
+    <h1>Esta pantalla no existe</h1>
+    <p>
+      La ruta que buscas dentro del panel no existe o ha cambiado de sitio.
+    </p>
+    <a href="<%= base %>/" class="panel-btn panel-btn--primary">Ir al resumen</a>
+  </div>
+</div>
+
+<%- include('../partials/panel-foot', { site }) %>

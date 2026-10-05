@@ -1,0 +1,126 @@
+﻿<%#
+  Alta y edición de servicio.
+
+  Variables: servicio, clientes, tipos, estados, periodicidades,
+             errores, modo, csrf
+%>
+<%- include('../partials/panel-head', { title, site, base, current }) %>
+
+<div class="panel-page panel-page--form">
+  <div class="panel-page-head">
+    <div>
+      <span class="panel-kicker">Servicios</span>
+      <h1><%= modo === "nuevo" ? "Nuevo servicio" : "Editar servicio" %></h1>
+    </div>
+    <a href="<%= base %>/servicios" class="panel-btn panel-btn--ghost">← Volver</a>
+  </div>
+
+  <% if (errores.general) { %>
+    <div class="panel-alert"><%= errores.general %></div>
+  <% } %>
+
+  <% if (!clientes.length) { %>
+    <div class="panel-empty">
+      <h2>No hay clientes a los que colgarlo</h2>
+      <p>Primero crea un cliente. Un servicio siempre pertenece a alguien.</p>
+      <a href="<%= base %>/clientes/nuevo" class="panel-btn panel-btn--primary">Nuevo cliente</a>
+    </div>
+  <% } else { %>
+
+  <form method="post" action="<%= base %>/servicios<%= modo === "editar" ? '/' + servicio.id + '/editar' : '/nuevo' %>" class="panel-form-card">
+    <input type="hidden" name="_csrf" value="<%= csrf %>" />
+
+    <div class="panel-form-grid">
+      <label class="panel-field panel-field--ancho<%= errores.client_id ? ' has-error' : '' %>">
+        <span>Cliente *</span>
+        <select name="client_id" required>
+          <option value="">— elige cliente —</option>
+          <% clientes.forEach(function (c) { %>
+            <option value="<%= c.id %>" <%= servicio.client_id === c.id ? 'selected' : '' %>>
+              <%= c.empresa || c.nombre %>
+            </option>
+          <% }); %>
+        </select>
+        <% if (errores.client_id) { %><em class="panel-error"><%= errores.client_id %></em><% } %>
+      </label>
+
+      <label class="panel-field<%= errores.kind ? ' has-error' : '' %>">
+        <span>Tipo *</span>
+        <select name="kind" required>
+          <% tipos.forEach(function (t) { %>
+            <option value="<%= t.valor %>" <%= servicio.kind === t.valor ? 'selected' : '' %>><%= t.label %></option>
+          <% }); %>
+        </select>
+        <% if (errores.kind) { %><em class="panel-error"><%= errores.kind %></em><% } %>
+      </label>
+
+      <label class="panel-field<%= errores.estado ? ' has-error' : '' %>">
+        <span>Estado *</span>
+        <select name="estado" required>
+          <% estados.forEach(function (e) { %>
+            <option value="<%= e.valor %>" <%= servicio.estado === e.valor ? 'selected' : '' %>><%= e.label %></option>
+          <% }); %>
+        </select>
+        <% if (errores.estado) { %><em class="panel-error"><%= errores.estado %></em><% } %>
+      </label>
+
+      <label class="panel-field panel-field--ancho<%= errores.titulo ? ' has-error' : '' %>">
+        <span>Título *</span>
+        <input type="text" name="titulo" value="<%= servicio.titulo || '' %>" required
+               placeholder="Ej. Mantenimiento mensual" />
+        <% if (errores.titulo) { %><em class="panel-error"><%= errores.titulo %></em><% } %>
+      </label>
+
+      <label class="panel-field<%= errores.importe ? ' has-error' : '' %>">
+        <span>Importe (€)</span>
+        <input type="text" name="importe" value="<%= servicio.importe != null ? servicio.importe : '' %>"
+               inputmode="decimal" placeholder="120 o 1.200,50" />
+        <em class="panel-help">Acepta 120 o 1.200,50</em>
+        <% if (errores.importe) { %><em class="panel-error"><%= errores.importe %></em><% } %>
+      </label>
+
+      <label class="panel-field">
+        <span>Periodicidad</span>
+        <select name="periodicidad">
+          <% periodicidades.forEach(function (p) { %>
+            <option value="<%= p.valor %>" <%= (servicio.periodicidad || '') === p.valor ? 'selected' : '' %>><%= p.label %></option>
+          <% }); %>
+        </select>
+        <em class="panel-help">Solo tiene sentido en mantenimientos.</em>
+      </label>
+
+      <label class="panel-field<%= errores.inicia_en ? ' has-error' : '' %>">
+        <span>Fecha de inicio</span>
+        <input type="date" name="inicia_en" value="<%= servicio.inicia_en || '' %>" />
+        <% if (errores.inicia_en) { %><em class="panel-error"><%= errores.inicia_en %></em><% } %>
+      </label>
+
+      <label class="panel-field<%= errores.termina_en ? ' has-error' : '' %>">
+        <span>Fecha de fin</span>
+        <input type="date" name="termina_en" value="<%= servicio.termina_en || '' %>" />
+        <% if (errores.termina_en) { %><em class="panel-error"><%= errores.termina_en %></em><% } %>
+      </label>
+    </div>
+
+    <label class="panel-field">
+      <span>Descripción</span>
+      <textarea name="descripcion" rows="3"><%= servicio.descripcion || '' %></textarea>
+    </label>
+
+    <label class="panel-field">
+      <span>Notas internas</span>
+      <textarea name="notas" rows="2"><%= servicio.notas || '' %></textarea>
+      <em class="panel-help">Solo el equipo. El cliente no ve las notas.</em>
+    </label>
+
+    <div class="panel-form-actions">
+      <button type="submit" class="panel-btn panel-btn--primary">
+        <%= modo === "nuevo" ? "Crear servicio" : "Guardar cambios" %>
+      </button>
+      <a href="<%= base %>/servicios" class="panel-btn panel-btn--ghost">Cancelar</a>
+    </div>
+  </form>
+  <% } %>
+</div>
+
+<%- include('../partials/panel-foot', { site }) %>

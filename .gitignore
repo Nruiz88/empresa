@@ -1,0 +1,35 @@
+node_modules/
+
+# Datos locales generados en tiempo de ejecución
+data/*.jsonl
+
+# Credenciales — NUNCA deben subirse a git.
+# Si ya se subieron una vez, hay que ROTAR la contraseña: borrarla del
+# historial no basta, porque sigue en el historial.
+.env
+.env.*
+!.env.example
+
+*.log
+logs/
+.DS_Store
+
+# Capturas del panel que se generan para revisarlas con un navegador.
+# No son código: son fotos del HTML con datos de clientes de prueba
+# (emails, importes, nombres). Fuera del repo.
+public/_captura.html
+public/_*.png
+public/*.png
+
+# Configuración de herramientas externas de esta máquina.
+.freebuff/
+
+# Notas de trabajo de esta máquina: credenciales de prueba, decisiones
+# sin cerrar y cosas que solo sirven aquí. Lo que otra persona necesita
+# está en el código y en `npm run estado`.
+NOTAS-LOCAL.md
+
+# Sistema
+Thumbs.db
+ehthumbs.db
+Desktop.ini

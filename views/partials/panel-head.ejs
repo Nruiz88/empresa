@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="es" data-panel>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title %> — Panel Nexo Studio</title>
+
+  <%# El panel nunca debe indexarse. noindex en todas las vistas,
+      y nofollow evita que aporte autoridad a la web pública. %>
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
+
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
+
+  <%# Reutiliza el CSS y los tokens de la web: el panel se ve
+      igual de cuidado que el sitio. %>
+  <link rel="stylesheet" href="/css/styles.css" />
+  <link rel="stylesheet" href="/css/themes.css" />
+  <link rel="stylesheet" href="/css/panel.css" />
+  <!-- El portal del cliente tiene hoja propia: es otro producto con
+       otro usuario (poco frecuente, poco experto) y otra jerarquía.
+       Va DESPUÉS de panel.css a propósito: aquí va lo del portal, y
+       tiene que poder ganar cuando coincide. -->
+  <link rel="stylesheet" href="/css/portal.css" />
+
+  <%# A propósito NO se carga GSAP ni Lenis aquí: el panel es
+      una aplicación de gestión, no una landing. Son ~70 KB que
+      no aportan nada en la parte privada. %>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body class="panel-body<%= _rol === 'staff' ? '' : ' panel-body--lateral-off' %>">
+<%# rol, nombre y csrf vienen de res.locals (los pone el middleware
+    de routes/panel.js), no de esta llamada. De ahí los typeof: este
+    partial lo usan el login, el resumen, las fichas, el portal del
+    cliente y las páginas de error, y no todas tienen sesión. %>
+<% var _nombre = typeof nombre !== 'undefined' ? nombre : ''; %>
+<% var _csrf = typeof csrf !== 'undefined' ? csrf : ''; %>
+<% var _rol = typeof rol !== 'undefined' ? rol : ''; %>
+<% var _current = typeof current !== 'undefined' ? current : ''; %>
+
+<%# Con teclado se puede saltar el lateral. Sin esto, cada cambio de
+    página son seis tabulaciones antes de llegar al contenido. %>
+<a class="panel-skip" href="#panel-contenido">Saltar al contenido</a>
+
+<% if (_rol === 'staff') { %>
+<%# ---------------------------------------------------------------------
+    LATERAL
+    Con seis secciones, una barra de pestañas arriba se queda sin aire y
+    no da jerarquía: todo parece igual de importante. El lateral las
+    agrupa y deja sitio a las cifras.
+    --------------------------------------------------------------------- %>
+<aside class="panel-side" id="panel-side">
+  <div class="panel-side-brand">
+    <a href="<%= base %>/" class="panel-brand">
+      <span class="panel-brand-mark">N</span>
+      <span class="panel-brand-text">
+        <strong>Nexo Studio</strong>
+        <small>Panel de equipo</small>
+      </span>
+    </a>
+    <button type="button" class="panel-side-cerrar" data-panel-cerrar aria-label="Cerrar menú">&times;</button>
+  </div>
+
+  <nav class="panel-menu" aria-label="Secciones del panel">
+    <p class="panel-menu-titulo">Hoy</p>
+    <a href="<%= base %>/" class="panel-menu-item<%= _current === 'inicio' ? ' is-active' : '' %>"
+       <%= _current === 'inicio' ? 'aria-current="page"' : '' %>>
+      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10.5 10 4l7 6.5M5.5 9v7h9V9"/></svg>
+      Resumen
+    </a>
+    <a href="<%= base %>/consultas" class="panel-menu-item<%= _current === 'consultas' ? ' is-active' : '' %>"
+       <%= _current === 'consultas' ? 'aria-current="page"' : '' %>>
+      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h9"/></svg>
+      Consultas
+    </a>
+
+    <p class="panel-menu-titulo">Gestión</p>
+    <a href="<%= base %>/clientes" class="panel-menu-item<%= _current === 'clientes' ? ' is-active' : '' %>"
+       <%= _current === 'clientes' ? 'aria-current="page"' : '' %>>
+      <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8" cy="7" r="3"/><path d="M2.5 16c0-3 2.5-4.5 5.5-4.5s5.5 1.5 5.5 4.5M14 5.5a2.5 2.5 0 1 1 0 5"/></svg>
+      Clientes
+    </a>
+    <a href="<%= base %>/servicios" class="panel-menu-item<%= _current === 'servicios' ? ' is-active' : '' %>"
+       <%= _current === 'servicios' ? 'aria-current="page"' : '' %>>
+      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v6l4 2"/><circle cx="10" cy="10" r="7"/></svg>
+      Servicios
+    </a>
+    <a href="<%= base %>/cobros" class="panel-menu-item<%= _current === 'cobros' ? ' is-active' : '' %>"
+       <%= _current === 'cobros' ? 'aria-current="page"' : '' %>>
+      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v14M13 6.5H8.5a2 2 0 0 0 0 4h3a2 2 0 0 1 0 4H6.5"/></svg>
+      Cobros
+    </a>
+
+    <p class="panel-menu-titulo">Equipo</p>
+    <a href="<%= base %>/accesos" class="panel-menu-item<%= _current === 'accesos' ? ' is-active' : '' %>"
+       <%= _current === 'accesos' ? 'aria-current="page"' : '' %>>
+      <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="6" r="3"/><path d="M4 17c0-3 2.7-5 6-5s6 2 6 5"/></svg>
+      Accesos
+    </a>
+  </nav>
+
+  <div class="panel-side-foot">
+    <a href="/" target="_blank" rel="noopener" class="panel-menu-item panel-menu-item--externo">
+      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M8 4H4v12h12v-4M12 3h5v5M17 3l-7 7"/></svg>
+      Ver la web
+    </a>
+
+    <div class="panel-side-user">
+      <span class="panel-avatar" aria-hidden="true"><%= (_nombre || '?').trim().charAt(0).toUpperCase() %></span>
+      <span class="panel-side-user-datos">
+        <strong><%= _nombre || 'Sin nombre' %></strong>
+        <small>Equipo</small>
+      </span>
+    </div>
+
+    <%# Todo POST necesita token CSRF: sin él, cualquier web podría
+        cerrar tu sesión o, más adelante, dar de alta clientes en tu
+        nombre. %>
+    <form method="post" action="<%= base %>/logout">
+      <input type="hidden" name="_csrf" value="<%= _csrf %>" />
+      <button type="submit" class="panel-btn panel-btn--ghost panel-btn--bloque">Cerrar sesión</button>
+    </form>
+  </div>
+</aside>
+
+<div class="panel-shell">
+  <header class="panel-topbar">
+    <button type="button" class="panel-burger" data-panel-abrir aria-label="Abrir menú" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <span class="panel-topbar-titulo"><%= title %></span>
+  </header>
+
+  <main class="panel-main" id="panel-contenido">
+<% } else { %>
+<%# ---------------------------------------------------------------------
+    SIN LATERAL: login, errores y portal del cliente.
+    El cliente tiene tres secciones, así que un lateral con tres
+    entradas sería ruido. Van en la barra superior, y solo si hay
+    sesión: en el login y en las páginas de error no hay a dónde ir.
+
+    "Añadir" es una acción, no un sitio donde estar: por eso el
+    nombre es un verbo corto y no "Catálogo", que suena a
+    aburrido y empuja a no entrar.
+    --------------------------------------------------------------------- %>
+<div class="panel-shell panel-shell--simple">
+  <% if (_nombre) { %>
+  <header class="panel-topbar panel-topbar--simple">
+    <a href="<%= base %>/" class="panel-brand">
+      <span class="panel-brand-mark">N</span>
+      <span class="panel-brand-text">
+        <strong>Nexo Studio</strong>
+        <small><%= _rol === 'client' ? 'Portal de cliente' : 'Panel' %></small>
+      </span>
+    </a>
+
+    <% if (_rol === 'client') { %>
+      <!-- Iconos en el menú del cliente. El del equipo va con el lateral,
+           que ya tiene iconos; aquí el menú son cuatro textos y sin
+           icono cuesta más reconocerlo de un vistazo.
+
+           Los nombres son cortos A PROPÓSITO: "Mis servicios" dentro
+           de una pastilla se parte en dos líneas en pantallas
+           normales, que es justo el defecto que se vio. El nombre
+           largo va en el title, para el que llegue por pestaña o con
+           lector de pantalla. -->
+      <nav class="panel-nav panel-nav--simple" aria-label="Secciones del portal">
+        <a href="<%= base %>/mis-servicios"
+           class="<%= current === 'servicios' ? 'is-active' : '' %>"
+           title="Mis servicios"
+           <%= current === 'servicios' ? 'aria-current="page"' : '' %>>
+          <%- icono('bot', { tamano: 16 }) %>
+          <span>Servicios</span>
+        </a>
+        <a href="<%= base %>/servicios-disponibles"
+           class="<%= current === 'catalogo' ? 'is-active' : '' %>"
+           title="Añadir un servicio"
+           <%= current === 'catalogo' ? 'aria-current="page"' : '' %>>
+          <%- icono('mas', { tamano: 16 }) %>
+          <span>A&ntilde;adir</span>
+        </a>
+        <a href="<%= base %>/perfil"
+           class="<%= current === 'perfil' ? 'is-active' : '' %>"
+           title="Mi perfil"
+           <%= current === 'perfil' ? 'aria-current="page"' : '' %>>
+          <%- icono('negocio', { tamano: 16 }) %>
+          <span>Perfil</span>
+        </a>
+        <a href="<%= base %>/mi-cuenta"
+           class="<%= current === 'cuenta' ? 'is-active' : '' %>"
+           title="Mi cuenta"
+           <%= current === 'cuenta' ? 'aria-current="page"' : '' %>>
+          <%- icono('usuario', { tamano: 16 }) %>
+          <span>Cuenta</span>
+        </a>
+      </nav>
+    <% } %>
+
+    <div class="panel-user">
+      <span class="panel-avatar" aria-hidden="true"><%= (_nombre || '?').trim().charAt(0).toUpperCase() %></span>
+      <form method="post" action="<%= base %>/logout">
+        <input type="hidden" name="_csrf" value="<%= _csrf %>" />
+        <button type="submit" class="panel-btn panel-btn--ghost panel-salir"
+                title="Cerrar sesión">
+          <%- icono('salir', { tamano: 16 }) %>
+          <span>Salir</span>
+        </button>
+      </form>
+    </div>
+  </header>
+  <% } %>
+
+  <main class="panel-main" id="panel-contenido">
+<% } %>

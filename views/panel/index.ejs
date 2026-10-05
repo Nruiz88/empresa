@@ -1,0 +1,150 @@
+﻿<%#
+  Resumen del panel.
+
+  Lo primero que ve el equipo al entrar. Tres bloques:
+    1. Cifras: consultas sin responder, clientes, servicios vivos.
+    2. Caducidades: qué se acaba de verdad y qué toca renovar.
+    3. El embudo reciente, para saber si hay algo parado.
+
+  Variables: resumen, caducidades, consultas, aviso
+%>
+<%- include('../partials/panel-head', { title, site, base, current: 'inicio' }) %>
+
+<div class="panel-page">
+
+  <% if (aviso) { %>
+    <div class="panel-alert panel-alert--ok">✓ <%= aviso %></div>
+  <% } %>
+
+  <div class="panel-page-head">
+    <div>
+      <span class="panel-kicker">Resumen</span>
+      <h1>Hola, <%= nombre ? nombre.split(' ')[0] : '' %></h1>
+    </div>
+  </div>
+
+  <% if (!resumen) { %>
+    <div class="panel-alert">
+      No se pudo leer la base de datos. Revisa que Supabase esté bien
+      configurado en <code>.env</code>.
+    </div>
+  <% } else { %>
+
+    <!-- ---------- Cifras ---------- -->
+    <div class="panel-stats">
+      <a class="panel-stat" href="<%= base %>/consultas?estado=nuevo">
+        <strong><%= resumen.consultasNuevas %></strong>
+        <span>consultas sin responder</span>
+      </a>
+      <a class="panel-stat" href="<%= base %>/clientes">
+        <strong><%= resumen.clientes %></strong>
+        <span>clientes activos</span>
+      </a>
+      <a class="panel-stat" href="<%= base %>/servicios?estado=activo">
+        <strong><%= resumen.serviciosActivos %></strong>
+        <span>servicios en marcha</span>
+      </a>
+    </div>
+
+    <!-- ---------- Caducidades ----------
+         Los avisos se agrupan cuando comparten el mismo texto. Tres
+         filas diciendo "renovación pendiente · se renueva 2 nov" no
+         informan de nada: lo que hay que ver es cuántas son. -->
+    <% var grupos = {}; %>
+    <% (caducidades || []).forEach(function (c) {
+         var clave = c.nivel + '|' + c.texto;
+         if (!grupos[clave]) grupos[clave] = { nivel: c.nivel, texto: c.texto, items: [] };
+         grupos[clave].items.push(c);
+       }); %>
+    <% var listaGrupos = Object.keys(grupos).map(function (k) { return grupos[k]; }); %>
+
+    <section class="panel-bloque">
+      <div class="panel-bloque-head">
+        <h2 class="panel-subtitle">Vencimientos y renovaciones</h2>
+        <a href="<%= base %>/servicios?estado=activo" class="panel-clear">Ver servicios</a>
+      </div>
+
+      <% if (!listaGrupos.length) { %>
+        <p class="panel-hint">
+          Ningún servicio con fecha de fin. Cuando asignes
+          <code>termina_en</code> a un mantenimiento, aquí aparecerá
+          días antes de que caduque.
+        </p>
+      <% } else { %>
+        <ul class="panel-caducos">
+          <% listaGrupos.forEach(function (g) { %>
+            <li class="panel-caduco panel-caduco--<%= g.nivel %>">
+              <div class="panel-caduco-main">
+                <strong>
+                  <% if (g.items.length === 1) { %>
+                    <%= g.items[0].titulo %>
+                  <% } else { %>
+                    <%= g.items.length %> servicios
+                  <% } %>
+                </strong>
+
+                <%# Las empresas van como etiquetas sueltas, no como un
+                    párrafo con puntos: si no, tres nombres en una
+                    línea se parten en tres renglones y no se leen. %>
+                <% if (g.items.length === 1) { %>
+                  <span class="panel-caduco-empresa"><%= g.items[0].empresa %></span>
+                <% } else { %>
+                  <span class="panel-caduco-empresas">
+                    <% g.items.forEach(function (i) { %>
+                      <span class="panel-tag-soft"><%= i.empresa %></span>
+                    <% }); %>
+                  </span>
+                <% } %>
+              </div>
+
+              <div class="panel-caduco-side">
+                <% var suma = g.items.reduce(function (t, i) {
+                     return t + (Number(i.importe) || 0);
+                   }, 0); %>
+                <% if (suma > 0) { %>
+                  <span class="panel-serv-price"><%= dinero(suma, 'EUR') %></span>
+                <% } %>
+                <% if (g.texto) { %>
+                  <span class="panel-caduco-cuando"><%= g.texto %></span>
+                <% } %>
+              </div>
+
+              <%# Con un solo servicio se va a él. Con varios, el
+                  destino útil es el listado filtrado: tres botones
+                  "Revisar" que apuntan a tres sitios distintos solo
+                  hacen tres filas más largas. %>
+              <% if (g.items.length === 1) { %>
+                <a href="<%= base %>/servicios/<%= g.items[0].id %>/editar"
+                   class="panel-btn panel-btn--ghost panel-btn--xs">Revisar</a>
+              <% } else { %>
+                <a href="<%= base %>/servicios?estado=<%= g.items[0].estado %>"
+                   class="panel-btn panel-btn--ghost panel-btn--xs">Ver los <%= g.items.length %></a>
+              <% } %>
+            </li>
+          <% }); %>
+        </ul>
+      <% } %>
+    </section>
+
+    <!-- ---------- Embudo ---------- -->
+    <% if (consultas && consultas.length) { %>
+      <section class="panel-bloque">
+        <h2 class="panel-subtitle">Consultas recientes</h2>
+        <ul class="panel-list">
+          <% consultas.forEach(function (c) { %>
+            <li>
+              <strong><%= c.nombre %><% if (c.empresa) { %> · <%= c.empresa %><% } %></strong>
+              <span><%= c.cuando %> · <%= etiquetaLead(c.estado) %></span>
+            </li>
+          <% }); %>
+        </ul>
+        <p class="panel-hint" style="margin-top:.75rem">
+          <a href="<%= base %>/consultas">Ver todas las consultas</a>
+        </p>
+      </section>
+    <% } %>
+
+  <% } %>
+</div>
+
+<%- include('../partials/panel-foot', { site }) %>

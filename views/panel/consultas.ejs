@@ -1,0 +1,129 @@
+<%#
+  Consultas recibidas del formulario de contacto.
+
+  Variables: consultas, estados, etiqueta, recuento, fecha,
+             estado, q, pagina, paginas, total, desde, hasta
+%>
+<%- include('../partials/panel-head', { title, site, base, current }) %>
+
+<%# `etiqueta` ya no necesita red de seguridad: routes/panel.js lo
+    inyecta en res.locals para todas las vistas del panel. Antes esta
+    línea era un parche contra un TypeError que también rompía cobros.ejs
+    y mis-servicios.ejs, y que se arregló en el origen. %>
+<% var _et = etiqueta %>
+<% var _estado = typeof estado !== 'undefined' ? estado : '' %>
+<% var _q = typeof q !== 'undefined' ? q : '' %>
+
+<div class="panel-page">
+  <div class="panel-page-head">
+    <div>
+      <span class="panel-kicker">Embudo</span>
+      <h1>Consultas</h1>
+      <p class="panel-count">
+        <%= recuento.nuevo || 0 %> sin responder
+        <% if (total) { %>· <%= total %> en total<% } %>
+      </p>
+    </div>
+  </div>
+
+  <nav class="panel-tabs">
+    <a href="<%= base %>/consultas" class="<%= !_estado ? 'is-active' : '' %>">Todas (<%= total %>)</a>
+    <% estados.forEach(function (e) { %>
+      <a href="<%= base %>/consultas?estado=<%= e.valor %>" class="<%= _estado === e.valor ? 'is-active' : '' %>">
+        <%= e.label %> (<%= recuento[e.valor] || 0 %>)
+      </a>
+    <% }); %>
+  </nav>
+
+  <form class="panel-filters" method="get" action="<%= base %>/consultas">
+    <% if (estado) { %><input type="hidden" name="estado" value="<%= _estado %>" /><% } %>
+    <input type="search" name="q" value="<%= _q %>" placeholder="Buscar por nombre, email o texto…" class="panel-search" />
+    <button type="submit" class="panel-btn panel-btn--ghost">Buscar</button>
+    <% if (_q) { %><a href="<%= base %>/consultas<%= _estado ? '?estado=' + _estado : '' %>" class="panel-clear">Limpiar</a><% } %>
+  </form>
+
+  <% if (!consultas.length) { %>
+    <div class="panel-empty">
+      <h2><%= q ? 'Nada con «' + q + '»' : 'Aquí no hay nada todavía' %></h2>
+      <p>
+        <% if (total === 0 && !estado) { %>
+          Cuando alguien rellene el formulario de la web aparecerá aquí al instante.
+        <% } else { %>
+          Prueba a cambiar el filtro.
+        <% } %>
+      </p>
+    </div>
+  <% } else { %>
+
+    <ul class="panel-leads">
+      <% consultas.forEach(function (c) { %>
+        <li class="panel-lead">
+          <div class="panel-lead-head">
+            <div>
+              <strong><%= c.nombre %></strong>
+              <% if (c.empresa) { %><span class="panel-lead-empresa"><%= c.empresa %></span><% } %>
+            </div>
+            <span class="panel-chip panel-chip--lead-<%= c.estado %>"><%= _et(c.estado) %></span>
+          </div>
+
+          <div class="panel-lead-meta">
+            <a href="mailto:<%= c.email %>"><%= c.email %></a>
+            <% if (c.telefono) { %><span><%= c.telefono %></span><% } %>
+            <span><%= fecha(c.recibido_en) %></span>
+            <% if (c.tipo) { %><span class="panel-tag-soft"><%= c.tipo %></span><% } %>
+            <% if (c.presupuesto) { %><span class="panel-tag-soft">presupuesto: <%= c.presupuesto %></span><% } %>
+          </div>
+
+          <p class="panel-lead-msg"><%= c.mensaje %></p>
+
+          <% if (c.notas) { %>
+            <p class="panel-lead-notes"><strong>Nota:</strong> <%= c.notas %></p>
+          <% } %>
+
+          <div class="panel-lead-actions">
+            <form method="post" action="<%= base %>/consultas/<%= c.id %>/estado">
+              <input type="hidden" name="_csrf" value="<%= csrf %>" />
+              <input type="hidden" name="volver" value="<%= base %>/consultas<%= _estado ? '?estado=' + _estado : '' %>" />
+              <select name="estado" class="panel-select-mini" aria-label="Estado de la consulta">
+                <% estados.forEach(function (e) { %>
+                  <option value="<%= e.valor %>" <%= c._estado === e.valor ? 'selected' : '' %>><%= e.label %></option>
+                <% }); %>
+              </select>
+              <button type="submit" class="panel-btn panel-btn--ghost panel-btn--xs">Cambiar</button>
+            </form>
+
+            <details class="panel-note-edit">
+              <summary class="panel-btn panel-btn--ghost panel-btn--xs">Añadir nota</summary>
+              <form method="post" action="<%= base %>/consultas/<%= c.id %>/notas">
+                <input type="hidden" name="_csrf" value="<%= csrf %>" />
+                <input type="hidden" name="volver" value="<%= base %>/consultas<%= _estado ? '?estado=' + _estado : '' %>" />
+                <textarea name="notas" rows="2" placeholder="Nota interna…"><%= c.notas || '' %></textarea>
+                <button type="submit" class="panel-btn panel-btn--ghost panel-btn--xs">Guardar nota</button>
+              </form>
+            </details>
+
+            <a href="mailto:<%= c.email %>?subject=Tu%20presupuesto%20-%20Nexo%20Studio" class="panel-btn panel-btn--primary panel-btn--xs">
+              Responder
+            </a>
+          </div>
+        </li>
+      <% }); %>
+    </ul>
+
+    <% if (paginas > 1) { %>
+      <nav class="panel-pager" aria-label="Paginación">
+        <%# Los filtros se arrastran al cambiar de página. %>
+        <% var conserva = (estado ? '&estado=' + estado : '') + (q ? '&q=' + encodeURIComponent(q) : ''); %>
+        <% if (pagina > 1) { %>
+          <a href="?pagina=<%= pagina - 1 %><%= conserva %>">← Anterior</a>
+        <% } %>
+        <span>Página <%= pagina %> de <%= paginas %> · viendo <%= desde %>–<%= hasta %></span>
+        <% if (pagina < paginas) { %>
+          <a href="?pagina=<%= pagina + 1 %><%= conserva %>">Siguiente →</a>
+        <% } %>
+      </nav>
+    <% } %>
+  <% } %>
+</div>
+
+<%- include('../partials/panel-foot', { site }) %>

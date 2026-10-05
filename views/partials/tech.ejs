@@ -1,0 +1,42 @@
+<%#
+  Bloque de tecnologías e integraciones.
+
+  Sin parámetros: lee de content/tech.js a través de `tech`.
+  Edita ese archivo, no esta vista.
+
+  Muestra el stack declarado. Si una tecnología no es real,
+  bórrala del archivo: es una afirmación comercial.
+%>
+<section class="section section--soft">
+  <div class="container">
+    <div class="section-head section-head--center reveal">
+      <span class="eyebrow">Con qué trabajamos</span>
+      <h2>Tecnologías que ya conocemos a fondo</h2>
+      <p>Elegimos la herramienta según lo que necesita tu proyecto, no al revés. Estas son las que usamos habitualmente.</p>
+    </div>
+
+    <div class="tech-grid reveal">
+      <% tech.forEach(function (group) { %>
+        <div class="tech-group">
+          <h3><%= group.title %></h3>
+          <ul>
+            <% group.items.forEach(function (item) { %>
+              <li><%= item %></li>
+            <% }); %>
+          </ul>
+        </div>
+      <% }); %>
+    </div>
+
+    <div class="tech-note reveal">
+      <h3>¿Tu web actual necesita una auditoría?</h3>
+      <p>Antes de presupuesto, revisamos tu sitio y te decimos qué está frenando tus ventas. Gratis y sin compromiso.</p>
+      <ul class="tech-checks">
+        <% techAuditoria.forEach(function (item) { %>
+          <li><%= item %></li>
+        <% }); %>
+      </ul>
+      <a href="/contacto?tipo=auditoria" class="btn btn-primary btn-sm magnetic">Pedir auditoría gratis</a>
+    </div>
+  </div>
+</section>

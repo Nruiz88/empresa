@@ -1,0 +1,24 @@
+<%- include('partials/head') %>
+<%- include('partials/header', { current: "" }) %>
+
+<section class="page-hero page-hero--premium page-hero--centered">
+  <div class="page-hero-bg" aria-hidden="true">
+    <div class="hero-grid"></div>
+    <span class="aurora aurora-1"></span>
+    <span class="aurora aurora-2"></span>
+    <div class="hero-noise"></div>
+  </div>
+
+  <div class="container" style="text-align:center;">
+    <span class="eyebrow eyebrow-pill" style="margin-bottom:1rem;"><span class="dot" aria-hidden="true"></span>Error 404</span>
+    <h1 class="page-hero-title"><span class="line"><span>Esta página no existe</span></span></h1>
+    <p class="lead" style="margin-inline:auto;">Puede que el enlace esté antiguo o que hayamos movido el contenido. Prueba con uno de estos caminos.</p>
+    <div class="cta-actions" style="margin-top:1.75rem; justify-content:center;">
+      <a href="/" class="btn btn-primary">Volver al inicio</a>
+      <a href="/blog" class="btn btn-ghost">Ir al blog</a>
+      <a href="/contacto" class="btn btn-ghost">Contactar</a>
+    </div>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

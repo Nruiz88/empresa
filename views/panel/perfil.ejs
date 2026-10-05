@@ -1,0 +1,322 @@
+<%#
+  Perfil del cliente: su negocio, su facturación y sus enlaces.
+
+  POR QUÉ SON TRES FORMULARIOS Y UNO SOLO
+  ---------------------------------------
+  Porque van a sitios distintos y se guardan por separado: la dirección
+  del negocio es una cosa y a quién se factura es otra, y a veces son
+  empresas distintas (ver la cabecera de db/migrations/010_perfil.sql).
+  Meterlo todo en un formulario y un botón sería más corto de escribir,
+  pero si el cliente se equivoca en el IBAN perdería también la
+  dirección. Con tres, cada uno guarda lo suyo.
+
+  Lo que NO se puede editar aquí
+  ------------------------------
+  · El régimen de IVA. Lo pone el equipo: un cliente que se cambia a
+    'exento' se quita el IVA a sí mismo.
+  · Los cobros y las facturas. Eso se ve, no se toca.
+
+  Variables: perfil, ficha, facturacion, errores, aviso, hecho,
+             errorGuardar, pendientes, csrf, rol
+
+  OJO con `csrf` y `rol`: panel-head los recibe como `_csrf` y `_rol`
+  (con guion bajo) porque los declara así dentro del partial. Aquí,
+  fuera de él, se usan sin guion. Por eso la ruta los pasa: leer
+  `res.locals` desde la vista no funciona, y las vistas no tienen
+  acceso a `req`.
+%>
+<%- include('../partials/panel-head', { title, site, base, current }) %>
+
+<div class="panel-page">
+
+  <div class="portal-cab">
+    <div>
+      <span class="portal-cab-saludo">Tu cuenta</span>
+      <h1>Perfil del negocio</h1>
+      <p class="portal-cab-empresa">
+        Datos que usamos para trabajar contigo y para facturarte.
+      </p>
+    </div>
+  </div>
+
+<% if (hecho) { %>
+  <div class="panel-alert panel-alert--ok">Guardado.</div>
+<% } %>
+
+<% if (errorGuardar) { %>
+  <div class="panel-alert">No se pudo guardar. Inténtalo otra vez.</div>
+<% } %>
+
+<% if (aviso) { %>
+  <div class="panel-alert"><%= aviso %></div>
+<% } %>
+
+<%# El resumen de lo que falta. Va arriba porque el motivo de estar
+    aquí casi siempre es "me pide datos que no sé dónde poner". %>
+<% if (pendientes && pendientes.length) { %>
+  <div class="panel-requiere">
+    <div class="panel-requiere-texto">
+      <strong>Falta un par de cosas</strong>
+      <span>Para que no se nos escape nada: <%= pendientes.join(', ') %>.</span>
+    </div>
+  </div>
+<% } %>
+
+<% if (!perfil) { %>
+  <div class="panel-empty">
+    <h2>Esta cuenta no tiene ficha</h2>
+    <p>
+      Tu usuario es del equipo, no de un cliente, así que no hay
+      negocio que rellenar. Si te has equivocado de cuenta, escríbenos.
+    </p>
+  </div>
+<% } else { %>
+
+<!-- ============================================================
+     1. DATOS DEL NEGOCIO
+     ============================================================ -->
+<form method="post" action="<%= base %>/perfil/ficha" class="portal-form-seccion" id="negocio">
+  <input type="hidden" name="_csrf" value="<%= csrf %>" />
+
+  <div class="portal-form-cab">
+    <h2 class="portal-form-titulo">Datos del negocio</h2>
+    <p class="portal-form-sub">Con esto sabemos con quién hablamos y dónde.</p>
+  </div>
+
+  <div class="panel-form-grid">
+    <div class="panel-field">
+      <span class="panel-field-label" id="lbl-empresa">Nombre comercial <span class="panel-opc">(opcional)</span></span>
+      <input type="text" id="empresa" name="empresa" disabled
+             value="<%= (perfil.cliente && perfil.cliente.empresa) || '' %>" />
+      <p class="panel-field-ayuda">No se puede cambiar aquí. Avísanos si está mal.</p>
+    </div>
+
+    <div class="panel-field<%= errores.cif ? " has-error" : "" %>">
+      <span class="panel-field-label" id="lbl-cif">CIF / NIF</span>
+      <input type="text" id="cif" name="cif" placeholder="B12345678"
+             value="<%= ficha.cif || '' %>" />
+      <p class="panel-field-ayuda">Lo pone el equipo cuando lo verifiquemos.</p>
+      <% if (errores.cif) { %><p class="panel-field-error"><%= errores.cif %></p><% } %>
+    </div>
+
+    <div class="panel-field panel-field--ancho">
+      <span class="panel-field-label" id="lbl-direccion">Dirección</span>
+      <input type="text" id="direccion" name="direccion" placeholder="Calle Mayor 12, 3º B"
+             value="<%= ficha.direccion || '' %>" />
+    </div>
+
+    <div class="panel-field<%= errores.codigo_postal ? " has-error" : "" %>">
+      <span class="panel-field-label" id="lbl-codigo_postal">Código postal</span>
+      <input type="text" id="codigo_postal" name="codigo_postal" placeholder="28013"
+             maxlength="5" inputmode="numeric"
+             value="<%= ficha.codigo_postal || '' %>" />
+      <% if (errores.codigo_postal) { %><p class="panel-field-error"><%= errores.codigo_postal %></p><% } %>
+    </div>
+
+    <div class="panel-field">
+      <span class="panel-field-label" id="lbl-ciudad">Ciudad</span>
+      <input type="text" id="ciudad" name="ciudad" placeholder="Madrid"
+             value="<%= ficha.ciudad || '' %>" />
+    </div>
+
+    <div class="panel-field">
+      <span class="panel-field-label" id="lbl-provincia">Provincia</span>
+      <input type="text" id="provincia" name="provincia" placeholder="Madrid"
+             value="<%= ficha.provincia || '' %>" />
+    </div>
+
+    <div class="panel-field">
+      <span class="panel-field-label" id="lbl-sector">A qué te dedicas</span>
+      <input type="text" id="sector" name="sector" placeholder="Panadería, taller, clínica…"
+             value="<%= ficha.sector || '' %>" />
+    </div>
+
+    <div class="panel-field<%= errores.web ? " has-error" : "" %>">
+      <span class="panel-field-label" id="lbl-web">Tu web</span>
+      <input type="url" id="web" name="web" placeholder="tupanoreria.com"
+             value="<%= ficha.web || '' %>" />
+      <% if (errores.web) { %><p class="panel-field-error"><%= errores.web %></p><% } %>
+    </div>
+
+    <div class="panel-field">
+      <span class="panel-field-label" id="lbl-whatsapp">WhatsApp</span>
+      <input type="tel" id="whatsapp" name="whatsapp" placeholder="600 111 222"
+             value="<%= ficha.whatsapp || '' %>" />
+      <p class="panel-field-ayuda">Con prefijo 34. Lo guardamos normalizado.</p>
+    </div>
+  </div>
+
+  <div class="portal-form-pie">
+    <button type="submit" class="panel-btn panel-btn--primary">Guardar datos del negocio</button>
+  </div>
+</form>
+
+<!-- ============================================================
+     2. REDES Y ENLACES
+     ============================================================ -->
+<form method="post" action="<%= base %>/perfil/ficha" class="portal-form-seccion">
+  <input type="hidden" name="_csrf" value="<%= csrf %>" />
+  <!-- Los campos del negocio se reenvían aquí porque este form es el
+       mismo POST. Si no, al guardar los enlaces se borrarían los datos
+       que ya estaban escritos arriba. -->
+  <input type="hidden" name="cif" value="<%= ficha.cif || '' %>" />
+  <input type="hidden" name="direccion" value="<%= ficha.direccion || '' %>" />
+  <input type="hidden" name="codigo_postal" value="<%= ficha.codigo_postal || '' %>" />
+  <input type="hidden" name="ciudad" value="<%= ficha.ciudad || '' %>" />
+  <input type="hidden" name="provincia" value="<%= ficha.provincia || '' %>" />
+  <input type="hidden" name="sector" value="<%= ficha.sector || '' %>" />
+  <input type="hidden" name="web" value="<%= ficha.web || '' %>" />
+  <input type="hidden" name="whatsapp" value="<%= ficha.whatsapp || '' %>" />
+
+  <div class="portal-form-cab">
+    <h2 class="portal-form-titulo">Redes y enlaces</h2>
+    <p class="portal-form-sub">Dónde te encuentra la gente. Los que no sean redes, abajo.</p>
+  </div>
+
+  <div class="panel-form-grid">
+    <div class="panel-field<%= errores.instagram ? " has-error" : "" %>">
+      <span class="panel-field-label" id="lbl-instagram">Instagram</span>
+      <input type="text" id="instagram" name="instagram" placeholder="@tupanoreria"
+             value="<%= ficha.instagram || '' %>" />
+      <% if (errores.instagram) { %><p class="panel-field-error"><%= errores.instagram %></p><% } %>
+    </div>
+
+    <div class="panel-field<%= errores.facebook ? " has-error" : "" %>">
+      <span class="panel-field-label" id="lbl-facebook">Facebook</span>
+      <input type="text" id="facebook" name="facebook" placeholder="tupanoreria"
+             value="<%= ficha.facebook || '' %>" />
+      <% if (errores.facebook) { %><p class="panel-field-error"><%= errores.facebook %></p><% } %>
+    </div>
+
+    <div class="panel-field<%= errores.linkedin ? " has-error" : "" %>">
+      <span class="panel-field-label" id="lbl-linkedin">LinkedIn</span>
+      <input type="text" id="linkedin" name="linkedin" placeholder="tu-empresa"
+             value="<%= ficha.linkedin || '' %>" />
+      <% if (errores.linkedin) { %><p class="panel-field-error"><%= errores.linkedin %></p><% } %>
+    </div>
+
+    <div class="panel-field panel-field--ancho">
+      <span class="panel-field-label" id="lbl-enlaces">Otros enlaces</span>
+      <textarea id="enlaces" name="enlaces" rows="4"
+                placeholder="Google Business|https://g.page/mi-negocio&#10;Carta|https://tupanoreria.com/carta"></textarea>
+      <p class="panel-field-ayuda">Uno por línea, con el texto y la dirección separados por una barra: <code>texto|dirección</code></p>
+      <% if (errores.enlaces) { %><p class="panel-field-error"><%= errores.enlaces %></p><% } %>
+    </div>
+  </div>
+
+  <div class="portal-form-pie">
+    <button type="submit" class="panel-btn panel-btn--primary">Guardar redes y enlaces</button>
+  </div>
+</form>
+
+<!-- ============================================================
+     3. FACTURACIÓN
+     ============================================================ -->
+<form method="post" action="<%= base %>/perfil/facturacion" class="portal-form-seccion" id="facturacion">
+  <input type="hidden" name="_csrf" value="<%= csrf %>" />
+
+  <div class="portal-form-cab">
+    <h2 class="portal-form-titulo">Facturación</h2>
+    <p class="portal-form-sub">
+      A quién y dónde emitimos las facturas. Puede ser distinto de tus
+      datos de arriba: una sociedad, un holding, otro domicilio…
+    </p>
+  </div>
+
+  <div class="panel-form-grid">
+    <div class="panel-field panel-field--ancho">
+      <span class="panel-field-label" id="lbl-razon_social">Razón social <span class="panel-requerido">*</span></span>
+      <input type="text" id="razon_social" name="razon_social" placeholder="Panadería La Espiga S.L."
+             value="<%= facturacion.razon_social || '' %>" />
+      <% if (errores.razon_social) { %><p class="panel-field-error"><%= errores.razon_social %></p><% } %>
+    </div>
+
+    <div class="panel-field">
+      <span class="panel-field-label" id="lbl-nif_fact">NIF de facturación</span>
+      <input type="text" id="nif_fact" name="nif" placeholder="B12345678"
+             value="<%= facturacion.nif || '' %>" />
+    </div>
+
+    <div class="panel-field">
+      <span class="panel-field-label" id="lbl-email_fact">Email de facturas <span class="panel-requerido">*</span></span>
+      <input type="email" id="email_fact" name="email" placeholder="facturacion@empresa.com"
+             value="<%= facturacion.email || '' %>" />
+      <% if (errores.email) { %><p class="panel-field-error"><%= errores.email %></p><% } %>
+    </div>
+
+    <div class="panel-field panel-field--ancho">
+      <span class="panel-field-label" id="lbl-dir_fact">Dirección de facturación</span>
+      <input type="text" id="dir_fact" name="direccion" placeholder="Calle Mayor 12, 3º B"
+             value="<%= facturacion.direccion || '' %>" />
+    </div>
+
+    <div class="panel-field">
+      <span class="panel-field-label" id="lbl-cp_fact">Código postal</span>
+      <input type="text" id="cp_fact" name="codigo_postal" maxlength="5" inputmode="numeric"
+             placeholder="28013" value="<%= facturacion.codigo_postal || '' %>" />
+      <% if (errores.codigo_postal) { %><p class="panel-field-error"><%= errores.codigo_postal %></p><% } %>
+    </div>
+
+    <div class="panel-field">
+      <span class="panel-field-label" id="lbl-ciudad_fact">Ciudad</span>
+      <input type="text" id="ciudad_fact" name="ciudad" placeholder="Madrid"
+             value="<%= facturacion.ciudad || '' %>" />
+    </div>
+
+    <div class="panel-field">
+      <span class="panel-field-label" id="lbl-provincia_fact">Provincia</span>
+      <input type="text" id="provincia_fact" name="provincia" placeholder="Madrid"
+             value="<%= facturacion.provincia || '' %>" />
+    </div>
+
+    <div class="panel-field panel-field--ancho">
+      <span class="panel-field-label" id="lbl-iban">IBAN o cuenta</span>
+      <input type="text" id="iban" name="iban" placeholder="ES91 2100 0418 4502 0005 1332"
+             value="<%= facturacion.iban || '' %>" />
+      <p class="panel-field-ayuda">Para pagarte por transferencia sin escribirla cada vez.</p>
+    </div>
+
+    <% if (rol === 'staff') { %>
+      <div class="panel-field">
+        <span class="panel-field-label" id="lbl-regimen_iva">Régimen de IVA</span>
+        <select id="regimen_iva" name="regimen_iva">
+          <option value="">— sin especificar —</option>
+          <option value="general"       <%= facturacion.regimen_iva === 'general' ? 'selected' : '' %>>General (21%)</option>
+          <option value="reducido"      <%= facturacion.regimen_iva === 'reducido' ? 'selected' : '' %>>Reducido (10%)</option>
+          <option value="superreducido" <%= facturacion.regimen_iva === 'superreducido' ? 'selected' : '' %>>Superreducido (4%)</option>
+          <option value="equivalencia"  <%= facturacion.regimen_iva === 'equivalencia' ? 'selected' : '' %>>Recargo de equivalencia</option>
+          <option value="exento"        <%= facturacion.regimen_iva === 'exento' ? 'selected' : '' %>>Exento</option>
+        </select>
+        <p class="panel-field-ayuda">Solo el equipo puede tocarlo.</p>
+      </div>
+    <% } else if (facturacion.regimen_iva) { %>
+      <div class="panel-field panel-field--ancho">
+        <span class="panel-field-label">Régimen de IVA</span>
+        <p class="panel-valor-fijo">
+          <%= facturacion.regimen_iva === 'general' ? 'General (21%)'
+             : facturacion.regimen_iva === 'reducido' ? 'Reducido (10%)'
+             : facturacion.regimen_iva === 'superreducido' ? 'Superreducido (4%)'
+             : facturacion.regimen_iva === 'equivalencia' ? 'Recargo de equivalencia'
+             : facturacion.regimen_iva === 'exento' ? 'Exento' : facturacion.regimen_iva %>
+        </p>
+        <p class="panel-field-ayuda">Lo gestiona el equipo. Si está mal, escríbenos.</p>
+      </div>
+    <% } %>
+
+    <div class="panel-field panel-field--ancho">
+      <span class="panel-field-label" id="lbl-notas_fact">Notas de facturación</span>
+      <textarea id="notas_fact" name="notas" rows="3"
+                placeholder="Facturar a nombre de…, enviar también a…"><%= facturacion.notas || '' %></textarea>
+    </div>
+  </div>
+
+  <div class="portal-form-pie">
+    <button type="submit" class="panel-btn panel-btn--primary">Guardar facturación</button>
+  </div>
+</form>
+
+<% } %>
+
+</div>
+
+<%- include('../partials/panel-foot', { site }) %>

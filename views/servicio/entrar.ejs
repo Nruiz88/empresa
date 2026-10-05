@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title><%= titulo %></title>
+<style>
+  /* Estilos mínimos y propios: este es el arranque del servicio, no
+     el panel. Cuando el servicio tenga su propia interfaz, esta
+     pantalla desaparece. */
+  :root { color-scheme: light dark; }
+  body {
+    margin: 0; min-height: 100vh; display: grid; place-items: center;
+    font: 16px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: #0f1115; color: #e8eaed;
+  }
+  .caja {
+    max-width: 30rem; padding: 2rem; text-align: center;
+    background: #171a21; border-radius: 14px;
+    border: 1px solid #262a33;
+  }
+  h1 { font-size: 1.25rem; margin: 0 0 .5rem; }
+  p { margin: .5rem 0; color: #9aa3b2; }
+  .mal { color: #ff8f8f; }
+  .bien { color: #7ee2a8; }
+  .giro {
+    width: 2rem; height: 2rem; margin: 1rem auto;
+    border: 2px solid #2b303b; border-top-color: #6b8cff;
+    border-radius: 50%; animation: girar .8s linear infinite;
+  }
+  @keyframes girar { to { transform: rotate(360deg); } }
+  a { color: #8fb0ff; }
+</style>
+</head>
+<body>
+  <div class="caja">
+    <div id="estado">
+      <h1><%= titulo %></h1>
+      <div class="giro" id="giro"></div>
+      <p id="mensaje">Comprobando tu acceso…</p>
+    </div>
+  </div>
+
+<script>
+/*
+   POR QUÉ EL TICKET SE LEE EN EL NAVEGADOR
+   ----------------------------------------
+   El ticket va en el fragmento de la URL (#...), que el navegador NO
+   envía al servidor. Si fuera una query (?ticket=...), el
+   access_token que lleva dentro acabaría escrito en los logs del
+   servidor, en los del proxy y en el historial del navegador.
+
+   Por eso: el servidor pinta esta página vacía, el JS lee el fragmento
+   y lo manda por POST. En los logs del servidor solo queda un
+   "POST /entrar" sin nada sensible.
+
+   Y el fragmento se borra de la barra de direcciones nada más leerlo,
+   para que no quede si el usuario copia la URL.
+*/
+(function () {
+  var ventana = document.getElementById("mensaje");
+  var giro = document.getElementById("giro");
+
+  var bruto = window.location.hash.replace(/^#/, "");
+  var params = new URLSearchParams(bruto);
+
+  /* El panel manda el ticket como #ticket=<valor>. */
+  var ticket = params.get("ticket") || bruto;
+
+  /* El panel está en OTRO host, así que este enlace tiene que ser
+     una URL completa. Con "/panel/login" el botón llevaría a este
+     mismo servicio, que no tiene esa ruta, y se vería el 404 de aquí
+     ("esta página no existe") en vez de un formulario de acceso. */
+  var panel = <%- JSON.stringify(panelUrl) %>;
+
+  function fallo(texto) {
+    giro.style.display = "none";
+    ventana.className = "mal";
+    ventana.innerHTML =
+      texto + ' <a href="' + panel + '/panel/login">Volver a entrar</a>.';
+  }
+
+  if (!ticket) {
+    fallo("No llegó el enlace de acceso.");
+    return;
+  }
+
+  /* Se borra el fragmento antes de hacer nada: si la llamada falla, el
+     usuario puede recargar y no se reintenta con un ticket caducado
+     medio minuto después. */
+  history.replaceState(null, "", window.location.pathname);
+
+  fetch("<%= endpoint %>", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "same-origin",
+    body: JSON.stringify({ ticket: ticket })
+  })
+    .then(function (r) {
+      return r.json().then(function (d) { return { ok: r.ok, datos: d }; });
+    })
+    .then(function (r) {
+      if (r.ok && r.datos && r.datos.ok) {
+        giro.style.display = "none";
+        ventana.className = "bien";
+        ventana.textContent = "Listo. Entrando…";
+        window.location.href = r.datos.volver || "/panel/mis-servicios";
+      } else {
+        fallo((r.datos && r.datos.error) || "No se pudo comprobar el acceso.");
+      }
+    })
+    .catch(function () {
+      fallo("No se pudo conectar con el servidor.");
+    });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,166 @@
+﻿<%#
+  Ficha de un cliente: sus datos, sus servicios y sus accesos.
+
+  Variables: cliente, servicios, accesos, etiquetaEstado,
+             etiquetaTipo, aviso
+
+  `aviso` lo pone la ruta según el ?servicio= / ?guardado= de la
+  URL. La vista no lee req.query: si lo hiciera, cualquier cambio
+  en cómo se montan las rutas rompería el render.
+%>
+<%- include('../partials/panel-head', { title, site, base, current }) %>
+
+<div class="panel-page">
+  <% if (aviso) { %>
+    <div class="panel-alert panel-alert--ok">✓ <%= aviso %></div>
+  <% } %>
+
+  <div class="panel-page-head">
+    <div>
+      <span class="panel-kicker">Cliente</span>
+      <h1><%= cliente.empresa || cliente.nombre %></h1>
+      <p class="panel-count">
+        <%= cliente.nombre %><% if (cliente.telefono) { %> · <%= cliente.telefono %><% } %>
+      </p>
+    </div>
+    <div class="panel-head-actions">
+      <a href="<%= base %>/clientes" class="panel-btn panel-btn--ghost">← Volver</a>
+      <a href="<%= base %>/clientes/<%= cliente.id %>/editar" class="panel-btn panel-btn--ghost">Editar</a>
+      <a href="<%= base %>/servicios/nuevo?cliente=<%= cliente.id %>" class="panel-btn panel-btn--primary">Nuevo servicio</a>
+    </div>
+  </div>
+
+  <div class="panel-split">
+    <!-- ---------- Servicios ---------- -->
+    <div class="panel-split-main">
+      <h2 class="panel-subtitle">Servicios</h2>
+
+      <%# Si tiene portal y algo está bloqueado, se avisa arriba. Es lo
+          primero que va a preguntar y conviene verlo sin abrir nada. %>
+      <% if (resumenCliente && resumenCliente.bloqueado > 0) { %>
+        <div class="panel-alert">
+          <%# El plural tiene que concordar con el número: "está
+              bloqueado" en singular, "están bloqueados" en plural.
+              Escrito a medias queda "un servicio está bloqueados". %>
+          <% if (resumenCliente.bloqueado === 1) { %>
+            Un servicio está bloqueado en su portal por pago vencido.
+          <% } else { %>
+            <%= resumenCliente.bloqueado %> servicios están bloqueados
+            en su portal por pago vencido.
+          <% } %>
+          En cuanto regularices el cobro se desbloquean solos.
+        </div>
+      <% } %>
+
+      <% if (!servicios.length) { %>
+        <div class="panel-empty panel-empty--sm">
+          <p>Este cliente aún no tiene ningún servicio.</p>
+          <a href="<%= base %>/servicios/nuevo?cliente=<%= cliente.id %>" class="panel-btn panel-btn--primary">Añadir el primero</a>
+        </div>
+      <% } else { %>
+        <ul class="panel-serv-list">
+          <% servicios.forEach(function (s) { %>
+            <li class="panel-serv">
+              <div class="panel-serv-main">
+                <span class="panel-chip panel-chip--<%= s.kind %>"><%= etiquetaTipo ? etiquetaTipo(s.kind) : s.kind %></span>
+                <strong><%= s.titulo %></strong>
+                <% if (s.descripcion) { %><p><%= s.descripcion %></p><% } %>
+              </div>
+
+              <div class="panel-serv-side">
+                <span class="panel-chip panel-chip--estado-<%= s.estado %>"><%= etiquetaEstado(s.estado) %></span>
+                <% if (s.importe !== null && s.importe !== undefined) { %>
+                  <span class="panel-serv-price"><%= new Intl.NumberFormat('es-ES', { style: 'currency', currency: s.moneda || 'EUR' }).format(s.importe) %></span>
+                <% } %>
+              </div>
+
+              <%# Qué ve el cliente de este servicio.
+                  Importante que sea la MISMA regla que su portal: si
+                  aquí pone "activo" y allí sale bloqueado, el cliente
+                  pregunta y nadie sabe qué responder. %>
+              <% if (s.vistaCliente) { %>
+                <span class="panel-chip panel-chip--acceso-<%= s.vistaCliente.nivel %>"
+                      title="Así lo ve el cliente en su portal">
+                  ve: <%= s.vistaCliente.titulo %>
+                </span>
+              <% } %>
+
+              <!-- Cambio de estado en un clic: lo más usado del panel -->
+              <form method="post" action="<%= base %>/servicios/<%= s.id %>/estado" class="panel-serv-form">
+                <input type="hidden" name="_csrf" value="<%= csrf %>" />
+                <input type="hidden" name="volver" value="<%= base %>/clientes/<%= cliente.id %>" />
+                <select name="estado" class="panel-select-mini" aria-label="Estado del servicio">
+                  <% ['pendiente','activo','en_curso','pausado','finalizado','cancelado'].forEach(function (e) { %>
+                    <option value="<%= e %>" <%= s.estado === e ? 'selected' : '' %>><%= etiquetaEstado(e) %></option>
+                  <% }); %>
+                </select>
+                <button type="submit" class="panel-btn panel-btn--ghost panel-btn--xs">Cambiar</button>
+              </form>
+
+              <a href="<%= base %>/servicios/<%= s.id %>/editar" class="panel-btn panel-btn--ghost panel-btn--xs">Editar</a>
+            </li>
+          <% }); %>
+        </ul>
+      <% } %>
+    </div>
+
+    <!-- ---------- Lateral ---------- -->
+    <aside class="panel-split-side">
+      <div class="panel-box">
+        <h2 class="panel-subtitle">Contacto</h2>
+        <dl class="panel-dl">
+          <dt>Empresa</dt><dd><%= cliente.empresa || "—" %></dd>
+          <dt>Nombre</dt><dd><%= cliente.nombre %></dd>
+          <dt>Email</dt>
+          <dd><% if (cliente.email) { %><a href="mailto:<%= cliente.email %>"><%= cliente.email %></a><% } else { %>—<% } %></dd>
+          <dt>Teléfono</dt><dd><%= cliente.telefono || "—" %></dd>
+        </dl>
+      </div>
+
+      <% if (cliente.notas) { %>
+        <div class="panel-box">
+          <h2 class="panel-subtitle">Notas</h2>
+          <p class="panel-notes"><%= cliente.notas %></p>
+        </div>
+      <% } %>
+
+      <div class="panel-box">
+        <h2 class="panel-subtitle">Acceso al portal</h2>
+        <% if (!accesos.length) { %>
+          <p class="panel-hint">
+            Este cliente todavía no puede entrar al panel.
+            Crea su acceso con:
+          </p>
+          <code class="panel-code">node db/create-user.js --email <%= cliente.email || 'correo@empresa.com' %> --nombre "<%= cliente.nombre %>" --cliente --empresa "<%= cliente.empresa || cliente.nombre %>"</code>
+        <% } else { %>
+          <ul class="panel-list">
+            <% accesos.forEach(function (a) { %>
+              <li>
+                <strong><%= a.nombre || "Sin nombre" %></strong>
+                <span>
+                  <%= a.activo ? 'Activo' : 'Desactivado' %>
+                  <% if (a.ultimo_acceso) { %> · último acceso <%= new Date(a.ultimo_acceso).toLocaleDateString('es-ES') %><% } %>
+                </span>
+              </li>
+            <% }); %>
+          </ul>
+        <% } %>
+      </div>
+
+      <% if (!cliente.archivado) { %>
+        <form method="post" action="<%= base %>/clientes/<%= cliente.id %>/archivar" class="panel-box panel-box--peligro">
+          <input type="hidden" name="_csrf" value="<%= csrf %>" />
+          <h2 class="panel-subtitle">Archivar</h2>
+          <p class="panel-hint">
+            Lo saca de los listados pero conserva sus servicios y el
+            histórico. Borrar un cliente con servicios es una decisión
+            difícil de deshacer, por eso no hay botón de borrar.
+          </p>
+          <button type="submit" class="panel-btn panel-btn--ghost">Archivar cliente</button>
+        </form>
+      <% } %>
+    </aside>
+  </div>
+</div>
+
+<%- include('../partials/panel-foot', { site }) %>

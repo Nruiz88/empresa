@@ -1,0 +1,125 @@
+﻿<%#
+  Listado de servicios de toda la agencia, con filtros por tipo
+  y estado.
+
+  Variables: servicios, clientes, tipos, estados, etiqueta, q,
+             tipo, estado, pagina, paginas, total, desde, hasta
+%>
+<%- include('../partials/panel-head', { title, site, base, current }) %>
+
+<div class="panel-page">
+  <div class="panel-page-head">
+    <div>
+      <span class="panel-kicker">Gestión</span>
+      <h1>Servicios</h1>
+      <p class="panel-count"><%= total %> en total<%= tipo || estado || q ? ' con filtro' : '' %></p>
+    </div>
+    <a href="<%= base %>/servicios/nuevo" class="panel-btn panel-btn--primary">Nuevo servicio</a>
+  </div>
+
+  <form class="panel-filters" method="get" action="<%= base %>/servicios">
+    <input type="search" name="q" value="<%= q %>" placeholder="Buscar por título…" class="panel-search" />
+
+    <select name="tipo" class="panel-select">
+      <option value="">Todos los tipos</option>
+      <% tipos.forEach(function (t) { %>
+        <option value="<%= t.valor %>" <%= tipo === t.valor ? 'selected' : '' %>><%= t.label %></option>
+      <% }); %>
+    </select>
+
+    <select name="estado" class="panel-select">
+      <option value="">Todos los estados</option>
+      <% estados.forEach(function (e) { %>
+        <option value="<%= e.valor %>" <%= estado === e.valor ? 'selected' : '' %>><%= e.label %></option>
+      <% }); %>
+    </select>
+
+    <button type="submit" class="panel-btn panel-btn--ghost">Filtrar</button>
+    <% if (tipo || estado || q) { %>
+      <a href="<%= base %>/servicios" class="panel-clear">Limpiar</a>
+    <% } %>
+  </form>
+
+  <% if (!servicios.length) { %>
+    <div class="panel-empty">
+      <h2>No hay servicios<%= tipo || estado || q ? ' con ese filtro' : '' %></h2>
+      <% if (tipo || estado || q) { %>
+        <p>Prueba a quitar algún filtro.</p>
+        <a href="<%= base %>/servicios" class="panel-btn panel-btn--ghost">Ver todos</a>
+      <% } else { %>
+        <p>Colga el primero a un cliente para verlo aparecer aquí.</p>
+        <a href="<%= base %>/servicios/nuevo" class="panel-btn panel-btn--primary">Nuevo servicio</a>
+      <% } %>
+    </div>
+  <% } else { %>
+
+    <div class="panel-table-wrap">
+      <table class="panel-table">
+        <thead>
+          <tr>
+            <th>Servicio</th>
+            <th>Cliente</th>
+            <th>Estado</th>
+            <th class="panel-th-num">Importe</th>
+            <th class="panel-th-actions"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% servicios.forEach(function (s) { %>
+            <tr>
+              <td>
+                <span class="panel-chip panel-chip--<%= s.kind %>">
+                  <%= etiquetaTipo(s.kind) %>
+                </span>
+                <span class="panel-cell-main"><%= s.titulo %></span>
+              </td>
+              <td>
+                <% var cli = s.clients; %>
+                <% if (cli) { %>
+                  <a href="<%= base %>/clientes/<%= s.client_id %>"><%= cli.empresa || cli.nombre %></a>
+                <% } else { %>—<% } %>
+              </td>
+              <td>
+                <form method="post" action="<%= base %>/servicios/<%= s.id %>/estado">
+                  <input type="hidden" name="_csrf" value="<%= csrf %>" />
+                  <input type="hidden" name="volver" value="<%= base %>/servicios" />
+                  <select name="estado" class="panel-select-mini" aria-label="Estado">
+                    <% estados.forEach(function (e) { %>
+                      <option value="<%= e.valor %>" <%= s.estado === e.valor ? 'selected' : '' %>><%= e.label %></option>
+                    <% }); %>
+                  </select>
+                </form>
+              </td>
+              <td class="panel-th-num">
+                <% if (s.importe !== null && s.importe !== undefined) { %>
+                  <%= new Intl.NumberFormat('es-ES', { style: 'currency', currency: s.moneda || 'EUR' }).format(s.importe) %>
+                <% } else { %>—<% } %>
+              </td>
+              <td class="panel-th-actions">
+                <a href="<%= base %>/servicios/<%= s.id %>/editar" class="panel-btn panel-btn--ghost panel-btn--xs">Editar</a>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+
+    <% if (paginas > 1) { %>
+      <nav class="panel-pager" aria-label="Paginación">
+        <%# Los filtros se arrastran al cambiar de página. Si no, se
+            busca algo y al ir a la página 2 se pierde la búsqueda y
+            parece que el buscador no funciona. %>
+        <% var conserva = (tipo ? '&tipo=' + tipo : '') + (estado ? '&estado=' + estado : '') + (q ? '&q=' + encodeURIComponent(q) : ''); %>
+        <% if (pagina > 1) { %>
+          <a href="?pagina=<%= pagina - 1 %><%= conserva %>">← Anterior</a>
+        <% } %>
+        <span>Página <%= pagina %> de <%= paginas %> · viendo <%= desde %>–<%= hasta %></span>
+        <% if (pagina < paginas) { %>
+          <a href="?pagina=<%= pagina + 1 %><%= conserva %>">Siguiente →</a>
+        <% } %>
+      </nav>
+    <% } %>
+  <% } %>
+</div>
+
+<%- include('../partials/panel-foot', { site }) %>

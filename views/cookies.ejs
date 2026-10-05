@@ -1,0 +1,55 @@
+<%- include('partials/head') %>
+<%- include('partials/header', { current: "" }) %>
+
+<%- include('partials/legal-hero', {
+      eyebrow: "Legal",
+      title: "Política de cookies",
+      lead: "Qué cookies y tecnologías similares utiliza este sitio, con qué finalidad y cómo puedes gestionarlas o retirar tu consentimiento."
+    }) %>
+
+<section class="section" style="padding-top: 1rem;">
+  <div class="container">
+    <article class="prose">
+      <div class="callout">
+        <p><strong>Última actualización:</strong> 1 de octubre de 2026. Esta política se lee junto al <a href="/aviso-legal">aviso legal</a> y la <a href="/privacidad">política de privacidad</a>.</p>
+      </div>
+
+      <h2>1. Qué es una cookie</h2>
+      <p>Una cookie es un pequeño archivo que el navegador guarda en tu dispositivo cuando visitas una web. Sirve para recordar información de la visita: preferencias, sesión o datos de uso. Existen también tecnologías similares como el <code>localStorage</code>, que cumple una función parecida sin enviarse al servidor.</p>
+
+      <h2>2. Qué utilizamos en este sitio</h2>
+      <ul>
+        <li><strong>Cookies técnicas (necesarias):</strong> imprescindibles para que el sitio funcione correctamente y de forma segura. No requieren consentimiento porque son necesarias para prestar el servicio solicitado.</li>
+        <li><strong>Preferencia de tema en <code>localStorage</code>:</strong> guarda si elegiste el tema visual claro, oscuro o colorido para mostrártelo igual en tu próxima visita. No sale de tu navegador ni permite identificarte.</li>
+        <li><strong>Sin cookies de analítica ni publicitarias:</strong> en este momento no instalamos Google Analytics, píxeles de redes sociales ni cookies de terceros con fines de medición o publicidad.</li>
+      </ul>
+
+      <div class="callout">
+        <p><strong>Tabla resumen:</strong></p>
+        <p>
+          <code>nexo-theme</code> (localStorage) · Finalidad: recordar la apariencia elegida · Tipo: preferencia · Duración: hasta que la borres manualmente.
+        </p>
+      </div>
+
+      <h2>3. Si añadimos analítica en el futuro</h2>
+      <p>Cualquier cookie no necesaria (analítica, vídeos incrustados, chat o mapas interactivos de terceros) se instalará <strong>solo después</strong> de que aceptes expresamente mediante el aviso de cookies, y podrás rechazarlas o cambiar de opinión en cualquier momento desde el enlace «Configurar cookies» del pie de página.</p>
+
+      <h2>4. Cómo gestionar las cookies desde tu navegador</h2>
+      <ul>
+        <li><strong>Chrome:</strong> Configuración → Privacidad y seguridad → Cookies y otros datos de sitios.</li>
+        <li><strong>Firefox:</strong> Ajustes → Privacidad &amp; Seguridad → Cookies y datos del sitio.</li>
+        <li><strong>Safari:</strong> Preferencias → Privacidad → Gestionar datos de sitios web.</li>
+        <li><strong>Edge:</strong> Configuración → Cookies y permisos del sitio.</li>
+      </ul>
+      <p>También puedes borrar el <code>localStorage</code> del sitio desde las herramientas de desarrollo del navegador; en ese caso perderás la preferencia de tema y volverás al tema oscuro por defecto.</p>
+
+      <h2>5. Retirar el consentimiento</h2>
+      <p>Como este sitio no utiliza cookies que requieran consentimiento, no hay un panel de configuración activo. Si en el futuro se activara, encontrarás el acceso a dicho panel en el enlace «Cookies» del pie de página, y podrás retirar tu consentimiento en el mismo sitio donde lo otorgaste, sin perjuicio de la licitud del tratamiento previo.</p>
+
+      <h2>6. Más información</h2>
+      <p>Si tienes dudas sobre esta política, escribe a <a href="mailto:<%= site.email %>"><%= site.email %></a>. Puedes consultar la guía y los recursos de la Agencia Española de Protección de Datos en <a href="https://www.aepd.es" target="_blank" rel="noopener">www.aepd.es</a>.</p>
+    </article>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

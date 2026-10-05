@@ -1,0 +1,40 @@
+<%- include('partials/head') %>
+<%- include('partials/header', { current: "blog" }) %>
+
+<%- include('partials/page-hero', {
+      variant: "blog",
+      eyebrow: "Blog",
+      titleLines: ["Guías para decidir", "mejor tu proyecto digital"],
+      lead: "Precios reales, SEO local, tecnología y proceso de trabajo. Escribimos lo que nos preguntan nuestros clientes antes de firmar."
+    }) %>
+
+<section class="section" style="padding-top: 1rem;">
+  <div class="container">
+    <div class="grid grid-3">
+      <% posts.forEach(function (post) { %>
+        <article class="card blog-card reveal">
+          <div class="post-meta">
+            <span class="tag"><%= post.category %></span>
+            <time datetime="<%= post.dateISO %>"><%= post.dateLabel %></time>
+            <span><%= post.readTime %></span>
+          </div>
+          <h3><a href="/blog/<%= post.slug %>"><%= post.title %></a></h3>
+          <p><%= post.excerpt %></p>
+          <a class="read-more" href="/blog/<%= post.slug %>">Leer artículo →</a>
+        </article>
+      <% }) %>
+    </div>
+
+    <div class="cta-band reveal" style="margin-top: clamp(3rem, 6vw, 4.5rem);">
+      <span class="eyebrow">¿Tu caso es distinto?</span>
+      <h2>Cuéntanos tu proyecto y te respondemos con números</h2>
+      <p>Presupuesto cerrado en menos de 48 horas, sin compromiso.</p>
+      <div class="cta-actions">
+        <a href="/contacto" class="btn btn-primary btn-lg">Pedir presupuesto gratis</a>
+        <a href="/precios" class="btn btn-ghost btn-lg">Ver precios</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

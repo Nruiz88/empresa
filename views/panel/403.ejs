@@ -1,0 +1,20 @@
+﻿<%- include('../partials/panel-head', { title, site, base, current: '' }) %>
+
+<div class="panel-page">
+  <div class="panel-page-head">
+    <div>
+      <span class="panel-kicker">Acceso restringido</span>
+      <h1>No puedes ver esto</h1>
+    </div>
+  </div>
+
+  <div class="panel-empty">
+    <p>
+      Esta sección es solo para el equipo de Nexo Studio.
+      Tu cuenta puede entrar al panel, pero no a esta parte.
+    </p>
+    <a href="<%= base %>/" class="panel-btn panel-btn--ghost">Volver al resumen</a>
+  </div>
+</div>
+
+<%- include('../partials/panel-foot', { site }) %>

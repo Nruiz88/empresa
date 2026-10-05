@@ -1,0 +1,120 @@
+<%#
+  Alta de un cobro suelto: lo que no viene de una cuota mensual.
+
+  Si eliges un servicio, el concepto y el importe se rellenan solos,
+  porque casi siempre el cobro es el mismo importe del servicio.
+  Siempre se pueden cambiar a mano.
+
+  Variables: servicios, cobro, errores, dinero
+%>
+<%- include('../partials/panel-head', { title, site, base, current }) %>
+
+<div class="panel-page panel-page--form">
+  <div class="panel-page-head">
+    <div>
+      <span class="panel-kicker">Facturación</span>
+      <h1>Nuevo cobro</h1>
+    </div>
+    <a href="<%= base %>/cobros" class="panel-btn panel-btn--ghost">← Volver</a>
+  </div>
+
+  <% if (errores.general) { %>
+    <div class="panel-alert"><%= errores.general %></div>
+  <% } %>
+
+  <% if (!servicios.length) { %>
+    <div class="panel-empty">
+      <h2>No hay servicios activos</h2>
+      <p>Un cobro siempre cuelga de un servicio. Crea el servicio primero.</p>
+      <a href="<%= base %>/servicios/nuevo" class="panel-btn panel-btn--primary">Nuevo servicio</a>
+    </div>
+  <% } else { %>
+
+  <form method="post" action="<%= base %>/cobros/nuevo" class="panel-form-card">
+    <input type="hidden" name="_csrf" value="<%= csrf %>" />
+
+    <div class="panel-form-grid">
+      <label class="panel-field panel-field--ancho<%= errores.service_id ? ' has-error' : '' %>">
+        <span>Servicio *</span>
+        <select name="service_id" required>
+          <option value="">— elige servicio —</option>
+          <% servicios.forEach(function (s) { %>
+            <% var cli = s.clients || {}; %>
+            <option value="<%= s.id %>" <%= cobro.service_id === s.id ? 'selected' : '' %>>
+              <%= cli.empresa || cli.nombre || 'Sin empresa' %> — <%= s.titulo %>
+              <%= s.importe !== null ? '(' + dinero(s.importe, s.moneda) + ')' : '' %>
+            </option>
+          <% }); %>
+        </select>
+        <em class="panel-help">Al elegir uno se rellenan el concepto y el importe.</em>
+        <% if (errores.service_id) { %><em class="panel-error"><%= errores.service_id %></em><% } %>
+      </label>
+
+      <label class="panel-field<%= errores.concepto ? ' has-error' : '' %>">
+        <span>Concepto</span>
+        <input type="text" name="concepto" value="<%= cobro.concepto || '' %>"
+               placeholder="Ej. Mantenimiento octubre" />
+        <% if (errores.concepto) { %><em class="panel-error"><%= errores.concepto %></em><% } %>
+      </label>
+
+      <label class="panel-field<%= errores.periodo ? ' has-error' : '' %>">
+        <span>Periodo</span>
+        <input type="month" name="periodo" value="<%= cobro.periodo || '' %>" />
+        <em class="panel-help">Opcional. Para cuotas mensuales o trimestrales.</em>
+        <% if (errores.periodo) { %><em class="panel-error"><%= errores.periodo %></em><% } %>
+      </label>
+
+      <label class="panel-field<%= errores.importe ? ' has-error' : '' %>">
+        <span>Importe *</span>
+        <input type="text" name="importe" value="<%= cobro.importe || '' %>" required
+               inputmode="decimal" placeholder="120 o 1.200,50" />
+        <% if (errores.importe) { %><em class="panel-error"><%= errores.importe %></em><% } %>
+      </label>
+
+      <label class="panel-field<%= errores.descuento ? ' has-error' : '' %>">
+        <span>Descuento</span>
+        <input type="text" name="descuento" value="<%= cobro.descuento || '' %>" inputmode="decimal" />
+        <em class="panel-help">Si no hay, déjalo vacío.</em>
+        <% if (errores.descuento) { %><em class="panel-error"><%= errores.descuento %></em><% } %>
+      </label>
+
+      <label class="panel-field<%= errores.emitido_en ? ' has-error' : '' %>">
+        <span>Emitido el</span>
+        <input type="date" name="emitido_en" value="<%= cobro.emitido_en || '' %>" />
+        <% if (errores.emitido_en) { %><em class="panel-error"><%= errores.emitido_en %></em><% } %>
+      </label>
+
+      <label class="panel-field<%= errores.vence_en ? ' has-error' : '' %>">
+        <span>Vence el</span>
+        <input type="date" name="vence_en" value="<%= cobro.vence_en || '' %>" />
+        <em class="panel-help">
+          Lo normal son los <%= diasPlazo %> días desde la emisión
+          (<%= venceSugerido %>), pero aquí puedes poner otra fecha.
+          Ese día todavía se puede pagar; el bloqueo llega al siguiente.
+        </em>
+        <% if (errores.vence_en) { %><em class="panel-error"><%= errores.vence_en %></em><% } %>
+      </label>
+
+      <label class="panel-field<%= errores.referencia ? ' has-error' : '' %>">
+        <span>Referencia</span>
+        <input type="text" name="referencia" value="<%= cobro.referencia || '' %>"
+               placeholder="Nº de factura del banco" />
+        <% if (errores.referencia) { %><em class="panel-error"><%= errores.referencia %></em><% } %>
+      </label>
+    </div>
+
+    <label class="panel-field<%= errores.notas ? ' has-error' : '' %>">
+      <span>Notas</span>
+      <textarea name="notas" rows="2"><%= cobro.notas || '' %></textarea>
+      <% if (errores.notas) { %><em class="panel-error"><%= errores.notas %></em><% } %>
+    </label>
+
+    <div class="panel-form-actions">
+      <button type="submit" class="panel-btn panel-btn--primary">Emitir cobro</button>
+      <a href="<%= base %>/cobros" class="panel-btn panel-btn--ghost">Cancelar</a>
+    </div>
+  </form>
+  <% } %>
+</div>
+
+<%- include('../partials/panel-foot', { site }) %>

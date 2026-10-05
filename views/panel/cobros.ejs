@@ -1,0 +1,186 @@
+<%#
+  Cobros: lo emitido y lo cobrado.
+
+  Arriba, las cifras que se miran al cerrar el mes. Debajo, el
+  listado con los cobros sin cobrar primero.
+
+  Variables: cobros, estados, etiqueta, dinero, fechaCorta,
+             periodoLargo, diasDeRetraso, estado, periodo, q,
+             pagina, paginas, total, desde, hasta, periodos,
+             resumen
+%>
+<%- include('../partials/panel-head', { title, site, base, current }) %>
+
+<div class="panel-page">
+  <% if (aviso) { %><div class="panel-alert panel-alert--ok">✓ <%= aviso %></div><% } %>
+
+  <div class="panel-page-head">
+    <div>
+      <span class="panel-kicker">Facturación</span>
+      <h1>Cobros</h1>
+    </div>
+    <div class="panel-head-actions">
+      <a href="<%= base %>/cobros/generar" class="panel-btn panel-btn--ghost">Generar del mes</a>
+      <a href="<%= base %>/cobros/nuevo" class="panel-btn panel-btn--primary">Nuevo cobro</a>
+    </div>
+  </div>
+
+  <% if (!resumen) { %>
+    <div class="panel-alert">No se pudieron leer las cifras.</div>
+  <% } else { %>
+
+    <!-- ---------- Cifras ----------
+         Lo pendiente va primero y en el color que obliga a mirar.
+         Es la cifra que hace falta ver al entrar. -->
+    <div class="panel-stats panel-stats--cobros">
+      <div class="panel-stat panel-stat--alerta">
+        <strong><%= dinero(resumen.pendiente + resumen.impagado) %></strong>
+        <span>por cobrar</span>
+        <% if (resumen.impagado > 0) { %>
+          <em class="panel-stat-pie"><%= dinero(resumen.impagado) %> vencido</em>
+        <% } %>
+      </div>
+      <div class="panel-stat">
+        <strong><%= dinero(resumen.mesCobrado) %></strong>
+        <span>cobrado en <%= periodoLargo(resumen.mes) %></span>
+      </div>
+      <div class="panel-stat">
+        <strong><%= dinero(resumen.mesPendiente) %></strong>
+        <span>emitido sin cobrar en <%= periodoLargo(resumen.mes) %></span>
+      </div>
+      <div class="panel-stat">
+        <strong><%= dinero(resumen.pagado) %></strong>
+        <span>cobrado histórico</span>
+      </div>
+    </div>
+  <% } %>
+
+  <!-- ---------- Filtros ---------- -->
+  <nav class="panel-tabs">
+    <a href="<%= base %>/cobros" class="<%= !estado ? 'is-active' : '' %>">Todos</a>
+    <% estados.forEach(function (e) { %>
+      <a href="<%= base %>/cobros?estado=<%= e.valor %>" class="<%= estado === e.valor ? 'is-active' : '' %>">
+        <%= e.label %>
+      </a>
+    <% }); %>
+  </nav>
+
+  <form class="panel-filters" method="get" action="<%= base %>/cobros">
+    <input type="search" name="q" value="<%= q %>" placeholder="Buscar por concepto o referencia…" class="panel-search" />
+    <select name="periodo" class="panel-select">
+      <option value="">Todos los periodos</option>
+      <% periodos.forEach(function (p) { %>
+        <option value="<%= p %>" <%= periodo === p ? 'selected' : '' %>><%= periodoLargo(p) %></option>
+      <% }); %>
+    </select>
+    <button type="submit" class="panel-btn panel-btn--ghost">Filtrar</button>
+    <% if (q || periodo) { %><a href="<%= base %>/cobros" class="panel-clear">Limpiar</a><% } %>
+  </form>
+
+  <% if (!cobros.length) { %>
+    <div class="panel-empty">
+      <h2><%= estado || q || periodo ? 'Nada con ese filtro' : 'Todavía no hay cobros' %></h2>
+      <p>
+        <%= estado || q || periodo
+          ? 'Prueba a cambiar el filtro.'
+          : 'Cuando emitas una factura o registres un cobro aparecerá aquí.' %>
+      </p>
+      <% if (!estado && !q && !periodo) { %>
+        <a href="<%= base %>/cobros/nuevo" class="panel-btn panel-btn--primary">Nuevo cobro</a>
+      <% } %>
+    </div>
+  <% } else { %>
+
+    <div class="panel-table-wrap">
+      <table class="panel-table">
+        <thead>
+          <tr>
+            <th>Concepto</th>
+            <th>Cliente</th>
+            <th>Periodo</th>
+            <th class="panel-th-num">Importe</th>
+            <th>Estado</th>
+            <th class="panel-th-actions"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% cobros.forEach(function (c) { %>
+            <% var srv = c.services || {}; %>
+            <% var cli = srv.clients || {}; %>
+            <tr>
+              <td>
+                <span class="panel-cell-main"><%= c.concepto %></span>
+                <% if (c.referencia) { %>
+                  <span class="panel-cell-sub">ref. <%= c.referencia %></span>
+                <% } %>
+                <% if (c.descuento && Number(c.descuento) > 0) { %>
+                  <span class="panel-cell-sub">descuento <%= dinero(c.descuento, c.moneda) %></span>
+                <% } %>
+              </td>
+              <td>
+                <% if (cli.id) { %>
+                  <a href="<%= base %>/clientes/<%= cli.id %>"><%= cli.empresa || cli.nombre %></a>
+                <% } else { %>—<% } %>
+              </td>
+              <td>
+                <span class="panel-cell-sub"><%= periodoLargo(c.periodo) %></span>
+                <% if (c.vence_en) { %>
+                  <span class="panel-cell-sub">vence <%= fechaCorta(c.vence_en) %></span>
+                <% } %>
+              </td>
+              <td class="panel-th-num">
+                <%= dinero(Number(c.importe) - Number(c.descuento || 0), c.moneda) %>
+              </td>
+              <td>
+                <span class="panel-chip panel-chip--cobro-<%= c.estado %>">
+                  <%= etiqueta(c.estado) %>
+                </span>
+                <% var tarde = diasDeRetraso(c.vence_en, c.estado); %>
+                <% if (tarde) { %>
+                  <span class="panel-retraso"><%= tarde %> día<%= tarde === 1 ? '' : 's' %> tarde</span>
+                <% } %>
+                <% if (c.estado === 'pagado' && c.pagado_en) { %>
+                  <span class="panel-cell-sub">cobrado el <%= fechaCorta(c.pagado_en) %></span>
+                <% } %>
+              </td>
+              <td class="panel-th-actions">
+                <div class="panel-acciones-cobro">
+                  <% if (c.estado !== 'pagado') { %>
+                    <form method="post" action="<%= base %>/cobros/<%= c.id %>/pagado">
+                      <input type="hidden" name="_csrf" value="<%= csrf %>" />
+                      <input type="hidden" name="volver" value="<%= base %>/cobros<%= estado ? '?estado=' + estado : '' %>" />
+                      <button type="submit" class="panel-btn panel-btn--primary panel-btn--xs">Marcar pagado</button>
+                    </form>
+                  <% } else { %>
+                    <form method="post" action="<%= base %>/cobros/<%= c.id %>/pendiente">
+                      <input type="hidden" name="_csrf" value="<%= csrf %>" />
+                      <input type="hidden" name="volver" value="<%= base %>/cobros<%= estado ? '?estado=' + estado : '' %>" />
+                      <button type="submit" class="panel-btn panel-btn--ghost panel-btn--xs">Deshacer</button>
+                    </form>
+                  <% } %>
+                </div>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+
+    <% if (paginas > 1) { %>
+      <nav class="panel-pager" aria-label="Paginación">
+        <%# Los filtros se arrastran: buscar y pasar de página no
+            puede perder la búsqueda. %>
+        <% var conserva = (estado ? '&estado=' + estado : '') + (periodo ? '&periodo=' + periodo : '') + (q ? '&q=' + encodeURIComponent(q) : ''); %>
+        <% if (pagina > 1) { %>
+          <a href="?pagina=<%= pagina - 1 %><%= conserva %>">← Anterior</a>
+        <% } %>
+        <span>Página <%= pagina %> de <%= paginas %> · viendo <%= desde %>–<%= hasta %></span>
+        <% if (pagina < paginas) { %>
+          <a href="?pagina=<%= pagina + 1 %><%= conserva %>">Siguiente →</a>
+        <% } %>
+      </nav>
+    <% } %>
+  <% } %>
+</div>
+
+<%- include('../partials/panel-foot', { site }) %>

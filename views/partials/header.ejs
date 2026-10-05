@@ -1,0 +1,38 @@
+  <header class="site-header" id="siteHeader">
+    <div class="container header-inner">
+      <a href="/" class="brand" aria-label="Nexo Studio — Inicio">
+        <svg viewBox="0 0 40 40" fill="none" aria-hidden="true">
+          <defs>
+            <linearGradient id="brandGrad" x1="0" y1="0" x2="40" y2="40">
+              <stop offset="0%" stop-color="#8b5cf6" />
+              <stop offset="100%" stop-color="#22d3ee" />
+            </linearGradient>
+          </defs>
+          <rect width="40" height="40" rx="11" fill="url(#brandGrad)" />
+          <path d="M12 27V13l8 8 8-8v14" stroke="#08080f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        Nexo Studio
+      </a>
+
+      <nav class="nav" id="mainNav" aria-label="Navegación principal">
+        <a href="/servicios"<%= current === "servicios" ? ' class="active"' : "" %>>Servicios</a>
+        <a href="/proyectos"<%= current === "proyectos" ? ' class="active"' : "" %>>Proyectos</a>
+        <a href="/precios"<%= current === "precios" ? ' class="active"' : "" %>>Precios</a>
+        <a href="/blog"<%= current === "blog" ? ' class="active"' : "" %>>Blog</a>
+        <a href="/contacto"<%= current === "contacto" ? ' class="active"' : "" %>>Contacto</a>
+        <a href="/contacto" class="mobile-cta">Presupuesto gratis</a>
+      </nav>
+
+      <div class="header-cta">
+        <div class="theme-switch" role="group" aria-label="Cambiar tema visual">
+          <button type="button" class="theme-btn" data-theme="dark" aria-label="Tema oscuro" title="Oscuro"></button>
+          <button type="button" class="theme-btn" data-theme="light" aria-label="Tema claro" title="Claro"></button>
+          <button type="button" class="theme-btn" data-theme="colorful" aria-label="Tema colorido" title="Colorido"></button>
+        </div>
+        <a href="/contacto" class="btn btn-primary btn-sm">Presupuesto gratis</a>
+        <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="mainNav" aria-label="Abrir menú">
+          <span></span>
+        </button>
+      </div>
+    </div>
+  </header>

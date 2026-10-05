@@ -1,0 +1,93 @@
+<%- include('partials/head') %>
+<%- include('partials/header', { current: "blog" }) %>
+
+<section class="page-hero page-hero--premium page-hero--article" data-mock="articulo">
+  <div class="page-hero-bg" aria-hidden="true">
+    <div class="hero-grid"></div>
+    <span class="aurora aurora-1"></span>
+    <span class="aurora aurora-2"></span>
+    <div class="hero-noise"></div>
+  </div>
+
+  <div class="container page-hero-layout">
+    <div class="page-hero-copy post-header">
+      <nav class="breadcrumb" aria-label="Migas de pan">
+        <a href="/">Inicio</a> <span>/</span> <a href="/blog">Blog</a> <span>/</span> <span aria-current="page"><%= post.category %></span>
+      </nav>
+      <div class="chip-row">
+        <span class="tag"><%= post.category %></span>
+        <span class="tag"><%= post.readTime %></span>
+      </div>
+      <h1 class="page-hero-title"><span class="line"><span><%= post.title %></span></span></h1>
+      <p class="lead"><%= post.excerpt %></p>
+      <p class="post-meta-line">
+        Publicado el <time datetime="<%= post.dateISO %>"><%= post.dateLabel %></time> · Equipo de Nexo Studio
+      </p>
+    </div>
+
+    <div class="page-hero-showcase" data-tilt>
+      <div class="mock-window">
+        <div class="mock-bar">
+          <span class="mock-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span class="mock-url">nexo.studio / blog</span>
+          <span class="mock-pill"><%= post.readTime %></span>
+        </div>
+        <div class="mock-page">
+          <div class="mock-reader">
+            <div class="mock-reader-bar"><span style="--w:62%"></span></div>
+            <span class="mock-line w90"></span>
+            <span class="mock-line w70"></span>
+            <span class="mock-line w100"></span>
+            <span class="mock-line w45"></span>
+            <span class="mock-line w80"></span>
+          </div>
+        </div>
+      </div>
+      <div class="float-card float-card--a" data-float="1">
+        <span class="float-icon float-icon--up" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 7-7"/><path d="M14 8h7v7"/></svg>
+        </span>
+        <div><strong>7 min</strong><span>de lectura</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="padding-top: 1rem;">
+  <div class="container">
+    <article class="prose">
+      <%- include('posts/' + post.slug) %>
+    </article>
+
+    <div class="cta-band post-cta">
+      <span class="eyebrow">¿Te toca decidir ahora?</span>
+      <h2>Pide presupuesto cerrado para tu caso</h2>
+      <p>Cuéntanos el proyecto y te respondemos en menos de 48 horas con alcance, plazos y precio.</p>
+      <div class="cta-actions">
+        <a href="/contacto" class="btn btn-primary btn-lg">Pedir presupuesto gratis</a>
+        <a href="/precios" class="btn btn-ghost btn-lg">Ver planes y precios</a>
+      </div>
+    </div>
+
+    <div class="section-head" style="margin-top: clamp(3rem, 6vw, 4.5rem);">
+      <span class="eyebrow">Sigue leyendo</span>
+      <h2>Otros artículos que te pueden interesar</h2>
+    </div>
+
+    <div class="related-grid">
+      <% related.forEach(function (r) { %>
+        <article class="card blog-card">
+          <div class="post-meta">
+            <span class="tag"><%= r.category %></span>
+            <time datetime="<%= r.dateISO %>"><%= r.dateLabel %></time>
+          </div>
+          <h3><a href="/blog/<%= r.slug %>"><%= r.title %></a></h3>
+          <p><%= r.excerpt %></p>
+          <a class="read-more" href="/blog/<%= r.slug %>">Leer artículo →</a>
+        </article>
+      <% }) %>
+    </div>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

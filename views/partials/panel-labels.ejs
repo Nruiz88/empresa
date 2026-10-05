@@ -1,0 +1,28 @@
+<!--
+    Etiquetas del panel.
+
+    Uso:  <%- include('../partials/panel-labels') %>
+          <%= L.etiquetaEstado(s.estado) %>
+
+    QUÉ HACE ESTO
+    -------------
+    `L` es lib/labels.js, la fuente única de los textos de estado.
+    routes/panel.js lo inyecta en todas las rutas del panel, así que
+    normalmente ya está disponible y este include no hace nada.
+
+    Se incluye igualmente porque logs/error.log tenía tres
+    `TypeError: etiqueta is not a function` (consultas.ejs,
+    cobros.ejs y mis-servicios.ejs): las tres llamaban a un helper que
+    su ruta no había pasado. Al arreglarlo, solo se protegió
+    consultas.ejs con un typeof y las otras dos quedaron igual de
+    expuestas. Un arreglo parcial de un problema que sale en tres
+    sitios no es un arreglo.
+
+    Si tras incluir esto L sigue sin estar, el problema no es de la
+    vista: mira que su ruta pase por `comunes` en routes/panel.js.
+
+    OJO: este comentario es HTML a propósito, porque la etiqueta de
+    comentario de EJS no admite varias líneas y rompe la compilación
+    de la vista. Es una trampa que costó un rato.
+-->
+<% var L = (typeof L !== 'undefined' && L) || null; %>

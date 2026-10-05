@@ -1,0 +1,41 @@
+<%#
+  Preguntas frecuentes.
+
+  Parámetros:
+    items  {array}  [{ q: "...", a: "..." }, ...]
+    title  {string} Titular del bloque (opcional)
+    lead   {string} Texto de apoyo (opcional)
+
+  Reutiliza el acordeón existente (.acc-item / .acc-trigger /
+  .acc-panel), cuyo JS ya está en main.js. El icono "+" lo
+  genera el CSS vía .acc-icon, así que se declara aquí.
+
+  Nota SEO: el texto vive en el HTML y no se oculta con
+  display:none, así que los buscadores sí lo indexan.
+%>
+<section class="section section--soft faq-section">
+  <div class="container">
+    <div class="section-head section-head--center reveal">
+      <span class="eyebrow">Preguntas frecuentes</span>
+      <% if (typeof title !== 'undefined' && title) { %><h2><%= title %></h2><% } %>
+      <% if (typeof lead !== 'undefined' && lead) { %><p><%= lead %></p><% } %>
+    </div>
+
+    <div class="accordion reveal">
+      <% items.forEach(function (item, i) { %>
+        <div class="acc-item">
+          <h3>
+            <button class="acc-trigger" type="button" aria-expanded="false"
+                    id="faq-btn-<%= i %>" aria-controls="faq-panel-<%= i %>">
+              <span><%= item.q %></span>
+              <span class="acc-icon" aria-hidden="true">+</span>
+            </button>
+          </h3>
+          <div class="acc-panel" id="faq-panel-<%= i %>" role="region" aria-labelledby="faq-btn-<%= i %>">
+            <p><%= item.a %></p>
+          </div>
+        </div>
+      <% }); %>
+    </div>
+  </div>
+</section>

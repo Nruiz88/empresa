@@ -1,0 +1,164 @@
+<%- include('partials/head') %>
+<%- include('partials/header', { current: "contacto" }) %>
+
+<main>
+    <%- include('partials/page-hero', {
+      variant: "contacto",
+      eyebrow: "Contacto",
+      titleLines: ["Cuéntanos", "tu proyecto"],
+      lead: "Respondemos en menos de 24 horas laborables con una primera valoración y, si encaja, un presupuesto cerrado en menos de 48 horas."
+    }) %>
+
+    <section class="section" style="padding-top: 1rem;">
+      <div class="container">
+        <div class="contact-layout">
+
+          <!-- Formulario -->
+          <div class="form-card reveal">
+            <div class="form-success" id="formSuccess" role="status">
+              ✓ ¡Gracias! Hemos recibido tu mensaje. Te escribiremos en menos de 24 horas laborables.
+            </div>
+
+            <div class="form-success form-error" id="formError" role="alert"></div>
+
+            <form id="contactForm" action="/contacto" method="post" novalidate>
+              <div class="form-grid">
+                <div class="field">
+                  <label for="name">Nombre <span class="req">*</span></label>
+                  <input type="text" id="name" name="name" placeholder="Tu nombre" autocomplete="name" required />
+                  <span class="error-msg" data-error-for="name"></span>
+                </div>
+
+                <div class="field">
+                  <label for="email">Email <span class="req">*</span></label>
+                  <input type="email" id="email" name="email" placeholder="tu@empresa.com" autocomplete="email" required />
+                  <span class="error-msg" data-error-for="email"></span>
+                </div>
+
+                <div class="field">
+                  <label for="company">Empresa</label>
+                  <input type="text" id="company" name="company" placeholder="Nombre de tu empresa" autocomplete="organization" />
+                  <span class="error-msg" data-error-for="company"></span>
+                </div>
+
+                <div class="field">
+                  <label for="phone">Teléfono</label>
+                  <input type="tel" id="phone" name="phone" placeholder="+34 600 000 000" autocomplete="tel" />
+                  <span class="error-msg" data-error-for="phone"></span>
+                </div>
+
+                <div class="field">
+                  <label for="type">Tipo de proyecto <span class="req">*</span></label>
+                  <select id="type" name="type" required>
+                    <option value="">Selecciona una opción</option>
+                    <option value="web">Web corporativa</option>
+                    <option value="ecommerce">Tienda online</option>
+                    <option value="webapp">Web app / plataforma</option>
+                    <option value="app">Aplicación a medida</option>
+                    <option value="seo">SEO y rendimiento</option>
+                    <option value="mantenimiento">Mantenimiento y soporte</option>
+                    <option value="otro">Otro / no lo tengo claro</option>
+                  </select>
+                  <span class="error-msg" data-error-for="type"></span>
+                </div>
+
+                <div class="field">
+                  <label for="budget">Presupuesto estimado</label>
+                  <select id="budget" name="budget">
+                    <option value="">Prefiero comentarlo</option>
+                    <option value="<1000">Menos de 1.000 €</option>
+                    <option value="1000-3000">1.000 € – 3.000 €</option>
+                    <option value="3000-6000">3.000 € – 6.000 €</option>
+                    <option value="6000-15000">6.000 € – 15.000 €</option>
+                    <option value=">15000">Más de 15.000 €</option>
+                  </select>
+                  <span class="error-msg" data-error-for="budget"></span>
+                </div>
+
+                <div class="field full">
+                  <label for="message">¿Qué necesitas? <span class="req">*</span></label>
+                  <textarea id="message" name="message" placeholder="Cuéntanos brevemente tu proyecto, objetivos y plazos que tienes en mente…" required></textarea>
+                  <span class="error-msg" data-error-for="message"></span>
+                </div>
+
+                <div class="field full">
+                  <label class="check-label" for="rgpd">
+                    <input type="checkbox" id="rgpd" name="rgpd" required />
+                    <span>He leído y acepto la <a href="/privacidad" target="_blank">política de privacidad</a> y el tratamiento de mis datos para responder a esta solicitud. <span class="req">*</span></span>
+                  </label>
+                  <span class="error-msg" data-error-for="rgpd"></span>
+                </div>
+
+                <div class="field full">
+                  <button type="submit" class="btn btn-primary btn-lg btn-block">Enviar mensaje</button>
+                  <p class="form-note">Tus datos solo se usan para responderte. Nunca los cedemos a terceros.</p>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <!-- Info de contacto -->
+          <aside class="contact-info reveal">
+            <div class="info-item">
+              <div class="icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>
+              </div>
+              <div>
+                <strong>Email</strong>
+                <a href="mailto:<%= site.email %>"><%= site.email %></a>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <div class="icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2Z"/></svg>
+              </div>
+              <div>
+                <strong>Teléfono y WhatsApp</strong>
+                <a href="tel:<%= site.phoneHref %>"><%= site.phone %></a>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <div class="icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+              </div>
+              <div>
+                <strong>Horario</strong>
+                <span><%= site.hours %></span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <div class="icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+              </div>
+              <div>
+                <strong>Oficina</strong>
+                <span><%= site.address %></span>
+              </div>
+            </div>
+
+            <div class="card">
+              <h3>¿Qué pasa después?</h3>
+              <ul class="card-list">
+                <li>Leemos tu mensaje y te respondemos en 24 h</li>
+                <li>Videollamada de 30 min para entender el caso</li>
+                <li>Propuesta con alcance, plazo y precio cerrado</li>
+                <li>Si encaja, empezamos en menos de una semana</li>
+              </ul>
+            </div>
+          </aside>
+
+        </div>
+      </div>
+    </section>
+
+    <%- include('partials/proof', {
+          type: "quotes",
+          title: "Lo que dicen antes de contratar",
+          lead: "Opiniones de clientes que empezaron exactamente donde estás tú."
+        }) %>
+  </main>
+
+<%- include('partials/footer') %>

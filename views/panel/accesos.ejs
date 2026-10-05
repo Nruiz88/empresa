@@ -1,0 +1,93 @@
+<%#
+  Accesos al panel: quién puede entrar y a qué.
+
+  Aquí está lo que antes había que hacer con un comando de terminal.
+  Nota: el email NO se guarda aquí, viene de Supabase Auth; por eso
+  la lista lo cruza en el servidor.
+
+  Variables: accesos, counts
+%>
+<%- include('../partials/panel-head', { title, site, base, current }) %>
+
+<div class="panel-page">
+  <% if (error === 'autodesactivado') { %>
+    <div class="panel-alert">
+      No puedes desactivar tu propio acceso: te quedarías fuera del
+      panel sin nadie que lo reponga.
+    </div>
+  <% } %>
+
+  <div class="panel-page-head">
+    <div>
+      <span class="panel-kicker">Equipo y clientes</span>
+      <h1>Accesos</h1>
+      <p class="panel-count">
+        <%= counts.staff %> del equipo · <%= counts.client %> clientes
+        <% if (counts.inactivos) { %>· <%= counts.inactivos %> desactivados<% } %>
+      </p>
+    </div>
+    <a href="<%= base %>/accesos/nuevo" class="panel-btn panel-btn--primary">Nuevo acceso</a>
+  </div>
+
+  <% if (!accesos.length) { %>
+    <div class="panel-empty">
+      <h2>Nadie tiene acceso todavía</h2>
+      <p>Empieza por el tuyo, y luego da el de los clientes.</p>
+      <a href="<%= base %>/accesos/nuevo" class="panel-btn panel-btn--primary">Nuevo acceso</a>
+    </div>
+  <% } else { %>
+
+    <ul class="panel-accesos">
+      <% accesos.forEach(function (a) { %>
+        <li class="panel-acceso<%= a.activo ? '' : ' panel-acceso--inactivo' %>">
+          <div class="panel-acceso-main">
+            <strong><%= a.nombre %></strong>
+            <span class="panel-acceso-mail"><%= a.email %></span>
+            <% if (a.empresa) { %>
+              <a href="<%= base %>/clientes/<%= a.clienteId %>" class="panel-acceso-empresa">
+                <%= a.empresa %>
+              </a>
+            <% } %>
+          </div>
+
+          <div class="panel-acceso-side">
+            <span class="panel-chip <%= a.rol === 'staff' ? 'panel-chip--equipo' : 'panel-chip--cliente' %>">
+              <%= a.rol === 'staff' ? 'Equipo' : 'Cliente' %>
+            </span>
+            <% if (!a.activo) { %><span class="panel-chip panel-chip--mute">Desactivado</span><% } %>
+            <% if (a.ultimoAcceso) { %>
+              <span class="panel-cell-sub">
+                último acceso <%= new Date(a.ultimoAcceso).toLocaleDateString('es-ES') %>
+              </span>
+            <% } else { %>
+              <span class="panel-cell-sub">nunca ha entrado</span>
+            <% } %>
+          </div>
+
+          <div class="panel-acceso-acciones">
+            <% if (yo !== a.id) { %>
+              <form method="post" action="<%= base %>/accesos/<%= a.id %>/activo"
+                    <%= a.activo ? 'data-confirmar="' + a.nombre + ' se queda fuera del panel hasta que lo reactive. ¿Seguir?"' : '' %>>
+                <input type="hidden" name="_csrf" value="<%= csrf %>" />
+                <input type="hidden" name="activo" value="<%= a.activo ? '0' : '1' %>" />
+                <button type="submit" class="panel-btn panel-btn--ghost panel-btn--xs">
+                  <%= a.activo ? 'Desactivar' : 'Reactivar' %>
+                </button>
+              </form>
+              <form method="post" action="<%= base %>/accesos/<%= a.id %>/password"
+                    data-confirmar="Se generará una contraseña nueva y se cerrarán sus sesiones abiertas. ¿Seguir?">
+                <input type="hidden" name="_csrf" value="<%= csrf %>" />
+                <input type="hidden" name="email" value="<%= a.email %>" />
+                <button type="submit" class="panel-btn panel-btn--ghost panel-btn--xs">Nueva contraseña</button>
+              </form>
+            <% } else { %>
+              <span class="panel-cell-sub">eres tú</span>
+            <% } %>
+          </div>
+        </li>
+      <% }); %>
+    </ul>
+  <% } %>
+</div>
+
+<%- include('../partials/panel-foot', { site }) %>

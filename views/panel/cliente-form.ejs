@@ -1,0 +1,70 @@
+﻿<%#
+  Alta y edición de cliente.
+
+  Variables: cliente, errores, modo ("nuevo" | "editar"), csrf
+  Si viene un error, se vuelve a pintar con los datos que escribió
+  la persona: perder un formulario largo por un error en el email
+  es de las cosas que más fastidia en un panel.
+%>
+<%- include('../partials/panel-head', { title, site, base, current }) %>
+
+<div class="panel-page panel-page--form">
+  <div class="panel-page-head">
+    <div>
+      <span class="panel-kicker">Clientes</span>
+      <h1><%= modo === "nuevo" ? "Nuevo cliente" : "Editar cliente" %></h1>
+    </div>
+    <a href="<%= base %>/clientes" class="panel-btn panel-btn--ghost">← Volver</a>
+  </div>
+
+  <% if (errores.general) { %>
+    <div class="panel-alert"><%= errores.general %></div>
+  <% } %>
+
+  <form method="post" action="<%= base %>/clientes<%= modo === "editar" ? '/' + cliente.id + '/editar' : '/nuevo' %>" class="panel-form-card">
+    <input type="hidden" name="_csrf" value="<%= csrf %>" />
+
+    <div class="panel-form-grid">
+      <label class="panel-field<%= errores.nombre ? ' has-error' : '' %>">
+        <span>Nombre y apellidos *</span>
+        <input type="text" name="nombre" value="<%= cliente.nombre || '' %>" required />
+        <% if (errores.nombre) { %><em class="panel-error"><%= errores.nombre %></em><% } %>
+      </label>
+
+      <label class="panel-field<%= errores.empresa ? ' has-error' : '' %>">
+        <span>Empresa</span>
+        <input type="text" name="empresa" value="<%= cliente.empresa || '' %>" />
+        <% if (errores.empresa) { %><em class="panel-error"><%= errores.empresa %></em><% } %>
+      </label>
+
+      <label class="panel-field<%= errores.email ? ' has-error' : '' %>">
+        <span>Email</span>
+        <input type="email" name="email" value="<%= cliente.email || '' %>" autocapitalize="none" spellcheck="false" />
+        <em class="panel-help">Con este email podrá entrar al panel si le das acceso.</em>
+        <% if (errores.email) { %><em class="panel-error"><%= errores.email %></em><% } %>
+      </label>
+
+      <label class="panel-field<%= errores.telefono ? ' has-error' : '' %>">
+        <span>Teléfono</span>
+        <input type="tel" name="telefono" value="<%= cliente.telefono || '' %>" />
+        <% if (errores.telefono) { %><em class="panel-error"><%= errores.telefono %></em><% } %>
+      </label>
+    </div>
+
+    <label class="panel-field<%= errores.notas ? ' has-error' : '' %>">
+      <span>Notas internas</span>
+      <textarea name="notas" rows="4"><%= cliente.notas || '' %></textarea>
+      <em class="panel-help">Solo las ve el equipo. Nunca se enseñan al cliente.</em>
+      <% if (errores.notas) { %><em class="panel-error"><%= errores.notas %></em><% } %>
+    </label>
+
+    <div class="panel-form-actions">
+      <button type="submit" class="panel-btn panel-btn--primary">
+        <%= modo === "nuevo" ? "Crear cliente" : "Guardar cambios" %>
+      </button>
+      <a href="<%= base %>/clientes" class="panel-btn panel-btn--ghost">Cancelar</a>
+    </div>
+  </form>
+</div>
+
+<%- include('../partials/panel-foot', { site }) %>

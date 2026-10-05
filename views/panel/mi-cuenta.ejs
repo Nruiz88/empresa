@@ -1,0 +1,82 @@
+<%#
+  Mi cuenta: cambiar la contraseña.
+
+  Solo tiene un formulario, y a propósito. Un portal de cliente no
+  necesita una pantalla de ajustes con veinte apartados: lo único que
+  el cliente va a querer cambiar es su contraseña, y lo que necesita
+  además es poder ver con qué correo entra.
+
+  Variables: email, error, aviso
+%>
+<%- include('../partials/panel-head', { title, site, base, current }) %>
+
+<div class="panel-page panel-page--form">
+
+  <div class="panel-page-head">
+    <div>
+      <span class="panel-kicker">Tu cuenta</span>
+      <h1>Mi cuenta</h1>
+    </div>
+    <a href="<%= base %>/mis-servicios" class="panel-btn panel-btn--ghost">← Mis servicios</a>
+  </div>
+
+  <% if (aviso) { %>
+    <div class="panel-alert panel-alert--ok">✓ <%= aviso %></div>
+  <% } %>
+  <% if (error) { %>
+    <div class="panel-alert" role="alert"><%= error %></div>
+  <% } %>
+
+  <div class="panel-box">
+    <h2 class="panel-subtitle">Con qué entras</h2>
+    <p class="panel-notes">
+      <%= email %>
+    </p>
+    <p class="panel-help">
+      Si el correo no es el tuyo, escríbenos: no lo cambies por tu
+      cuenta, porque el acceso va ligado a la cuenta antigua.
+    </p>
+  </div>
+
+  <form method="post" action="<%= base %>/mi-cuenta/password" class="panel-form-card">
+    <input type="hidden" name="_csrf" value="<%= csrf %>" />
+
+    <h2 class="panel-subtitle">Cambiar la contraseña</h2>
+
+    <label class="panel-field">
+      <span>Contraseña actual *</span>
+      <input type="password" name="actual" required autocomplete="current-password" />
+      <em class="panel-help">
+        La que te dimos al crear el acceso. La necesitas para poder
+        cambiarla: es lo que evita que cualquiera que use tu
+        navegador se lleve tu cuenta.
+      </em>
+    </label>
+
+    <label class="panel-field">
+      <span>Contraseña nueva *</span>
+      <input type="password" name="nueva" required minlength="10" autocomplete="new-password" />
+      <em class="panel-help">
+        Mínimo 10 caracteres. Una frase larga es más segura y más fácil
+        de recordar que una corta con símbolos raros.
+      </em>
+    </label>
+
+    <label class="panel-field">
+      <span>Repite la nueva *</span>
+      <input type="password" name="repetida" required minlength="10" autocomplete="new-password" />
+    </label>
+
+    <div class="panel-form-actions">
+      <button type="submit" class="panel-btn panel-btn--primary">Cambiar contraseña</button>
+      <a href="<%= base %>/mis-servicios" class="panel-btn panel-btn--ghost">Cancelar</a>
+    </div>
+
+    <p class="panel-help">
+      Al cambiarla se cerrarán las demás sesiones abiertas, por si la
+      clave se hubiera filtrado. Esta sesión seguirá funcionando.
+    </p>
+  </form>
+</div>
+
+<%- include('../partials/panel-foot', { site }) %>

@@ -1,0 +1,201 @@
+<%- include('partials/head') %>
+<%- include('partials/header', { current: "proyectos" }) %>
+
+<main>
+  <!-- ================= CABECERA DEL CASO ================= -->
+  <section class="page-hero page-hero--premium page-hero--case" data-mock="proyecto">
+    <div class="page-hero-bg" aria-hidden="true">
+      <div class="hero-grid"></div>
+      <span class="aurora aurora-1"></span>
+      <span class="aurora aurora-2"></span>
+      <div class="hero-noise"></div>
+    </div>
+
+    <div class="container page-hero-layout">
+      <div class="page-hero-copy">
+        <nav class="breadcrumb" aria-label="Migas de pan">
+          <a href="/">Inicio</a> <span>/</span>
+          <a href="/proyectos">Proyectos</a> <span>/</span>
+          <span aria-current="page"><%= project.name %></span>
+        </nav>
+
+        <span class="eyebrow eyebrow-pill">
+          <span class="dot" aria-hidden="true"></span>
+          Caso de estudio · <%= caseData.sector %>
+        </span>
+
+        <h1 class="page-hero-title">
+          <span class="line"><span><%= caseData.heroTitle %></span></span>
+        </h1>
+
+        <p class="lead"><%= caseData.heroLead %></p>
+
+        <ul class="case-tags">
+          <% project.tags.forEach(function (t) { %><li class="tag"><%= t %></li><% }); %>
+          <li class="tag"><%= project.year %></li>
+        </ul>
+
+        <div class="page-hero-actions">
+          <a href="/contacto?proyecto=<%= project.slug %>" class="btn btn-primary btn-sm magnetic">Quiero un proyecto así</a>
+          <a href="/proyectos" class="btn btn-ghost btn-sm">Ver otros casos</a>
+        </div>
+      </div>
+
+      <div class="page-hero-showcase" data-tilt>
+        <div class="mock-window">
+          <div class="mock-bar">
+            <span class="mock-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span class="mock-url"><%= project.slug %>.<%= site.url.replace(/^https?:\/\//, "") %></span>
+            <span class="mock-pill">En vivo</span>
+          </div>
+          <div class="case-shot thumb-<%= project.thumb %>">
+            <span class="case-shot-art"><%= project.initials %></span>
+          </div>
+        </div>
+        <div class="float-card float-card--a" data-float="1">
+          <span class="float-icon float-icon--up" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 7-7"/><path d="M14 8h7v7"/></svg>
+          </span>
+          <div>
+            <strong><%= caseData.metrics[0].value %></strong>
+            <span><%= caseData.metrics[0].label %></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CIFRAS ================= -->
+  <section class="section section--slim">
+    <div class="container">
+      <div class="case-metrics">
+        <% caseData.metrics.forEach(function (m) { %>
+          <div class="case-metric">
+            <strong><%= m.value %></strong>
+            <span><%= m.label %></span>
+          </div>
+        <% }); %>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= RETO / SOLUCIÓN / RESULTADO ================= -->
+  <section class="section">
+    <div class="container case-body">
+      <article class="case-block reveal">
+        <h2 class="case-block-title"><span class="case-step">01</span> El reto</h2>
+        <p class="case-lead"><%= caseData.challenge %></p>
+      </article>
+
+      <article class="case-block reveal">
+        <h2 class="case-block-title"><span class="case-step">02</span> Qué hicimos</h2>
+        <ul class="case-list">
+          <% caseData.solution.forEach(function (item) { %>
+            <li><%= item %></li>
+          <% }); %>
+        </ul>
+      </article>
+
+      <article class="case-block reveal">
+        <h2 class="case-block-title"><span class="case-step">03</span> Qué consiguió</h2>
+        <ul class="case-list">
+          <% caseData.outcome.forEach(function (item) { %>
+            <li><%= item %></li>
+          <% }); %>
+        </ul>
+      </article>
+
+      <!-- Ficha técnica del proyecto -->
+      <aside class="case-facts reveal">
+        <h3>Datos del proyecto</h3>
+        <dl>
+          <div>
+            <dt>Cliente</dt>
+            <dd><%= project.name %></dd>
+          </div>
+          <div>
+            <dt>Sector</dt>
+            <dd><%= caseData.sector %></dd>
+          </div>
+          <div>
+            <dt>Plazo de ejecución</dt>
+            <dd><%= caseData.duration %></dd>
+          </div>
+          <div>
+            <dt>Año de entrega</dt>
+            <dd><%= project.year %></dd>
+          </div>
+          <div class="case-facts-wide">
+            <dt>Tecnologías</dt>
+            <dd class="case-stack">
+              <% caseData.stack.forEach(function (s) { %><span><%= s %></span><% }); %>
+            </dd>
+          </div>
+        </dl>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ================= TESTIMONIO ================= -->
+  <% if (caseData.testimonial) { %>
+    <section class="section section--soft">
+      <div class="container">
+        <figure class="quote quote--case reveal">
+          <blockquote><%= caseData.testimonial.quote %></blockquote>
+          <figcaption class="quote-person">
+            <span class="avatar avatar-<%= (testimonials.findIndex(function (t) { return t.name === caseData.testimonial.name; }) + 1) || 1 %>" aria-hidden="true">
+              <%= (testimonials.find(function (t) { return t.name === caseData.testimonial.name; }) || {}).initials || "—" %>
+            </span>
+            <div>
+              <strong><%= caseData.testimonial.name %></strong>
+              <span><%= caseData.testimonial.role %></span>
+            </div>
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+  <% } %>
+
+  <!-- ================= OTROS CASOS ================= -->
+  <section class="section">
+    <div class="container">
+      <div class="section-head section-head--center reveal">
+        <span class="eyebrow">Otros casos</span>
+        <h2>Proyectos parecidos a este</h2>
+      </div>
+
+      <div class="grid grid-3">
+        <% relatedProjects.forEach(function (p) { %>
+          <a class="project-card project-card--link reveal" href="/proyectos/<%= p.slug %>">
+            <div class="project-thumb thumb-<%= p.thumb %>"><span class="thumb-art"><%= p.initials %></span></div>
+            <div class="project-body">
+              <div class="project-tags">
+                <% p.tags.forEach(function (t) { %><span class="tag"><%= t %></span><% }); %>
+              </div>
+              <h3><%= p.name %></h3>
+              <p><%= p.summaryShort || p.summary %></p>
+              <div class="project-result">↑ <%= p.result %></div>
+            </div>
+          </a>
+        <% }); %>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CTA ================= -->
+  <section class="section section--soft">
+    <div class="container">
+      <div class="cta-band reveal">
+        <span class="eyebrow">Empecemos</span>
+        <h2>¿Hablamos de tu caso?</h2>
+        <p>Cuéntanos tu situación y te decimos si podemos ayudarte. Sin compromiso.</p>
+        <div class="cta-actions">
+          <a href="/contacto?proyecto=<%= project.slug %>" class="btn btn-primary btn-lg">Pedir presupuesto</a>
+          <a href="/proyectos" class="btn btn-ghost btn-lg">Ver más casos</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<%- include('partials/footer') %>

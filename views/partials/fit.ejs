@@ -1,0 +1,48 @@
+<%#
+  Bloque de auto-cualificación: "¿este servicio es para mí?".
+
+  Parámetros:
+    fit {object}  Bloque con { title, lead, fits:{title,items[]},
+                              notFits:{title,items[]} }
+                Se pasa desde content/fit.js
+
+  Objectivo doble:
+    - Que se identifique quien sí encaja
+    - Que se autodetecte quien no, y se vaya antes de escribir
+      (descartar pronto cuesta menos que cotizar un proyecto inviable)
+%>
+<section class="section fit-section">
+  <div class="container">
+    <div class="section-head section-head--center reveal">
+      <span class="eyebrow">Antes de escribirnos</span>
+      <h2><%= fit.title %></h2>
+      <p><%= fit.lead %></p>
+    </div>
+
+    <div class="fit-grid">
+      <div class="fit-card fit-card--yes reveal">
+        <h3>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+          <%= fit.fits.title %>
+        </h3>
+        <ul>
+          <% fit.fits.items.forEach(function (item) { %>
+            <li><%= item %></li>
+          <% }); %>
+        </ul>
+      </div>
+
+      <div class="fit-card fit-card--no reveal">
+        <h3>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          <%= fit.notFits.title %>
+        </h3>
+        <ul>
+          <% fit.notFits.items.forEach(function (item) { %>
+            <li><%= item %></li>
+          <% }); %>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>

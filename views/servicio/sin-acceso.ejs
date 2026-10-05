@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Sin acceso</title>
+<style>
+  :root { color-scheme: light dark; }
+  body {
+    margin: 0; min-height: 100vh; display: grid; place-items: center;
+    font: 16px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: #0f1115; color: #e8eaed;
+  }
+  .caja {
+    max-width: 30rem; padding: 2rem; text-align: center;
+    background: #171a21; border-radius: 14px;
+    border: 1px solid #262a33;
+  }
+  h1 { font-size: 1.25rem; margin: 0 0 .5rem; }
+  p { color: #9aa3b2; }
+  a { color: #8fb0ff; }
+</style>
+</head>
+<body>
+  <div class="caja">
+    <h1>Sin acceso</h1>
+    <p><%= motivo %></p>
+    <p><a href="/panel/mis-servicios">Ir a mis servicios</a></p>
+  </div>
+</body>
+</html>

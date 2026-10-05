@@ -1,0 +1,271 @@
+﻿<%#
+  Portal del cliente — la pantalla de entrada.
+
+  LA JERARQUÍA, Y POR QUÉ ES ESTA
+  ------------------------------
+  Antes todo tenía el mismo peso: cajas del mismo tamaño en una
+  columna. El cliente no distinguía de un vistazo qué tenía que HACER
+  (abrir el bot) de qué era solo información (el mantenimiento).
+
+  El orden de abajo es deliberado y es el orden de importancia:
+
+    1. Métricas      → ¿debo algo? ¿cuánto?
+    2. Aplicaciones  → lo que se abre. Lo principal.
+    3. Servicios     → lo contratado. Se consulta, no se usa.
+    4. Añadir        → solo si ya tiene algo, para no insistir.
+
+  Si estás cambiando esto, no inviertas el orden: las métricas están
+  arriba porque un cliente que debe dinero tiene que verlo antes de
+  nada, y las aplicaciones antes que los servicios porque son la
+  razón de entrar aquí.
+
+  Variables: empresa, nombreCliente, servicios, cuenta, pendiente,
+             modulos, etiquetaEstado, etiquetaTipo, periodo, dinero,
+             fecha, error, errorServicio
+%>
+<%- include('../partials/panel-head', { title, site, base, current }) %>
+
+<div class="panel-page panel-page--portal">
+
+  <%# ---------- Cabecera ---------- %>
+  <header class="portal-cab">
+    <div class="portal-cab-texto">
+      <span class="portal-cab-saludo">Portal de cliente</span>
+      <h1>Hola<%= nombreCliente ? ', ' + String(nombreCliente).trim().split(' ')[0] : '' %></h1>
+      <span class="portal-cab-empresa">
+        <%= empresa || 'tu empresa' %>
+        <% if (modulos.length || servicios.length) { %>
+          · <%= modulos.length %> <%= modulos.length === 1 ? 'aplicación' : 'aplicaciones' %>
+        <% } %>
+      </span>
+    </div>
+    <div class="portal-cab-accion">
+      <a class="panel-btn panel-btn--ghost" href="<%= base %>/servicios-disponibles">
+        <%- icono('mas', { tamano: 15 }) %>
+        Añadir servicio
+      </a>
+    </div>
+  </header>
+
+  <% if (error) { %>
+    <div class="panel-alert"><%= error %></div>
+  <% } %>
+
+  <% if (errorServicio) { %>
+    <div class="panel-alert"><%= errorServicio %></div>
+  <% } %>
+
+  <!-- Métricas: las tres preguntas al entrar. La del dinero va la
+       primera y destacada SI hay algo pendiente: si debe, es lo único
+       que importa en ese momento. -->
+  <% if (modulos.length || servicios.length) { %>
+    <div class="portal-metricas">
+      <div class="portal-metrica <%= cuenta.bloqueado ? 'portal-metrica--destacada' : 'portal-metrica--tranquila' %>">
+        <span class="portal-metrica-valor"><%= dinero(pendiente) %></span>
+        <span class="portal-metrica-etiqueta">
+          <%- icono(cuenta.bloqueado ? 'pendiente' : 'check-circle', { tamano: 13 }) %>
+          <%= cuenta.bloqueado ? 'pendiente de pago' : 'al día, sin deuda' %>
+        </span>
+      </div>
+
+      <div class="portal-metrica">
+        <span class="portal-metrica-valor"><%= modulos.length %></span>
+        <span class="portal-metrica-etiqueta">
+          <%- icono('bot', { tamano: 13 }) %>
+          <%= modulos.length === 1 ? 'aplicación' : 'aplicaciones' %> activas
+        </span>
+      </div>
+
+      <div class="portal-metrica">
+        <%# Se cuenta aquí y no con cuenta.activo + cuenta.en_curso
+            porque `cuenta` no tiene en_curso: son NIVELES de acceso,
+            no estados. Un servicio en_curso está dentro de 'activo'. %>
+        <%
+          var enMarcha = servicios.filter(function (x) {
+            var a = x.acceso || {};
+            return a.nivel === 'activo';
+          }).length;
+        %>
+        <span class="portal-metrica-valor"><%= enMarcha %></span>
+        <span class="portal-metrica-etiqueta">
+          <%- icono('trabajo', { tamano: 13 }) %>
+          <%= enMarcha === 1 ? 'servicio en marcha' : 'servicios en marcha' %>
+        </span>
+      </div>
+    </div>
+  <% } %>
+
+  <!-- Aplicaciones: LO PRINCIPAL. Tarjetas grandes con icono y botón
+       ancho, porque lo que se hace aquí es ABRIR algo. -->
+  <% if (modulos && modulos.length) { %>
+    <section class="portal-sec">
+      <div class="portal-sec-cab">
+        <h2 class="portal-sec-titulo">Tus aplicaciones</h2>
+        <span class="portal-sec-nota">Pulsa para abrir</span>
+      </div>
+
+      <ul class="portal-apps-lista">
+        <% modulos.forEach(function (m) {
+             /* El estado va con icono y con texto. Nunca solo color:
+                un punto verde no le dice nada a quien no distingue
+                verde, y un icono + palabra sí. */
+             var estadoTexto = 'Operativo';
+             var estadoIcono = 'check-circle';
+             var estadoClase = 'activo';
+             if (m.estado === 'prueba') {
+               estadoTexto = 'Periodo de prueba';
+               estadoIcono = 'reloj';
+               estadoClase = 'prueba';
+             }
+             if (m.dias === 0) {
+               estadoTexto = 'Caduca hoy';
+               estadoIcono = 'alerta';
+               estadoClase = 'alerta';
+             } else if (m.dias > 0 && m.dias <= 15) {
+               estadoTexto = 'Caduca en ' + m.dias + ' días';
+               estadoIcono = 'alerta';
+               estadoClase = 'alerta';
+             }
+          %>
+          <li class="portal-app">
+            <div class="portal-app-cab">
+              <span class="portal-app-icono"><%- m.icono %></span>
+              <div>
+                <h3 class="portal-app-nombre"><%= m.nombre %></h3>
+                <span class="portal-app-estado portal-app-estado--<%= estadoClase %>">
+                  <%- icono(estadoIcono, { tamano: 13 }) %>
+                  <%= estadoTexto %>
+                </span>
+              </div>
+            </div>
+
+            <% if (m.descripcion) { %>
+              <p class="portal-app-desc"><%= m.descripcion %></p>
+            <% } %>
+
+            <% if (m.componentes && m.componentes.length) { %>
+              <div class="portal-app-partes">
+                <% m.componentes.forEach(function (c) { %>
+                  <span class="portal-app-parte"><%= c %></span>
+                <% }); %>
+              </div>
+            <% } %>
+
+            <a class="panel-btn panel-btn--primary portal-app-btn"
+               href="<%= base %>/servicios/<%= m.module_id %>/entrar">
+              <%- icono('arrow-up-right', { tamano: 15 }) %>
+              Abrir
+            </a>
+          </li>
+        <% }); %>
+      </ul>
+    </section>
+  <% } %>
+
+  <%# ---------- Recordatorio de pago ----------
+      Va entre aplicaciones y servicios, y no arriba aunque sea lo más
+      urgente. Motivo: si el cliente tiene el bot abierto cada día, un
+      banner rojo arriba de todo le empuja a algo y le saca de lo que
+      venía a hacer. La deuda se ve igual de clara aquí, en su sitio,
+      sin tapar la pantalla. %>
+  <% if (cuenta.bloqueado > 0) { %>
+    <div class="panel-requiere">
+      <div class="panel-requiere-texto">
+        <strong>
+          <%= cuenta.bloqueado === 1 ? 'Tienes un servicio con el pago vencido' : 'Tienes ' + cuenta.bloqueado + ' servicios con el pago vencido' %>
+        </strong>
+        <span>
+          Debes <%= dinero(pendiente) %>. En cuanto lo regularices,
+          vuelve a estar todo al día.
+        </span>
+      </div>
+      <a href="<%= base %>/mis-servicios#pendiente" class="panel-btn panel-btn--primary">
+        Ver el pendiente
+      </a>
+    </div>
+  <% } %>
+
+  <!-- Servicios: LO SECUNDARIO. Filas compactas, no tarjetas: la
+       diferencia de densidad con las aplicaciones ES la jerarquía. Si
+       todo es una caja grande, nada destaca. -->
+  <section class="portal-sec">
+    <div class="portal-sec-cab">
+      <h2 class="portal-sec-titulo">Servicios y trabajos</h2>
+      <% if (servicios.length) { %>
+        <span class="portal-sec-nota"><%= servicios.length %> en total</span>
+      <% } %>
+    </div>
+
+    <% if (!servicios.length && !error) { %>
+      <div class="panel-empty">
+        <h2>Aquí no hay trabajos registrados</h2>
+        <p>
+          Cuando terminemos algo o activemos tu mantenimiento aparecerá
+          aquí. Si esperabas ver algo, escríbenos.
+        </p>
+      </div>
+    <% } %>
+
+    <% if (servicios.length) { %>
+      <ul class="portal-serv-lista">
+        <% servicios.forEach(function (s) {
+             var acc = s.acceso || {};
+             var nivel = acc.nivel || 'activo';
+             var pendiente = (acc.detalle && acc.detalle.pendiente) || 0;
+          %>
+          <li class="portal-serv portal-serv--<%= nivel %>"
+              <%= nivel === 'bloqueado' ? 'id="pendiente"' : '' %>>
+
+            <div class="portal-serv-principal">
+              <div class="portal-serv-tags">
+                <span class="panel-chip panel-chip--<%= s.kind %>"><%= etiquetaTipo(s.kind) %></span>
+                <span class="panel-chip panel-chip--<%= nivel %>"><%= acc.titulo %></span>
+              </div>
+              <span class="portal-serv-titulo"><%= s.titulo %></span>
+
+              <% if (nivel === 'bloqueado') { %>
+                <span class="portal-serv-sub">
+                  <%= acc.motivo %> Debe <%= dinero(pendiente) %>.
+                </span>
+              <% } else if (acc.motivo) { %>
+                <span class="portal-serv-sub"><%= acc.motivo %></span>
+              <% } else { %>
+                <span class="portal-serv-sub">
+                  <% var datos = []; %>
+                  <% if (s.inicia_en) { datos.push('desde el ' + fecha(s.inicia_en)); } %>
+                  <% if (s.numCobros) { datos.push(s.numCobros + (s.numCobros === 1 ? ' factura' : ' facturas')); } %>
+                  <% if (s.descripcion) { datos.push(s.descripcion); } %>
+                  <%= datos.join(' · ') %>
+                </span>
+              <% } %>
+            </div>
+
+            <div class="portal-serv-precio <%= nivel === 'bloqueado' ? 'portal-serv-precio--alerta' : '' %>">
+              <% if (nivel === 'bloqueado') { %>
+                <strong><%= dinero(pendiente) %></strong>
+                <span>pendiente</span>
+              <% } else if (s.importe !== null && s.importe !== undefined) { %>
+                <strong><%= dinero(s.importe, s.moneda) %></strong>
+                <span><%= (s.periodicidad && periodo[s.periodicidad]) || '' %></span>
+              <% } else { %>
+                <span class="panel-chip">A consultar</span>
+              <% } %>
+            </div>
+
+            <% if (acc.accion) { %>
+              <div class="portal-serv-accion">
+                <a href="mailto:<%= site.email %>?subject=<%= encodeURIComponent('Consulta sobre ' + s.titulo) %>"
+                   class="panel-btn panel-btn--ghost panel-btn--xs">
+                  <%= acc.accion %>
+                </a>
+              </div>
+            <% } %>
+          </li>
+        <% }); %>
+      </ul>
+    <% } %>
+  </section>
+
+</div>
+
+<%- include('../partials/panel-foot', { site }) %>

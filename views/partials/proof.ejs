@@ -1,0 +1,70 @@
+﻿<%#
+  Bloque de prueba social reutilizable.
+
+  Parámetros:
+    type    {string}  "results" -> métricas agregadas
+                     "quotes"  -> testimonios de clientes
+    title   {string}  Titular del bloque
+    lead    {string}  Texto de apoyo (opcional)
+
+  Usa clases existentes (.stats, .quote, .avatar-N) para no duplicar CSS.
+%>
+<% if (type === "results") { %>
+
+  <section class="section section--soft">
+    <div class="container">
+      <div class="section-head section-head--center reveal">
+        <span class="eyebrow">Resultados</span>
+        <h2><%= title %></h2>
+        <% if (typeof lead !== 'undefined' && lead) { %><p><%= lead %></p><% } %>
+      </div>
+
+      <div class="stats reveal">
+        <% figures.resultados.stats.forEach(function (s) { %>
+          <div class="stat">
+            <strong
+              data-count="<%= s.count %>"
+              <% if (s.prefix) { %>data-prefix="<%= s.prefix %>"<% } %>
+              <% if (s.suffix) { %>data-suffix="<%= s.suffix %>"<% } %>
+              <% if (s.decimals) { %>data-decimals="<%= s.decimals %>"<% } %>>
+              <%= s.prefix || "" %><%= s.count %><%= s.suffix || "" %>
+            </strong>
+            <span><%= s.label %></span>
+          </div>
+        <% }) %>
+      </div>
+
+      <ul class="result-pills reveal" style="justify-content:center;">
+        <% figures.resultados.pills.forEach(function (pill) { %><li><%= pill %></li><% }); %>
+      </ul>
+    </div>
+  </section>
+
+<% } else { %>
+
+  <section class="section section--soft">
+    <div class="container">
+      <div class="section-head section-head--center reveal">
+        <span class="eyebrow">Testimonios</span>
+        <h2><%= title %></h2>
+        <% if (typeof lead !== 'undefined' && lead) { %><p><%= lead %></p><% } %>
+      </div>
+
+      <div class="grid grid-3">
+        <% testimonials.forEach(function (t) { %>
+          <figure class="quote reveal">
+            <blockquote><%= t.quote %></blockquote>
+            <figcaption class="quote-person">
+              <span class="avatar avatar-<%= t.avatar %>" aria-hidden="true"><%= t.initials %></span>
+              <div>
+                <strong><%= t.name %></strong>
+                <span><%= t.role %></span>
+              </div>
+            </figcaption>
+          </figure>
+        <% }) %>
+      </div>
+    </div>
+  </section>
+
+<% } %>

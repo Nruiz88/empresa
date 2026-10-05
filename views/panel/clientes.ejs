@@ -1,0 +1,89 @@
+﻿<%#
+  Listado de clientes con búsqueda y paginación.
+
+  Variables: clientes, q, pagina, paginas, total, desde, hasta
+%>
+<%- include('../partials/panel-head', { title, site, base, current }) %>
+
+<div class="panel-page">
+  <div class="panel-page-head">
+    <div>
+      <span class="panel-kicker">Gestión</span>
+      <h1>Clientes</h1>
+      <p class="panel-count"><%= total %> cliente<%= total === 1 ? '' : 's' %></p>
+    </div>
+    <a href="<%= base %>/clientes/nuevo" class="panel-btn panel-btn--primary">Nuevo cliente</a>
+  </div>
+
+  <!-- Filtros -->
+  <form class="panel-filters" method="get" action="<%= base %>/clientes">
+    <input type="search" name="q" value="<%= q %>" placeholder="Buscar por nombre, empresa o email…" class="panel-search" />
+    <% if (q) { %><a href="<%= base %>/clientes" class="panel-clear">Limpiar</a><% } %>
+  </form>
+
+  <% if (!clientes.length) { %>
+    <div class="panel-empty">
+      <% if (q) { %>
+        <h2>Nada con «<%= q %>»</h2>
+        <p>Prueba con otro término, o revisa si el cliente está archivado.</p>
+        <a href="<%= base %>/clientes" class="panel-btn panel-btn--ghost">Ver todos</a>
+      <% } else { %>
+        <h2>Todavía no hay clientes</h2>
+        <p>Da de alta el primero y podrás colgarle sus servicios.</p>
+        <a href="<%= base %>/clientes/nuevo" class="panel-btn panel-btn--primary">Nuevo cliente</a>
+      <% } %>
+    </div>
+  <% } else { %>
+
+    <div class="panel-table-wrap">
+      <table class="panel-table">
+        <thead>
+          <tr>
+            <th>Empresa</th>
+            <th>Contacto</th>
+            <th class="panel-th-email">Email</th>
+            <th class="panel-th-actions"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% clientes.forEach(function (c) { %>
+            <tr>
+              <td>
+                <a href="<%= base %>/clientes/<%= c.id %>" class="panel-cell-main">
+                  <%= c.empresa || c.nombre %>
+                </a>
+                <% if (c.empresa && c.nombre !== c.empresa) { %>
+                  <span class="panel-cell-sub"><%= c.nombre %></span>
+                <% } %>
+                <% if (c.archivado) { %><span class="panel-chip panel-chip--mute">Archivado</span><% } %>
+              </td>
+              <td><%= c.telefono || "—" %></td>
+              <td class="panel-th-email">
+                <% if (c.email) { %>
+                  <a href="mailto:<%= c.email %>"><%= c.email %></a>
+                <% } else { %>—<% } %>
+              </td>
+              <td class="panel-th-actions">
+                <a href="<%= base %>/clientes/<%= c.id %>" class="panel-btn panel-btn--ghost">Abrir</a>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+
+    <% if (paginas > 1) { %>
+      <nav class="panel-pager" aria-label="Paginación">
+        <% if (pagina > 1) { %>
+          <a href="?pagina=<%= pagina - 1 %><%= q ? '&q=' + encodeURIComponent(q) : '' %>">← Anterior</a>
+        <% } %>
+        <span>Página <%= pagina %> de <%= paginas %> · viendo <%= desde %>–<%= hasta %></span>
+        <% if (pagina < paginas) { %>
+          <a href="?pagina=<%= pagina + 1 %><%= q ? '&q=' + encodeURIComponent(q) : '' %>">Siguiente →</a>
+        <% } %>
+      </nav>
+    <% } %>
+  <% } %>
+</div>
+
+<%- include('../partials/panel-foot', { site }) %>

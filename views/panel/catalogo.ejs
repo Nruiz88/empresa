@@ -1,0 +1,162 @@
+<%#
+  Catálogo: qué se puede contratar.
+
+  POR QUÉ ESTA PÁGINA ESTÁ SOLA
+  -----------------------------
+  "Lo que tengo" y "lo que quiero" son dos intenciones distintas. Si el
+  catálogo estuviera en el portal de siempre, el cliente tendría que
+  saltar por encima de sus facturas para llegar a los precios. Y si
+  estuviera en todas partes, nadie lo encontraría.
+
+  Solo salen los módulos disponibles: uno en desarrollo no está a la
+  venta aunque exista en la tabla. Los que ya tiene salen marcados y sin
+  botón, porque ofrecerle dos veces lo mismo es la forma más rápida de
+  que un cliente pregunte "¿lo he contratado dos veces?".
+
+  El trabajo a medida (una web nueva) NO está aquí: se presupuesta
+  persona a persona. En una lista de precios, una promesa de precio
+  para algo que hay que medir antes es una deuda.
+
+  Variables: catalogo (con yaTiene y dias), periodo, dinero, fecha,
+             LIBRES, capitalizar
+%>
+<%- include('../partials/panel-head', { title, site, base, current }) %>
+
+<div class="panel-page">
+
+  <div class="portal-cab">
+    <div>
+      <span class="portal-cab-saludo">Cat&aacute;logo</span>
+      <h1>A&ntilde;adir servicios</h1>
+      <p class="portal-cab-empresa">
+        Productos con los que trabajamos, con precio y sin letra menuda.
+      </p>
+    </div>
+    <a class="panel-btn panel-btn--ghost" href="<%= base %>/mis-servicios">
+      Volver a mis servicios
+    </a>
+  </div>
+
+  <% if (error) { %>
+    <div class="panel-alert"><%= error %></div>
+  <% } %>
+
+<% if (!catalogo.length) { %>
+  <div class="panel-empty">
+    <h2>A&uacute;n no hay nada a la venta</h2>
+    <p>
+      Estamos preparando los primeros servicios. Escr&iacute;benos y te
+      avisamos en cuanto estén.
+    </p>
+    <p class="panel-empty-accion">
+      <a class="panel-btn panel-btn--ghost"
+         href="mailto:<%= site.email %>?subject=<%= encodeURIComponent('Consulta') %>">
+        Escr&iacute;benos
+      </a>
+    </p>
+  </div>
+<% } %>
+
+<% if (catalogo.length) { %>
+<!-- El <ul> va FUERA del bucle. Dentro, cada tarjeta sería la única
+     celda de su propia rejilla y la de dos columnas nunca se llenaría:
+     se verían todas apiladas, como una lista y no como un catálogo. -->
+<ul class="portal-catalogo">
+<% } %>
+
+<% catalogo.forEach(function (m) {
+     var loTiene = Boolean(m.yaTiene); %>
+    <li class="portal-cat<%= loTiene ? ' portal-cat--tiene' : '' %>">
+
+      <div class="portal-cat-cab">
+        <span class="portal-cat-icono"><%- m.icono %></span>
+        <div>
+          <h2 class="portal-cat-nombre"><%= m.nombre %></h2>
+          <% if (m.periodicidad && periodo[m.periodicidad]) { %>
+            <span class="portal-cat-periodo"><%= periodo[m.periodicidad] %></span>
+          <% } %>
+        </div>
+      </div>
+
+      <% if (m.descripcion) { %>
+        <p class="portal-cat-desc"><%= m.descripcion %></p>
+      <% } %>
+
+      <!-- Los componentes vienen como claves técnicas ('turnos',
+           'movimientos') porque son identificadores de la base de datos.
+           Ponerlos en crudo delante de un cliente que quiere comprar
+           hace que el producto parezca una cosa de programadores. Así
+           que se traducen con LIBRES.
+
+           Lo que NO se hace es inventar: si una clave no está en LIBRES,
+           se capitaliza y se enseña tal cual. Es preferible escribir
+           «Proveedores» (correcto aunque suena seco) que inventar
+           «Gestión avanzada de proveedores» (suena mejor y no está
+           comprobado). -->
+      <% if (m.componentes && m.componentes.length) { %>
+        <ul class="portal-cat-partes">
+          <% m.componentes.forEach(function (c) { %>
+            <li><%= LIBRES[c] || capitalizar(c) %></li>
+          <% }); %>
+        </ul>
+      <% } %>
+
+      <div class="portal-cat-pie">
+        <div class="portal-cat-precio">
+          <% if (m.precio !== null && m.precio !== undefined) { %>
+            <strong><%= dinero(m.precio) %></strong>
+            <% if (m.periodicidad && periodo[m.periodicidad]) { %>
+              <span><%= periodo[m.periodicidad] %></span>
+            <% } %>
+          <% } else { %>
+            <span class="panel-serv-sinimporte">A consultar</span>
+          <% } %>
+        </div>
+
+        <%# Si ya lo tiene, NO hay botón. Está en su portal y ahí lo
+            abre desde «Mis servicios»; aquí solo necesita saber que
+            lo tiene. Dos botones que llevan al mismo sitio en dos
+            pantallas es ruido. %>
+        <% if (loTiene) { %>
+          <div class="portal-cat-activo">
+            <span class="portal-cat-flag">Ya lo tienes</span>
+            <% if (m.yaTiene.estado === 'prueba') { %>
+              <span class="portal-cat-sub">en prueba</span>
+            <% } else if (m.dias !== Infinity && m.dias >= 0 && m.dias <= 15) { %>
+              <span class="portal-cat-sub portal-cat-sub--alerta">
+                caduca en <%= m.dias %> d&iacute;as
+              </span>
+            <% } %>
+          </div>
+        <% } else { %>
+          <!-- El alta no se hace desde aquí a propósito. Entra alguien
+               por correo, se comprueba que de verdad quiere ese producto
+               y se activa. Un botón que dijera "contratar" sería una
+               promesa que después hay que desatender: no hay pago
+               automático todavía. -->
+          <a class="panel-btn panel-btn--primary"
+             href="mailto:<%= site.email %>?subject=<%= encodeURIComponent('Quiero ' + m.nombre) %>">
+            Quiero este
+          </a>
+        <% } %>
+      </div>
+    </li>
+<% }); %>
+
+<% if (catalogo.length) { %>
+  </ul>
+<% } %>
+
+<% if (catalogo.length) { %>
+  <div class="panel-note">
+    <p>
+      &iquest;Falta algo? Dinos qu&eacute; necesitas y te lo presupuestamos.
+      Todo se factura aparte, y puedes activar o cancelar cuando quieras
+      sin dar de baja el resto.
+    </p>
+  </div>
+<% } %>
+
+</div>
+
+<%- include('../partials/panel-foot', { site }) %>

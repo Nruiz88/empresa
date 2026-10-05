@@ -1,0 +1,195 @@
+<%#
+  Encabezado premium reutilizable para páginas interiores.
+
+  Parámetros:
+    eyebrow     {string}  Etiqueta superior (ej. "Servicios")
+    titleLines  {array}   Array de strings/HTML, una por línea del titular
+    lead        {string}  Texto introductorio
+    variant     {string}  Variante del mockup: servicios | proyectos |
+                          precios | contacto | blog | articulo | default
+
+  Usa `breadcrumbs` (lo inyecta server.js) para las migas de pan.
+%>
+<section class="page-hero page-hero--premium" data-mock="<%= variant %>">
+  <div class="page-hero-bg" aria-hidden="true">
+    <div class="hero-grid"></div>
+    <span class="aurora aurora-1"></span>
+    <span class="aurora aurora-2"></span>
+    <div class="hero-noise"></div>
+  </div>
+
+  <div class="container page-hero-layout">
+    <!-- ---------- Columna de texto ---------- -->
+    <div class="page-hero-copy">
+      <% if (typeof breadcrumbs !== 'undefined' && breadcrumbs && breadcrumbs.length > 1) { %>
+        <nav class="breadcrumb" aria-label="Migas de pan">
+          <% breadcrumbs.forEach(function (b, i) { %>
+            <% if (i > 0) { %><span>/</span><% } %>
+            <% if (b.url && i < breadcrumbs.length - 1) { %>
+              <a href="<%= b.url %>"><%= b.name %></a>
+            <% } else { %>
+              <span aria-current="page"><%= b.name %></span>
+            <% } %>
+          <% }); %>
+        </nav>
+      <% } %>
+
+      <span class="eyebrow eyebrow-pill"><span class="dot" aria-hidden="true"></span><%= eyebrow %></span>
+
+      <h1 class="page-hero-title">
+        <% titleLines.forEach(function (line) { %>
+          <span class="line"><span><%- line %></span></span>
+        <% }); %>
+      </h1>
+
+      <p class="lead"><%= lead %></p>
+
+      <div class="page-hero-actions">
+        <a href="/contacto" class="btn btn-primary btn-sm magnetic">Pedir presupuesto gratis</a>
+        <a href="/proyectos" class="btn btn-ghost btn-sm">Ver proyectos</a>
+      </div>
+
+      <ul class="trust-row">
+        <li>Respuesta en 24 h</li>
+        <li>Precio cerrado</li>
+        <li>Sin compromiso</li>
+      </ul>
+    </div>
+
+    <!-- ---------- Mockup dedicado ---------- -->
+    <div class="page-hero-showcase" data-tilt>
+      <div class="mock-window">
+        <div class="mock-bar">
+          <span class="mock-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span class="mock-url">nexo.studio / <%= variant %></span>
+          <span class="mock-pill">Demo</span>
+        </div>
+
+        <div class="mock-page">
+
+          <% if (variant === "servicios") { %>
+            <!-- Tablero de trabajo por fases -->
+            <div class="mock-board">
+              <div class="mock-col">
+                <span class="mock-col-title">Descubrimiento</span>
+                <span class="mock-task is-done">Workshop</span>
+                <span class="mock-task is-done">Auditoría</span>
+              </div>
+              <div class="mock-col">
+                <span class="mock-col-title">Diseño</span>
+                <span class="mock-task is-live">Wireframes</span>
+                <span class="mock-task">UI Kit</span>
+              </div>
+              <div class="mock-col">
+                <span class="mock-col-title">Desarrollo</span>
+                <span class="mock-task">Sprint 1</span>
+                <span class="mock-task">QA</span>
+              </div>
+            </div>
+
+          <% } else if (variant === "proyectos") { %>
+            <!-- Rejilla de piezas destacadas -->
+            <div class="mock-gallery">
+              <span class="mock-tile t1"><em>Web</em></span>
+              <span class="mock-tile t2"><em>E-commerce</em></span>
+              <span class="mock-tile t3"><em>App</em></span>
+              <span class="mock-tile t4"><em>Panel</em></span>
+              <span class="mock-tile t5"><em>SEO</em></span>
+              <span class="mock-tile t6"><em>Reservas</em></span>
+            </div>
+
+          <% } else if (variant === "precios") { %>
+            <!-- Comparativa de planes -->
+
+            <!-- TODO(contenido): precios hardcodeados, y NO hay
+                 content/precios.js. Son los mismos tres planes que
+                 muestra views/precios.ejs, escritos aquí otra vez.
+                 El bloque de métricas de más abajo (lineas ~161-181)
+                 también duplica content/stats.js. Lo editable debería
+                 pasar por content/, como ya se hace en el resto de la
+                 web. Ver PENDIENTES.md. -->
+            <div class="mock-plans">
+              <div class="mock-plan">
+                <span class="mock-plan-name">Esencial</span>
+                <strong>890 €</strong>
+                <span class="mock-plan-meta">2–3 semanas</span>
+              </div>
+              <div class="mock-plan is-featured">
+                <span class="mock-plan-name">Negocio</span>
+                <strong>1.990 €</strong>
+                <span class="mock-plan-meta">4–6 semanas</span>
+              </div>
+              <div class="mock-plan">
+                <span class="mock-plan-name">A medida</span>
+                <strong>4.500 €</strong>
+                <span class="mock-plan-meta">8–14 semanas</span>
+              </div>
+            </div>
+
+          <% } else if (variant === "contacto") { %>
+            <!-- Agenda de reuniones -->
+            <div class="mock-calendar">
+              <div class="mock-cal-head">
+                <span>Próxima llamada</span>
+                <em>30 min · Videollamada</em>
+              </div>
+              <div class="mock-slots">
+                <span class="mock-slot">Lun 10:00</span>
+                <span class="mock-slot is-picked">Mar 12:00</span>
+                <span class="mock-slot">Mié 09:30</span>
+                <span class="mock-slot">Jue 17:00</span>
+                <span class="mock-slot">Vie 11:00</span>
+              </div>
+              <div class="mock-confirm">Confirmar hora</div>
+            </div>
+
+          <% } else if (variant === "blog") { %>
+            <!-- Lista de artículos -->
+            <div class="mock-articles">
+              <span class="mock-article"><em>Precios</em><strong>¿Cuánto cuesta una web?</strong></span>
+              <span class="mock-article"><em>SEO</em><strong>Aparecer en Google Maps</strong></span>
+              <span class="mock-article"><em>Producto</em><strong>Web o aplicación</strong></span>
+            </div>
+
+          <% } else if (variant === "articulo") { %>
+            <!-- Vista de lectura -->
+            <div class="mock-reader">
+              <div class="mock-reader-bar"><span style="--w:62%"></span></div>
+              <span class="mock-line w90"></span>
+              <span class="mock-line w70"></span>
+              <span class="mock-line w100"></span>
+              <span class="mock-line w45"></span>
+              <span class="mock-line w80"></span>
+            </div>
+
+          <% } else { %>
+            <!-- Variante por defecto -->
+            <div class="mock-kpis">
+              <div class="mock-kpi">
+                <span>Entregas</span><strong>120</strong><em class="up">↑ 18 %</em>
+              </div>
+              <div class="mock-kpi">
+                <span>Clientes</span><strong>85</strong><em class="up">↑ 9 pts</em>
+              </div>
+              <div class="mock-kpi">
+                <span>Valoración</span><strong>4,9</strong><em class="up">↑ 0,2</em>
+              </div>
+            </div>
+          <% } %>
+
+        </div>
+      </div>
+
+      <!-- Tarjeta flotante contextual -->
+      <div class="float-card float-card--a" data-float="1">
+        <span class="float-icon float-icon--up" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 7-7"/><path d="M14 8h7v7"/></svg>
+        </span>
+        <div>
+          <strong>+40 %</strong>
+          <span>conversiones</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
