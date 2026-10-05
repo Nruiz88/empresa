@@ -60,14 +60,25 @@ propiedad que justifica separarlos.
 NODE_ENV=production
 SITE_URL=https://tudominio.com
 PANEL_URL=https://panel.tudominio.com
+PORT=3000
 
 DATABASE_URL=postgresql://...
 SUPABASE_URL=https://xxxx.supabase.co
-SUPABASE_KEY=anon-key
-SUPABASE_SECRET=service-role-key
+SUPABASE_PUBLISHABLE_KEY=anon-key
+SUPABASE_SECRET_KEY=service-role-key
 SESSION_SECRET=<generar>
 SERVICE_SECRET=<generar>
 ```
+
+**Ojo con `PORT`:** `server.js` lo lee igual que `panel.js`, y en
+`.env.example` vale `3100` (que es el del panel). Si lo copias tal
+cual al servicio web, `server.js` escucha en 3100 y Coolify, que espera
+el puerto que le has declarado, no recibe nada. Ponlo a 3000 o al que
+hayas puesto en la interfaz.
+
+Lo mismo con el bot: por defecto escucha en `3200`, y `BOT_PORT` **no**
+lo lee nadie (está en `.env.example` solo por claridad). El que manda
+es `PORT`.
 
 ### Servicio bot
 
@@ -76,14 +87,27 @@ NODE_ENV=production
 PORT=3200
 BOT_HOST=0.0.0.0
 
-DATABASE_URL=postgresql://...          # la MISMA base
-SUPABASE_URL=https://xxxx.supabase.co  # el MISMO proyecto
-SUPABASE_KEY=anon-key
-SUPABASE_SECRET=service-role-key
+DATABASE_URL=postgresql://...            # la MISMA base
+SUPABASE_URL=https://xxxx.supabase.co    # el MISMO proyecto
+SUPABASE_PUBLISHABLE_KEY=anon-key
+SUPABASE_SECRET_KEY=service-role-key
 
 SESSION_SECRET=<el MISMO que el web>
 SERVICE_SECRET=<el MISMO que el web>
 ```
+
+### ⚠️ Los nombres de las claves de Supabase
+
+Fíjate en el sufijo, porque es la trampa fácil:
+
+- `SUPABASE_PUBLISHABLE_KEY` → la clave `anon` (va también en el
+  navegador)
+- `SUPABASE_SECRET_KEY` → la clave `service role`, la que salta RLS
+
+No es `SUPABASE_KEY` ni `SUPABASE_SECRET`. Si te equivocas, `env.require()`
+no encuentra la que falta y la app no arranca. Los nombres exactos están
+en `.env.example`, que es la referencia: cópialo de ahí en lugar de
+escribirlos de memoria.
 
 ---
 
@@ -238,8 +262,9 @@ openssl rand -base64 32
 - `SERVICE_SECRET`: cambia en ambos a la vez. **No invalida sesiones**,
   solo rompe los saltos en curso (tickets de 60 s). Es inocuo.
 
-`SUPABASE_SECRET` (service role): se cambia en el panel de Supabase,
-no aquí. Requiere actualizar en ambos servicios al mismo tiempo.
+`SUPABASE_SECRET_KEY` (service role): se cambia en el panel de
+Supabase, no aquí. Requiere actualizar en ambos servicios al mismo
+tiempo.
 
 ---
 

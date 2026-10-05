@@ -33,3 +33,16 @@ NOTAS-LOCAL.md
 Thumbs.db
 ehthumbs.db
 Desktop.ini
+
+# Claves SSH y ficheros de credenciales. Aunque hoy no haya ninguna
+# dentro del repo, esto está aquí para que no acabe ninguna. Una clave
+# privada subida a un remoto queda en el HISTORIAL, y borrarla del
+# fichero después no la borra de ahí: habría que rotarla.
+*.pem
+*.key
+id_rsa
+id_ed25519
+id_ecdsa
+id_dsa
+coolify_*
+.ssh/
