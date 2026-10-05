@@ -103,6 +103,12 @@ NODE_ENV=production
 PORT=3200
 BOT_HOST=0.0.0.0
 
+# El bot NECESITA estas dos, aunque no envíe nada. Sin ellas no sabe
+# dónde está el panel y todos sus enlaces apuntan a
+# midominio.com (ver "el bot y el dominio" más abajo).
+SITE_URL=https://tudominio.com
+PANEL_URL=https://panel.tudominio.com
+
 DATABASE_URL=postgresql://...            # la MISMA base
 SUPABASE_URL=https://xxxx.supabase.co    # el MISMO proyecto
 SUPABASE_PUBLISHABLE_KEY=anon-key
@@ -111,6 +117,26 @@ SUPABASE_SECRET_KEY=service-role-key
 SESSION_SECRET=<el MISMO que el web>
 SERVICE_SECRET=<el MISMO que el web>
 ```
+
+### El bot y el dominio
+
+`urlDelPanel()` (en `lib/acceso-servicio.js`) saca de dónde está el
+panel, y `urlDeServicio()` (en `lib/site.js`) saca de dónde está cada
+servicio. **Las dos leen de variables que tienen que existir en el
+servicio que las usa**, y no de las de otro.
+
+Si el bot no tiene `SITE_URL` ni `PANEL_URL`, no cae en un error
+visible: cae en el valor por defecto de `lib/site.js`, que es
+`https://midominio.com`. El bot arranca, `/entrar` responde 200, el
+health check pasa, y solo cuando un cliente entra se ve que al
+volver al panel lo manda a un sitio que no existe.
+
+Es un fallo silencioso porque todo lo que se comprueba sin navegador
+funciona.
+
+Si un día se separan los dominios (panel en un subdominio y bot en
+otro), `PANEL_URL` y `SITE_URL` dejan de ser iguales y hay que poner
+los dos a mano en cada servicio.
 
 ### ⚠️ Los nombres de las claves de Supabase
 
@@ -129,8 +155,16 @@ escribirlos de memoria.
 
 ## ⚠️ LO QUE MATA EL ACCESO AL BOT
 
-Tres cosas. Las tres son fallos silenciosos: el bot arranca, el
+Cuatro cosas. Las cuatro son fallos silenciosos: el bot arranca, el
 panel funciona, y solo falla el salto entre ambos.
+
+### 0. `node bot.js`, no `npm start`
+
+El comando de arranque del bot **no** puede ser `npm start`, porque
+ese script es `node server.js`. Con `npm start` levantas el servidor
+web otra vez y acabas con dos servicios sirviendo la web pública,
+con la misma cookie de panel. En Coolify, en el campo de start
+command: `node bot.js`.
 
 ### 1. `SERVICE_SECRET` tiene que ser IDÉNTICO en los dos
 

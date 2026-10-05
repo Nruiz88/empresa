@@ -28,6 +28,18 @@ const PUERTO_BOT = 3201;
 
 const MARCA = "-test-acceso-servicio-";
 
+/* Un usuario de equipo de verdad, para probar que staff entra al
+   servicio sin suscripción. Hace falta uno real (no uno creado aquí)
+   porque el ticket lleva dentro su access_token, y ese token tiene
+   que pasar las políticas RLS de staff en la base.
+
+   OJO: son las credenciales de desarrollo de NOTAS-LOCAL.md. Este
+   test no es un sitio para credenciales reales, y en un entorno
+   compartido esto no funcionaría. Para producción, un usuario de
+   servicio propio. */
+const STAFF_EMAIL = process.env.TEST_STAFF_EMAIL || "admin@nexostudio.es";
+const STAFF_PASSWORD = process.env.TEST_STAFF_PASSWORD || "PanelPrueba2026";
+
 let ok = 0;
 let fallos = 0;
 
@@ -484,7 +496,90 @@ async function irAlBot(cookie) {
   });
   comprobar("tras salir, la cookie ya no vale", rTrasSalir.status === 302);
 
-  // --- 9. El destino se deduce, no está escrito ---
+  /* --- 9. El equipo entra sin suscripción ---
+     ┌─────────────────────────────────────────────────────────┐
+     │ ESTE BLOQUE NO EXISTÍA. Y el fallo que tapa es real.     │
+     │                                                         │
+     │ El panel deja pasar a staff a propósito: la comprobación  │
+     │ de suscripción en routes/panel-portal.js solo se hace si  │
+     │ NO es staff ("es para soporte"). El bot, en cambio,       │
+     │ exigía el módulo a todo el mundo, y un member del equipo  │
+     │ no tiene `cid` porque no pertenece a ningún cliente.      │
+     │ Resultado: el panel montaba el ticket, lo firmaba y       │
+     │ reenviaba al bot, que respondía 403 con un texto que     │
+     │ hablaba de contratar un producto que ya tenía acceso.     │
+     │ Dos servicios con reglas distintas sobre el mismo acceso. */
+  seccion("el equipo entra sin suscripción");
+
+  const libTickets = require("../lib/tickets");
+
+  /* Se firma un ticket de staff con un token real suyo. El token es
+     necesario porque viaja dentro del ticket y es lo que el bot
+     usará para reconstruir la sesión con RLS. */
+  const staffAuth = await supabase.getAdmin().auth.signInWithPassword({
+    email: STAFF_EMAIL,
+    password: STAFF_PASSWORD,
+  });
+  comprobar("el usuario de equipo puede autenticarse", Boolean(staffAuth.data && staffAuth.data.session));
+
+  const staffToken = staffAuth.data.session.access_token;
+  const staffId = staffAuth.data.session.user.id;
+
+  const ticketStaff = libTickets.firmar({
+    sesion: { rol: "staff" },
+    userId: staffId,
+    clientId: null,
+    rol: "staff",
+    accessToken: staffToken,
+  });
+
+  const rStaff = await fetch("http://127.0.0.1:" + PUERTO_BOT + "/entrar", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ticket: ticketStaff }),
+  });
+  const cStaff = await rStaff.json();
+
+  comprobar(
+    "el equipo canjea el ticket en vez de recibir un 403",
+    rStaff.status === 200 && cStaff.ok === true,
+    "estado " + rStaff.status + " · " + (cStaff.error || "")
+  );
+  comprobar(
+    "vuelve al panel del equipo, no al portal del cliente",
+    (cStaff.volver || "").endsWith("/panel"),
+    cStaff.volver
+  );
+  comprobar("y con URL completa", /^https?:\/\//.test(cStaff.volver || ""), cStaff.volver);
+
+  const cookieStaff = (rStaff.headers.getSetCookie ? rStaff.headers.getSetCookie() : [])[0] || "";
+  const tokenStaffBot = (cookieStaff.match(/nexo_bot=([^;]+)/) || [])[1];
+  comprobar("el bot le pone su propia cookie", Boolean(tokenStaffBot));
+
+  /* Lo importante: no solo entrar una vez. Si el middleware lo
+     rechazara en la segunda petición, el botón "Abrir" funcionaría
+     una vez y el servicio se cerraría solo al recargar. */
+  const rStaffDentro = await fetch("http://127.0.0.1:" + PUERTO_BOT + "/mi-bot", {
+    redirect: "manual",
+    headers: { Cookie: "nexo_bot=" + tokenStaffBot },
+  });
+  comprobar(
+    "y dentro sigue funcionando en la segunda petición",
+    rStaffDentro.status === 200,
+    "estado " + rStaffDentro.status
+  );
+
+  await fetch("http://127.0.0.1:" + PUERTO_BOT + "/salir", {
+    redirect: "manual",
+    headers: { Cookie: "nexo_bot=" + tokenStaffBot },
+  });
+  const rStaffSalio = await fetch("http://127.0.0.1:" + PUERTO_BOT + "/mi-bot", {
+    redirect: "manual",
+    headers: { Cookie: "nexo_bot=" + tokenStaffBot },
+  });
+  comprobar("y puede salir igual que un cliente", rStaffSalio.status === 302);
+
+  // --- 10. El destino se deduce, no está escrito ---
   seccion("dirección del servicio");
 
   /* CAMBIÓ el criterio, a propósito.
