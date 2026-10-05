@@ -29,6 +29,15 @@ const EMAIL = process.env.TEST_EMAIL || "admin@nexostudio.es";
 const PASSWORD = process.env.TEST_PASSWORD || "PanelPrueba2026";
 const MODULO = process.env.TEST_MODULO || "bot_whatsapp";
 
+/* 'staff' vuelve al panel del equipo; 'client' vuelve a su portal.
+   No es un detalle: es la diferencia entre el camino que se salta la
+   comprobación de suscripción y el que no. Probar solo con staff deja
+   sin cubrir justo lo que importa. */
+const ROL = process.env.TEST_ROL || "staff";
+const VUELTA_DE_STAFF = "/panel";
+const VUELTA_DE_CLIENTE = "/panel/mis-servicios";
+const VUELTA_ESPERADA = ROL === "client" ? VUELTA_DE_CLIENTE : VUELTA_DE_STAFF;
+
 const ES_HTTPS = PANEL.startsWith("https://");
 
 let ok = 0;
@@ -77,7 +86,7 @@ async function pedir(url, opciones = {}) {
   console.log("\n═══ Flujo completo contra el despliegue ═══");
   console.log("  panel: " + PANEL);
   console.log("  bot:   " + BOT);
-  console.log("  usuario: " + EMAIL);
+  console.log("  usuario: " + EMAIL + "  (rol: " + ROL + ")");
   console.log("  " + (ES_HTTPS ? "con HTTPS" : "SIN HTTPS (esto no es una prueba real)"));
 
   /* ---------- 0. Que los dos dominios existen ---------- */
@@ -143,7 +152,49 @@ async function pedir(url, opciones = {}) {
   comprobar("el panel da su cookie propia", cookies.has("nexo_panel"));
 
   const rTras = await pedir(PANEL + "/panel", { headers: { Cookie: cabecera() } });
-  comprobar("con esa cookie entra al panel", rTras.status === 200, "estado " + rTras.status);
+  /* Un cliente NO entra en /panel: le mandan a su portal. Un member
+     del equipo sí. La comprobación es distinta por rol a propósito,
+     porque aquí el 302 es la respuesta correcta, y decir "no vale"
+     sería un falso positivo que invitaría a alguien a "arreglarlo". */
+  if (ROL === "client") {
+    const loc = rTras.headers.get("location") || "";
+    comprobar(
+      "un cliente no entra al panel del equipo: le mandan a su portal",
+      rTras.status === 302 && loc.includes(VUELTA_DE_CLIENTE),
+      "estado " + rTras.status + (loc ? " → " + loc : "")
+    );
+  } else {
+    comprobar("con esa cookie entra al panel", rTras.status === 200, "estado " + rTras.status);
+  }
+
+  /* ---------- 1b. El portal de un cliente ----------
+     A un cliente no se le prueba con "/panel": su pantalla es
+     /panel/mis-servicios, y lo que tiene que aparecer ahí es el
+     botón "Abrir" del bot. Sin esto, la prueba pasaría yendo a la
+     ruta del servicio a pelo, sin comprobar que un cliente real ve
+     la forma de llegar. */
+  if (ROL === "client") {
+    seccion("el portal del cliente ve la aplicación");
+
+    const rPortal = await pedir(PANEL + "/panel/mis-servicios", {
+      headers: { Cookie: cabecera() },
+    });
+    comprobar("el portal del cliente responde", rPortal.status === 200, "estado " + rPortal.status);
+
+    const htmlPortal = await rPortal.text();
+    const botVisible = htmlPortal.includes("/panel/servicios/" + MODULO + "/entrar");
+    comprobar("el bot aparece con su botón de abrir", botVisible, botVisible ? "" : "no sale el enlace");
+
+    /* Si el cliente tuviera el cobro de una suscripción VENCIDO, el
+       portal lo avisa pero NO le quita la aplicación: el bloqueo por
+       impago es del servicio de acceso, no del módulo. Aquí se
+       comprueba que la pantalla no dice "sin acceso". */
+    comprobar(
+      "y no le dice que no tiene acceso",
+      !htmlPortal.includes("sin acceso") && !htmlPortal.includes("no está activo"),
+      ""
+    );
+  }
 
   /* ---------- 2. El salto al bot ---------- */
   seccion("el salto al bot");
@@ -184,9 +235,9 @@ async function pedir(url, opciones = {}) {
 
   comprobar("el bot acepta el ticket", rCanje.status === 200 && canje.ok === true, "estado " + rCanje.status + " · " + (canje.error || ""));
   comprobar(
-    "vuelve al panel del equipo",
-    (canje.volver || "").endsWith("/panel"),
-    canje.volver
+    ROL === "client" ? "vuelve al portal del cliente" : "vuelve al panel del equipo",
+    (canje.volver || "").endsWith(VUELTA_ESPERADA),
+    canje.volver + "  (se esperaba ... " + VUELTA_ESPERADA + ")"
   );
   comprobar("y con URL completa", /^https?:\/\//.test(canje.volver || ""), canje.volver);
   comprobar(
