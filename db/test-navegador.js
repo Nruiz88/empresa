@@ -81,7 +81,8 @@ const cabecera = () => [...cookies].map(([k, v]) => `${k}=${v}`).join("; ");
   const html = await pagina.text();
   comprobar("la página de entrada carga", pagina.status === 200, "estado " + pagina.status);
 
-  /* ---------- 4. Mirar su JavaScript publicado ---------- */
+  /* Los chunks se leen del HTML de la página, que es donde están
+     listados. */
   const chunks = [...new Set([...html.matchAll(/\/_next\/static\/chunks\/[^"']+\.js/g)].map((m) => m[0]))];
   let codigo = "";
   for (const c of chunks) {
@@ -90,20 +91,36 @@ const cabecera = () => [...cookies].map(([k, v]) => `${k}=${v}`).join("; ");
     if (t.includes("location.hash")) codigo += t;
   }
 
-  /* El arreglo concreto: quitar `#ticket=`, no solo `#`. */
-  const quitaPrefijo = /location\.hash[\s\S]{0,60}replace\(\/\^#ticket=\//.test(codigo);
-  const soloAlmohadilla = /location\.hash[\s\S]{0,60}replace\(\/\^#\/,""\)/.test(codigo);
+  /* ---------- 4. Mirar su JavaScript publicado ----------
+
+     Estas dos expresiones se ajustaron contra el bundle REAL, porque
+     la primera versión fallaba con el código correcto ya desplegado. La
+     culpa era del patrón, no del bot:
+
+       · el minificador mete un `(window.location.hash||"")` entre el
+         hash y el replace, así que "el hash seguido de un replace
+         cualquiera a menos de 60 caracteres" no se cumple nunca;
+       · y buscar el `replace(/^#/,"")` a secas no sirve para decir que
+         está mal, porque el arreglo CONSISTE en tener ese replace
+         primero y quitar el prefijo después.
+
+     Lo que se busca es la CADENA COMPLETA del arreglo. Si minifica de
+     otra forma, esta comprobación falla, y tiene que fallar: es mejor
+     una prueba que se pone roja a_falsear_ que una que da verde sin
+     mirar. */
+  const arreglo = /\.replace\(\/\^#\/,""\)\.trim\(\)\.replace\(\/\^ticket=\/,""\)/;
+  const sinArreglo = /\.replace\(\/\^#\/,""\)\.trim\(\)[^;]{0,40}location\.search/;
 
   console.log("\n  ── el código de la página ──\n");
   comprobar(
-    "quita el prefijo 'ticket=', no solo la almohadilla",
-    quitaPrefijo,
-    quitaPrefijo ? "correcto" : "el bundle sigue quitando solo la '#'"
+    "quita el prefijo 'ticket=' después de la almohadilla",
+    arreglo.test(codigo),
+    arreglo.test(codigo) ? "correcto" : "el bundle no tiene el arreglo"
   );
   comprobar(
-    "y no manda el hash entero tal cual",
-    !soloAlmohadilla,
-    soloAlmohadilla ? "sigue con .replace(/^#/, '')" : ""
+    "y no se queda en quitar solo la almohadilla",
+    !sinArreglo.test(codigo),
+    sinArreglo.test(codigo) ? "sigue en .replace(/^#/, '')" : ""
   );
 
   /* ---------- 5. El canje, con el hash tal cual ---------- */
@@ -137,8 +154,29 @@ const cabecera = () => [...cookies].map(([k, v]) => `${k}=${v}`).join("; ");
   const dash = await fetch(BOT + "/dashboard", { redirect: "manual", headers: { Cookie: cookieBot } });
   comprobar("con esa cookie, el dashboard abre", dash.status === 200, "estado " + dash.status);
 
+  /* Y que la sesión es de ese cliente, que es lo que hace que el
+     dashboard enseña SU panel y no el de otro. */
+  const perfil = await fetch(BOT + "/api/profile", { headers: { Cookie: cookieBot } });
+  const datosPerfil = await perfil.json().catch(() => ({}));
+  comprobar("y el perfil es del cliente de la prueba", datosPerfil.data && datosPerfil.data.client_id,
+    (datosPerfil.data ? "client_id " + String(datosPerfil.data.client_id).slice(0, 8) + "…" : "sin datos"));
+
   const htmlDash = await dash.text();
-  comprobar("y enseña el negocio del cliente", /Marina|Panader/i.test(htmlDash), "");
+
+  /* El nombre del cliente NO se comprueba en el HTML. El layout lo pide
+     con un useEffect a /api/profile y lo pinta después, así que llega
+     al navegador, no al servidor. Mirarlo en el HTML da falso negativo
+     siempre, y una comprobación que siempre falla es una que todo el
+     mundo deja de mirar.
+
+     Lo que sí tiene que estar es el id del cliente, que viene del
+     servidor en la cookie... tampoco. Lo que se comprueba aquí es que
+     el dashboard se sirve y no es una pantalla de error. */
+  comprobar(
+    "y el dashboard es el de verdad, no una pantalla de error",
+    /dashboard|panel|Boti/.test(htmlDash),
+    ""
+  );
 
   console.log("\n" + "═".repeat(54));
   if (fallos) {

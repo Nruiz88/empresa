@@ -36,6 +36,7 @@
     "test:bot": "node db/test-bot.js",
     "test:soporte": "node db/test-soporte.js",
     "test:soporte:flujo": "node db/test-soporte-flujo.js",
+    "test:navegador": "node db/test-navegador.js",
     "limpiar:pruebas": "node db/limpiar-pruebas.js",
     "demo:portal": "node db/demo-portal.js",
     "demo:portal:limpiar": "node db/demo-portal.js --limpiar",
