@@ -467,21 +467,36 @@ const router = express.Router();
              sumados como euros dan un número que no es de nadie. */
           db
             .from("cobros")
-            .select("importe,vence_en,services(moneda)"),
+            .select("importe,vence_en,services(moneda)")
+            .in("estado", ["pendiente", "impagado"]),
         ]);
 
-        /* `services(moneda)` es un objeto cuando la relación resuelve y
-           un array cuando no, según la fila. Con el casing de la
-           relación a mano esto es frágil; por eso se lee el primer
-           valor de las dos formas y se avisa si alguna vez hay más de
-           una moneda, en vez de sumarlas mezcladas. */
+        /* ── POR QUÉ EL FILTRO VA EN LA CONSULTA Y NO AQUÍ ──
+         *
+         * La primera versión pedía `importe,vence_en,services(moneda)`
+         * — sin `estado` — y luego filtraba en el bucle con:
+         *
+         *     if ((c.estado || "pendiente") !== "pendiente") continue;
+         *
+         * Como `estado` no venía nunca, `c.estado` era siempre
+         * undefined, el `||` lo devolvía siempre como "pendiente", y la
+         * comprobación no descartaba nada. Se sumpaban los cobros
+         * PAGADOS como si se debieran.
+         *
+         * La portada decía "14.218 € por cobrar" cuando cobros decía
+         * 8.809 €. La diferencia eran 5.409 €, exactamente el "cobrado
+         * histórico" de la otra pantalla. Los dos números Salon
+         * ciertos: el de la portada, no.
+         *
+         * Y el filtro va en la consulta porque es lo que puede
+         * comprobar la base de datos. Si vuelve a hacer falta filtrar
+         * en JS, que se mire `c.estado` a secas: un valor por defecto
+         * inventado aquí es lo que apagó la comprobación. */
         const hoy = new Date().toISOString().slice(0, 10);
 
         const porMoneda = new Map();
 
         for (const c of cobrosPendientes.data || []) {
-          if ((c.estado || "pendiente") !== "pendiente") continue;
-
           const rel = c.services;
           const servicio = Array.isArray(rel) ? rel[0] : rel;
           const clave = (servicio && servicio.moneda) || "EUR";
