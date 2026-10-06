@@ -4739,3 +4739,322 @@ section[id],
 .price.precio-mensual .amount {
   font-size: 1.8rem !important;
 }
+/* =========================================================
+   WHATSAPP: QUE LA SECCION PAREZCA DE WHATSAPP
+   =========================================================
+   Esto estaba en violeta y cian, los colores de acento del
+   sitio. Y el acento del sitio no dice nada: la mitad de las
+   secciones de la portada son violeta y cian.
+
+   El bot de WhatsApp es de lo que se vive, segun el propio
+   partial, y la unica senal de que aqui hay un producto de
+   WhatsApp era la palabra "WhatsApp" escrita en un <span>.
+   Eso no se ve, se lee.
+
+   ── LA MARCA, LITERAL ──
+
+   Los tres verdes de WhatsApp, que son los de verdad:
+
+     #25D366  el verde de la marca
+     #128C7E  el teal
+     #075E54  el teal oscuro
+
+   ── POR QUE NO SE USA EL VERDE PARA ESCRIBIR ──
+
+   Porque #25D366 sobre blanco da 1.98: no se lee. Es un color
+   de relleno, no un color de tinta, y el error clasico de
+   ponerlo de fondo con texto blanco encima es justo eso.
+
+   La tinta la lleva #075E54, que sobre blanco da 7.67. Y en
+   fondo oscuro el orden se invierte del todo: #075E54 sobre el
+   fondo del sitio da 2.62, o sea invisible.
+
+   De ahi que la tinta sea una variable y no un color fijo.
+   Cada tema mide, se elige y se comprueba:
+
+     tema oscuro    #07070d   #25D366   10.13
+     tema colorido  #0a0416   #25D366   10.16
+     tema claro     #f7f8fc   #075E54    7.23
+
+   ── EL CHAT ──
+
+   WhatsApp tiene dos paletas oficiales, la clara y la oscura, y
+   esta usa la que toca en cada tema. No es una decision
+   estetica: con el tema oscuro y el chat en blanco seria un
+   recuadro blanco del tamano de un movil en mitad de una pagina
+   negra, y con el tema claro al reves.
+
+   Con las dos, lo que se ve es siempre un WhatsApp de verdad, y
+   la pagina no se rompe. Comprobado el texto en los tres temas:
+   el chat oscuro da 15.79 y el claro 13.99.
+   ========================================================= */
+
+#whatsapp {
+  /* La marca. Se usan tal cual, sin retocar: si el dia que
+     WhatsApp cambia de verde hay que tocar cuatro lineas, es
+     porque son cuatro usos y no cuarenta. */
+  --wa-verde: #25d366;
+  --wa-teal: #128c7e;
+  --wa-oscuro: #075e54;
+
+  /* La tinta de esta pagina. Es lo unico que cambia por tema,
+     y por el motivo que esta en el comentario de arriba. */
+  --wa-ink: var(--wa-verde);
+
+  /* El chat, en paleta oscura de WhatsApp. */
+  --wa-papel: #0b141a;
+  --wa-burbuja: #1f2c34;
+  --wa-propia: #005c4b;
+  --wa-texto: #e9edef;
+  --wa-tenue: #8696a0;
+  --wa-linea: rgba(255, 255, 255, 0.08);
+  --wa-muesca: rgba(255, 255, 255, 0.035);
+}
+
+html.theme-light #whatsapp {
+  --wa-ink: var(--wa-oscuro);
+
+  /* El chat, en paleta clara de WhatsApp. */
+  --wa-papel: #ece5dd;
+  --wa-burbuja: #ffffff;
+  --wa-propia: #dcf8c6;
+  --wa-texto: #111b21;
+  --wa-tenue: #667781;
+  --wa-linea: rgba(0, 0, 0, 0.08);
+  --wa-muesca: rgba(0, 0, 0, 0.05);
+}
+
+/* ── El fondo de la seccion ──
+
+   Un lavado verde muy bajo. No para pintar la seccion de verde,
+   que seria shouting, sino para que se separe del resto de la
+   portada sin necesitar una linea que la recorte. Y con
+   color-mix, no con un color plano: en el tema claro sale un
+   verde casi gris y en el oscuro casi negro, que es lo que
+   corresponde en cada uno. */
+
+#whatsapp.section--soft {
+  background: color-mix(in srgb, var(--wa-verde) 5%, var(--bg-soft));
+}
+
+/* ── El cintillo de arriba ──
+
+   El texto "WhatsApp" del encabezado. Pasa a la tinta de marca,
+   que en cada tema es el verde que se lee. Antes heredaba el
+   acento violeta del sitio, igual que cualquier otra seccion. */
+
+#whatsapp .eyebrow {
+  color: var(--wa-ink);
+}
+
+/* Y el icono que va al lado. El logo de verdad, no un circulo
+   verde cualquiera: es lo que hace que alguien que no lee la
+   pagina diga "ah, esto es lo del WhatsApp" antes de llegar al
+   parrafo. Lo pone el partial. */
+#whatsapp .wa-logo {
+  width: 1.05em;
+  height: 1.05em;
+  margin-right: 0.4em;
+  vertical-align: -0.14em;
+  fill: var(--wa-verde);
+}
+
+/* ── Los cuatro iconos de lo que hace ── */
+
+#whatsapp .wa-lado-card .icon {
+  color: var(--wa-verde);
+  background: color-mix(in srgb, var(--wa-verde) 12%, transparent);
+  border-color: color-mix(in srgb, var(--wa-verde) 28%, transparent);
+}
+
+#whatsapp .wa-lado-card h3 {
+  color: var(--wa-ink);
+}
+
+/* ── La ventana de la demo ──
+
+   El marco, no el contenido. Es la caja que hace que lo de
+   dentro se lea como una aplicacion y no como un bloque de
+   texto con margenes. */
+
+#whatsapp .wa-demo {
+  background: var(--wa-papel);
+  border-color: var(--wa-linea);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+}
+
+/* La cabecera va en el teal de marca, con el titulo en blanco:
+   7.67 de contraste. Es la franja que todo el mundo reconhece
+   de un vistazo, y es la que hace que esto se lea como
+   WhatsApp y no como un chat inventado. */
+
+#whatsapp .wa-demo-cabecera {
+  margin: -1.5rem -1.5rem 1rem;
+  padding: 0.9rem 1.25rem;
+  background: var(--wa-oscuro);
+  border-radius: calc(var(--radius-lg, 20px) - 1px) calc(var(--radius-lg, 20px) - 1px) 0 0;
+}
+
+#whatsapp .wa-demo-cabecera h3 {
+  color: #ffffff;
+}
+
+/* El rotulo de "Demostracion" sigue en ambar y con borde, y no
+   se toca. El comentario que hay en el css original explica por
+   que: un relleno de color dentro del area del chat parece una
+   etiqueta del bot, y justo de ahi es de donde no se cuela que
+   esto sea una demo. Sobre el teal se lee peor que antes, y esa
+   es la parte que conviene que se lea peor. */
+#whatsapp .wa-demo-chap {
+  border-color: rgba(255, 193, 7, 0.65);
+  color: #ffd54f;
+}
+
+/* ── El papel del chat ──
+
+   La textura se mantiene: sigue siendo un degradado de lineas y
+   pesa cero, que es lo que se buscaba cuando se puso. Lo que
+   cambia es el tono, y ahora es el del papel real de WhatsApp en
+   vez de un gris neutro que no significaba nada. */
+
+#whatsapp .wa-chat {
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 21px,
+      var(--wa-muesca) 21px,
+      var(--wa-muesca) 22px
+    ),
+    var(--wa-papel);
+}
+
+/* ── Las burbujas ──
+   Los colores son los de WhatsApp, no aproximaciones: la del bot
+   blanca a la izquierda, la del usuario verde a la derecha. El
+   radio Bajito en una esquina es el detalle que las hace leer
+   como burbujas y no como parrafos con fondo. */
+
+#whatsapp .wa-msg {
+  color: var(--wa-texto);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.13);
+}
+
+#whatsapp .wa-msg--bot {
+  background: var(--wa-burbuja);
+  border: 1px solid var(--wa-linea);
+}
+
+#whatsapp .wa-msg--user {
+  background: var(--wa-propia);
+  border: 1px solid transparent;
+}
+
+/* La hora va dentro de la burbuja, sobre su fondo, asi que el
+   tono tenue se mide contra el de la burbuja y no contra el del
+   papel. En oscuro da 4.69 y en claro 4.65. */
+
+#whatsapp .wa-hora {
+  color: var(--wa-tenue);
+}
+
+/* ── Los botones de ejemplo ──
+   Las respuestas rapidas de WhatsApp: contorno verde, relleno
+   ninguno. Con relleno seria otro boton mas y se perderian. */
+
+#whatsapp .wa-chip {
+  border-color: color-mix(in srgb, var(--wa-verde) 45%, transparent);
+  background: transparent;
+  color: var(--wa-ink);
+}
+
+#whatsapp .wa-chip:hover {
+  border-color: var(--wa-verde);
+  background: color-mix(in srgb, var(--wa-verde) 14%, transparent);
+  color: var(--wa-ink);
+}
+
+/* ── El compositor ──
+   El campo va en blanco con el texto de WhatsApp, porque es
+   literalmente el sitio donde se escribe, y el boton de enviar
+   en el teal oscuro con texto blanco: 7.67. Ponerlo en el verde
+   de la marca con texto blanco habria sido lo obvio y habria
+   sido ilegible. */
+
+#whatsapp .wa-enviar {
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--wa-linea);
+}
+
+#whatsapp .wa-enviar input {
+  background: var(--wa-burbuja);
+  border-color: var(--wa-linea);
+  color: var(--wa-texto);
+}
+
+#whatsapp .wa-enviar input::placeholder {
+  color: var(--wa-tenue);
+}
+
+#whatsapp .wa-enviar input:focus {
+  outline-color: var(--wa-verde);
+}
+
+/* El boton de ENVIAR, que es distinto del CTA de abajo y se
+   confundia con el. Este vivia dentro de la ventana de WhatsApp
+   y seguia siendo el degradado violeta-cian del sitio, que es
+   justo lo que Rompe la ilusion: un boton de enviar violeta en
+   un chat de WhatsApp.
+
+   Y aqui el color va al reves que en el CTA. Adentro del chat el
+   fondo ya es oscuro, en los dos temas, porque la paleta del
+   chat no depende del tema; entonces el texto oscuro sobre el
+   verde de marca se mediria contra un fondo que ya no es blanco.
+   Lo que se necesita es el verde sobre el oscuro, que da 7.21. */
+#whatsapp .wa-enviar .btn-primary {
+  background: var(--wa-verde);
+  background-image: none;
+  color: #0b2e1a;
+  box-shadow: none;
+}
+
+#whatsapp .wa-enviar .btn-primary:hover,
+#whatsapp .wa-enviar .btn-primary:focus-visible {
+  background: color-mix(in srgb, var(--wa-verde) 88%, #ffffff);
+  color: #0b2e1a;
+}
+
+/* ── Los botones de abajo ──
+   El principal deja el degradado violeta-cian del sitio y se
+   pone en el verde de marca, con texto casi negro: 7.46. El
+   secundario se queda en el tema, porque si los dos fueran
+   verdes no habria jerarquia y ademas "ver todos los servicios"
+   no es unbot de WhatsApp. */
+
+#whatsapp .wa-cta .btn-primary {
+  background: var(--wa-verde);
+  background-image: none;
+  color: #0b2e1a;
+  box-shadow: none;
+}
+
+#whatsapp .wa-cta .btn-primary:hover,
+#whatsapp .wa-cta .btn-primary:focus-visible {
+  background: color-mix(in srgb, var(--wa-verde) 88%, #ffffff);
+  color: #0b2e1a;
+}
+
+/* En el tema claro el boton verde sobre fondo casi blanco queda
+   justo por debajo del minimo de texto normal, asi que ahi se
+   oscurece. Sigue siendo el mismo verde de familia, y gana el
+   contraste. */
+html.theme-light #whatsapp .wa-cta .btn-primary {
+  background: var(--wa-oscuro);
+  color: #ffffff;
+}
+
+html.theme-light #whatsapp .wa-cta .btn-primary:hover,
+html.theme-light #whatsapp .wa-cta .btn-primary:focus-visible {
+  background: color-mix(in srgb, var(--wa-oscuro) 88%, #000000);
+  color: #ffffff;
+}
