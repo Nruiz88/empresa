@@ -502,6 +502,10 @@ const router = express.Router();
     router.use(BASE, require("./panel-consultas")(comunes));
     router.use(BASE, require("./panel-cobros")(comunes));
     router.use(BASE, require("./panel-accesos")(comunes));
+    /* La salud del sistema. Va después de los datos y antes del
+       portal: es la pregunta "¿está todo bien?", y cuando algo no lo
+       está el sitio donde se mira es aquí. */
+    router.use(BASE, require("./panel-salud")(comunes));
     router.use(BASE, require("./panel-portal")({ db, sitio: site, requiereLogin }));
     router.use(BASE, require("./panel-perfil")({ sitio: site, requiereLogin }));
 

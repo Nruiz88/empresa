@@ -1577,6 +1577,18 @@ a.panel-stat:hover {
   background: var(--success-bg);
   color: var(--success-text);
 }
+  /* --error: el estado por defecto de .panel-alert, declarado aqui
+     para que quede junto a los otros dos y se vea que hay tres. */
+  .panel-alert--error {
+    border-color: color-mix(in srgb, var(--danger) 40%, transparent);
+    background: color-mix(in srgb, var(--danger) 8%, transparent);
+    color: var(--text);
+  }
+  .panel-alert--warn {
+    border-color: var(--warning-border);
+    background: var(--warning-bg);
+    color: var(--warning-text);
+  }
 
 .panel-note {
   padding: 0.85rem 1rem;

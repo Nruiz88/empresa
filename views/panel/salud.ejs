@@ -1,0 +1,181 @@
+<%#
+  Pantalla de salud del sistema.
+
+  ── QUÉ MIRA Y POR QUÉ ──
+
+  Los fallos que ha habido aquí no han sido de código. Han sido de
+  configuración: un secreto duplicado con dos valores, una url de
+  ejemplo en el catálogo, una variable que no se pasaba por un camino
+  que nadie miraba. Los tres funcionaban al desplegar y fallaban
+  cuando ya los usaba alguien.
+
+  Un monitor no los pilla, porque no hay ningún proceso caído. Esta
+  pantalla mira si algo está BIEN PUESTO, que es otra pregunta.
+
+  ── POR QUÉ EL DINERO AQUÍ ──
+
+  En la portada no hay cobros: cuenta clientes, servicios y
+  consultas. Quien viene a ver si las máquinas están sanas tiene que
+  ver también qué se le debe, porque es lo único que no tiene arreglo
+  técnico.
+
+  ── POR QUÉ SÍ SE MUESTRA EL MD5 ──
+
+  Es el md5 de un secreto de 64 caracteres aleatorios. No se puede
+  deshacer. Y es lo que hace falta: comparar, no leer. Si las dos
+  filas dan el mismo, los secretos coinciden.
+%>
+<%#
+  ── SIN VALORES POR DEFECTO AQUI, Y POR QUE ──
+
+  Se intentaron poner en un scriptlet con typeof, y no funciona: EJS
+  envuelve CADA scriptlet en su propia funcion, asi que una variable
+  declarada ahi no llega al siguiente bloque. La pantalla seguia dando
+  'fallo is not defined' con los valores por defecto puestos.
+
+  Y ni escribir las marcas de EJS en este comentario, que EJS las lee
+  como apertura de etiqueta y falla con 'Could not find matching close
+  tag'. Dos veces seguidas.
+
+  La defensa va en la ruta, que es quien tiene que mandar siempre el
+  mismo juego de variables por los dos caminos. Si falta una, se ve al
+  desplegar y no en produccion a las tres de la manana.
+%>
+<%- include("../partials/panel-head", { title: titulo, site: site, base: base, current: "salud" }) %>
+
+<section class="panel-page">
+
+  <div class="panel-bloque-head">
+    <div>
+      <h1>Salud del sistema</h1>
+      <p class="panel-hint">
+        Si algo está en rojo, es de configuración: funciona al desplegar y
+        falla cuando alguien lo usa.
+      </p>
+    </div>
+    <a href="<%= base %>/salud" class="panel-btn panel-btn--ghost panel-btn--xs">Comprobar otra vez</a>
+  </div>
+
+  <%# ── El dinero. Primero, porque es lo que duele ── %>
+  <div class="panel-bloque">
+    <% if (dinero && dinero.vencidos > 0) { %>
+      <div class="panel-alert panel-alert--warn">
+        <strong>
+          <%= dinero.vencidos %> cobro<%= dinero.vencidos === 1 ? "" : "s" %> vencido<%= dinero.vencidos === 1 ? "" : "s" %>.
+        </strong>
+        Hay <strong><%= dinero.vencidoImporte %></strong> que ya no se收了.
+        <a href="<%= base %>/cobros?estado=pendiente">Ver los cobros →</a>
+      </div>
+    <% } else if (dinero && dinero.pendientes > 0) { %>
+      <div class="panel-alert panel-alert--ok">
+        Nada vencido. Hay <%= dinero.pendientes %> cobro<%= dinero.pendientes === 1 ? "" : "s" %> por cobrar,
+        <strong><%= dinero.pendienteImporte %></strong> en total.
+        <a href="<%= base %>/cobros?estado=pendiente">Ver los cobros →</a>
+      </div>
+    <% } %>
+  </div>
+
+  <%# ── Si la propia comprobación reventó ── %>
+  <% if (fallo) { %>
+    <div class="panel-alert panel-alert--error">
+      <strong>No se pudo comprobar.</strong>
+      <%= mensaje %>
+    </div>
+  <% } %>
+
+  <%# ── El número grande ── %>
+  <% if (!fallo) { %>
+    <div class="panel-bloque">
+      <% if (resumen.rojos === 0 && resumen.ambares === 0) { %>
+        <div class="panel-alert panel-alert--ok">
+          <strong>Todo lo comprobable está bien.</strong>
+          <%= resumen.total %> servicio<%= resumen.total === 1 ? "" : "s" %>之间的关系 encaja y comparte secreto con el panel.
+        </div>
+      <% } else { %>
+        <div class="panel-alert panel-alert--<%= resumen.rojos > 0 ? "error" : "warn" %>">
+          <% if (resumen.rojos > 0) { %>
+            <strong><%= resumen.rojos %> problema<%= resumen.rojos === 1 ? "" : "s" %> que rompe algo ahora mismo.</strong>
+          <% } %>
+          <% if (resumen.ambares > 0) { %>
+            <strong><%= resumen.ambares %> aviso<%= resumen.ambares === 1 ? "" : "s" %> que conviene mirar.</strong>
+          <% } %>
+        </div>
+      <% } %>
+    </div>
+  <% } %>
+
+  <%# ── Los avisos sueltos: migraciones y módulos sin registro ── %>
+  <% if (avisos && avisos.length) { %>
+    <% avisos.forEach(function (a) { %>
+      <div class="panel-alert panel-alert--<%= a.nivel === "rojo" ? "error" : "warn" %>">
+        <strong><%= a.titulo %></strong>
+        <div><%= a.detalle %></div>
+        <% if (a.como) { %>
+          <div><code><%= a.como %></code></div>
+        <% } %>
+      </div>
+    <% }); %>
+  <% } %>
+
+  <%# ── Cada microservicio ── %>
+  <% if (micros && micros.length) { %>
+    <div class="panel-bloque">
+      <h2 class="panel-subtitle">Microservicios</h2>
+      <p class="panel-hint">
+        El panel firma los tickets y cada servicio los verifica. Si los dos
+        no comparten <code>SERVICE_SECRET</code>, el botón «Abrir» da un
+        <em>401 «ese enlace no vale»</em> — el mismo texto que un ticket
+        manipulado.
+      </p>
+
+      <ul class="panel-list">
+        <% micros.forEach(function (m) { %>
+          <li class="panel-bloque">
+            <div class="panel-bloque-head">
+              <div>
+                <strong><%= m.nombre %></strong>
+                <div class="panel-hint"><%= m.modulo %></div>
+              </div>
+              <span class="panel-alert panel-alert--<%= m.estado === "verde" ? "ok" : (m.estado === "rojo" ? "error" : "warn") %>">
+                <% if (m.estado === "verde") { %>
+                  responde
+                  <% if (m.respuesta && m.respuesta.ms) { %><%= m.respuesta.ms %> ms<% } %>
+                <% } else if (m.estado === "rojo") { %>
+                  roto
+                <% } else { %>
+                  revisar
+                <% } %>
+              </span>
+            </div>
+
+            <% if (m.url_base) { %>
+              <div class="panel-hint"><code><%= m.url_base %></code></div>
+            <% } %>
+
+            <% if (m.notas && m.notas.length) { %>
+              <ul class="panel-list">
+                <% m.notas.forEach(function (nota) { %>
+                  <li><%= nota %></li>
+                <% }); %>
+              </ul>
+            <% } %>
+
+            <% if (m.respuesta && m.respuesta.cuerpo && m.respuesta.cuerpo.secret_md5) { %>
+              <div class="panel-hint">
+                md5 del secreto:
+                <code><%= m.respuesta.cuerpo.secret_md5 %></code>
+                <% if (nuestroMd5) { %>
+                  · el panel: <code><%= nuestroMd5 %></code>
+                  <%= m.respuesta.cuerpo.secret_md5 === nuestroMd5 ? "✓ coinciden" : "✗ NO coinciden" %>
+                <% } %>
+              </div>
+            <% } %>
+          </li>
+        <% }); %>
+      </ul>
+    </div>
+  <% } %>
+
+</section>
+
+<%- include("../partials/panel-foot", { site }) %>

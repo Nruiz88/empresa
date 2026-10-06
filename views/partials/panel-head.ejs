@@ -98,6 +98,19 @@
       <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="6" r="3"/><path d="M4 17c0-3 2.7-5 6-5s6 2 6 5"/></svg>
       Accesos
     </a>
+
+    <%# Salud del sistema.
+        Va en "Equipo" y no junto a Clientes o Cobros porque no es un
+        dato ni una gestión: es la respuesta a "¿está todo bien?", y se
+        mira cuando algo va mal, no a diario.
+
+        El icono es un pulso: se lee como "está vivo o no" de un vistazo,
+        que es literalmente lo que mide la pantalla. %>
+    <a href="<%= base %>/salud" class="panel-menu-item<%= _current === 'salud' ? ' is-active' : '' %>"
+       <%= _current === 'salud' ? 'aria-current="page"' : '' %>>
+      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M1 10h4l2.5-6 4 12L14 10h5"/></svg>
+      Salud
+    </a>
   </nav>
 
   <div class="panel-side-foot">

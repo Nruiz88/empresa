@@ -51,6 +51,14 @@ html.theme-light {
   --success-text: #065f46;
   --success-bg: rgba(5, 150, 105, 0.1);
   --success-border: rgba(5, 150, 105, 0.4);
+
+  /* Aviso en tema claro: el ambar de fondo oscuro no se lee sobre
+     blanco, asi que aqui es un ambar mas apagado y con texto
+     oscuro. Mismo nombre de variable, otro valor. */
+  --warning: #d97706;
+  --warning-text: #78350f;
+  --warning-bg: rgba(217, 119, 6, 0.1);
+  --warning-border: rgba(217, 119, 6, 0.4);
   --danger: #dc2626;
 }
 

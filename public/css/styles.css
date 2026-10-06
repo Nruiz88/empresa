@@ -22,6 +22,20 @@
   --success-text: #a7f3d0;
   --success-bg: rgba(52, 211, 153, 0.1);
   --success-border: rgba(52, 211, 153, 0.4);
+
+  /* ── Aviso: ni bien ni mal ──
+     El tercer estado. Rojo y verde no cubren "esto no esta roto,"
+     pero se va a romper": un modulo a la venta sin url detras, una
+     migracion sin aplicar, un despliegue viejo. Sin el, todo lo que
+     no este bien tiene que pintarse de rojo, y un panel donde todo
+     es rojo deja de ensenar nada.
+
+     Ambar apagado a proposito: si el estado intermedio llama mas la
+     atencion que el roto, se deja de mirar el rojo. */
+  --warning: #fbbf24;
+  --warning-text: #fde68a;
+  --warning-bg: rgba(251, 191, 36, 0.1);
+  --warning-border: rgba(251, 191, 36, 0.4);
   --danger: #f87171;
 
   /* Tematizables — los temas alternativos redefinen estos valores */
