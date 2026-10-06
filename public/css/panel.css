@@ -341,6 +341,18 @@ html[data-panel] {
   justify-content: space-between;
 }
 
+/* El selector de tema, a la derecha de la barra.
+
+   Con `--simple` la barra ya es `space-between`, así que con el
+   `margin-inline-start: auto` de aquí el selector se va al extremo
+   derecho y no entre el título y el usuario. En la del equipo, que no
+   lleva `--simple`, el hueco que había a la derecha se llena con
+   algo útil. */
+.panel-theme {
+  margin-inline-start: auto;
+  flex: 0 0 auto;
+}
+
 /* La navegación del cliente: cuatro enlaces en fila, en el centro.
 
    EL BUG QUE ESTABA
@@ -807,6 +819,96 @@ a.panel-stat--ambar:hover {
   border-radius: var(--radius);
   overflow-x: auto;
   background: var(--surface);
+
+  /* `auto` en vez de `visible` a propósito: la cabecera sticky se
+     ancla al contenedor que hace scroll, y para eso el padre no
+     puede estar en visible. */
+  overflow-y: auto;
+}
+
+/* La fila entera se abre desde el enlace del nombre.
+
+   El enlace no envuelve la fila —no valdría, porque dentro hay otros
+   enlaces: el email, el cliente— sino que se estira con un pseudo
+   elemento que se pinta por encima. Es el patrón "stretched link" y
+   es lo que evita tener dieciocho botones "Abrir" iguales: 18 copias
+   de la misma acción compiten entre sí por la atención, y la que se
+   quiere pulsar es la que se ve. */
+.panel-stretch::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+/* El padre tiene que ser el punto de referencia del `inset: 0`. Sin
+   esto el pseudo se estira a la página entera y toda la pantalla
+   parece clicable. */
+.panel-table tbody td {
+  position: relative;
+}
+
+/* Los enlaces de dentro de la fila van por encima del estirado, para
+   que el email siga siendo pulsable por su cuenta. */
+.panel-table tbody a:not(.panel-stretch),
+.panel-table tbody button {
+  position: relative;
+  z-index: 1;
+}
+
+.panel-table tbody tr:hover:has(.panel-stretch) {
+  cursor: pointer;
+}
+
+/* ---------- Filas que se abren enteras ----------
+
+   En escritorio, la fila se abre desde el enlace del nombre, así que
+   el botón "Abrir" de la columna de acciones sobra: dieciocho
+   botones iguales compiten entre sí por la atención, y quien quiere
+   pulsar uno no sabe cuál de los doscientos píxeles de la fila es.
+
+   Se quita el botón pero NO el aviso: sin nada que diga que la fila
+   se abre, el clic accidental es el único modo de descubrirlo. El
+   chevron solo aparece al pasar por encima o al fokusar, que es
+   cuando ya se está mirando esa fila.
+
+   Con teclado el botón tampoco hacía falta: la fila se abre con el
+   enlace del nombre, y va en su sitio en la tabla de lectura.
+*/
+@media (min-width: 721px) {
+  .panel-row--link .panel-th-actions .panel-btn {
+    display: none;
+  }
+
+  .panel-chevron {
+    display: inline-block;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-top: 1.5px solid var(--text-dim);
+    border-right: 1.5px solid var(--text-dim);
+    transform: rotate(45deg);
+    opacity: 0;
+    transition: opacity 0.12s ease, transform 0.12s ease;
+  }
+
+  .panel-row--link:hover .panel-chevron,
+  .panel-row--link:focus-within .panel-chevron {
+    opacity: 1;
+  }
+
+  .panel-row--link:hover .panel-chevron {
+    transform: rotate(45deg) translate(1px, 1px);
+  }
+
+  .panel-table tbody td.panel-th-actions {
+    text-align: end;
+  }
+}
+
+/* En la tarjeta vuelve el botón, y el chevron sobra. */
+@media (max-width: 720px) {
+  .panel-chevron {
+    display: none;
+  }
 }
 
 .panel-table {
@@ -827,6 +929,15 @@ a.panel-stat--ambar:hover {
   background: var(--bg-soft);
   border-bottom: 1px solid var(--border);
   white-space: nowrap;
+
+  /* La cabecera se queda pegada al Scroll. Con 18 clientes la tabla
+     pasa de una pantalla, y al bajar ya no sabes en qué columna estás:
+     el importe acaba pareciendo el email. `sticky` dentro de
+     `panel-table-wrap` funciona porque ese bloque es el que hace
+     scroll en horizontal. */
+  position: sticky;
+  top: 0;
+  z-index: 2;
 }
 
 .panel-table td {
@@ -1473,8 +1584,19 @@ a.panel-stat--ambar:hover {
   color: var(--text);
 }
 
+/* El hueco para la flecha se escribe DENTRO de la abreviatura.
+
+   Antes estaba en el bloque de arriba (`padding-inline-end: 2rem`),
+   y aquí `padding: 0.5rem 0.7rem` la pisaba: una abreviatura reinicia
+   los cuatro lados, no solo el que nombra. El resultado medido eran
+   11px de hueco con una flecha de 5px encima, y el texto de las
+   opciones se metía debajo: "Todos los tipos" con la flecha encima.
+
+   Se escribe aquí y no arriba porque el orden en la cascada es el que
+   falla. `.panel-field select` (que sí tenía el hueco puesto antes)
+   no se veía afectado, y por eso el fallo parecía de los filtros. */
 .panel-select {
-  padding: 0.5rem 0.7rem;
+  padding: 0.5rem 2rem 0.5rem 0.7rem;
   border: 1px solid var(--border-strong);
   border-radius: 10px;
   background-color: var(--surface);
@@ -2073,6 +2195,174 @@ a.panel-stat--ambar:hover {
   .panel-acceso-acciones,
   .panel-lead-actions {
     flex-wrap: wrap;
+  }
+}
+
+/* =========================================================
+   13 BIS. TABLAS QUE SE CONVIERTEN EN TARJETAS
+   ========================================================= */
+
+/* ── POR QUÉ ESTO ──
+
+   Antes, en un móvil, la tabla se metía en un scroll horizontal con
+   `min-width: 560px`. Medido a 390px:
+
+     · los emails se cortaban a mitad: `javier@tallerru`
+     · la columna de acciones quedaba FUERA de la pantalla, así que
+       los 18 botones "Abrir" no se veían sin desplazarse a la derecha
+     · los nombres partían en tres líneas y las filas medían 91-102px
+
+   El scroll horizontal no se ve. No hay ninguna señal de que haya más
+   a la derecha, así que la pantalla parece llena y no lo está: media
+   columna y la acción principal, fuera.
+
+   Aquí no hay scroll: cada fila pasa a ser una tarjeta y la acción
+   queda a la vista.
+
+   ── EL 720 ──
+
+   Por debajo de 720px y no de 560px: entre 560 y 720 la tabla con
+   scroll todavía tiene sentido (entra en una tableta), y a 560 la
+   tabla ya está flotando. El punto donde deja de ser tabla es más
+   alto que el punto donde deja de caber el panel.
+*/
+@media (max-width: 720px) {
+  /* El contenedor deja de hacer scroll: si se mantiene, aparecería una
+     segunda barra de scroll horizontal dentro de las tarjetas. */
+  .panel-table-wrap {
+    overflow: visible;
+    border: 0;
+    background: transparent;
+  }
+
+  .panel-table,
+  .panel-table tbody,
+  .panel-table tbody tr,
+  .panel-table tbody td,
+  .panel-table thead,
+  .panel-table thead tr,
+  .panel-table thead th {
+    display: block;
+    width: auto;
+
+    /* `min-width: 0` en la tabla, no solo `width: auto`.
+       La abreviatura anterior no lo quitaba: `min-width: 560px`
+       seguía mandando, y las celdas quedaban de 526px dentro de una
+       pantalla de 390. Medido: filas de 196px, PEOR que las 102px que
+       había antes de tocar nada.
+
+       Es el mismo fallo de siempre: poner `width` no es lo mismo que
+       quitar lo que impone el mínimo. */
+    min-width: 0;
+  }
+
+  /* La cabecera no cabe: se usa su texto en cada celda. */
+  .panel-table thead {
+    display: none;
+  }
+
+  .panel-table tbody tr {
+    position: relative;
+    margin-bottom: 0.7rem;
+    padding: 0.9rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+  }
+
+  /* El plano de la fila vencida, que en la tabla iba en la primera
+     celda, aquí va en la tarjeta entera. */
+  .panel-table tbody tr.panel-tr--vencido {
+    border-color: color-mix(in srgb, var(--danger) 35%, transparent);
+  }
+
+  .panel-table tbody tr:hover {
+    background: inherit;
+  }
+
+  .panel-table tbody td {
+    position: relative;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.3rem 0;
+    border-bottom: 0;
+  }
+
+  /* El nombre arriba, solo y con la etiqueta puesta: "Empresa: ..."
+     es ruido, porque el nombre ya se explica solo. */
+  .panel-table tbody td[data-principal] {
+    display: block;
+    padding-bottom: 0.6rem;
+    margin-bottom: 0.35rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .panel-table tbody td[data-label]::before {
+    content: attr(data-label);
+    flex: 0 0 auto;
+    font-size: var(--fs-xs);
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  /* Las celdas con etiqueta apilan el dato debajo de su título, en
+     vez de pelearse en la misma línea a 390px: "PERIODO" y "octubre
+     2026" en la misma línea salen de dos en dos. */
+  .panel-table tbody td[data-label] > * {
+    text-align: end;
+    min-width: 0;
+  }
+
+  .panel-table tbody td[data-label] > .panel-cell-sub {
+    text-align: end;
+  }
+
+  /* La acción, al fondo de la tarjeta y a lo ancho. Es el dato que
+     antes quedaba fuera de la pantalla. */
+  .panel-table tbody td.panel-th-actions {
+    display: block;
+    padding-top: 0.75rem;
+    margin-top: 0.5rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .panel-table tbody td.panel-th-actions::before {
+    content: none;
+  }
+
+  .panel-table tbody td.panel-th-actions .panel-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* La etiqueta del email se apila, no se corta. */
+  .panel-th-email {
+    max-width: none;
+    overflow: visible;
+    white-space: normal;
+
+    /* Un email no tiene espacios, así que en una tarjeta estrecha se
+       parte en cualquier punto y queda medio fuera. */
+    word-break: break-all;
+  }
+
+  .panel-table tbody td[data-label="Email"] {
+    align-items: flex-start;
+  }
+
+  /* El formulario de estado (servicios) también, o el desplegable
+     se queda con la mitad del ancho. */
+  .panel-table tbody td[data-label="Estado"] form {
+    width: 100%;
+  }
+
+  .panel-table tbody td[data-label="Estado"] .panel-select-mini {
+    max-width: none;
+    width: 100%;
   }
 }
 

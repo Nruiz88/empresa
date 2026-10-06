@@ -1,4 +1,4 @@
-﻿<%#
+<%#
   Listado de servicios de toda la agencia, con filtros por tipo
   y estado.
 
@@ -61,25 +61,25 @@
             <th>Cliente</th>
             <th>Estado</th>
             <th class="panel-th-num">Importe</th>
-            <th class="panel-th-actions"></th>
+            <th class="panel-th-actions"><span class="sr-only">Acciones</span></th>
           </tr>
         </thead>
         <tbody>
           <% servicios.forEach(function (s) { %>
             <tr>
-              <td>
+              <td data-principal>
                 <span class="panel-chip panel-chip--<%= s.kind %>">
                   <%= etiquetaTipo(s.kind) %>
                 </span>
                 <span class="panel-cell-main"><%= s.titulo %></span>
               </td>
-              <td>
+              <td data-label="Cliente">
                 <% var cli = s.clients; %>
                 <% if (cli) { %>
                   <a href="<%= base %>/clientes/<%= s.client_id %>"><%= cli.empresa || cli.nombre %></a>
                 <% } else { %>—<% } %>
               </td>
-              <td>
+              <td data-label="Estado">
                 <form method="post" action="<%= base %>/servicios/<%= s.id %>/estado">
                   <input type="hidden" name="_csrf" value="<%= csrf %>" />
                   <input type="hidden" name="volver" value="<%= base %>/servicios" />
@@ -90,7 +90,7 @@
                   </select>
                 </form>
               </td>
-              <td class="panel-th-num">
+              <td class="panel-th-num" data-label="Importe">
                 <% if (s.importe !== null && s.importe !== undefined) { %>
                   <%= new Intl.NumberFormat('es-ES', { style: 'currency', currency: s.moneda || 'EUR' }).format(s.importe) %>
                 <% } else { %>—<% } %>

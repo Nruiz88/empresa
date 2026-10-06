@@ -127,7 +127,7 @@
             <th>Periodo</th>
             <th class="panel-th-num">Importe</th>
             <th>Estado</th>
-            <th class="panel-th-actions"></th>
+            <th class="panel-th-actions"><span class="sr-only">Acciones</span></th>
           </tr>
         </thead>
         <tbody>
@@ -142,7 +142,7 @@
                  urgente del negocio era indistinguible. */ %>
             <% var tarde = diasDeRetraso(c.vence_en, c.estado); %>
             <tr class="<%= tarde ? 'panel-tr--vencido' : '' %>">
-              <td>
+              <td data-principal>
                 <span class="panel-cell-main"><%= c.concepto %></span>
                 <% if (c.referencia) { %>
                   <span class="panel-cell-sub">ref. <%= c.referencia %></span>
@@ -151,21 +151,21 @@
                   <span class="panel-cell-sub">descuento <%= dinero(c.descuento, c.moneda) %></span>
                 <% } %>
               </td>
-              <td>
+              <td data-label="Cliente">
                 <% if (cli.id) { %>
                   <a href="<%= base %>/clientes/<%= cli.id %>"><%= cli.empresa || cli.nombre %></a>
                 <% } else { %>—<% } %>
               </td>
-              <td>
+              <td data-label="Periodo">
                 <span class="panel-cell-sub"><%= periodoLargo(c.periodo) %></span>
                 <% if (c.vence_en) { %>
                   <span class="panel-cell-sub">vence <%= fechaCorta(c.vence_en) %></span>
                 <% } %>
               </td>
-              <td class="panel-th-num">
+              <td class="panel-th-num" data-label="Importe">
                 <%= dinero(Number(c.importe) - Number(c.descuento || 0), c.moneda) %>
               </td>
-              <td>
+              <td data-label="Estado">
                 <% /* Si la fecha ya pasó, el chip dice VENCIDO y no el
                      estado. "Pendiente" con 16 días de retraso al lado
                      es una forma elegante de no decirlo: el estado es

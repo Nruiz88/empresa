@@ -36,6 +36,12 @@ const PANEL = arg("--url", process.env.PANEL_URL || "http://127.0.0.1:3000");
 const SALIDA = path.resolve(RAIZ, arg("--salida", "capturas"));
 const TEMA = arg("--tema", "");
 
+/* El ancho de la ventana. A 390 px es un movil y las capturas teachen
+ * cosas que a 1440 no se ven: si la tabla cabe, si la barra lateral
+ * se esconde, si un boton se sale. */
+const ANCHO = Number(arg("--ancho", "1440"));
+const ALTO = Number(arg("--alto", ANCHO < 700 ? "844" : "950"));
+
 /* Playwright vive en el proyecto del bot. */
 const RUTA_PLAYWRIGHT = "D:/webs/wweb/node_modules/playwright";
 
@@ -119,8 +125,10 @@ const HOST = new URL(PANEL).hostname;
 
 const navegador = await chromium.launch();
 const ctx = await navegador.newContext({
-  viewport: { width: 1440, height: 950 },
-  deviceScaleFactor: 2,
+  viewport: { width: ANCHO, height: ALTO },
+  deviceScaleFactor: ANCHO < 700 ? 2 : 2,
+  isMobile: ANCHO < 700,
+  hasTouch: ANCHO < 700,
   storageState: {
     cookies: [
       {
@@ -138,12 +146,17 @@ const ctx = await navegador.newContext({
 });
 
 if (TEMA) {
-  /* El tema se guarda en localStorage, no en el HTML. */
+  /* El tema se guarda en localStorage, no en el HTML. Y el panel, que
+     no carga main.js, no lo lee nunca: asi que aparte de guardar la
+     preferencia hay que forzar la clase en el <html>. Por eso los dos. */
   await ctx.addInitScript(
     (t) => {
       try {
-        localStorage.setItem("nexo-tema", t);
+        localStorage.setItem("nexo-theme", t);
       } catch {}
+      document.addEventListener("DOMContentLoaded", () => {
+        document.documentElement.className = t === "dark" ? "" : "theme-" + t;
+      });
     },
     TEMA
   );
@@ -155,11 +168,17 @@ console.log("");
 console.log("=== Capturas del panel ===");
 console.log("");
 console.log("  panel:  " + PANEL);
+console.log("  ancho:  " + ANCHO + " x " + ALTO + (ANCHO < 700 ? "  (movil)" : ""));
 if (TEMA) console.log("  tema:   " + TEMA);
 console.log("");
 
 for (const [nombre, ruta] of PANTALLAS) {
-  const destino = path.join(SALIDA, `panel-${nombre}.png`);
+  /* El tema va en el nombre del fichero. Sin esto, capturar claro y
+ * color seguidas deja un solo PNG: la segunda pasada pisa a la
+ * primera y no hay forma de comparar sin volver a capturar. */
+const sufijo = (ANCHO < 700 ? "-movil" : "") + (TEMA ? "-" + TEMA : "");
+
+const destino = path.join(SALIDA, `panel-${nombre}${sufijo}.png`);
 
   try {
     const r = await pagina.goto(PANEL + ruta, { waitUntil: "networkidle", timeout: 20000 });

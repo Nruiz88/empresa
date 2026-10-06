@@ -149,6 +149,28 @@
       <span></span><span></span><span></span>
     </button>
     <span class="panel-topbar-titulo"><%= title %></span>
+
+    <%# Selector de tema.
+
+        El panel estaba en oscuro SIEMPRE, y no por decisión: no tenía
+        nada de tema. La web pública guarda la preferencia en
+        localStorage y aplica la clase `theme-light` / `theme-colorful`
+        al <html>; el panel carga panel.js, que no leía nada de eso.
+        O sea que estaba oscuro por descuido, como un forgot.
+
+        Comprobado que el claro aguanta: los tokens de panel.css
+        apuntan a los mismos que la web, así que themes.css los
+        resuelve igual. Por eso se puede poner el mismo selector que
+        en la cabecera pública en vez de inventar otro.
+
+        Va en la barra superior porque en escritorio estaba vacía a la
+        derecha: el sitio en el que se entra al panel es la cabecera de
+        la web, y este selector es el que se ven las dos cosas juntas. %>
+    <div class="theme-switch panel-theme" role="group" aria-label="Tema visual">
+      <button type="button" class="theme-btn" data-theme="dark" aria-label="Tema oscuro" title="Oscuro"></button>
+      <button type="button" class="theme-btn" data-theme="light" aria-label="Tema claro" title="Claro"></button>
+      <button type="button" class="theme-btn" data-theme="colorful" aria-label="Tema colorido" title="Colorido"></button>
+    </div>
   </header>
 
   <main class="panel-main" id="panel-contenido">

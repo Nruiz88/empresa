@@ -42,14 +42,37 @@
             <th>Empresa</th>
             <th>Contacto</th>
             <th class="panel-th-email">Email</th>
-            <th class="panel-th-actions"></th>
+            <th class="panel-th-actions"><span class="sr-only">Acciones</span></th>
           </tr>
         </thead>
         <tbody>
           <% clientes.forEach(function (c) { %>
-            <tr>
-              <td>
-                <a href="<%= base %>/clientes/<%= c.id %>" class="panel-cell-main">
+            <!--
+              `data-label` en cada celda, y `data-principal` en la
+              primera.
+
+              En pantallas anchas no se ven: el estilo no hace nada con
+              ellas. Por debajo de 720px la tabla deja de ser tabla y
+              cada fila se convierte en una tarjeta, y entonces sí
+              hacen falta: sin la etiqueta, una celda suelta es
+              «+34 600 333 444» sin decir de qué. Con la tabla
+              original, cada dato iba en su columna y se entendía;
+              al apilar, esa información se pierde y hay que
+              devolverla.
+
+              `data-principal` dice qué celda es el nombre. En la
+              tarjeta va sola arriba, sin etiqueta, porque el nombre
+              ya se explica solo y "Empresa: Panadería La Espiga" es
+              más ruido que información.
+
+              El enlace del nombre lleva `panel-stretch`: con él, toda
+              la fila es pulsable sin que el <a> tenga que envolver a
+              la fila entera —que no valdría, porque dentro hay otro
+              <a> de email—. Ver `.panel-stretch` en panel.css.
+            -->
+            <tr class="panel-row--link">
+              <td data-principal>
+                <a href="<%= base %>/clientes/<%= c.id %>" class="panel-cell-main panel-stretch">
                   <%= c.empresa || c.nombre %>
                 </a>
                 <% if (c.empresa && c.nombre !== c.empresa) { %>
@@ -57,14 +80,27 @@
                 <% } %>
                 <% if (c.archivado) { %><span class="panel-chip panel-chip--mute">Archivado</span><% } %>
               </td>
-              <td><%= c.telefono || "—" %></td>
-              <td class="panel-th-email">
+              <td data-label="Contacto"><%= c.telefono || "—" %></td>
+              <td data-label="Email" class="panel-th-email">
                 <% if (c.email) { %>
                   <a href="mailto:<%= c.email %>"><%= c.email %></a>
                 <% } else { %>—<% } %>
               </td>
               <td class="panel-th-actions">
-                <a href="<%= base %>/clientes/<%= c.id %>" class="panel-btn panel-btn--ghost">Abrir</a>
+                <!-- Solo se ve en la tarjeta (movil). En escritorio la
+                     fila entera se abre con el enlace del nombre, y
+                     dieciocho botones "Abrir" iguales compiten entre sí
+                     por la atención. En la tarjeta el botón sí hace
+                     falta: la fila es más alta que el ancho y no hay
+                     forma de saber que es pulsable.
+                     El `.sr-only` de dentro no es decorativo: sin él un
+                     lector de pantalla oye dieciocho "Abrir" y no sabe
+                     a qué cliente abre cada uno. -->
+                <a href="<%= base %>/clientes/<%= c.id %>" class="panel-btn panel-btn--ghost">
+                  Abrir
+                  <span class="sr-only"><%= c.empresa || c.nombre %></span>
+                </a>
+                <span class="panel-chevron" aria-hidden="true"></span>
               </td>
             </tr>
           <% }); %>
