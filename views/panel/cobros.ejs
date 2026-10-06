@@ -145,7 +145,7 @@
               <td data-principal>
                 <span class="panel-cell-main"><%= c.concepto %></span>
                 <% if (c.referencia) { %>
-                  <span class="panel-cell-sub">ref. <%= c.referencia %></span>
+                  <span class="panel-cell-sub panel-cell-sub--ref">ref. <%= c.referencia %></span>
                 <% } %>
                 <% if (c.descuento && Number(c.descuento) > 0) { %>
                   <span class="panel-cell-sub">descuento <%= dinero(c.descuento, c.moneda) %></span>

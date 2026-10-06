@@ -1,0 +1,225 @@
+<%- include('../partials/panel-head') %>
+
+<%# NOTA sobre el nombre de la ruta: la del CLIENTE es /servicios-disponibles y
+    esta es /catalogo. Son dos cosas distintas —qué se vende y qué tiene cada
+    cliente— y se han confundido más de una vez. %>
+
+
+<div class="panel-page">
+  <div class="panel-page-head">
+    <div>
+      <span class="panel-kicker">Lo que vendes</span>
+      <h1>Catálogo</h1>
+      <p class="panel-page-lead">
+        Productos, precios y disponibilidad. Lo que cambia aquí es lo que
+        ven los clientes en su portal, antes de contratar.
+      </p>
+    </div>
+
+    <div class="panel-page-acciones">
+      <a href="/panel/servicios" class="panel-btn panel-btn--ghost">Servicios contratados</a>
+      <button type="submit" form="form-catalogo" class="panel-btn panel-btn--primary" <%= !modulos.length ? "disabled" : "" %>>
+        Guardar cambios
+      </button>
+    </div>
+  </div>
+
+  <% if (typeof aviso !== 'undefined' && aviso) { %>
+    <div class="panel-alert <%= errores && Object.keys(errores).length ? '' : 'panel-alert--ok' %>" role="status">
+      <%= aviso %>
+    </div>
+  <% } %>
+
+  <% if (errores && errores.general) { %>
+    <div class="panel-alert panel-alert--error" role="alert"><%= errores.general %></div>
+  <% } %>
+
+  <!-- El aviso sobre la página pública.
+
+       Va antes de la tabla, no en un desplegable ni en un tooltip: es
+       la información que evita que alguien salga de aquí con un precio
+       cambiado y vaya a mirar la web pública a ver si ha cambiado.
+       Es la mitad del motivo por el que existe esta pantalla, y
+       esconderlo detrás de un "?" lo anula. -->
+  <div class="panel-note">
+    <strong>Ojo con la web pública.</strong> <%= avisoPublico %>
+  </div>
+
+  <% if (!modulos.length) { %>
+    <div class="panel-empty">
+      <h3>No hay productos en el catálogo</h3>
+      <p>Se cargan desde la base de datos, no desde el panel.</p>
+    </div>
+  <% } else { %>
+
+    <%# Un solo formulario para toda la tabla.
+
+         El botón "Guardar" está en la cabecera con `form="form-catalogo"`
+         y el formulario envuelve la tabla entera. Con un formulario por
+         fila habría N botones compitiendo y habría que acertar cuál es
+         el del producto que se está editando. Con uno, se edita y se
+         guarda, que es lo que se hace con una hoja de cálculo. %>
+    <form id="form-catalogo" method="post" action="<%= base %>/catalogo">
+      <input type="hidden" name="_csrf" value="<%= csrf %>" />
+
+      <div class="panel-table-wrap">
+        <table class="panel-table panel-cat-tabla">
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Precio</th>
+              <th>Moneda</th>
+              <th>Periodicidad</th>
+              <th class="panel-th-num">Clientes</th>
+              <th class="panel-th-num">A la venta</th>
+              <th class="panel-th-actions">Url</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% modulos.forEach(function (m) { %>
+              <% var filaErr = (errores && errores[m.id]) || {}; %>
+              <tr class="<%= filaErr.precio || filaErr.nombre || filaErr.moneda ? 'panel-tr--error' : '' %>">
+
+                <td data-label="Producto" class="panel-cat-nombre">
+                  <label class="sr-only" for="nombre_<%= m.id %>">Nombre de <%= m.id %></label>
+                  <input type="text"
+                         id="nombre_<%= m.id %>"
+                         name="<%= campo(m.id, 'nombre') %>"
+                         value="<%= m.nombre %>"
+                         class="<%= filaErr.nombre ? 'panel-input--error' : '' %>" />
+
+                  <% if (filaErr.nombre) { %>
+                    <small class="panel-cell-error"><%= filaErr.nombre %></small>
+                  <% } %>
+
+                  <label class="sr-only" for="descripcion_<%= m.id %>">Descripción de <%= m.id %></label>
+                  <input type="text"
+                         id="descripcion_<%= m.id %>"
+                         name="<%= campo(m.id, 'descripcion') %>"
+                         value="<%= m.descripcion || '' %>"
+                         placeholder="Descripción"
+                         title="<%= m.descripcion || '' %>" />
+
+                  <%# El id del módulo va a la vista pero no se puede
+                      cambiar. `modules.id` es la clave foránea de
+                      `suscripciones.modulo` y de `microservicios.modulo`:
+                      cambiarla deja huerfano todo lo que apunta a ella. Por
+                      eso es texto y no un campo. %>
+                  <span class="panel-cat-id"><%= m.id %></span>
+
+                  <% if (filaErr.general) { %>
+                    <small class="panel-cell-error"><%= filaErr.general %></small>
+                  <% } %>
+                </td>
+
+                <td data-label="Precio" class="panel-cat-precio">
+                  <%# `inputmode="decimal"` para que en el móvil salga el
+                      teclado de números con coma, y no el de letras. Con
+                      `type="number"` el navegador lo pasa a otro y en
+                      algunosSO el separador decimal es punto, lo que con
+                      precios en pesos da un `1.500` convertido a 1,5. Con
+                      texto y validación en el servidor no hay sorpresas:
+                      el campo acepta ambos separadores y se normaliza. %>
+                  <label class="sr-only" for="precio_<%= m.id %>">Precio de <%= m.nombre %></label>
+                  <input type="text"
+                         inputmode="decimal"
+                         id="precio_<%= m.id %>"
+                         name="<%= campo(m.id, 'precio') %>"
+                         value="<%= m.precio === null || m.precio === undefined ? '' : m.precio %>"
+                         placeholder="0"
+                         autocomplete="off"
+                         class="panel-input--numero <%= filaErr.precio ? 'panel-input--error' : '' %>" />
+
+                  <% if (filaErr.precio) { %>
+                    <small class="panel-cell-error"><%= filaErr.precio %></small>
+                  <% } %>
+                </td>
+
+                <td data-label="Moneda">
+                  <label class="sr-only" for="moneda_<%= m.id %>">Moneda de <%= m.nombre %></label>
+                  <select id="moneda_<%= m.id %>"
+                          name="<%= campo(m.id, 'moneda') %>"
+                          title="<%= (monedas.find(function (x) { return x.valor === m.moneda; }) || {}).titulo || '' %>"
+                          class="panel-select-mini <%= filaErr.moneda ? 'panel-input--error' : '' %>">
+                    <% monedas.forEach(function (mo) { %>
+                      <option value="<%= mo.valor %>" title="<%= mo.titulo %>" <%= m.moneda === mo.valor ? 'selected' : '' %>><%= mo.label %></option>
+                    <% }); %>
+                  </select>
+
+                  <% if (filaErr.moneda) { %>
+                    <small class="panel-cell-error"><%= filaErr.moneda %></small>
+                  <% } %>
+                </td>
+
+                <td data-label="Periodicidad">
+                  <label class="sr-only" for="periodicidad_<%= m.id %>">Periodicidad de <%= m.nombre %></label>
+                  <select id="periodicidad_<%= m.id %>"
+                          name="<%= campo(m.id, 'periodicidad') %>"
+                          class="panel-select-mini">
+                    <% periodos.forEach(function (p) { %>
+                      <option value="<%= p.valor %>" <%= (m.periodicidad || '') === p.valor ? 'selected' : '' %>><%= p.label %></option>
+                    <% }); %>
+                  </select>
+                </td>
+
+                <td data-label="Clientes" class="panel-th-num">
+                  <%# El número de clientes que lo tienen.
+
+                      No es adorno: es la respuesta a "¿puedo tocar este
+                      precio?", porque cambiar el catálogo NO cambia lo
+                      que paga quien ya lo tiene, pero sí lo que verá en su
+                      portal el próximo que lo considere. Con el número a
+                      la vista, esa pregunta se contesta sola. %>
+                  <% if (m.clientes > 0) { %>
+                    <span class="panel-cat-clientes"><%= m.clientes %></span>
+                  <% } else { %>
+                    <span class="panel-cat-clientes panel-cat-clientes--cero">—</span>
+                  <% } %>
+                </td>
+
+                <td data-label="A la venta" class="panel-th-num">
+                  <%# `disponible` NO se edita aquí, a propósito.
+
+                      Poner algo a la venta es una decisión con más detrás
+                      que un precio: ¿está el software desplegado?, ¿tiene
+                      url?, ¿tiene microservicio detrás? La pantalla de
+                      Salud avisa de esas incoherencias, y editarlo desde
+                      aquí sería poderroduction saltarse el aviso.
+
+                      Se muestra el estado y se explica por qué no se
+                      toca, para que no parezca un campo olvidado. %>
+                  <% if (m.retirado) { %>
+                    <span class="panel-chip panel-chip--mute">Retirado</span>
+                  <% } else if (m.disponible) { %>
+                    <span class="panel-chip panel-chip--estado-activo">Sí</span>
+                  <% } else { %>
+                    <span class="panel-chip panel-chip--estado-pendiente">No</span>
+                  <% } %>
+                </td>
+
+                <td data-label="Url" class="panel-cat-url">
+                  <label class="sr-only" for="url_<%= m.id %>">Url de <%= m.nombre %></label>
+                  <input type="url"
+                         id="url_<%= m.id %>"
+                         name="<%= campo(m.id, 'url') %>"
+                         value="<%= m.url || '' %>"
+                         placeholder="https://…"
+                         class="panel-input--url" />
+                </td>
+
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="panel-cat-pie">
+        <button type="submit" class="panel-btn panel-btn--primary">Guardar cambios</button>
+        <a href="<%= base %>/salud" class="panel-btn panel-btn--ghost">Revisar microservicios</a>
+      </div>
+    </form>
+
+  <% } %>
+</div>
+
+<%- include('../partials/panel-foot') %>

@@ -682,9 +682,28 @@ a.panel-stat:hover {
 
 /* El rojo de la portada lo pone .panel-stat--alerta, más abajo. No se
    crea un --rojo que sería lo mismo con otro nombre: dos clases para
-   lo mismoGuarantizan que una acabe por cambiar y la otra no, y
+   lo mismo garantizan que una acabe por cambiar y la otra no, y
    entonces la misma idea aparece en dos tonos según la pantalla. */
 
+/* Las cifras del resumen.
+
+   ── POR QUÉ SE QUITÓ EL DEGRADADO ──
+
+   Antes el número iba con `background-clip: text` y un degradado
+   violeta→cian. Se veía bien y no significaba nada.
+
+   En una portada, una cifra grande con degradado es una decisión
+   estética: busca que la mires. En un panel, una cifra es un dato, y
+   lo que tiene que distinguirla del resto es CUÁNTO, no si es guapa.
+   Con degradado, un 0 se ve igual de interesante que un 8.809.
+
+   Además el degradado era el motivo de que las cifras '$' quedaran
+   raras: al pintar el texto con una imagen de fondo, el peso óptico
+   cambia y los dígitos pierde la base. Con color plano y
+   tabulación, la columna se alinea y se lee como un número.
+
+   El color por variante se queda: lo vencido en rojo y lo demás en
+   el color de la cifra. Eso SÍ dice algo. */
 .panel-stat strong {
   display: block;
   font-family: var(--font-display, "Space Grotesk", sans-serif);
@@ -693,10 +712,7 @@ a.panel-stat:hover {
   line-height: 1.05;
   letter-spacing: -0.03em;
   font-variant-numeric: tabular-nums;
-  background: var(--text-grad);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--text);
 }
 
 .panel-stat span {
@@ -717,7 +733,6 @@ a.panel-stat:hover {
 }
 
 .panel-stat--alerta strong {
-  background: none;
   color: var(--danger);
 }
 
@@ -738,7 +753,6 @@ a.panel-stat:hover {
 }
 
 .panel-stat--ambar strong {
-  background: none;
   color: var(--warning);
   font-weight: 800;
 }
@@ -2486,4 +2500,277 @@ a.panel-stat--ambar:hover {
     background: #fff;
     color: #000;
   }
+}
+
+/* =========================================================
+   CATÁLOGO: editar productos y precios
+   =========================================================
+   Esta tabla es distinta de las otras, y por eso tiene sus propias
+   reglas: aquí hay CAMPOS DENTRO de la tabla, no solo texto. Es la
+   primera vez que el panel edita algo en línea.
+
+   Y ahí hay un problema de ancho que no existe en las otras tablas:
+   cada celda lleva un input, y un input tiene su ancho mínimo
+   pequeño pero no tan pequeño. Con siete columnas, en una pantalla
+   de portátil, la tabla se sale.
+
+   La solución NO es `overflow-x` (que ya hay) sino quitar columnas:
+   en catálogo, `clientes` y `a la venta` son de solo lectura y no
+   hacen falta para escribir un precio. Se esconden por debajo de
+   1200px, que es donde empiezan a apretar, y la información se
+   conserva en el `data-label` de cada celda.
+*/
+
+/* ---------- La cabecera de la pantalla ---------- */
+
+.panel-page-lead {
+  margin: 0.5rem 0 0;
+  max-width: 46rem;
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  line-height: 1.55;
+}
+
+.panel-page-acciones {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* ---------- Los campos dentro de la tabla ---------- */
+
+.panel-cat-tabla td {
+  vertical-align: top;
+}
+
+.panel-cat-tabla input[type="text"],
+.panel-cat-tabla input[type="url"],
+.panel-cat-tabla .panel-select-mini {
+  width: 100%;
+  min-width: 0;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 7px;
+  background: var(--bg-soft);
+  color: var(--text);
+  font-family: inherit;
+  font-size: var(--fs-sm);
+  line-height: 1.35;
+  transition: border-color 0.14s ease, background 0.14s ease;
+}
+
+.panel-cat-tabla input:hover,
+.panel-cat-tabla .panel-select-mini:hover {
+  border-color: var(--border-strong);
+  background: var(--raise);
+}
+
+.panel-cat-tabla input:focus,
+.panel-cat-tabla .panel-select-mini:focus {
+  outline: 2px solid var(--accent-2);
+  outline-offset: 1px;
+  background: var(--surface);
+}
+
+/* La cifra del precio.
+
+   Monoespaciada y alineada a la derecha, porque es una columna de
+   números y comparar "1.500" con "250" a ojo es trabajo innecesario
+   cuando el navegador ya los alinea por tabulación. `tabular-nums`
+   por si acaso, que en esta fuente da igual pero en la que se cambie
+   no. */
+.panel-input--numero {
+  font-family: var(--font-mono, ui-monospace, monospace) !important;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  font-size: var(--fs-base, 0.95rem) !important;
+}
+
+.panel-cat-precio {
+  width: 7.5rem;
+}
+
+/* La url se corta porque es larga, y se ve el final, que es lo que
+   dice si termina en slash o en ruta rara. */
+.panel-cat-url {
+  width: 13rem;
+}
+
+/* El desplegable de moneda va justo al ancho de su código y no más.
+
+   Con el nombre largo dentro ("ARS · pesos argentinos") se cortaba a
+   media palabra en la tabla, y el ancho necesario dependía de la
+   pantalla. El código solo ("ARS") entra siempre, y el nombre largo
+   va en el título de la opción. */
+.panel-cat-tabla td:has(select[name^="moneda_"]) {
+  width: 5.5rem;
+}
+
+.panel-input--url {
+  font-family: var(--font-mono, ui-monospace, monospace) !important;
+  font-size: var(--fs-xs) !important;
+  direction: ltr;
+  text-overflow: ellipsis;
+}
+
+.panel-cat-nombre {
+  min-width: 15rem;
+}
+
+.panel-cat-nombre input + input {
+  margin-top: 0.35rem;
+}
+
+/* El id del módulo.
+
+   Se muestra y no se edita porque es la clave foránea de
+   `suscripciones.modulo` y de `microservicios.modulo`. Cambiarla
+   deja huérfano todo lo que apunta a ella, y en monoespaciada porque
+   es un identificador, no un texto. */
+.panel-cat-id {
+  display: inline-block;
+  margin-top: 0.35rem;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.68rem;
+  color: var(--text-dim);
+}
+
+/* ---------- Errores ---------- */
+
+.panel-cat-tabla .panel-input--error {
+  border-color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 8%, var(--bg-soft));
+}
+
+.panel-cell-error {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: var(--fs-xs);
+  color: var(--danger);
+}
+
+/* La fila entera se marca, no solo el campo.
+
+   Con siete columnas, un campo con borde rojo y el resto normal deja
+   duda de qué ha fallado: se ve que algo está mal pero no dónde. La
+   fila entera tiñéndola se ve al instante, y el borde rojo del campo
+   concreta dónde. */
+.panel-table tbody tr.panel-tr--error > td {
+  background: color-mix(in srgb, var(--danger) 5%, var(--surface));
+}
+
+.panel-table tbody tr.panel-tr--error > td:first-child {
+  box-shadow: inset 3px 0 0 var(--danger);
+}
+
+.panel-cat-clientes {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.panel-cat-clientes--cero {
+  color: var(--text-dim);
+  font-weight: 400;
+}
+
+/* ---------- El pie ---------- */
+
+.panel-cat-pie {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+/* ---------- Por debajo de 1200px ----------
+
+   Se van las dos columnas de solo lectura. Los datos no se pierden:
+   cada celda lleva `data-label` y el modo tarjeta las enseña con su
+   título. Con esto no hay que decidir qué columna es "la
+   importante". */
+@media (max-width: 1200px) {
+  .panel-cat-tabla th:nth-child(5),
+  .panel-cat-tabla td:nth-child(5),
+  .panel-cat-tabla th:nth-child(6),
+  .panel-cat-tabla td:nth-child(6) {
+    display: none;
+  }
+
+  .panel-cat-precio,
+  .panel-cat-url {
+    width: auto;
+  }
+}
+
+@media (max-width: 720px) {
+  /* Las columnas escondidas por anchura vuelven a salir cuando la
+     tabla se convierte en tarjetas, porque ahí ya no hay problema de
+     sitio: lo que hay es poco alto, y el número de clientes y el
+     "a la venta" son justo lo que se quiere ver en un móvil. */
+  .panel-cat-tabla th:nth-child(5),
+  .panel-cat-tabla td:nth-child(5),
+  .panel-cat-tabla th:nth-child(6),
+  .panel-cat-tabla td:nth-child(6) {
+    display: flex;
+  }
+}
+
+/* =========================================================
+   CIFRAS Y VALORES TÉCNICOS EN MONOESPACiada
+   =========================================================
+   Una columna de importes es una columna de números, y los números
+   se comparan por posición, no leyéndolos. Con la fuente de texto,
+   el "1" ocupa más que el "0", la columna queda descentrada y para
+   comparar dos precios hay que leerlos enteros.
+
+   Con monoespaciada, todos los dígitos ocupan lo mismo y la comparación
+   es un golpe de vista. Por eso aquí no es una decisión estética: es
+   la diferencia entre mirar una columna y recorrerla letra a letra.
+
+   ── DÓNDE SÍ Y DÓNDE NO ──
+
+   Sí: importes, referencias, fechas, urls, identificadores, hashes.
+
+   No: los títulos, los nombres de cliente, los botones, el cuerpo de
+   los párrafos. Meter todo en mono da el aspecto de una terminal de
+   1980 y encima se lee peor. La mono se usa para DATO, no para
+   decoración, y sobre todo no se usa para algo que se lee como
+   frase.
+
+   Y las celdas numéricas se alinean a la derecha, no a la izquierda
+   como el resto de la columna: los decimales quedan en el mismo sitio
+   y es donde están los céntimos, que es lo que se compara. */
+.panel-table .panel-th-num,
+.panel-table td.panel-th-num {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-variant-numeric: tabular-nums;
+}
+
+.panel-table td.panel-th-num {
+  text-align: right;
+}
+
+/* Las cabeceras de columna numérica, en mono también.
+
+   Con la fuente de texto y en mayúsculas, "IMPORTE" ocupa más que la
+   columna que describe y empuja al resto de la tabla. En mono y sin
+   mayúsculas se lee como una etiqueta técnica, que es lo que es. */
+.panel-table th.panel-th-num {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: var(--text-muted);
+  text-align: right;
+}
+
+/* Las referencias y los identificadores de la tabla de cobros. */
+.panel-cell-sub--ref,
+.panel-cell-mono {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-variant-numeric: tabular-nums;
 }

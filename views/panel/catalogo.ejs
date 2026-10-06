@@ -104,7 +104,17 @@
       <div class="portal-cat-pie">
         <div class="portal-cat-precio">
           <% if (m.precio !== null && m.precio !== undefined) { %>
-            <strong><%= dinero(m.precio) %></strong>
+            <%# La moneda va con el precio, no de serie.
+
+                `dinero(m.precio)` sin segundo argumento cae en EUR, y
+                por eso el catálogo del cliente pintaba "49,00 €" para
+                un negocio que cobra en pesos. Un número en la moneda
+                equivocada no es un detalle: es lo que el cliente lee
+                para decidir si contrata.
+
+                Si algún día un módulo estuviera en otra moneda, sale
+                bien sin tocar nada, porque responde a la fila. */ %>
+            <strong><%= dinero(m.precio, m.moneda) %></strong>
             <% if (m.periodicidad && periodo[m.periodicidad]) { %>
               <span><%= periodo[m.periodicidad] %></span>
             <% } %>

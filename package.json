@@ -50,7 +50,8 @@
     "test:capturas": "node db/ver-panel.mjs",
     "test:cuenta": "node db/probar-cuenta.mjs",
     "test:web": "node db/ver-web.mjs",
-    "test:maquetacion": "node db/auditar-maquetacion.mjs"
+    "test:maquetacion": "node db/auditar-maquetacion.mjs",
+    "test:catalogo": "node db/probar-catalogo.mjs"
   },
   "engines": {
     "node": ">=22"

@@ -22,7 +22,7 @@
       hace que una pantalla "se note" distinta a la de al lado. %>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
 
   <%# Reutiliza el CSS y los tokens de la web: el panel se ve
       igual de cuidado que el sitio. %>
@@ -96,6 +96,19 @@
        <%= _current === 'cobros' ? 'aria-current="page"' : '' %>>
       <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v14M13 6.5H8.5a2 2 0 0 0 0 4h3a2 2 0 0 1 0 4H6.5"/></svg>
       Cobros
+    </a>
+
+    <%# Catálogo: lo que se vende, con sus precios.
+
+        Va en Gestión y NO junto a Servicios, que es lo que cada
+        cliente tiene contratado. Son cosas distintas y confundirlas
+        fue justo lo que dejó los precios sin poder cambiarse: los
+        precios de los productos son de `modules`, y nadie lo pilló
+        porque no había ningún sitio donde se vieran. %>
+    <a href="<%= base %>/catalogo" class="panel-menu-item<%= _current === 'catalogo' ? ' is-active' : '' %>"
+       <%= _current === 'catalogo' ? 'aria-current="page"' : '' %>>
+      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5.5 10 2.5l7 3v9l-7 3-7-3v-9Z"/><path d="M3 5.5 10 8.5l7-3M10 8.5v9"/></svg>
+      Catálogo
     </a>
 
     <p class="panel-menu-titulo">Equipo</p>

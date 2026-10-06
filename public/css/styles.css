@@ -87,6 +87,28 @@
   --font-display: "Space Grotesk", "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-body: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
 
+  /* ── La monoespaciada ──
+     El sistema no tenía ninguna, y eso se notaba justo donde más
+     importa: en las cifras.
+
+     Sin ella, una columna de importes usa la fuente de texto, donde
+     los números no ocupan el mismo ancho. "1.500" y "250" miden
+     distinto, así que las cifras quedan descentradas y comparar dos
+     precios de un vistazo es trabajo de cabeza.
+
+     Con monoespaciada los dígitos ocupan lo mismo, la columna se
+     alinea sola y el ojo baja por ella sin leer. Además es la señal
+     de "esto es un dato técnico" que distingue un panel de
+     herramienta de una web de marketing, que es lo que se buscaba.
+
+     JetBrains Mono y no la del sistema porque en Windows la
+     monoespaciada por defecto (Consolas) es más ancha y menos
+     cuidada. Con la del sistema, el diseño depende de una fuente que
+     cambia según el ordenador, que es la forma más fácil de que un
+     panel se vea distinto en cada casa. La de reserva va igual, para
+     el caso de que el CDN no cargue. */
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
   --fs-hero: clamp(2.4rem, 6vw, 4.2rem);
   --fs-h1: clamp(2rem, 4.5vw, 3rem);
   --fs-h2: clamp(1.6rem, 3.4vw, 2.35rem);

@@ -99,6 +99,7 @@ const PANTALLAS = [
   ["clientes", "/panel/clientes"],
   ["servicios", "/panel/servicios"],
   ["cobros", "/panel/cobros"],
+  ["catalogo", "/panel/catalogo"],
   ["salud", "/panel/salud"],
 ];
 

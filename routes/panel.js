@@ -603,6 +603,7 @@ const router = express.Router();
        Sin el prefijo, la ruta real sería /clientes y no
        /panel/clientes, y todo caería en el 404 de abajo. */
     router.use(BASE, require("./panel-clientes")(comunes));
+    router.use(BASE, require("./panel-catalogo")(comunes));
     router.use(BASE, require("./panel-servicios")(comunes));
     router.use(BASE, require("./panel-consultas")(comunes));
     router.use(BASE, require("./panel-cobros")(comunes));

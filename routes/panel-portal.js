@@ -204,7 +204,7 @@ module.exports = function rutasPortal({ db, sitio, requiereLogin }) {
     const { data: catalogo, error } = await supabase
       .getAdmin()
       .from("modules")
-      .select("id,nombre,descripcion,precio,periodicidad,componentes")
+      .select("id,nombre,descripcion,precio,moneda,periodicidad,componentes")
       .eq("disponible", true)
       .order("nombre");
 
