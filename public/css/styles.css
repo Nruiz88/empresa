@@ -38,6 +38,25 @@
   --warning-border: rgba(251, 191, 36, 0.4);
   --danger: #f87171;
 
+  /* ── Dos estados más que el panel necesitaba ──
+   *
+   * El panel usaba dos colores escritos a mano, sin token: el violeta
+   * claro de "proyecto" y el naranja de "urgente". Con lo único que
+   * había (`--accent`, `--accent-2`, `--warning`, `--danger`) no
+   * tenían a dónde apuntar, así que se quedaron literales.
+   *
+   * Un literal no cambia con el tema, y eso rompía el contraste en los
+   * otros dos: `--accent-2` pasa de `#22d3ee` a `#0e7fa8` en claro y a
+   * `#ffd23f` en el rosa, pero los chips seguían pintados de cian
+   * fijo. Sobre un fondo claro, cian a 10% con texto cian es
+   * ilegible.
+   *
+   * `--info`   violeta: proyectos, things informative
+   * `--urgent` naranja: más apremiante que `--warning`, sin ser error
+   */
+  --info: #a78bfa;
+  --urgent: #fb923c;
+
   /* Tematizables — los temas alternativos redefinen estos valores */
   --on-accent: #08080f;
   --icon-color: #c4b5fd;

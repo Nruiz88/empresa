@@ -11,6 +11,19 @@
 
   <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
 
+  <%# Las fuentes ANTES que las hojas, como en la web pública.
+      Aquí iban después, y eso tiene dos efectos: el preconnect no
+      empezaba a calentar hasta haber descargado los cuatro CSS, y el
+      @font-face se registraba después de que las reglas ya se
+      hubieran calculado. Con `display=swap` el texto aparece igual,
+      pero con la fuente de reserva y luego salta — un cambio de
+      ancho que mueve la página entera.
+      Es un detalle pequeño, pero es exactamente el tipo de cosa que
+      hace que una pantalla "se note" distinta a la de al lado. %>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+
   <%# Reutiliza el CSS y los tokens de la web: el panel se ve
       igual de cuidado que el sitio. %>
   <link rel="stylesheet" href="/css/styles.css" />
@@ -21,13 +34,6 @@
        Va DESPUÉS de panel.css a propósito: aquí va lo del portal, y
        tiene que poder ganar cuando coincide. -->
   <link rel="stylesheet" href="/css/portal.css" />
-
-  <%# A propósito NO se carga GSAP ni Lenis aquí: el panel es
-      una aplicación de gestión, no una landing. Son ~70 KB que
-      no aportan nada en la parte privada. %>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
 </head>
 <body class="panel-body<%= _rol === 'staff' ? '' : ' panel-body--lateral-off' %>">
 <%# rol, nombre y csrf vienen de res.locals (los pone el middleware

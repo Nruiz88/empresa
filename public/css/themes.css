@@ -60,6 +60,20 @@ html.theme-light {
   --warning-bg: rgba(217, 119, 6, 0.1);
   --warning-border: rgba(217, 119, 6, 0.4);
   --danger: #dc2626;
+    --danger: #dc2626;
+
+    /* Los dos estados nuevos, en tema claro.
+     *
+     * Aqui es donde se notaba el problema: el panel pintaba estos
+     * chips con los valores del tema oscuro, escritos a mano. Un
+     * violeta claro y un naranja brillante sobre fondo blanco tienen
+     * poco contraste, y texto claro sobre fondo claro no se lee.
+     *
+     * Mas apagados y oscuros que en el tema oscuro. Mismo nombre de
+     * variable, otro valor: por eso basta con tocar aqui y el panel
+     * se arregla entero sin tocar panel.css. */
+    --info: #7c3aed;
+    --urgent: #c2410c;
 }
 
 /* Ajustes propios del tema claro */
@@ -125,6 +139,15 @@ html.theme-colorful {
   --text-grad: linear-gradient(120deg, #ff5fa2 0%, #ffb020 45%, #4de0d0 100%);
   --on-accent: #17040e;
   --icon-color: #ffb3d1;
+
+  /* Los dos estados nuevos, en el tema de color.
+   *
+   * Aquí `--accent-2` es un amarillo (`#ffd23f`) y `--accent` un rosa
+   * (`#ff4d9d`), así que un info violeta y un urgent naranja tienen que
+   * apartarse de los del tema oscuro o se pierden contra el fondo
+   * morado. */
+  --info: #c4a2ff;
+  --urgent: #ff8a3d;
 
   --header-bg: rgba(10, 4, 22, 0.82);
   --header-bg-solid: rgba(10, 4, 22, 0.95);
