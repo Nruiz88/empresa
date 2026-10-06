@@ -147,6 +147,22 @@ let clientId = null;
    lógica de limpieza. */
 let moduloAntes = null;
 
+/* ── LA URL REAL DEL BOT, PARA REPARAR ──
+
+   Es lo que tiene que quedar en la base cuando este test acaba, y lo
+   que se pone si encuentra una dirección local ahí.
+
+   Está en una constante y no "deducido de SITE_URL" a propósito: si
+   se dedujera, un cambio de dominio cambiaría también lo que se
+   repara, y un fallo en la deduplicación dejaría la url del bot
+   apuntando al sitio equivocado. Un valor que se usa para REPARAR
+   tiene que poder leerse, no calcularse.
+
+   Es la misma idea que la nota de `microservicios`: un dominio
+   inventado guardado como si fuera real es el peor fallo posible
+   aquí, porque no se ve hasta que un cliente pincha en "Abrir". */
+const URL_REAL_BOT = "https://bot.panel-niconqn.duckdns.org";
+
 async function crearClienteConSuscripcion(estado, terminaEn) {
   const email = MARCA + "x@ejemplo.com";
 
@@ -311,6 +327,48 @@ async function irAlBot(cookie) {
      de su declaración: si se declara en este ámbito, la limpieza de
      abajo no la ve y deja la url rota en producción. */
   moduloAntes = moduloAntesLeido;
+
+  /* ── REPARAR ANTES DE EMPEZAR, NO DESPUÉS ──
+
+     Comprobado: `bot_whatsapp.url` estaba en `http://127.0.0.1:3201`
+     en la base de PRODUCCIÓN. Es decir, el botón "Abrir" del bot
+     llevaba a todos los clientes a `localhost`.
+
+     De dónde salió: este test pone ahí la url local para apuntar al
+     bot de pruebas, y la restaura en el `finally`. Pero el proceso
+     murió DURA —código de salida de Windows, el mismo que se vio en
+     `test:panel`— y un `finally` no se ejecuta cuando el proceso
+     muere. La url se quedó.
+
+     Y el fallo se propagaba: la siguiente vuelta capturaba
+     `127.0.0.1:3201` como "el valor bueno" y lo restauraba. Un test
+     que restaura lo que encuentra se queda con el valor equivocado
+     para siempre.
+
+     Es el mismo motivo por el que más arriba, para el usuario de
+     Auth, este archivo limpia ANTES de empezar en vez de fiarse del
+     `finally`. Aquí faltaba aplicarlo.
+
+     Por eso ahora: si lo que hay ya es una dirección local, no se
+     guarda como valor a restaurar — se repara y se avisa. El `finally`
+     se queda igual, para el caso normal. */
+  const esLocal = (u) => /^(https?:\/\/)?(127\.0\.0\.1|localhost)(:\d+)?/i.test(String(u || ""));
+
+  if (esLocal(moduloAntes.url)) {
+    console.warn("");
+    console.warn("  AVISO: modules.bot_whatsapp.url estaba en " + moduloAntes.url);
+    console.warn("  Eso es una dirección local en la base de producción: el botón");
+    console.warn('  "Abrir" del bot llevaba a todos los clientes a localhost.');
+    console.warn("  Se ha reparado a " + URL_REAL_BOT + " y no se va a restaurar el valor local.");
+    console.warn("");
+
+    await db.from("modules").update({ url: URL_REAL_BOT }).eq("id", "bot_whatsapp");
+
+    /* Y no se restaura lo que había: restaurar `127.0.0.1` sería volver
+       a romperlo. Se deja `moduloAntes` con la url buena, para que el
+       `finally` de abajo no deshaga la reparación. */
+    moduloAntes = { url: URL_REAL_BOT, disponible: moduloAntes.disponible };
+  }
 
   await db.from("modules").update({ disponible: true }).eq("id", "bot_whatsapp");
   await db

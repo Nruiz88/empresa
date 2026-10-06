@@ -308,7 +308,32 @@ module.exports = function rutasTickets({ db, sitio, requiereStaff, requiereLogin
      EL CLIENTE
      ───────────────────────────────────────────────────────── */
 
+  /* ── EL EQUIPO NO TIENE EMPRESA, Y NO ES UN ERROR SUYO ──
+
+     El equipo tiene perfil pero `client_id` es null: no pertenece a
+     ninguna empresa, y `clientIdDe` devuelve null. Sin esto, un
+     miembro del equipo que escribiera `/panel/mis-tickets` en la
+     barra de direcciones veía "tu cuenta todavía no está asociada a
+     una empresa".
+
+     Que es FALSO. Tiene cuenta. Lo que no tiene es empresa, y esa
+     diferencia es justo por la que el sitio correcto es otro.
+
+     Y el que no se da cuenta del botón equivocado, el que acaba
+     informándole de que su cuenta está mal, es el dueño del
+     negocio de arreglar algo que no está roto. */
+
+  const esCliente = (req, res) => {
+    if (req.sesion && req.sesion.rol === "staff") {
+      res.redirect("/panel/tickets");
+      return false;
+    }
+    return true;
+  };
+
   router.get("/mis-tickets", requiereLogin, async (req, res) => {
+    if (!esCliente(req, res)) return;
+
     const clienteId = await clientIdDe(req.sesion.user_id);
 
     if (!clienteId) {
@@ -338,6 +363,8 @@ module.exports = function rutasTickets({ db, sitio, requiereStaff, requiereLogin
   });
 
   router.get("/mis-tickets/nuevo", requiereLogin, async (req, res) => {
+    if (!esCliente(req, res)) return;
+
     const clienteId = await clientIdDe(req.sesion.user_id);
 
     const { data: servicios } = await db
@@ -355,6 +382,8 @@ module.exports = function rutasTickets({ db, sitio, requiereStaff, requiereLogin
   });
 
   router.post("/mis-tickets", requiereLogin, async (req, res) => {
+    if (!esCliente(req, res)) return;
+
     const clienteId = await clientIdDe(req.sesion.user_id);
     if (!clienteId) return res.redirect("/panel/mis-tickets");
 
@@ -450,6 +479,8 @@ module.exports = function rutasTickets({ db, sitio, requiereStaff, requiereLogin
   });
 
   router.get("/mis-tickets/:id", requiereLogin, async (req, res) => {
+    if (!esCliente(req, res)) return;
+
     const clienteId = await clientIdDe(req.sesion.user_id);
 
     /* El filtro por `cliente_id` NO es una cortesía: es la
@@ -489,6 +520,8 @@ module.exports = function rutasTickets({ db, sitio, requiereStaff, requiereLogin
   });
 
   router.post("/mis-tickets/:id/mensaje", requiereLogin, async (req, res) => {
+    if (!esCliente(req, res)) return;
+
     const clienteId = await clientIdDe(req.sesion.user_id);
     const cuerpo = String((req.body && req.body.cuerpo) || "").trim();
 

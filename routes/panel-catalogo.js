@@ -76,11 +76,7 @@ module.exports = function rutasCatalogo({ db, sitio, csrf, requiereStaff }) {
 
      El nombre largo va en el título de la opción, que es donde se
      consulta el detalle sin estorbar a la lectura. */
-  const MONEDAS = [
-    { valor: "ARS", label: "ARS", largo: "Pesos argentinos", titulo: "ARS · pesos argentinos" },
-    { valor: "EUR", label: "EUR", largo: "Euros", titulo: "EUR · euros" },
-    { valor: "USD", label: "USD", largo: "Dólares", titulo: "USD · dólares" },
-  ];
+const { MONEDAS } = require("../lib/monedas");
 
   const PERIODOS = [
     { valor: "", label: "Sin periodicidad" },

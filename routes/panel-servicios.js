@@ -1,4 +1,4 @@
-﻿/* =========================================================
+/* =========================================================
    Nexo Studio — Panel: servicios
    ------------------------------------------------------------
    Los tres tipos (mantenimiento, proyecto, presupuesto) viven
@@ -9,6 +9,7 @@
 const express = require("express");
 const auth = require("../lib/auth");
 const { validar, vacioANull } = require("../lib/validate");
+const { MONEDAS } = require("../lib/monedas");
 const L = require("../lib/labels");
 
 const POR_PAGINA = 25;
@@ -27,7 +28,20 @@ const ESQUEMA = {
   titulo: ["requerido", ["texto", { min: 3, max: 160 }]],
   descripcion: [["texto", { max: 2000 }]],
   importe: ["importe"],
-  periodicidad: ["unoDe", PERIODICIDADES.map((p) => p.valor)],
+  /* La moneda va validada contra la lista de `lib/monedas.js`.
+
+     Antes NO se guardaba: el POST escribia `importe` y
+     `periodicidad` pero nunca `moneda`. El importe se podia cambiar
+     y la moneda se quedaba en la que tuviera el servicio —EUR en
+     todos—, asi que poner 25000 se veia como "25.000,00 €". Un campo
+     de importe sin campo de moneda es medio formulario: deja cambiar
+     el numero sin poder decir de que moneda es.
+
+     El `unoDe` usa la lista compartida y no una copia local, por
+     lo que advierte `lib/client-id.js`: dos listas se
+     desincronizan, y la primera que se quede vieja es la que
+     falla — y falla de vez en cuando, que es lo peor. */
+  moneda: [["unoDe", MONEDAS.map((m) => m.valor)]],
   inicia_en: ["fecha"],
   termina_en: ["fecha"],
   notas: [["texto", { max: 2000 }]],
@@ -104,6 +118,15 @@ module.exports = function rutasServicios({ db, sitio, csrf, requiereStaff }) {
           tipos: TIPOS,
           estados: ESTADOS,
           periodicidades: PERIODICIDADES,
+          /* La lista compartida de lib/monedas.js, no una copia local.
+
+             El desplegable y la validacion tienen que ofrecer
+             EXACTAMENTE lo mismo. Si la vista ofreciera una moneda
+             que el unoDe rechaza, el usuario la elige, pulsa guardar
+             y no ocurre nada, sin mensaje: el fallo mas dificil de
+             detectar que hay, porque parece que el boton no funciona
+             y no que hay dos listas distintas. */
+          monedas: MONEDAS,
           clientes: data || [],
           servicio: extra.servicio,
           errores: extra.errores || {},
@@ -114,7 +137,7 @@ module.exports = function rutasServicios({ db, sitio, csrf, requiereStaff }) {
 
   const vacio = {
     client_id: "", kind: "mantenimiento", estado: "pendiente",
-    titulo: "", descripcion: "", importe: "", periodicidad: "",
+    titulo: "", descripcion: "", importe: "", periodicidad: "", moneda: "",
     inicia_en: "", termina_en: "", notas: "",
   };
 
@@ -144,6 +167,18 @@ module.exports = function rutasServicios({ db, sitio, csrf, requiereStaff }) {
         descripcion: vacioANull(datos.descripcion),
         importe: datos.importe ? Number(String(datos.importe).replace(/\./g, "").replace(",", ".")) : null,
         periodicidad: vacioANull(datos.periodicidad),
+
+        /* La moneda, que antes no se guardaba NINGUN sitio. Se guarda
+           incluso si llega vacia: un servicio sin moneda es un importe
+           del que no se sabe que numero es, y el `dinero()` lo pinta
+           sin simbolo, que parece un campo sin rellenar en vez de una
+           moneda perdida.
+
+           Vacia y no ARS por defecto a proposito: un servicio creado en
+           euros y nunca tocado tiene que seguir en euros. Cambiarle la
+           moneda solo porque se vuelve a guardar seria reescribir lo
+           que ya se facturo. */
+        moneda: datos.moneda || null,
         inicia_en: vacioANull(datos.inicia_en),
         termina_en: vacioANull(datos.termina_en),
         notas: vacioANull(datos.notas),
@@ -205,6 +240,18 @@ module.exports = function rutasServicios({ db, sitio, csrf, requiereStaff }) {
         descripcion: vacioANull(datos.descripcion),
         importe: datos.importe ? Number(String(datos.importe).replace(/\./g, "").replace(",", ".")) : null,
         periodicidad: vacioANull(datos.periodicidad),
+
+        /* La moneda, que antes no se guardaba NINGUN sitio. Se guarda
+           incluso si llega vacia: un servicio sin moneda es un importe
+           del que no se sabe que numero es, y el `dinero()` lo pinta
+           sin simbolo, que parece un campo sin rellenar en vez de una
+           moneda perdida.
+
+           Vacia y no ARS por defecto a proposito: un servicio creado en
+           euros y nunca tocado tiene que seguir en euros. Cambiarle la
+           moneda solo porque se vuelve a guardar seria reescribir lo
+           que ya se facturo. */
+        moneda: datos.moneda || null,
         inicia_en: vacioANull(datos.inicia_en),
         termina_en: vacioANull(datos.termina_en),
         notas: vacioANull(datos.notas),

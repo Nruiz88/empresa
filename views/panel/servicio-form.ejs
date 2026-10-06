@@ -72,11 +72,27 @@
       </label>
 
       <label class="panel-field<%= errores.importe ? ' has-error' : '' %>">
-        <span>Importe (€)</span>
+        <%# El "(€)" que estaba aquí desaparece.
+
+             No era decoración: era una MENTIRA. Decía euros a un
+            .importe` para ponerlo en pesos. Ahora lo dice el selector
+             de al lado, que es donde el usuario lo cambia de verdad. %>
+        <span>Importe</span>
         <input type="text" name="importe" value="<%= servicio.importe != null ? servicio.importe : '' %>"
                inputmode="decimal" placeholder="120 o 1.200,50" />
         <em class="panel-help">Acepta 120 o 1.200,50</em>
         <% if (errores.importe) { %><em class="panel-error"><%= errores.importe %></em><% } %>
+      </label>
+
+      <label class="panel-field<%= errores.moneda ? ' has-error' : '' %>">
+        <span>Moneda</span>
+        <select name="moneda">
+          <option value="" <%= !servicio.moneda ? 'selected' : '' %>>— Sin especificar —</option>
+          <% monedas.forEach(function (mo) { %>
+            <option value="<%= mo.valor %>" <%= servicio.moneda === mo.valor ? 'selected' : '' %>><%= mo.label %></option>
+          <% }); %>
+        </select>
+        <% if (errores.moneda) { %><em class="panel-error"><%= errores.moneda %></em><% } %>
       </label>
 
       <label class="panel-field">
