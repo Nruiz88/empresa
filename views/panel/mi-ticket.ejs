@@ -1,0 +1,90 @@
+<%#
+  Ticket del cliente — el hilo.
+
+  Variables: ticket, mensajes, etiquetaEstado
+
+  ⚠️  AQUÍ NO HAY NOTAS INTERNAS, Y NO ES POR UNA CASUALIDAD
+  -----------------------------------------------------------
+
+  Dos motivos, y los dos hacen falta:
+
+    1. La consulta del servidor ya vino con `.eq('interno', false)`.
+       El mensaje interno no está en esta página, ni oculto: no
+       llegó. Filtrarlo con un `if` al pintar significaría que el
+       secreto estuvo en el HTML del cliente, oculto a la vista,
+       y que un `if` mal puesto lo enseña.
+
+    2. La plantilla NO comparte código con panel/ticket.ejs.
+
+       Compartir el hilo entre las dos vistas es tentador porque
+       "es lo mismo con menos cosas". Ese ahorro es exactamente el
+       fallo: una vista compartida tiene que traer el `interno` a
+       la que no lo quiere, y entonces hay que acordarse de
+       quitarlo. Acordarse es una forma de acordarse.
+
+  Si algún día hay que compartirlo, que sea una parcial que RECIBA
+  los mensajes ya filtrados y no pueda añadir ninguno.
+%>
+<%- include('../partials/panel-head', { title, site, base, current }) %>
+
+<div class="panel-page">
+  <p class="panel-volver"><a href="<%= base %>/mis-tickets">← Mis tickets</a></p>
+
+  <div class="panel-page-head">
+    <div>
+      <span class="panel-kicker">Ticket</span>
+      <h1><%= ticket.asunto %></h1>
+      <p class="panel-count">
+        <span class="ticket-estado ticket-estado--<%= ticket.estado %>">
+          <%= etiquetaEstado(ticket.estado) %>
+        </span>
+        <% if (ticket.services && ticket.services.titulo) { %>
+          · <%= ticket.services.titulo %>
+        <% } %>
+        · abierto el <%= new Date(ticket.creado_en).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }) %>
+      </p>
+    </div>
+  </div>
+
+  <% if (ticket.estado === 'resuelto') { %>
+    <div class="panel-alert panel-alert--ok">
+      Este ticket está resuelto. Si te sigue pasando algo, escríbelo
+      aquí abajo y vuelve a abrirse.
+    </div>
+  <% } %>
+
+  <ol class="ticket-hilo">
+    <% mensajes.forEach(function (m) {
+         var delEquipo = m.autor_rol === 'staff';
+    %>
+      <li id="m-<%= m.id %>" class="ticket-msg <%= delEquipo ? 'ticket-msg--staff' : 'ticket-msg--cliente' %>">
+        <div class="ticket-msg-cab">
+          <span class="ticket-msg-quien"><%= delEquipo ? 'Equipo Nexo Studio' : 'Tú' %></span>
+          <time class="ticket-msg-cuando" datetime="<%= m.creado_en %>">
+            <%= new Date(m.creado_en).toLocaleString('es-ES', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) %>
+          </time>
+        </div>
+        <div class="ticket-msg-cuerpo"><%= m.cuerpo %></div>
+      </li>
+    <% }); %>
+  </ol>
+
+  <form class="panel-form-card ticket-responder" method="post"
+      action="<%= base %>/mis-tickets/<%= ticket.id %>/mensaje">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+
+    <label class="panel-field panel-field--ancho">
+      <span>Contestar</span>
+      <textarea name="cuerpo" rows="5" required
+                placeholder="Escribe aquí tu respuesta…"></textarea>
+    </label>
+
+    <div class="panel-form-actions ticket-responder-pie">
+      <button type="submit" class="panel-btn panel-btn--primary">Enviar</button>
+    </div>
+  </form>
+
+  <div id="ultimo"></div>
+</div>
+
+<%- include('../partials/panel-foot', { site }) %>

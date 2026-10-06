@@ -122,6 +122,30 @@
       <% } %>
     </a>
 
+    <%# Tickets: los avisos que dejan los clientes.
+
+         Va DESPUÉS de Cobros y no antes. El orden del menú es el
+         orden en que se trabaja un día: primero lo que entra
+         (consultas), luego lo que se factura (cobros), luego lo que
+         hay que contestar (tickets). Soporte va al final de gestión
+         porque se mira cuando ya se ha mirado lo demás.
+
+         El contador NO es de tickets sin abrir: es de tickets que no
+         están resueltos, porque un ticket en curso sigue siendo
+         trabajo pendiente aunque alguien lo haya cogido. Poner solo
+         los abiertos haría que el número cayera a cero en cuanto se
+         contestara, y ese es justo el ticket que todavía se está
+         resolviendo. %>
+    <a href="<%= base %>/tickets" class="panel-menu-item<%= _current === 'tickets' ? ' is-active' : '' %>"
+       <%= _current === 'tickets' ? 'aria-current="page"' : '' %>>
+      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5h14v10H7l-4 3V5z"/></svg>
+      Soporte
+      <% if (typeof contadores !== 'undefined' && contadores.tickets > 0) { %>
+        <span class="panel-badge panel-badge--nuevo"
+              title="<%= contadores.tickets %> ticket<%= contadores.tickets === 1 ? "" : "s" %> sin resolver"><%= contadores.tickets > 99 ? "99+" : contadores.tickets %></span>
+      <% } %>
+    </a>
+
     <%# Catálogo: lo que se vende, con sus precios.
 
         Va en Gestión y NO junto a Servicios, que es lo que cada
@@ -257,6 +281,23 @@
            <%= current === 'catalogo' ? 'aria-current="page"' : '' %>>
           <%- icono('mas', { tamano: 16 }) %>
           <span>A&ntilde;adir</span>
+        </a>
+        <%# Soporte: los avisos del cliente.
+
+            Va entre "Añadir" y "Perfil", no al final. Perfil y Cuenta
+            son datos, son ajustes; soporte es una acción. Ponerlo
+            antes de los dos mantiene "cosas que hago" antes de "cosas
+            que configuro".
+
+            El nombre va corto —"Ayuda"— por lo mismo que los otros:
+            dentro de una pastilla, "Mis tickets" se parte en dos
+            líneas. El largo va en el title. %>
+        <a href="<%= base %>/mis-tickets"
+           class="<%= current === 'tickets' ? 'is-active' : '' %>"
+           title="Mis tickets de soporte"
+           <%= current === 'tickets' ? 'aria-current="page"' : '' %>>
+          <%- icono('mensaje', { tamano: 16 }) %>
+          <span>Ayuda</span>
         </a>
         <a href="<%= base %>/perfil"
            class="<%= current === 'perfil' ? 'is-active' : '' %>"

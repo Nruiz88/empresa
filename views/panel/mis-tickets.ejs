@@ -1,0 +1,91 @@
+<%#
+  Tickets del cliente — la lista de "mis tickets".
+
+  Variables: tickets, etiquetaEstado, mensaje (opcional)
+
+  ── POR QUÉ NO USA LOS MISMOS ESTILOS QUE LA DEL EQUIPO ──
+
+  Porque el cliente no filtra por estado: no tiene un trabajo que
+  hacer con la lista, la consulta. El equipo filtra porque atender
+  es un trabajo con prioridad; el cliente mira para ver si le han
+  contestado.
+
+  Por eso aquí no hay pestañas de estado ni buscador: son dos
+  controles que el cliente no usaría nunca y que letaken sitio
+  para explicar lo que no viene a preguntar.
+
+  El estado sí aparece, porque la pregunta que sí tiene es
+  "¿me han contestado?".
+%>
+<%- include('../partials/panel-head', { title, site, base, current }) %>
+
+<div class="panel-page">
+  <div class="panel-page-head">
+    <div>
+      <span class="panel-kicker">Soporte</span>
+      <h1>Mis tickets</h1>
+      <p class="panel-count">
+        <% if (!tickets.length) { %>
+          No has abierto ninguno
+        <% } else { %>
+          <%= tickets.length %> en total
+        <% } %>
+      </p>
+    </div>
+
+    <a href="<%= base %>/mis-tickets/nuevo" class="panel-btn panel-btn--primary">
+      Abrir un ticket
+    </a>
+  </div>
+
+  <% if (typeof mensaje !== 'undefined' && mensaje) { %>
+    <div class="panel-alert"><%= mensaje %></div>
+  <% } %>
+
+  <% if (!tickets.length) { %>
+    <div class="panel-empty">
+      <h2>Todavía no has abierto ningún ticket</h2>
+      <p>
+        Si algo no funciona, o tienes una duda sobre un servicio,
+        escríbelo. Queda escrito y te respondemos aquí.
+      </p>
+      <a href="<%= base %>/mis-tickets/nuevo" class="panel-btn panel-btn--primary">
+        Abrir un ticket
+      </a>
+    </div>
+  <% } else { %>
+    <ul class="ticket-lista">
+      <% tickets.forEach(function (t) {
+           var href = base + '/mis-tickets/' + t.id;
+      %>
+        <li class="ticket-fila">
+          <a href="<%= href %>" class="panel-stretch">
+            <span class="ticket-fila-asunto"><%= t.asunto %></span>
+            <span class="ticket-fila-meta">
+              <% if (t.services && t.services.titulo) { %>
+                <span class="panel-cell-sub"><%= t.services.titulo %></span>
+              <% } %>
+              <span class="ticket-estado ticket-estado--<%= t.estado %>">
+                <%= etiquetaEstado(t.estado) %>
+              </span>
+              <time class="ticket-cuando"
+                    datetime="<%= t.actualizado_en %>">
+                <%= new Date(t.actualizado_en).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }) %>
+              </time>
+            </span>
+          </a>
+        </li>
+      <% }); %>
+    </ul>
+
+    <%# Un aviso que la lista sola no da: que tickets resueltos
+        siguen pudiéndose responder. Si no se dice, el cliente
+        escribe y no sabe si se ha guardado. %>
+    <p class="panel-sec-nota">
+      Si ya lo marcaste como resuelto y te pasa otra vez, escríbelo
+      en el mismo ticket: vuelve a abrirse solo.
+    </p>
+  <% } %>
+</div>
+
+<%- include('../partials/panel-foot', { site }) %>

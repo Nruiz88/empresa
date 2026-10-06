@@ -1,0 +1,100 @@
+<%#
+  Abrir un ticket — el formulario del cliente.
+
+  Variables: servicios, errores (opcional), datos (opcional)
+
+  ── POR QUÉ EL SERVICIO ES OPCIONAL ──
+
+  Porque no todos los avisos son sobre un servicio. "Me parece que
+  me han cobrado dos veces" es del cliente, no del bot de WhatsApp.
+
+  Y si fuera obligatorio, el que no encaja en ninguna casilla
+  —justo el que más urgen— no se puede escribir. Se acaba
+  escribiendo en el servicio más parecido y el equipo pierde la
+  primera línea de contexto del problema.
+
+  ── POR QUÉ PIDE 10 CARACTERES EN EL CUERPO Y 6 EN EL ASUNTO ──
+
+  El asunto es lo que se lee en la lista del equipo para decidir
+  qué se atiende primero. "Ayuda" no sirve para eso.
+
+  Los 10 del cuerpo son para que nadie escriba "hola" y cierre el
+  ticket sin decir nada: eso genera un ticket que el equipo tiene
+  que contestar para poder cerrar, y es trabajo de más para las dos
+  partes.
+
+  ── LOS MISMOS Nombres QUE LOS FORMULARIOS QUE YA HAY ──
+
+  `panel-field`, `panel-help`, `panel-error`, `panel-form-grid`,
+  `panel-form-actions`. No se inventan clases nuevas para un
+  formulario nuevo: los formularios se parecen porque comparten las
+  mismas clases, y si este usa otras se acaba viendo distinto del
+  de accesos sin que nadie lo decida.
+
+  El error se pinta con `has-error` en el `label` y con `<em>` dentro,
+  como los demás.
+%>
+<%- include('../partials/panel-head', { title, site, base, current }) %>
+
+<% var e = typeof errores !== 'undefined' && errores ? errores : {}; %>
+<% var d = typeof datos !== 'undefined' && datos ? datos : {}; %>
+
+<div class="panel-page panel-page--form">
+  <p class="panel-volver"><a href="<%= base %>/mis-tickets">← Mis tickets</a></p>
+
+  <div class="panel-page-head">
+    <div>
+      <span class="panel-kicker">Soporte</span>
+      <h1>Abrir un ticket</h1>
+      <p class="panel-count">Cuéntanos qué pasa y lo atendemos aquí.</p>
+    </div>
+  </div>
+
+  <% if (e.asunto || e.cuerpo) { %>
+    <div class="panel-alert">Revisa los campos marcados antes de enviar.</div>
+  <% } %>
+
+  <form class="panel-form-card" method="post" action="<%= base %>/mis-tickets">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+
+    <div class="panel-form-grid">
+      <label class="panel-field<%= e.asunto ? ' has-error' : '' %>">
+        <span>Asunto *</span>
+        <input type="text" name="asunto" value="<%= d.asunto || '' %>" required
+               minlength="6" maxlength="160"
+               placeholder="El bot no responde a los números con +" />
+        <% if (e.asunto) { %><em class="panel-error"><%= e.asunto %></em><% } %>
+        <em class="panel-help">En una línea: qué no funciona.</em>
+      </label>
+
+      <label class="panel-field">
+        <span>Sobre qué servicio</span>
+        <select name="servicio_id" class="panel-select">
+          <option value="">— No va sobre un servicio —</option>
+          <% servicios.forEach(function (s) {
+               var elegido = d.servicio_id && String(d.servicio_id) === String(s.id);
+          %>
+            <option value="<%= s.id %>" <%= elegido ? 'selected' : '' %>><%= s.titulo %></option>
+          <% }); %>
+        </select>
+        <em class="panel-help">
+          Opcional. Si no encaja en ninguno, déjalo en "no va sobre un servicio".
+        </em>
+      </label>
+    </div>
+
+    <label class="panel-field panel-field--ancho<%= e.cuerpo ? ' has-error' : '' %>">
+      <span>Qué te pasa *</span>
+      <textarea name="cuerpo" rows="7" required minlength="10" maxlength="4000"
+                placeholder="Qué esperabas, qué pasó y desde cuándo. Si te sale un error, copia el texto."><%= d.cuerpo || '' %></textarea>
+      <% if (e.cuerpo) { %><em class="panel-error"><%= e.cuerpo %></em><% } %>
+    </label>
+
+    <div class="panel-form-actions">
+      <a href="<%= base %>/mis-tickets" class="panel-btn panel-btn--ghost">Cancelar</a>
+      <button type="submit" class="panel-btn panel-btn--primary">Abrir ticket</button>
+    </div>
+  </form>
+</div>
+
+<%- include('../partials/panel-foot', { site }) %>

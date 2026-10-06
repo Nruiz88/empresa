@@ -1,0 +1,116 @@
+<%#
+  Ticket de soporte — el detalle del equipo.
+
+  Variables: ticket, mensajes, estados, etiquetaEstado
+
+  ── LO ÚNICO QUE HAY QUE CUIDAR AQUÍ ──
+
+  Esta vista SÍ pinta las notas internas. Es la vista del equipo.
+
+  La counterpart del cliente es mi-ticket.ejs, y ahí no llegan nunca
+  —no por un `if`, sino porque la consulta del servidor ya las
+  filtró—. Si alguna vez alguien hace que las dos vistas compartan
+  plantilla, ese filtro tiene que seguir en el servidor. Un `if`
+  en el HTML es que el secreto ya estaba en la página.
+
+  ── POR QUÉ LAS NOTAS INTERNAS PARECEN DISTINTAS ──
+
+  No por decoración. Una nota interna es para el equipo y no tiene
+  que sonar como un mensaje al cliente: "le pasa solo con Safari" es
+  útil ahí y solo confunde al cliente si se lo leen.
+
+  Y el color no es el único aviso: llevan la palabra "interno" y un
+  icono. El color solo no se puede leer.
+%>
+<%- include('../partials/panel-head', { title, site, base, current }) %>
+
+<% var cli = ticket.clients || {}; %>
+<% var srv = ticket.services || {}; %>
+
+<div class="panel-page">
+  <p class="panel-volver"><a href="<%= base %>/tickets">← Tickets</a></p>
+
+  <div class="panel-page-head">
+    <div>
+      <span class="panel-kicker"><%= cli.empresa || cli.nombre || 'Cliente' %></span>
+      <h1><%= ticket.asunto %></h1>
+      <p class="panel-count">
+        <span class="ticket-estado ticket-estado--<%= ticket.estado %>">
+          <%= etiquetaEstado(ticket.estado) %>
+        </span>
+        <% if (srv.titulo) { %> · <%= srv.titulo %><% } %>
+        · abierto el <%= new Date(ticket.creado_en).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }) %>
+      </p>
+    </div>
+
+    <div class="ticket-estado-cambiar">
+      <form method="post" action="<%= base %>/tickets/<%= ticket.id %>/estado">
+        <input type="hidden" name="_csrf" value="<%= csrf %>">
+        <label for="estado">Estado</label>
+        <select id="estado" name="estado" class="panel-select-mini">
+          <% estados.forEach(function (e) { %>
+            <option value="<%= e.valor %>" <%= ticket.estado === e.valor ? 'selected' : '' %>>
+              <%= e.etiqueta %>
+            </option>
+          <% }); %>
+        </select>
+        <button type="submit" class="panel-btn panel-btn--xs panel-btn--ghost">Cambiar</button>
+      </form>
+    </div>
+  </div>
+
+  <ol class="ticket-hilo">
+    <% mensajes.forEach(function (m) {
+         var propio = m.autor_rol === 'staff';
+    %>
+      <li id="m-<%= m.id %>"
+          class="ticket-msg <%= propio ? 'ticket-msg--staff' : 'ticket-msg--cliente' %> <%= m.interno ? 'ticket-msg--interno' : '' %>">
+        <div class="ticket-msg-cab">
+          <span class="ticket-msg-quien">
+            <%= propio ? 'Equipo' : (cli.empresa || cli.nombre || 'Cliente') %>
+          </span>
+          <% if (m.interno) { %>
+            <span class="ticket-msg-sello">interno</span>
+          <% } %>
+          <time class="ticket-msg-cuando"
+                datetime="<%= m.creado_en %>">
+            <%= new Date(m.creado_en).toLocaleString('es-ES', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) %>
+          </time>
+        </div>
+        <div class="ticket-msg-cuerpo"><%= m.cuerpo %></div>
+      </li>
+    <% }); %>
+  </ol>
+
+  <%# El ancla #ultimo va en la redirección de las dos rutas de
+      escritura, para que el mensaje nuevo quede a la vista sin
+      tener que bajar. %>
+  <form class="panel-form-card ticket-responder" method="post"
+      action="<%= base %>/tickets/<%= ticket.id %>/mensaje">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+
+    <label class="panel-field panel-field--ancho">
+      <span>
+        <% if (ticket.estado === 'resuelto') { %>
+          Responder — reabre el ticket
+        <% } else { %>
+          Responder
+        <% } %>
+      </span>
+      <textarea name="cuerpo" rows="5" required
+                placeholder="Escribe la respuesta. Si es para el equipo, marca la casilla de abajo."></textarea>
+    </label>
+
+    <div class="panel-form-actions ticket-responder-pie">
+      <label class="ticket-interno">
+        <input type="checkbox" name="interno" value="1">
+        <span>Solo para el equipo — el cliente no lo ve</span>
+      </label>
+      <button type="submit" class="panel-btn panel-btn--primary">Enviar</button>
+    </div>
+  </form>
+
+  <div id="ultimo"></div>
+</div>
+
+<%- include('../partials/panel-foot', { site }) %>

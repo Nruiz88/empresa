@@ -329,7 +329,7 @@ const router = express.Router();
      se nota, lo que toca es un contador guardado y refrescado al
      cambiar algo, no quitarlo. */
   router.use(async (req, res, next) => {
-    res.locals.contadores = { consultas: 0, vencidos: 0, servicios: 0 };
+    res.locals.contadores = { consultas: 0, vencidos: 0, servicios: 0, tickets: 0 };
 
     /* Solo si hay sesión de equipo: en el portal del cliente el
        lateral no se pinta, así que sería una consulta inútil en cada
@@ -339,7 +339,7 @@ const router = express.Router();
     try {
       const hoy = new Date().toISOString().slice(0, 10);
 
-      const [consultas, vencidos, servicios] = await Promise.all([
+      const [consultas, vencidos, servicios, tickets] = await Promise.all([
         db.from("leads").select("id", { count: "exact", head: true }).eq("estado", "nuevo"),
         db
           .from("cobros")
@@ -350,12 +350,23 @@ const router = express.Router();
           .from("services")
           .select("id", { count: "exact", head: true })
           .eq("estado", "pausado"),
+        /* Tickets sin resolver: `abierto` Y `en_curso`.
+
+           Solo los abiertos daría un número que baja a cero en
+           cuanto alguien contesta, y ese ticket sigue siendo trabajo
+           pendiente. Con los dos, el número es "cosas por hacer",
+           que es lo que sirve para decidir por dónde empezar. */
+        db
+          .from("soporte_tickets")
+          .select("id", { count: "exact", head: true })
+          .in("estado", ["abierto", "en_curso"]),
       ]);
 
       res.locals.contadores = {
         consultas: consultas.count || 0,
         vencidos: vencidos.count || 0,
         servicios: servicios.count || 0,
+        tickets: tickets.count || 0,
       };
     } catch (e) {
       /* A propósito sin log de error: es un contador de un menú, y una
@@ -787,7 +798,8 @@ const router = express.Router();
        portal: es la pregunta "¿está todo bien?", y cuando algo no lo
        está el sitio donde se mira es aquí. */
     router.use(BASE, require("./panel-salud")(comunes));
-    router.use(BASE, require("./panel-portal")({ db, sitio: site, requiereLogin }));
+    router.use(BASE, require("./panel-tickets")({ db, sitio: site, requiereStaff, requiereLogin }));
+  router.use(BASE, require("./panel-portal")({ db, sitio: site, requiereLogin }));
     router.use(BASE, require("./panel-perfil")({ sitio: site, requiereLogin }));
 
     /* TODO(historial): aquí falta la sección de historial. `audit_log`

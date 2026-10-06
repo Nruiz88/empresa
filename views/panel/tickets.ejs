@@ -1,0 +1,147 @@
+<%#
+  Tickets de soporte — la lista del equipo.
+
+  Variables: tickets, estados, etiquetaEstado, estado, q, pagina,
+             paginas, total, desde, hasta, recuento
+
+  ── POR QUÉ UNA TABLA Y NO LAS "fichas" que usa consultas ──
+
+  Porque aquí el trabajo es COMPARAR filas, no leer una en
+  profundidad. "Quels están abiertos y de quién son" se contesta
+  con los ojos de arriba abajo en una columna; con fichas hay que
+  ir una por una.
+
+  Consultas sí usa fichas porque allí el trabajo es leer el mensaje
+  entero de una consulta concreta. Es el mismo dato con dos
+  trabajos distintos, y por eso dos presentaciones.
+%>
+<%- include('../partials/panel-head', { title, site, base, current }) %>
+
+<% var _estado = typeof estado !== 'undefined' ? estado : ''; %>
+<% var _q = typeof q !== 'undefined' ? q : ''; %>
+<% var abiertos = (recuento.abierto || 0) + (recuento.en_curso || 0); %>
+
+<div class="panel-page">
+  <div class="panel-page-head">
+    <div>
+      <span class="panel-kicker">Soporte</span>
+      <h1>Tickets</h1>
+      <p class="panel-count">
+        <% if (abiertos > 0) { %>
+          <%= abiertos %> sin resolver
+        <% } else { %>
+          Nada pendiente
+        <% } %>
+        <% if (total) { %> · <%= total %> en total<% } %>
+      </p>
+    </div>
+  </div>
+
+  <nav class="panel-tabs">
+    <a href="<%= base %>/tickets" class="<%= !_estado ? 'is-active' : '' %>">Todos (<%= total %>)</a>
+    <% estados.forEach(function (e) { %>
+      <a href="<%= base %>/tickets?estado=<%= e.valor %>"
+         class="<%= _estado === e.valor ? 'is-active' : '' %>">
+        <%= e.etiqueta %> (<%= recuento[e.valor] || 0 %>)
+      </a>
+    <% }); %>
+  </nav>
+
+  <form class="panel-filters" method="get" action="<%= base %>/tickets">
+    <% if (_estado) { %><input type="hidden" name="estado" value="<%= _estado %>"><% } %>
+    <input type="search" name="q" value="<%= _q %>" class="panel-search"
+           placeholder="Buscar por asunto o empresa." aria-label="Buscar tickets" />
+    <button type="submit" class="panel-btn panel-btn--ghost">Filtrar</button>
+    <% if (_q) { %><a href="<%= base %>/tickets" class="panel-clear">Limpiar</a><% } %>
+  </form>
+
+  <%# ── EL FALLO SE ENSEÑA ───────────────────────────────────
+
+       Si la consulta de la lista falla, la vista recibe `fallo` con
+       el mensaje. No se cae al "no hay nada".
+
+       Sin esto, escribir en el buscador y que la base de un error se
+       ve como "ningún ticket coincide". El usuario se va a buscar
+       otra cosa y da por hecho que no hay, y el error se queda en
+       un log que nadie abre.
+
+       Decir "no hemos podido mirar" y "no hay nada" son dos cosas,
+       y el usuario tiene que poder distinguirlas. %>
+  <% if (typeof fallo !== 'undefined' && fallo) { %>
+    <div class="panel-alert">
+      No se ha podido leer la lista de tickets. Vuelve a intentarlo;
+      si sigue igual, mira el registro del servidor.
+    </div>
+  <% } else if (!tickets.length) { %>
+    <div class="panel-empty">
+      <% if (_q || _estado) { %>
+        <h2>Nada con esto</h2>
+        <p>Prueba con otro término, o quita el filtro de estado.</p>
+        <a href="<%= base %>/tickets" class="panel-btn panel-btn--ghost">Ver todos</a>
+      <% } else { %>
+        <h2>Todavía no hay tickets</h2>
+        <p>Los avisos que dejan los clientes aparecen aquí, en cuanto los dejan.</p>
+      <% } %>
+    </div>
+  <% } else { %>
+    <div class="panel-table-wrap">
+      <table class="panel-table panel-table--tickets">
+        <thead>
+          <tr>
+            <th>Cliente</th>
+            <th>Asunto</th>
+            <th class="panel-th-num">Estado</th>
+            <th class="panel-th-num">Actualizado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% tickets.forEach(function (t) {
+               var cli = t.clients || {};
+               var srv = t.services || {};
+               var href = base + '/tickets/' + t.id;
+          %>
+            <tr class="<%= t.estado === 'resuelto' ? '' : 'panel-tr--vivo' %>">
+              <td data-label="Cliente" data-principal>
+                <span class="panel-cell-main"><%= cli.empresa || cli.nombre || '—' %></span>
+              </td>
+              <td data-label="Asunto">
+                <a href="<%= href %>" class="panel-stretch">
+                  <%= t.asunto %>
+                  <% if (srv.titulo) { %>
+                    <span class="panel-cell-sub"><%= srv.titulo %></span>
+                  <% } %>
+                </a>
+              </td>
+              <td data-label="Estado">
+                <span class="ticket-estado ticket-estado--<%= t.estado %>">
+                  <%= etiquetaEstado(t.estado) %>
+                </span>
+              </td>
+              <td data-label="Actualizado" class="panel-th-num">
+                <span class="ticket-cuando">
+                  <%= new Date(t.actualizado_en).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }) %>
+                </span>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+
+    <% if (paginas > 1) { %>
+      <nav class="panel-pager" aria-label="Paginación">
+        <%# Los filtros se arrastran al cambiar de página. %>
+        <% var conserva = (_estado ? '&estado=' + _estado : '') + (_q ? '&q=' + encodeURIComponent(_q) : ''); %>
+        <% if (pagina > 1) { %>
+          <a href="?pagina=<%= pagina - 1 %><%= conserva %>"> Anterior</a>
+        <% } %>
+        <span>Página <%= pagina %> de <%= paginas %> · viendo <%= desde %>-<%= hasta %></span>
+        <% if (pagina < paginas) { %>
+          <a href="?pagina=<%= pagina + 1 %><%= conserva %>">Siguiente →</a>
+        <% } %>
+      </nav>
+    <% } %>
+  <% } %>
+</div>
+
+<%- include('../partials/panel-foot', { site }) %>

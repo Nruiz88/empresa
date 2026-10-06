@@ -52,7 +52,8 @@
     "test:web": "node db/ver-web.mjs",
     "test:maquetacion": "node db/auditar-maquetacion.mjs",
     "test:catalogo": "node db/probar-catalogo.mjs",
-    "test:paleta": "node db/probar-paleta.mjs"
+    "test:paleta": "node db/probar-paleta.mjs",
+    "test:tickets": "node db/probar-tickets.mjs"
   },
   "engines": {
     "node": ">=22"
