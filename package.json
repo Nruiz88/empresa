@@ -44,7 +44,8 @@
     "seed:limpiar": "node db/seed.js --limpiar",
     "usuario": "node db/create-user.js",
     "test:render": "node db/test-render-completo.mjs",
-    "test:salud": "node db/probar-salud.mjs"
+    "test:salud": "node db/probar-salud.mjs",
+    "test:modulo": "node db/probar-modulo.mjs"
   },
   "engines": {
     "node": ">=22"
