@@ -1,0 +1,137 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header', { current: "cuenta" }) %>
+
+<main class="section">
+  <div class="container">
+    <div class="cuenta-grid">
+
+      <div class="cuenta-lado reveal">
+        <span class="eyebrow">Tu cuenta</span>
+        <h1>Crea tu cuenta</h1>
+        <p class="lead">
+          Un sitio donde ver tus servicios, tus facturas y todo lo que
+          tienes contratado con nosotros. Tardas menos de un minuto.
+        </p>
+
+        <ul class="cuenta-lista">
+          <li>Tus servicios y dónde abrirlos</li>
+          <li>Las facturas, con su descarga</li>
+          <li>Los datos de tu empresa, siempre a mano</li>
+        </ul>
+      </div>
+
+      <div class="form-card reveal">
+        <%# `aviso` es el mensaje neutro del email ya usado. `error`,
+             el que no se puede evitar. Ver la nota del email en
+             routes/cuenta.js: no se distinguen para no permitir
+             averiguar qué correos tienen cuenta. %>
+        <% if (typeof aviso !== 'undefined' && aviso) { %>
+          <div class="form-success form-error is-visible" role="status"><%= aviso %></div>
+        <% } %>
+        <% if (errores.general) { %>
+          <div class="form-success form-error is-visible" role="alert"><%= errores.general %></div>
+        <% } %>
+
+        <form action="/cuenta/crear" method="post" novalidate>
+
+          <%# Double-submit CSRF: la cookie que se puso al pintar esta
+              página contra este campo. Sin él, otra web podría dar de
+              alta una cuenta a tu nombre. %>
+          <input type="hidden" name="_csrf" value="<%= csrfPre %>" />
+
+          <%# Trampa para robots. Un campo que NADIE debe rellenar:
+              `hidden` para que no se vea, `tabindex="-1"` para que el
+              teclado no llegue, y `aria-hidden` para que un lector de
+              pantalla no lo anuncie. Las tres cosas, no una: que no se
+              vea no significa que no exista para el lector. %>
+          <div class="cuenta-trampa" aria-hidden="true">
+            <label for="sitio_web">No rellenes este campo</label>
+            <input type="text" id="sitio_web" name="sitio_web" tabindex="-1" autocomplete="off" />
+          </div>
+
+          <div class="form-grid">
+
+            <div class="field<%= errores.nombre ? ' has-error' : '' %>">
+              <label for="nombre">Tu nombre</label>
+              <input type="text" id="nombre" name="nombre" placeholder="Cómo te llamamos"
+                     autocomplete="name" required value="<%= datos.nombre || '' %>" />
+              <span class="error-msg" data-error-for="nombre"><%= errores.nombre || '' %></span>
+            </div>
+
+            <div class="field<%= errores.email ? ' has-error' : '' %>">
+              <label for="email">Correo electrónico</label>
+              <input type="email" id="email" name="email" placeholder="tu@empresa.com"
+                     autocomplete="email" required value="<%= datos.email || '' %>" />
+              <span class="error-msg" data-error-for="email"><%= errores.email || '' %></span>
+            </div>
+
+            <div class="field full">
+              <label for="empresa">Empresa</label>
+              <input type="text" id="empresa" name="empresa" placeholder="Opcional"
+                     autocomplete="organization" value="<%= datos.empresa || '' %>" />
+              <span class="error-msg" data-error-for="empresa"><%= errores.empresa || '' %></span>
+              <%# La ayuda va DENTRO del campo y no como `error-msg`,
+                  porque no es un error: es la explicación de para qué
+                  sirve. Mezclarlas haría que el texto de ayuda se
+                  leyera en rojo. %>
+              <p class="form-note">
+                Si ya trabajamos juntos, buscamos tu ficha y te sumamos a ella
+                en vez de crear una nueva.
+              </p>
+            </div>
+
+            <%# El `minlength` NO va en el HTML. El navegador avisaría
+                antes de enviar, pero cada uno lo enseña de una manera
+                y el servidor tiene que comprobarlo igualmente. El
+                aviso se da después, en el mismo sitio y con el mismo
+                formato que todos los demás. %>
+            <div class="field<%= errores.password ? ' has-error' : '' %>">
+              <label for="password">Contraseña</label>
+              <input type="password" id="password" name="password"
+                     autocomplete="new-password" required />
+              <span class="error-msg" data-error-for="password"><%= errores.password || '' %></span>
+            </div>
+
+            <div class="field<%= errores.repetir ? ' has-error' : '' %>">
+              <label for="repetir">Repite la contraseña</label>
+              <input type="password" id="repetir" name="repetir"
+                     autocomplete="new-password" required />
+              <span class="error-msg" data-error-for="repetir"><%= errores.repetir || '' %></span>
+            </div>
+
+            <div class="field full">
+              <p class="form-note">Mínimo 32 caracteres. Cualquier cosa que se te ocurra.</p>
+            </div>
+
+            <div class="field full<%= errores.acepta ? ' has-error' : '' %>">
+              <label class="check-label" for="acepta">
+                <input type="checkbox" id="acepta" name="acepta" value="1" required />
+                <span>Acepto las <a href="/condiciones">condiciones</a> y la <a href="/privacidad">política de privacidad</a>. <span class="req">*</span></span>
+              </label>
+              <span class="error-msg" data-error-for="acepta"><%= errores.acepta || '' %></span>
+            </div>
+
+            <div class="field full">
+              <button type="submit" class="btn btn-primary btn-lg btn-block">Crear cuenta</button>
+              <p class="form-note">
+                Todavía no cobramos nada por tener la cuenta. Se paga al contratar.
+              </p>
+            </div>
+          </div>
+        </form>
+
+        <%# "¿Ya tienes cuenta?" va DESPUÉS del formulario y no antes.
+            Quien llega aquí por equivocación es porque ya se
+            registró y no lo recuerda, y es la pregunta que se hace
+            justo al terminar de leer el botón. Puesta arriba
+            competedía con el propio formulario. %>
+        <p class="cuenta-pie">
+          ¿Ya tienes cuenta? <a href="/cuenta/entrar">Entra aquí</a>.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

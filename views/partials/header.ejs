@@ -20,7 +20,16 @@
         <a href="/precios"<%= current === "precios" ? ' class="active"' : "" %>>Precios</a>
         <a href="/blog"<%= current === "blog" ? ' class="active"' : "" %>>Blog</a>
         <a href="/contacto"<%= current === "contacto" ? ' class="active"' : "" %>>Contacto</a>
-        <a href="/contacto" class="mobile-cta">Presupuesto gratis</a>
+
+        <!-- "Acceder" NO va en la fila de enlaces.
+
+             Va al final de la lista de escritorio y, en móvil, como
+             botón a ancho completo. En el nav se leía como una
+             sección más de la web, y no lo es: es el acceso a una
+             zona que está fuera de la web. Va junto al resto de
+             acciones, en la barra de arriba. -->
+        <a href="/cuenta/entrar" class="mobile-only-nav">Acceder</a>
+        <a href="/cuenta/crear" class="mobile-only-nav mobile-cta">Crear cuenta</a>
       </nav>
 
       <div class="header-cta">
@@ -29,6 +38,18 @@
           <button type="button" class="theme-btn" data-theme="light" aria-label="Tema claro" title="Claro"></button>
           <button type="button" class="theme-btn" data-theme="colorful" aria-label="Tema colorido" title="Colorido"></button>
         </div>
+
+        <!-- Acceso y alta, antes del presupuesto.
+
+             "Acceder" es texto y "Presupuesto gratis" es un botón
+             primario. Un cliente que ya está con nosotros pincha en
+             acceso; quien todavía no, en el presupuesto. Que el
+             acceso se lleve la misma categoría visual que el
+             presupuesto es lo que hace que un cliente entre a mirar
+             su factura pensando que va a estar siguiendo el proceso
+             de venta. -->
+        <a href="/cuenta/entrar" class="header-acceso">Acceder</a>
+        <a href="/cuenta/crear" class="btn btn-ghost btn-sm header-alta">Crear cuenta</a>
         <a href="/contacto" class="btn btn-primary btn-sm">Presupuesto gratis</a>
         <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="mainNav" aria-label="Abrir menú">
           <span></span>

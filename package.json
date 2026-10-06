@@ -47,7 +47,10 @@
     "test:salud": "node db/probar-salud.mjs",
     "test:modulo": "node db/probar-modulo.mjs",
     "test:cifras": "node db/probar-cifras.mjs",
-    "test:capturas": "node db/ver-panel.mjs"
+    "test:capturas": "node db/ver-panel.mjs",
+    "test:cuenta": "node db/probar-cuenta.mjs",
+    "test:web": "node db/ver-web.mjs",
+    "test:maquetacion": "node db/auditar-maquetacion.mjs"
   },
   "engines": {
     "node": ">=22"

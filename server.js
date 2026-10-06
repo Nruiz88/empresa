@@ -136,6 +136,16 @@ if (process.env.NODE_ENV !== "production" && process.env.SESSION_SECRET) {
 /* El panel va primero: su 404 cierra el espacio de /panel */
 app.use(require("./routes/panel"));
 
+/* La cuenta de cliente va después del panel y ANTES de la web.
+
+   Después del panel porque el panel se queda con /panel/* y esta
+   cuenta acaba dentro (/panel/mis-servicios): si el panel se traga el
+   espacio, estas rutas no llegarían nunca.
+
+   Antes de la web porque el router público acaba en un 404 que se
+   come todo lo que no reconozca, y /cuenta/* no está en su lista. */
+app.use(require("./routes/cuenta"));
+
 /* Y después la web pública, con su 404 al final */
 app.use(require("./routes/web"));
 

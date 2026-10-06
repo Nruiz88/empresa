@@ -51,14 +51,10 @@ const dinero = (n, moneda) =>
     ? null
     : new Intl.NumberFormat("es-ES", { style: "currency", currency: moneda || "EUR" }).format(n);
 
-/** Cookie host-only a propósito: así no viaja a la web pública. */
-const cookieOpts = (maxAgeMs) => ({
-  httpOnly: true,
-  sameSite: "lax",
-  secure: process.env.NODE_ENV === "production",
-  path: BASE,
-  ...(maxAgeMs ? { maxAge: maxAgeMs } : {}),
-});
+/* La cookie de sesión. La declara lib/auth.js porque ahora la ponen
+   dos rutas —esta y routes/cuenta.js— y dos copias de sus opciones se
+   separan en cuanto una cambia. Ver la nota de `cookieOpts` allí. */
+const cookieOpts = auth.cookieOpts;
 
 /* ===============================================================
    Middlewares
@@ -129,8 +125,27 @@ function requiereStaff(req, res, next) {
     Sin esto, un sitio externo podría enviar formularios a tu panel.
 
     El login se queda FUERA aquí: todavía no hay sesión de la que
-    sacar un token. Lo protege su propio double-submit, más abajo. */
+    sacar un token. Lo protege su propio double-submit, más abajo.
+
+    ── Y SOLO MIRA LO QUE ES DEL PANEL ──
+
+    Esto se monta con `router.use`, y el router está montado en `/`
+    desde server.js, así que le llega TODA petición, no solo las de
+    /panel. Sin el corte por ruta, se comía también las de
+    /cuenta/crear y /cuenta/entrar, que son públicas: el alta devolvía
+    403 con la pantalla de "petición rechazada" del panel, sobre una
+    URL pública y con el chrome equivocado.
+
+    Dos Symptoms que no parecían el mismo fallo:
+      · 403 en todas las altas, sin mensaje en la consola del servidor
+      · y el log diciendo "[panel] CSRF rechazado en POST /cuenta/crear",
+        que apuntaba al panel cuando el problema era de alcance
+
+    El login queda excluido por ruta, no por comparación exacta: con
+    una comparación exacta basta con añadir una ruta más de las que
+    exime y el olvido vuelve a ser un 403 sin explicación. */
 function exigeCsrf(req, res, next) {
+  if (!req.path.startsWith(BASE + "/")) return next();
   if (req.method === "GET" || req.method === "HEAD") return next();
   if (req.path === BASE + "/login") return next();
 
@@ -218,7 +233,7 @@ const router = express.Router();
     if (req.sesion) return res.redirect(BASE);
 
     const tokenPre = auth.generarTokenPre();
-    res.cookie(CSRF_PRE, tokenPre, cookieOpts(30 * 60 * 1000));
+    res.cookie(CSRF_PRE, tokenPre, auth.cookieOptsCsrf(30 * 60 * 1000));
 
     res.render("panel/login", {
       title: "Acceso al panel",
@@ -245,7 +260,7 @@ const router = express.Router();
       // Se emite un token nuevo para que el formulario siga siendo
       // utilizable: si no, el visitante se queda sin poder entrar.
       const nuevo = auth.generarTokenPre();
-      res.cookie(CSRF_PRE, nuevo, cookieOpts(30 * 60 * 1000));
+      res.cookie(CSRF_PRE, nuevo, auth.cookieOptsCsrf(30 * 60 * 1000));
       return res.status(403).render("panel/login", {
         title: "Acceso al panel",
         error: "La sesión del formulario caducó. Vuelve a intentarlo.",
@@ -379,7 +394,7 @@ const router = express.Router();
 
         res.cookie(COOKIE, token, cookieOpts(auth.CFG.HORAS_SESION * 3600 * 1000));
         // El token del login ya se ha usado: se retira
-        res.clearCookie(CSRF_PRE, { ...cookieOpts(), maxAge: 0 });
+        res.clearCookie(CSRF_PRE, { ...auth.cookieOptsCsrf(), maxAge: 0 });
         res.redirect(siguiente.startsWith(BASE) ? siguiente : BASE);
       } catch (errDePaso) {
         /* Se propaga con el paso puesto en `detalle`, que es lo que

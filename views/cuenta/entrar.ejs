@@ -1,0 +1,58 @@
+<%- include('../partials/head') %>
+<%- include('../partials/header', { current: "cuenta" }) %>
+
+<main class="section">
+  <div class="container">
+    <div class="cuenta-grid cuenta-grid--simple">
+
+      <div class="cuenta-lado reveal">
+        <span class="eyebrow">Tu cuenta</span>
+        <h1>Entra</h1>
+        <p class="lead">Servicios, facturas y todo lo que tienes con nosotros.</p>
+      </div>
+
+      <div class="form-card reveal">
+        <% if (error) { %>
+          <div class="form-success form-error is-visible" role="alert"><%= error %></div>
+        <% } %>
+
+        <form action="/cuenta/entrar" method="post" novalidate>
+          <%# Double-submit CSRF. Sin él, otra web podría forzarte a
+              entrar con SU cuenta y ver lo que escribes. %>
+          <input type="hidden" name="_csrf" value="<%= csrfPre %>" />
+
+          <div class="form-grid">
+            <div class="field full">
+              <label for="email">Correo electrónico</label>
+              <input type="email" id="email" name="email" placeholder="tu@empresa.com"
+                     autocomplete="email" required autofocus
+                     value="<%= datos.email || '' %>" />
+            </div>
+
+            <div class="field full">
+              <label for="password">Contraseña</label>
+              <input type="password" id="password" name="password"
+                     autocomplete="current-password" required />
+            </div>
+
+            <div class="field full">
+              <button type="submit" class="btn btn-primary btn-lg btn-block">Entrar</button>
+            </div>
+          </div>
+        </form>
+
+        <%# Aquí el enlace a crear cuenta pesa más que en la otra
+            pantalla: quien llega a "entrar" es que ya oyó hablar de
+            una cuenta, así que o se le olvidó la contraseña —y por eso
+            está el de escribir— o aún no la tiene. %>
+        <p class="cuenta-pie">
+          ¿Todavía no tienes cuenta? <a href="/cuenta/crear">Crea una</a>.<br />
+          ¿Se te olvidó la contraseña? <a href="/contacto">Escríbenos</a>.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

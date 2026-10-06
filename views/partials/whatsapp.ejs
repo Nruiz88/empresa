@@ -1,0 +1,179 @@
+<!-- =========================================================
+     Bot de WhatsApp: qué hace y una demo jugable
+     ------------------------------------------------------------
+     Este producto estaba a la venta en el catálogo y no aparecía por
+     ninguna parte de la web. Cero menciones. El bot de WhatsApp es
+     de lo que se vive, y la home hablaba de diseño web y tiendas
+     online como si fueran lo único que se hacía aquí.
+
+     LA DEMO ES UNA DEMO, Y SE DIGE
+     --------------------------------
+     El chat de la derecha NO es el bot real. Está rotulado como
+     demostración en tres sitios —el título, el aviso y el pie del
+     propio chat— por tres razones:
+
+       1. Porque no lo es. Conecta con una conversación inventada, y
+          quien se fíe de otra cosa está tomando una decisión de
+          compra sobre una mentira.
+       2. Porque se ve que no es real: los tiempos de respuesta son
+          de demonstration. No se finge que hay alguien escribiendo.
+       3. Porque hay gente que no distingue una demo de una captura.
+
+     Las reglas de palabras clave están escritas aquí y no en el bot,
+     que vive en otro proyecto (wweb). Esa duplicación tiene un
+     precio: si el bot aprende una palabra nueva, esta página no se
+     entera. Se acepta mientras sea una demo de ventas, y no sería
+     aceptable si esto llegara a ser el bot de verdad. Está anotado
+     en el propio JS.
+
+     Lo que cambia al copiarlo: las reglas de palabras clave
+     negocio de ejemplo son de un cliente de demostración, no reales.
+     ========================================================= -->
+
+<section class="section section--soft" id="whatsapp">
+  <div class="container">
+
+    <div class="section-head section-head--center reveal">
+      <span class="eyebrow">WhatsApp</span>
+      <h2>Tu negocio, <span class="gradient-text">respondiendo solo</span> a las 3 de la mañana</h2>
+      <p>
+        Un bot de WhatsApp para tu número de siempre. Entiende lo que
+        le escriben, contesta al momento y pide la cita. Sin apps que
+        instalar ni información que aprender.
+      </p>
+    </div>
+
+    <div class="wa-grid">
+
+      <!-- ---------- Lo que hace ---------- -->
+      <div class="wa-lado reveal">
+        <div class="card wa-lado-card">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+            </svg>
+          </div>
+          <h3>Contesta antes de que contestes tú</h3>
+          <p>
+            Escribes «horario» y responde. Escribes «cita» y te da los
+            huecos libres. Lo que ya te preguntan mil veces al día,
+            resuelto sin que hagas nada.
+          </p>
+        </div>
+
+        <div class="card wa-lado-card">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+            </svg>
+          </div>
+          <h3>Agenda de turnos, sin WhatsApp Business</h3>
+          <p>
+            Agenda de citas y turnos conectada con la del negocio. El
+            cliente elige hueco, le llega recordatorio y tú recibes el
+            aviso. Sin duplicar nada en dos sitios.
+          </p>
+        </div>
+
+        <div class="card wa-lado-card">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2v4M12 18v4M4.9 4.9l2.9 2.9M16.2 16.2l2.9 2.9M2 12h4M18 12h4M4.9 19.1l2.9-2.9M16.2 7.8l2.9-2.9"/>
+            </svg>
+          </div>
+          <h3>Entras con un QR</h3>
+          <p>
+            Enlazas tu WhatsApp escaneando un código. No hay que
+            migrar el número ni cambiar nada de lo que ya usas: sigue
+            siendo tu número y tu conversación.
+          </p>
+        </div>
+
+        <div class="card wa-lado-card">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </div>
+          <h3>Un bot por cliente, nunca uno compartido</h3>
+          <p>
+            Cada negocio tiene su propia instancia, sus reglas y su
+            historial. Lo que un cliente le dice a un panadero no lo
+            ve nadie más.
+          </p>
+        </div>
+      </div>
+
+      <!-- ---------- La demo ---------- -->
+      <div class="wa-demo reveal">
+        <div class="wa-demo-cabecera">
+          <h3>Pruébalo aquí</h3>
+          <span class="wa-demo-chap">Demostración</span>
+        </div>
+
+        <!--
+          El aviso va ANTES del chat y no dentro, porque un rótulo
+          pequeño dentro se lee como si fuera parte de la interfaz del
+          producto. Fuera y arriba, se lee como una aclaración nuestra.
+
+          Y `aria-hidden` en el marcador de la conversación, porque es
+          texto de adorno: leerlo con lector de pantalla es oír un
+          intercambio de más con alguien que no existe.
+        -->
+        <p class="wa-demo-aviso">
+          Esto es una demostración escrita a mano. No está conectado a
+          ningún WhatsApp ni hay nadie escribiendo al otro lado.
+        </p>
+
+        <!--
+          `role="log"` + `aria-live="polite"`: es una lista que crece,
+          y un lector de pantalla tiene que enterarse de los mensajes
+          nuevos sin que le corten lo que estaba leyendo. Con `assertive`
+          se interrumpiría, que es justo lo que no queremos aquí.
+        -->
+        <div class="wa-chat"
+             role="log"
+             aria-live="polite"
+             aria-label="Conversación de demostración con un bot de WhatsApp">
+
+          <div class="wa-msg wa-msg--bot">
+            ¡Hola! Soy el bot de <strong>Panadería La Espiga</strong>.
+            Escríbeme lo que quieras y te contesto.
+            <span class="wa-hora">Ahora</span>
+          </div>
+        </div>
+
+        <div class="wa-chips" role="group" aria-label="Mensajes de ejemplo">
+          <button type="button" class="wa-chip" data-demo="horario">horario</button>
+          <button type="button" class="wa-chip" data-demo="cita">quiero una cita</button>
+          <button type="button" class="wa-chip" data-demo="pedido">mi pedido</button>
+          <button type="button" class="wa-chip" data-demo="precios">precios</button>
+          <button type="button" class="wa-chip" data-demo="direccion">dirección</button>
+        </div>
+
+        <form class="wa-enviar" data-demo-form>
+          <label class="sr-only" for="demo-entrada">Escribe un mensaje al bot de demostración</label>
+          <input type="text"
+                 id="demo-entrada"
+                 name="mensaje"
+                 autocomplete="off"
+                 placeholder="Escribe tú también…"
+                 maxlength="140" />
+          <button type="submit" class="btn btn-primary btn-sm">Enviar</button>
+        </form>
+
+        <p class="wa-demo-pie">
+          Demostración del sitio. Para probarlo de verdad,
+          <a href="/contacto">escríbenos</a>.
+        </p>
+      </div>
+
+    </div>
+
+    <div class="wa-cta reveal">
+      <a href="/contacto" class="btn btn-primary btn-lg">Quiero este bot</a>
+      <a href="/servicios" class="btn btn-ghost btn-lg">Ver todos los servicios</a>
+    </div>
+
+  </div>
+</section>

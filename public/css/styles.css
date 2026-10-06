@@ -1631,6 +1631,36 @@ table.compare .no {
     color: var(--on-accent) !important;
     font-weight: 600;
   }
+
+  /* Acceso y alta, dentro del desplegable.
+
+     En escritorio viven en la barra, arriba a la derecha. En móvil la
+     barra se queda con el tema y el botón de presupuesto, así que
+     si no se meten aquí no aparecen en ninguna parte: la única forma
+     de llegar a la cuenta sería escribir la URL.
+
+     "Acceder" va arriba del todo del menú, antes que las secciones.
+     Quien vuelve a entrar a mirar una factura no está buscando
+     "Servicios": está buscando su cuenta. Puesto abajo, con cinco
+     secciones de websites por delante, cuesta más de lo que cuesta. */
+  .nav a.mobile-only-nav {
+    display: block;
+  }
+
+  .nav a.mobile-only-nav:first-of-type {
+    order: -1;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.9rem;
+    border-bottom: 1px solid var(--border);
+    font-weight: 600;
+  }
+
+  /* En la barra de escritorio sobran estas dos: aquí ya están en el
+     desplegable, y si no se ocultan se verían dos veces. */
+  .header-acceso,
+  .header-alta {
+    display: none;
+  }
 }
 
 @media (max-width: 640px) {
@@ -4256,4 +4286,414 @@ html.theme-light .avatar-stack .avatar {
   clip-path: inset(50%);
   white-space: nowrap;
   border: 0;
+}
+
+/* =========================================================
+   CUENTA DE CLIENTE
+   =========================================================
+   Las dos pantallas de /cuenta. Visten con la misma carta que el
+   resto del sitio —.form-card, .form-grid, .field, .error-msg— y no
+   con una propia: una cuenta que se parece a la web hace menos
+   ruido que una que parece de otro producto, y el camino de alta es
+   el mismo que el de pedir presupuesto.
+
+   El reparto es de dos columnas porque la columna izquierda vende en
+   cuatro líneas lo que va a pasar después de darle al botón. En
+   "entrar" no hace falta: no hay nada que contar, así que se queda
+   sola la tarjeta y no queda un hueco al lado con texto de relleno.
+*/
+
+.cuenta-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  gap: 3rem;
+  align-items: start;
+}
+
+.cuenta-grid--simple {
+  grid-template-columns: minmax(0, 1fr);
+  max-width: 30rem;
+  margin-inline: auto;
+}
+
+.cuenta-lado h1 {
+  margin-bottom: 0.75rem;
+}
+
+.cuenta-lado .lead {
+  margin-bottom: 1.75rem;
+}
+
+.cuenta-lista {
+  display: grid;
+  gap: 0.7rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Cada punto lleva su propio.tick en vez de un `li` con viñeta: la
+   viñeta del navegador se alinea a la primera línea del texto y,
+   con dos líneas, queda flotando sola arriba. Un pseudo:before
+   con `align-self` no tiene ese problema. */
+.cuenta-lista li {
+  position: relative;
+  padding-inline-start: 1.75rem;
+  color: var(--text-muted);
+}
+
+.cuenta-lista li::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: 0;
+  top: 0.5em;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: var(--accent-2);
+}
+
+.cuenta-pie {
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* En una columna la tarjeta va arriba y la columna de texto debajo.
+
+   Al revés —texto primero, tarjeta después— obligaría a scrollar
+   para llegar al botón, y en un formulario de alta ese scroll es
+   exactamente el punto en el que la gente se va. Con la columna de
+   texto debajo, lo primero que se ve al llegar desde el menú es el
+   formulario. */
+@media (max-width: 860px) {
+  .cuenta-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2rem;
+  }
+
+  .cuenta-grid .cuenta-lado {
+    order: 2;
+  }
+
+  .cuenta-grid .form-card {
+    order: 1;
+  }
+}
+
+/* La trampa para robots.
+
+   `position: absolute` y no `display: none` a propósito. Con
+   `display: none` el navegador NO rellena el campo al enviar
+   formulario, y muchos bots lo buscan precisamente ahí para
+   saltarse la trampa. Lo que se quiere es que exista, sea invisible
+   y siga llegando vacío: si viene relleno, es un bot.
+
+   Y sin `left: -9999px` fuera de pantalla, porque un lector de
+   pantalla se lo saltaría y entonces el aviso al usuario real
+   sería "este campo es obligatorio" sin ver dónde. */
+.cuenta-trampa {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* ---------- Acceso y alta en la barra ---------- */
+
+/* "Acceder" es texto plano, sin caja. Va justo al lado del botón
+   primario para que se lea como un sitio donde pinchar y no como un
+   botón más: quien ya es cliente no viene a pedir presupuesto. */
+.header-acceso {
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--text-muted);
+  text-decoration: none;
+  white-space: nowrap;
+  padding: 0.5rem 0.25rem;
+  border-radius: 6px;
+  transition: color 0.15s ease;
+}
+
+.header-acceso:hover,
+.header-acceso:focus-visible {
+  color: var(--text);
+}
+
+/* Los enlaces que en escritorio están en la barra y en móvil dentro
+   del menú desplegado. Por eso se llaman distinto a las dos veces: lo
+   que se ve en móvil no puede ser un enlace suelto del nav, que en
+   escritorio lo escondería. */
+.mobile-only-nav {
+  display: none;
+}
+
+/* =========================================================
+   BOT DE WHATSAPP
+   =========================================================
+   Dos columnas: a la izquierda lo que hace, a la derecha el chat.
+
+   El reparto va 1fr/1fr y no 1,2/1 porque lo de la izquierda son
+   cuatro tarjetas con texto largo y lo de la derecha es un móvil
+   con poca altura de conversación. Intercambiarlos no cambia
+   mucho, pero con el chat a la izquierda se leen primero los
+   párrafos y la demo queda como una imagen al final; el chat
+   primero es lo que hace que alguien pulse.
+*/
+
+.wa-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 2.5rem;
+  align-items: start;
+}
+
+.wa-lado {
+  display: grid;
+  gap: 1rem;
+}
+
+.wa-lado-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.35rem 1.1rem;
+  align-items: start;
+}
+
+.wa-lado-card .icon {
+  grid-row: span 2;
+  margin: 0;
+}
+
+.wa-lado-card h3 {
+  margin: 0;
+  font-size: var(--fs-lg);
+}
+
+.wa-lado-card p {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+/* ---------- La demo ---------- */
+
+.wa-demo {
+  padding: 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg, 20px);
+  background: var(--surface);
+}
+
+.wa-demo-cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.wa-demo-cabecera h3 {
+  margin: 0;
+}
+
+/* El rótulo de "demostración".
+
+   Va al lado del título y no dentro del chat, a propósito: dentro se
+   lee como si fuera parte de la interfaz del producto —como un
+   elemento más de WhatsApp— y de ahí es donde no se cuela. Al lado
+   del título se lee como una aclaración de quien ha hecho la página.
+
+   Con borde, no con relleno: un fondo de color dentro del área del
+   chat parece una etiqueta del bot. */
+.wa-demo-chap {
+  padding: 0.2rem 0.55rem;
+  border: 1px solid color-mix(in srgb, var(--warning) 45%, transparent);
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--warning);
+  white-space: nowrap;
+}
+
+.wa-demo-aviso {
+  margin: 0 0 1rem;
+  padding: 0.7rem 0.85rem;
+  border-left: 3px solid var(--warning);
+  border-radius: 0 8px 8px 0;
+  background: color-mix(in srgb, var(--warning) 9%, transparent);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.wa-demo-pie {
+  margin: 1rem 0 0;
+  font-size: var(--fs-xs);
+  color: var(--text-dim);
+  text-align: center;
+}
+
+/* ---------- La conversación ---------- */
+
+.wa-chat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  height: 19rem;
+  padding: 1rem;
+  overflow-y: auto;
+  border-radius: 12px;
+  /* Un patrón muy tenue que se lee como el fondo con textura de
+     WhatsApp sin copiarlo. Es un degradado con líneas, no una
+     imagen: pesa cero. */
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 21px,
+      color-mix(in srgb, var(--border) 22%, transparent) 21px,
+      color-mix(in srgb, var(--border) 22%, transparent) 22px
+    ),
+    var(--bg-soft);
+  scrollbar-width: thin;
+}
+
+/* La burbuja del bot a la izquierda y la del usuario a la derecha, que
+   es como se lee una conversación de verdad y no como dos bloques
+   centrados que podrían ser las dos del bot. */
+.wa-msg {
+  position: relative;
+  max-width: 82%;
+  padding: 0.55rem 0.75rem;
+  border-radius: 12px;
+  font-size: var(--fs-sm);
+  line-height: 1.45;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+}
+
+.wa-msg--bot {
+  align-self: flex-start;
+  border-bottom-left-radius: 4px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.wa-msg--user {
+  align-self: flex-end;
+  border-bottom-right-radius: 4px;
+  background: color-mix(in srgb, var(--accent) 22%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+/* La hora va dentro de la burbuja y en su propia línea, en pequeño y
+   atenuada. Fuera de la burbuja parece otra línea del chat. */
+.wa-hora {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  text-align: right;
+}
+
+/* ---------- Los botones de ejemplo ---------- */
+
+.wa-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.9rem;
+}
+
+.wa-chip {
+  padding: 0.3rem 0.7rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  background: var(--bg-soft);
+  color: var(--text);
+  font-family: inherit;
+  font-size: var(--fs-xs);
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.wa-chip:hover {
+  border-color: var(--accent-2);
+  color: var(--accent-2);
+}
+
+.wa-enviar {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.7rem;
+}
+
+.wa-enviar input {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0.55rem 0.85rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  background: var(--bg-soft);
+  color: var(--text);
+  font-family: inherit;
+  font-size: var(--fs-sm);
+}
+
+.wa-enviar input:focus {
+  outline: 2px solid var(--accent-2);
+  outline-offset: 1px;
+}
+
+/* ---------- El cierre ---------- */
+
+.wa-cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+  margin-top: 2.5rem;
+}
+
+@media (max-width: 900px) {
+  .wa-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* En una columna el chat va primero: es lo que hay que tocar para
+     entender el producto, y quien llega desde el botón de abajo
+     acaba de leer que se le contesta solo. */
+  .wa-demo {
+    order: -1;
+  }
+
+  /* Menos alto en móvil: 19rem con el resto de la sección empuja la
+     página hacia abajo y el chat queda por encima del todo. */
+  .wa-chat {
+    height: 15rem;
+  }
+}
+
+/* =========================================================
+   ENLACES ANCLA Y LA CABECERA FIJA
+   =========================================================
+   La cabecera es `position: sticky` y se queda arriba. Sin esto, al
+   saltar a una sección por ancla el título queda DETRÁS de la
+   cabecera: la sección aparece cortada justo por el texto que la
+   identifica, y parece que la página está rota.
+
+   No es un detalle de esta sección del bot: afecta a todos los
+   `id` de la web (#servicios, #proyectos, #precios, #whatsapp).
+   Por eso va aquí y no en la sección.
+
+   `scroll-margin-top` es lo que hay que usar, y no un margen: mueve
+   el punto de parada del scroll sin mover la caja del elemento, así
+   que el resto del diseño no se entera. */
+section[id],
+[id] {
+  scroll-margin-top: calc(var(--header-h) + 1.5rem);
 }

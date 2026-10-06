@@ -294,6 +294,15 @@
          las dos. -->
     <%- include('partials/automation') %>
 
+    <!-- ================= WHATSAPP =================
+         Va justo después de automatización, y por el mismo motivo: el
+         bot es otra categoría, no un servicio más. Estaba en el
+         catálogo a la venta y no aparecía en la web por ninguna parte.
+
+         Es la primera vez que el visitante ve el producto en su
+         formato de verdad, con la interacción y no con una captura. -->
+    <%- include('partials/whatsapp') %>
+
     <!-- ================= PROYECTOS ================= -->
     <section class="section" id="proyectos">
       <div class="container">
@@ -517,3 +526,12 @@
   </main>
 
 <%- include('partials/footer') %>
+
+<%# El guion del bot, aquí y no en el <head>.
+
+     Va al final a propósito: quien lee el blog no debería
+     descargarlo, y quien llega abajo sí lo va a usar. Con
+     `defer` no bloquea el pintado —que es lo que importa en una
+     página con un hero animado— y aun así está listo antes de que
+     alguien llegue a la sección, que está a media página. %>
+<script src="/js/demo-bot.js" defer></script>
