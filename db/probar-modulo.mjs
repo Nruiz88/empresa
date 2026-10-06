@@ -232,35 +232,60 @@ await db.from("sessions").delete().eq("csrf_token", csrf);
 
 /* ── 5. El canje, en el servicio ──
  *
- * OJO: cada servicio canjea en una ruta distinta.
+ * Cada servicio canjea en una ruta distinta:
  *
  *   inventario   POST /api/entrar
- *   bot          POST /entrar   (misma ruta que el GET, sin /api)
+ *   bot wweb     POST /api/entrar
+ *   bot maqueta  POST /entrar   (misma ruta que el GET, sin /api)
  *
- * La primera versión de esta prueba fijaba `/api/entrar` para todos, y
- * con el bot daba 404 — no porque el bot estuviera mal, sino porque se
- * le preguntaba en una puerta que no tiene. Un 404 aquí no dice que
- * el servicio esté roto.
+ * La primera versión de esta prueba lo LEÍA del HTML de la página de
+ * entrada. Funcionaba con el bot maqueta, que es HTML plano con un
+ * `fetch("/entrar"...)` visible, y fallaba con wweb, que es una SPA
+ * de Next: el endpoint no aparece en el HTML que llega.
  *
- * Por eso el endpoint se LEE de la página de entrada, que lo declara
- * en el fetch que hace el JS. Si algún día cambia, esta prueba lo
- * sigue sin tocar. */
-if (ticket) {
-  const paginaEntrada = await fetch(base + "/entrar").then((r) => r.text()).catch(() => "");
+ * Un 404 aquí no dice que el servicio esté roto: dice que se le
+ * preguntó en una puerta que no tiene.
+ *
+ * Ahora se PREGUNTA, con un ticket inventado. El que responda 401 es el
+ * que canjea; el que responda 404 no canjea por ahí. Y de paso
+ * comprueba algo que la lectura del HTML no comprobaba: que el
+ * servicio rechaza un ticket falso de verdad, y no que devuelve 200 a
+ * cualquier cosa. */
+const CANDIDATOS = ["/api/entrar", "/entrar"];
 
-  const mEndpoint = paginaEntrada.match(/fetch\(\s*["']([^"']+)["']/);
-  const endpoint = mEndpoint ? mEndpoint[1] : "/api/entrar";
+let endpoint = null;
 
-  console.log("");
-  console.log("  canje en " + base + endpoint + "  ->  HTTP (abajo)");
-  console.log("");
+for (const c of CANDIDATOS) {
+  const r = await fetch(base + c, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ticket: "inventado.aaaabbbbcccc" }),
+  });
+  if (r.status !== 404 && r.status !== 405) {
+    endpoint = c;
+    break;
+  }
+}
+
+comprobar("el servicio tiene alguna ruta de canje", !!endpoint, endpoint || "ninguna de " + CANDIDATOS.join(" / "));
+
+if (endpoint) {
+  /* Un ticket inventado DEBE rechazarse. Si el servicio devolviera 200
+   * a cualquier cosa, la comprobación de abajo pasaría sin que el
+   * canje real significara nada. */
+  const rFalso = await fetch(base + endpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ticket: "inventado.aaaabbbbcccc" }),
+  });
 
   comprobar(
-    "la página de entrada declara su endpoint de canje",
-    !!mEndpoint,
-    endpoint
+    "rechaza un ticket inventado",
+    rFalso.status === 401 || rFalso.status === 403,
+    "HTTP " + rFalso.status
   );
 
+  /* Y ahora el ticket de verdad. */
   const r = await fetch(base + endpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -268,18 +293,23 @@ if (ticket) {
   });
   const texto = await r.text();
 
+  console.log("");
+  console.log("  canje en " + base + endpoint);
   console.log("  respuesta: HTTP " + r.status);
   if (r.status !== 200) console.log("  " + texto.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 160));
   console.log("");
 
   comprobar("el servicio acepta el ticket del panel", r.status === 200, "HTTP " + r.status);
 
+  const sc = r.headers.get("set-cookie") || "";
+  comprobar("y pone cookie de sesión", /=\s*\S+/.test(sc) && sc.length > 0, sc.slice(0, 40));
+
   if (r.status !== 200 && r.status === 401 && /ese enlace no vale/i.test(texto)) {
     console.log("");
-    console.log("  ── Esto NO es el secreto compartido ──");
-    console.log("  Si fuera el secreto, inventario también fallaría. Si inventario");
-    console.log("  entra y este no, el problema es de ESTE servicio: puede no tener");
-    console.log("  SERVICE_SECRET, o tener uno distinto.");
+    console.log("  ── Qué mirar ──");
+    console.log("  Si el ticket inventado también da 401 (lo comprobamos antes), el");
+    console.log("  servicio está bien y lo que falla es la FIRMA: los dos no");
+    console.log("  comparten SERVICE_SECRET.");
     console.log("");
     console.log('    docker exec <contenedor> sh -lc \'echo -n "$SERVICE_SECRET" | md5sum\'');
     console.log("");
