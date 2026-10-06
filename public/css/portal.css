@@ -630,6 +630,12 @@
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
+
+  /* La sombra que ya usan las tarjetas del tablero. Antes estas
+     tres tenian borde y fondo y nada mas, y se leian como tres
+     cajas a pelo junto a las del panel, que si flotaban. Con la
+     misma sombra, el perfil y el tablero son el mismo sitio. */
+  box-shadow: var(--elev-card);
 }
 
 .portal-form-cab {

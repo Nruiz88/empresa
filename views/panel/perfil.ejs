@@ -75,10 +75,26 @@
 <!-- ============================================================
      1. DATOS DEL NEGOCIO
      ============================================================ -->
+<!--
+     Los cintillos de arriba son el rasgo de Argon que mas se
+     reconoce, y son tres palabras de mas por seccion.
+
+     La clave no es que sean una etiqueta: es que van en 0.7rem
+     en versalitas y el titulo en 1.05rem. Los dos son grandes,
+     asi que el titulo gana por tamano y el cintillo no compite.
+     Se leen los dos y el ojo se queda en el titulo.
+
+     Y el cintillo nombra el GRUPO, no repite el titulo: las
+     tres secciones dicen "Datos del negocio", "Redes y enlaces"
+     y "Facturacion", y los cintillos de arriba son "Negocio",
+     "Presencia" y "Facturacion". Uno coincide y dos no, porque
+     poner la misma palabra dos veces seguidas es ruido.
+-->
 <form method="post" action="<%= base %>/perfil/ficha" class="portal-form-seccion" id="negocio">
   <input type="hidden" name="_csrf" value="<%= csrf %>" />
 
   <div class="portal-form-cab">
+    <span class="panel-card-cintillo">Negocio</span>
     <h2 class="portal-form-titulo">Datos del negocio</h2>
     <p class="portal-form-sub">Con esto sabemos con quién hablamos y dónde.</p>
   </div>
@@ -169,6 +185,7 @@
   <input type="hidden" name="whatsapp" value="<%= ficha.whatsapp || '' %>" />
 
   <div class="portal-form-cab">
+    <span class="panel-card-cintillo">Presencia</span>
     <h2 class="portal-form-titulo">Redes y enlaces</h2>
     <p class="portal-form-sub">Dónde te encuentra la gente. Los que no sean redes, abajo.</p>
   </div>
@@ -216,6 +233,7 @@
   <input type="hidden" name="_csrf" value="<%= csrf %>" />
 
   <div class="portal-form-cab">
+    <span class="panel-card-cintillo">Facturacion</span>
     <h2 class="portal-form-titulo">Facturación</h2>
     <p class="portal-form-sub">
       A quién y dónde emitimos las facturas. Puede ser distinto de tus

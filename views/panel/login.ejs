@@ -50,23 +50,40 @@
             sitio, no puede leer la cookie y este campo no cuadra. %>
         <input type="hidden" name="_csrf" value="<%= csrfPre %>" />
 
-        <label class="panel-field">
+        <%# El icono va DENTRO de la caja del campo y no al lado,
+            unido a ella por el borde. Es el elemento que hace
+            reconocible el login de Argon de un vistazo, y se
+            construye asi a proposito: con el icono suelto al lado,
+            dos elementos con su propio borde parecen dos cosas;
+            unidos, parecen un campo. --%>
+        <label class="panel-field panel-field--barra">
           <span>Email</span>
-          <input type="email" name="email" required autocomplete="username"
-                 autocapitalize="none" spellcheck="false" />
+          <span class="panel-barra">
+            <span class="panel-barra-icono">
+              <%- include('../partials/icono', { nombre: 'correo' }) %>
+            </span>
+            <input type="email" name="email" required autocomplete="username"
+                   autocapitalize="none" spellcheck="false" />
+          </span>
         </label>
 
-        <label class="panel-field">
+        <label class="panel-field panel-field--barra">
           <span>Contraseña</span>
-          <input type="password" name="password" required autocomplete="current-password" />
+          <span class="panel-barra">
+            <span class="panel-barra-icono">
+              <%- include('../partials/icono', { nombre: 'candado' }) %>
+            </span>
+            <input type="password" name="password" required autocomplete="current-password" />
+          </span>
         </label>
 
         <button type="submit" class="panel-btn panel-btn--primary panel-btn--ancho">Entrar</button>
       </form>
 
-      <p class="panel-login-foot">
-        <a href="/">← Volver a la web</a>
-      </p>
+      <div class="panel-login-foot">
+        <a href="/"><%- include('../partials/icono', { nombre: 'volver' }) %> Volver a la web</a>
+        <a href="/contacto">¿Problemas para entrar?</a>
+      </div>
     </div>
   </div>
 

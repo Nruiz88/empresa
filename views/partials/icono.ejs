@@ -73,7 +73,43 @@
   /* Alerta: para lo vencido. Un triangulo con exclamacion, que a
      40px se distingue de un circulo aunque no se lea el signo. */
   alerta:
-    '<path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/>'
+    '<path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/>',
+
+  /* Correo: para el campo de email. Un sobre cerrado. */
+  correo:
+    '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/>',
+
+  /* Candado: para el campo de contraseña.
+
+     Es el candado CERRADO, no el abierto de Argon, y es a proposito.
+     El de ellos es un candado-desbloqueado, que es lo que se usa
+     cuando el campo tiene un boton de "ver contraseña" al lado y
+     ese boton ya ha pulsado. Aqui no hay boton, asi que un
+     candado abierto comunicaria "esto esta sin proteger" en una
+     pantalla cuyo unico trabajo es lo contrario. */
+  candado:
+    '<rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>',
+
+  /* Ojo: para el boton de mostrar la contraseña. */
+  ojo:
+    '<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/>',
+
+  /* Salida: para cerrar sesion. La flecha sale hacia la derecha,
+     que es a donde se va. */
+  salir:
+    '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/>',
+
+  /* Vuelta: lo mismo pero al reves, para "volver a la web".
+
+     Es un icono aparte y no el de salir girado, por una razon que
+     parece tonta y no lo es: una flecha que sale de un marco
+     significa "salir de aqui", y en la pantalla de acceso, justo
+     encima del boton de entrar, lo que pone es "deja el panel y
+     vuelve a la pagina". Con la de salir, el enlace de abajo
+     compite con el boton de arriba: los dos parecen la misma
+     accion y el que va al panel parece el que cierra la sesion. */
+  volver:
+    '<path d="M15 21H19a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-4"/><path d="m8 17-5-5 5-5"/><path d="M3 12h12"/>'
 };
 var _trazo = _iconos[nombre];
 if (_trazo) { %>
