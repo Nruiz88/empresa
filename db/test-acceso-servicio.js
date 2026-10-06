@@ -125,6 +125,28 @@ let bot = null;
 let userId = null;
 let clientId = null;
 
+/* Lo que había en `modules` antes de que este test lo tocara.
+
+   ESTE `let` TIENE QUE ESTAR AQUÍ Y NO DENTRO DE LA IIFE.
+
+   Estaba declarado con `const` dentro del `(async () => { ... })`, y
+   la limpieza vive en el `.finally()` de la cadena de fuera. Son
+   ámbitos distintos: la limpieza no lo veía y, al no estar
+   definido, tiraba `moduloAntes is not defined` dentro de un
+   try/catch que solo imprime un aviso.
+
+   Consecuencia, comprobada: el test pasa sus 46 comprobaciones,
+   imprime "✓ Las 46 comprobaciones pasan", y al limpiar deja
+   `modules.bot_whatsapp.url` en `https://proveedor-externo.example`,
+   un dominio que no existe. O sea, el botón "Abrir" del bot queda
+   roto para todos los clientes que lo tengan contratado, y el test
+   que lo ha roto reporta éxito.
+
+   El orden de captura y restauración está bien; lo que estaba mal era
+   dónde vivían las variables, que es justo lo que no se ve leyendo la
+   lógica de limpieza. */
+let moduloAntes = null;
+
 async function crearClienteConSuscripcion(estado, terminaEn) {
   const email = MARCA + "x@ejemplo.com";
 
@@ -279,11 +301,16 @@ async function irAlBot(cookie) {
      de devolver el que había, así que después de cualquier ejecución
      el botón apuntaba a un dominio inventado. Lo que se tiene que
      devolver es lo que estaba. */
-  const { data: moduloAntes } = await db
+  const { data: moduloAntesLeido } = await db
     .from("modules")
     .select("url,disponible")
     .eq("id", "bot_whatsapp")
     .maybeSingle();
+
+  /* Se guarda en la variable de módulo, no en una de aquí. Ver la nota
+     de su declaración: si se declara en este ámbito, la limpieza de
+     abajo no la ve y deja la url rota en producción. */
+  moduloAntes = moduloAntesLeido;
 
   await db.from("modules").update({ disponible: true }).eq("id", "bot_whatsapp");
   await db
@@ -717,10 +744,22 @@ async function irAlBot(cookie) {
   console.log("\n" + "─".repeat(54));
   if (fallos) {
     console.log(`✗ ${fallos} de ${ok + fallos} fallan.`);
-    process.exit(1);
+
+    /* `process.exitCode = 1`, NO `process.exit(1)`.
+
+       `process.exit()` corta el proceso en el acto: no resuelve la
+       cadena de promesas, así que el `.finally()` de abajo —que es lo
+       único que devuelve `modules.url` a su sitio— no llega a correr.
+       Un test que falla se lleva por delante la limpieza de producción
+       y deja el "Abrir" apuntando a un dominio que no existe.
+
+       Con exitCode el proceso sigue su curso, la cadena termina, el
+       finally limpia y Node sale solo con código 1. Es lo que hace falta desde el principio. */
+    process.exitCode = 1;
+  } else {
+    console.log(`✓ Las ${ok} comprobaciones pasan.`);
+    console.log("  Del panel al servicio y de vuelta, sin saltarse el login.\n");
   }
-  console.log(`✓ Las ${ok} comprobaciones pasan.`);
-  console.log("  Del panel al servicio y de vuelta, sin saltarse el login.\n");
 })()
   .catch((e) => {
     console.error("\n✗ " + e.message + "\n");

@@ -104,22 +104,68 @@ alter table microservicios enable row level security;
 -- pantalla puede decir "el catálogo lo vende y no hay nada detrás" en
 -- vez de no decir nada.
 -- =====================================================================
+-- =====================================================================
+-- POR QUÉ ESTO ES `do nothing` Y NO `do update`
+-- -------------------------------------------------------------------
+-- Aquí hubo un `on conflict (modulo) do update set url_base =
+-- excluded.url_base`. Parecía lo correcto para una migración
+-- idempotente, y lo era: repetirla no fallaba.
+--
+-- El problema es que una migración repara la FORMA y los DATOS de
+-- arranque, y los datos de arranque envejecen. Esta fila se corrigió
+-- a mano cuando el bot pasó a servirse desde el SaaS real, y la fila
+-- volvía al dominio del despliegue borrado cada vez que se lanzaba
+-- `npm test`, porque alguna prueba replaya las migraciones contra la
+-- base de producción.
+--
+-- Es decir: `do update` hacía que una operación de mantenimiento
+-- revirtiese un arreglo. Una migración no debe decidir el valor
+-- actual de un dato que ya se ha corregido en producción.
+--
+-- Lo que cambia un dato, desde que existe el esquema, es otra
+-- migración nueva. Por eso aquí solo se crea si no existe.
+-- =====================================================================
+-- =====================================================================
+-- POR QUÉ ESTE INSERT SE CRUZA CON `modules` EN VEZ DE IR A SECO
+-- -------------------------------------------------------------------
+-- `microservicios.modulo` es una clave ajena a `modules`, y estas
+-- filas son datos del CATÁLOGO: inventario y bot solo pueden existir
+-- si esos módulos están en la tabla.
+--
+-- Con el insert plano, en una base recién creada —que es lo que hace
+-- el test de idempotencia, que replaya todo el directorio— fallaba:
+--
+--   insert or update on table "microservicios" violates foreign key
+--   constraint "microservicios_modulo_fkey"
+--
+-- Y venía de más atrás: no es que esta migración estuviera mal, es
+-- que dependía de que el catálogo ya tuviera filas.
+--
+-- El `join` hace que se inserten solo las que corresponden a módulos
+-- que existen. En producción, donde el catálogo está sembrado, se
+-- insertan todas. En una base vacía, no se inserta ninguna y no hay
+-- error.
+--
+-- Que no haya fila no es un problema invisible: la pantalla de salud
+-- avisa de un módulo "a la venta" sin microservicio detrás, que es
+-- justo el estado de una base donde no se ha sembrado el catálogo.
+-- =====================================================================
 insert into microservicios (modulo, nombre, url_base, activo, nota)
-values
-  ('inventario', 'Gestión de inventario',
-   'https://inventario.panel-niconqn.duckdns.org', true,
-   'Next.js 16 standalone. Entrada por /entrar, canje de ticket.'),
+select c.modulo, c.nombre, c.url_base, c.activo, c.nota
+  from (
+    values
+      ('inventario', 'Gestión de inventario',
+       'https://inventario.panel-niconqn.duckdns.org', true,
+       'Next.js 16 standalone. Entrada por /entrar, canje de ticket.'),
 
-  ('bot_whatsapp', 'Bot de WhatsApp',
-   'https://bot.empresa.panel-niconqn.duckdns.org', false,
-   'Desplegado, pero la url del catálogo apunta a un dominio de ejemplo. '
-   || 'Hay que corregir modules.url antes de venderlo.'),
+      ('bot_whatsapp', 'Bot de WhatsApp',
+       'https://bot.empresa.panel-niconqn.duckdns.org', false,
+       'Desplegado, pero la url del catálogo apunta a un dominio de ejemplo. '
+       || 'Hay que corregir modules.url antes de venderlo.'),
 
-  ('reservas_web', 'Reservas web',
-   '', false,
-   'En el catálogo sin url y sin software detrás todavía.')
-on conflict (modulo) do update
-   set nombre = excluded.nombre,
-       url_base = excluded.url_base,
-       activo = excluded.activo,
-       nota = excluded.nota;
+      ('reservas_web', 'Reservas web',
+       '', false,
+       'En el catálogo sin url y sin software detrás todavía.')
+  ) as c(modulo, nombre, url_base, activo, nota)
+  join modules m on m.id = c.modulo
+on conflict (modulo) do nothing;
