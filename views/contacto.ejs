@@ -66,11 +66,21 @@
                   <label for="budget">Presupuesto estimado</label>
                   <select id="budget" name="budget">
                     <option value="">Prefiero comentarlo</option>
-                    <option value="<1000">Menos de 1.000 €</option>
-                    <option value="1000-3000">1.000 € – 3.000 €</option>
-                    <option value="3000-6000">3.000 € – 6.000 €</option>
-                    <option value="6000-15000">6.000 € – 15.000 €</option>
-                    <option value=">15000">Más de 15.000 €</option>
+                      <%# Las bandas salen de `content/precios.js`.
+
+                           Estaban escritas con los importes a mano, en
+                           euros, y son el ÚNICO precio que ve alguien que
+                           todavía no te ha contratado. No es un detalle
+                           de formato: es el número con el que el cliente
+                           decide si escribe.
+
+                           El `valor` que se guarda lleva la moneda
+                           dentro la banda completa porque en la base
+                           un rango a secas no dice si son pesos o
+                           dólares. %>
+                      <% BANDAS_PRESUPUESTO.forEach(function (b) { %>
+                        <option value="<%= b.valor %>"><%= b.etiqueta %></option>
+                      <% }); %>
                   </select>
                   <span class="error-msg" data-error-for="budget"></span>
                 </div>

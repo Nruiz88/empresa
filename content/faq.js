@@ -40,8 +40,8 @@ module.exports.servicios = [
     a: "No es obligatorio, pero es recomendable: sin actualizaciones, un plugin sin parchear puede comprometer la web. Todos los proyectos incluyen tres meses de garantía por errores.",
   },
   {
-    q: "¿Trabajáis con clientes fuera de España?",
-    a: "Sí. Trabajamos con clientes en España, México, Colombia y Chile. Nos adaptamos a su huso horario y facturamos en su moneda.",
+    q: "¿Trabajáis con clientes fuera de Argentina?",
+    a: "Trabajamos desde Argentina con clientes de toda la región. Nos adaptamos a su huso horario y facturamos en la moneda que corresponda a cada caso.",
   },
   {
     q: "¿Puedo editar el contenido yo mismo?",
@@ -56,8 +56,8 @@ module.exports.home = [
     a: `Desde ${esencial} para una web de hasta 5 páginas. Una tienda online parte de ${negocio} y una aplicación a medida de ${aMedida}. El precio se cierra por escrito antes de empezar.`,
   },
   {
-    q: "¿Trabajáis con clientes fuera de España?",
-    a: "Sí. Tenemos clientes en España y en Latinoamérica. Nos adaptamos a su huso horario y facturamos en su moneda.",
+    q: "¿Trabajáis con clientes fuera de Argentina?",
+    a: "Trabajamos desde Argentina con clientes de toda la región. Nos adaptamos a su huso horario y facturamos en la moneda que corresponda a cada caso.",
   },
   {
     q: "¿Cada cuánto necesito renovar la web?",

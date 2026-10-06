@@ -88,6 +88,7 @@ const router = express.Router();
   router.use(function inyectaPrecios(req, res, next) {
     res.locals.PROYECTOS = precios.PROYECTOS;
     res.locals.MANTENIMIENTO = precios.MANTENIMIENTO;
+    res.locals.BANDAS_PRESUPUESTO = precios.BANDAS_PRESUPUESTO;
     res.locals.precio = precios.importe;
     res.locals.simbolo = precios.simbolo;
     res.locals.precioDe = precios.precioDe;

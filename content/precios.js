@@ -184,6 +184,42 @@ const MANTENIMIENTO = [
 ];
 
 /**
+ * Las bandas de presupuesto del formulario de contacto.
+ *
+ * ── POR QUÉ ESTÁN AQUÍ Y NO ESCRITAS EN LA VISTA ──
+ *
+ * Porque son las que ve el cliente justo cuando va a escribir, y
+ * es el ÚNICO precio que lee alguien que todavía no te ha
+ * contratado. Un selector de presupuesto en euros en una web
+ * argentina no es un detalle de formato: es que el cliente ve un
+ * número que no le dice nada sobre lo que va a costarle.
+ *
+ * La escala está alineada con los rangos de mercado del artículo
+ * "cuánto cuesta una web": web básica hasta 550.000, corporativa
+ * hasta 1.200.000, web app hasta 3.500.000. Si esas bandas
+ * quedaran muy lejos de los rangos que publica el artículo, el
+ * cliente leería dos cifras incompatibles en la misma web.
+ *
+ * `valor` es lo que se guarda y llega al equipo. Lleva PREFIJO de
+ * moneda a propósito: en la base `1000-3000` no se sabe si son
+ * pesos o dólares, y un número sin unidad en un campo de dinero es
+ * una pregunta que se repite en cada consulta.
+ *
+ * La opción "Prefiero comentarlo" NO está aquí: no es una banda de
+ * precio sino una preferencia, y va escrita en la vista. Meterla en
+ * los datos sería tenerla en dos sitios.
+ *
+ * @type {{valor: string, etiqueta: string}[]}
+ */
+const BANDAS_PRESUPUESTO = [
+  { valor: "<400000 ARS", etiqueta: "Menos de $400.000" },
+  { valor: "400000-900000 ARS", etiqueta: "$400.000 - $900.000" },
+  { valor: "900000-2000000 ARS", etiqueta: "$900.000 - $2.000.000" },
+  { valor: "2000000-4000000 ARS", etiqueta: "$2.000.000 - $4.000.000" },
+  { valor: ">4000000 ARS", etiqueta: "Más de $4.000.000" },
+];
+
+/**
  * Un importe con separador de millares: 4500 -> "4.500".
  *
  * Se hace a mano y no con `toLocaleString` porque el resultado de
@@ -232,6 +268,7 @@ module.exports = {
   MONEDA,
   PROYECTOS,
   MANTENIMIENTO,
+  BANDAS_PRESUPUESTO,
   importe,
   simbolo,
   precioDe,
