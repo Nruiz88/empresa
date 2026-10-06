@@ -324,39 +324,69 @@ const router = express.Router();
       const accessToken = data.session && data.session.access_token;
       const refreshToken = data.session && data.session.refresh_token;
 
-      const { token, csrf } = await auth.crearSesion(db, {
-        userId: data.user.id,
-        rol: perfil.rol,
-        req,
-        accessToken: accessToken || null,
-        refreshToken: refreshToken || null,
-      });
+      /* Se declaran aquí y no en el `const { token, csrf }` de antes:
+       * hacen falta para la cookie y para la auditoría, y el bloque
+       * de escrituras va dentro de un try propio que los etiqueta. */
+      let token = null;
+      let csrf = null;
 
-      await db
-        .from("profiles")
-        .update({ ultimo_acceso: new Date().toISOString() })
-        .eq("id", data.user.id)
-        .then(() => {}, () => {});
+      /* Cada escritura va envuelta para que el error diga QUÉ PASO
+       * falló. Antes el log ponía siempre `donde=desconocido`, y con
+       * eso no se puede arreglar nada: había que probar a mano los
+       * cuatro inserts del login uno a uno, por dentro del contenedor,
+       * adivinando el orden.
+       *
+       * Con `detalle` puesto, un fallo dice exactamente su origen, y
+       * con la tabla. Que es lo que hace falta a las tres de la
+       * mañana. */
+      let paso = "crearSesion";
 
-      /* `entidad: "sessions"` con el id de la sesión que se acaba de
-         crear. Antes ponía la tabla entera, y en el registro de
-         auditoría no había forma de saber a qué sesión se refería:
-         con muchas sesiones de la misma persona es imposible. */
-      await auth.auditar(db, {
-        actor: { id: data.user.id, email },
-        accion: "login",
-        entidad: "session",
-        entidadId: token,
-        req,
-      });
+      try {
+        paso = "crearSesion: sessions";
+        const creada = await auth.crearSesion(db, {
+          userId: data.user.id,
+          rol: perfil.rol,
+          req,
+          accessToken: accessToken || null,
+          refreshToken: refreshToken || null,
+        });
+        token = creada.token;
+        csrf = creada.csrf;
 
-      // Un login correcto borra el contador de fallos de esta IP
-      await auth.limpiarIntentos(db, email, ip);
+        paso = "marcar ultimo acceso: profiles";
+        await db
+          .from("profiles")
+          .update({ ultimo_acceso: new Date().toISOString() })
+          .eq("id", data.user.id)
+          .then(() => {}, () => {});
 
-      res.cookie(COOKIE, token, cookieOpts(auth.CFG.HORAS_SESION * 3600 * 1000));
-      // El token del login ya se ha usado: se retira
-      res.clearCookie(CSRF_PRE, { ...cookieOpts(), maxAge: 0 });
-      res.redirect(siguiente.startsWith(BASE) ? siguiente : BASE);
+        /* `entidad: "sessions"` con el id de la sesión que se acaba de
+           crear. Antes ponía la tabla entera, y en el registro de
+           auditoría no había forma de saber a qué sesión se refería:
+           con muchas sesiones de la misma persona es imposible. */
+        paso = "auditar: auditoría";
+        await auth.auditar(db, {
+          actor: { id: data.user.id, email },
+          accion: "login",
+          entidad: "session",
+          entidadId: token,
+          req,
+        });
+
+        // Un login correcto borra el contador de fallos de esta IP
+        paso = "limpiar intentos: login_attempts";
+        await auth.limpiarIntentos(db, email, ip);
+
+        res.cookie(COOKIE, token, cookieOpts(auth.CFG.HORAS_SESION * 3600 * 1000));
+        // El token del login ya se ha usado: se retira
+        res.clearCookie(CSRF_PRE, { ...cookieOpts(), maxAge: 0 });
+        res.redirect(siguiente.startsWith(BASE) ? siguiente : BASE);
+      } catch (errDePaso) {
+        /* Se propaga con el paso puesto en `detalle`, que es lo que
+           lee el catch de abajo. */
+        errDePaso.detalle = paso;
+        throw errDePaso;
+      }
     } catch (err) {
       /* El mensaje solo no dice de dónde viene el fallo: los dos
          sitios donde se inserta en `sessions` son el perfil y la
@@ -365,7 +395,8 @@ const router = express.Router();
         "[panel] Error en login:",
         err.message,
         "| code=" + (err.code || "sin código"),
-        "| donde=" + (err.detalle || "desconocido")
+        "| donde=" + (err.detalle || "sin etiqueta: fallo antes del bloque de escritura"),
+        "| tabla=" + (err.detalleTabla || "sessions?")
       );
       if (process.env.NODE_ENV !== "production") console.error(err.stack);
       vistaLogin("No se pudo contactar con la base de datos. Inténtalo en un momento.", 503);

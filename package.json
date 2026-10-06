@@ -29,7 +29,7 @@
     "test:env": "node db/test-env.js",
     "test:dominios": "node db/test-dominios.js",
     "test:bot:vuelta": "node db/test-vuelta-bot.js",
-    "test:flujo": "node db/test-flujo.js",
+    "test:flujo": "node db/flujo-completo.mjs",
     "test:cobros": "node db/test-cobros-mensuales.js",
     "test:acceso": "node db/test-acceso.js",
     "test:modulos": "node db/test-modulos.js",
@@ -42,7 +42,8 @@
     "demo:portal:limpiar": "node db/demo-portal.js --limpiar",
     "seed": "node db/seed.js",
     "seed:limpiar": "node db/seed.js --limpiar",
-    "usuario": "node db/create-user.js"
+    "usuario": "node db/create-user.js",
+    "test:render": "node db/test-render-completo.mjs"
   },
   "engines": {
     "node": ">=22"

@@ -53,7 +53,9 @@ const hash = (s) => crypto.createHash("sha256").update(s).digest("hex");
     expira_en: new Date(Date.now() + 600e3).toISOString(),
   });
 
-  const res = await fetch("http://127.0.0.1:3000" + RUTA, {
+  const BASE = process.env.PANEL_URL || "http://127.0.0.1:3000";
+
+  const res = await fetch(BASE + RUTA, {
     headers: { cookie: "nexo_panel=" + token },
   });
   const html = await res.text();
@@ -62,11 +64,22 @@ const hash = (s) => crypto.createHash("sha256").update(s).digest("hex");
 
   fs.writeFileSync(path.join(__dirname, "..", "public", "_captura.html"), html, "utf8");
 
-  console.log("  " + RUTA + " -> " + res.status + ", " + html.length + " bytes");
+  console.log("  " + BASE + RUTA + " -> " + res.status + ", " + html.length + " bytes");
   if (res.status >= 400) {
     console.error("  Ojo: la página devolvió error. Mira el error.log antes de fiarte del diseño.");
   }
-  console.log("  abre http://127.0.0.1:3000/_captura.html");
+
+  /* Los enlaces de cada servicio. Es lo que comprueba que el botón
+   * "Abrir" lleva al microservicio y no a un 404: el enlace se
+   * construye en la plantilla y sin verlo no hay forma de saber si
+   * apunta bien. */
+  const enlaces = [...html.matchAll(/href="(\/panel\/(?:servicios|soporte)[^"]*)"/g)].map((m) => m[1]);
+  if (enlaces.length) {
+    console.log("  enlaces de servicio:");
+    for (const e of enlaces) console.log("    " + e);
+  }
+
+  console.log("  abre " + BASE + "/_captura.html");
   process.exit(res.ok ? 0 : 1);
 })().catch((e) => {
   console.error("error: " + e.message);

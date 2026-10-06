@@ -362,6 +362,23 @@ module.exports = function rutasPortal({ db, sitio, requiereLogin }) {
         error:
           "Tu sesión no se pudo reconstruir. Vuelve a entrar y lo verás.",
         empresa: "",
+        /* Estas dos faltaban y la plantilla las usa sin comprobar nada.
+         *
+         * El síntoma es un 500 con un nombre de variable en el cuerpo,
+         * que dice lo que pasó y no lo que hay que hacer:
+         *
+         *   esStaff is not defined      (views/panel/mis-servicios.ejs:179)
+         *   nombreCliente is not defined (views/panel/mis-servicios.ejs:40)
+         *
+         * Y lo que debería ver el cliente, que está justo al lado del
+         * mensaje, es "vuelve a entrar". Un token caducado lo deja
+         * encerrado en la puerta con un error de servidor.
+         *
+         * El render de más abajo, el que sí lleva token, sí las pasa.
+         * Este camino es el menos transitado, y por eso se quedó sin
+         * ellas dos. */
+        esStaff: (req.sesion && req.sesion.rol) === "staff",
+        nombreCliente: (req.sesion && req.sesion.nombre) || "",
       });
     }
 
