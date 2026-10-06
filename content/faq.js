@@ -1,4 +1,4 @@
-﻿/* =========================================================
+/* =========================================================
    Nexo Studio — Preguntas frecuentes por página
    ------------------------------------------------------------
    SeLxieren de un solo sitio. Las respuestas están escritas para
@@ -8,6 +8,20 @@
    Usado por partials/faq.ejs
    ========================================================= */
 
+/* Los importes de las respuestas salen de `content/precios.js`, no
+   escritos dentro del texto.
+
+   Motivo: una respuesta que dice "desde 890 €" es un número en un
+   sitio donde nadie lo va a buscar si hay que cambiarlo. Y hay que
+   cambiarlo: el precio de la web es lo más volátil del negocio.
+
+   La respuesta ahora se COMPUE con los datos de los planes, así que
+   si el precio cambia en `precios.js` el texto de la FAQ cambia
+   solo. No puede quedar desactualizado, porque no está escrito. */
+const precios = require("./precios.js");
+const esencial = precios.precioDe(precios.plan("esencial"));
+const negocio = precios.precioDe(precios.plan("negocio"));
+const aMedida = precios.precioDe(precios.plan("a-medida"));
 module.exports.servicios = [
   {
     q: "¿Cuánto tarda un proyecto de diseño web?",
@@ -39,7 +53,7 @@ module.exports.servicios = [
 module.exports.home = [
   {
     q: "¿Cuánto cuesta una web?",
-    a: "Desde 890 € para una web de hasta 5 páginas. Una tienda online parte de 1.990 € y una aplicación a medida de 4.500 €. El precio se cierra por escrito antes de empezar.",
+    a: `Desde ${esencial} para una web de hasta 5 páginas. Una tienda online parte de ${negocio} y una aplicación a medida de ${aMedida}. El precio se cierra por escrito antes de empezar.`,
   },
   {
     q: "¿Trabajáis con clientes fuera de España?",

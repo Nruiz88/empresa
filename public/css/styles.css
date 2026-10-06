@@ -4719,3 +4719,23 @@ section[id],
 [id] {
   scroll-margin-top: calc(var(--header-h) + 1.5rem);
 }
+
+/* El precio de los planes de mantenimiento.
+
+   Antes cada uno llevaba `style="margin-top:1rem"` y
+   `style="font-size:1.8rem"` escritos en su línea. Al ser tres
+   bloques idénticos con tres estilos distintos, cambiar el tamaño
+   de la cifra era editar tres sitios y era fácil olvidar uno: un
+   plan salía más grande que los otros dos y no se veía por qué.
+
+   Con los planes viniendo de datos, el estilo va en una clase. El
+   `!important` está porque las reglas originales de `.price .amount`
+   usan selector de clase y gana la última en escribirse; sin esto, el
+   `font-size` inline seguiría mandando por orden de cascada. */
+.price.precio-mensual {
+  margin-top: 1rem;
+}
+
+.price.precio-mensual .amount {
+  font-size: 1.8rem !important;
+}

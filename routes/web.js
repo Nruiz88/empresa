@@ -30,7 +30,7 @@ const DATA_FILE = path.join(DATA_DIR, "consultas.jsonl");
 const router = express.Router();
 
 {
-  const { posts, projects, figures, faq, cases } = content;
+  const { posts, projects, figures, faq, cases, precios } = content;
 
   /* Atajo para páginas sin lógica propia */
   const page = (view, current, meta) => (req, res) => {
@@ -73,6 +73,24 @@ const router = express.Router();
       res.locals.breadcrumbs = [{ name: "Inicio", url: "/" }];
     }
 
+    next();
+  });
+
+  /* Los precios públicos van en `res.locals`, y no en el `render` de
+     cada ruta.
+
+     Motivo: la página de precios los necesita igual que la portada, y
+     metidos en el objeto de `render` habría que acordarse de pasarlos
+     en cada ruta nueva que pinte un plan. Con `res.locals` los tienen
+     todas, y añadir una página con precios no puede olvidarse de nada
+     —que es el mismo motivo por el que `csrf` y `rol` van así en el
+     panel. */
+  router.use(function inyectaPrecios(req, res, next) {
+    res.locals.PROYECTOS = precios.PROYECTOS;
+    res.locals.MANTENIMIENTO = precios.MANTENIMIENTO;
+    res.locals.precio = precios.importe;
+    res.locals.simbolo = precios.simbolo;
+    res.locals.precioDe = precios.precioDe;
     next();
   });
 

@@ -12,57 +12,31 @@
     <section class="section" style="padding-top: 1rem;">
       <div class="container">
         <div class="price-grid">
-          <div class="price-card reveal">
-            <h3>Esencial</h3>
-            <p class="plan-desc">Para comercios y profesionales que necesitan una presencia online sólida.</p>
-            <div class="price"><span class="currency">desde</span><span class="amount">890</span><span class="currency">€</span></div>
-            <p class="price-note">Pago único · Entrega en 2–3 semanas</p>
-            <ul class="price-features">
-              <li>Web de hasta 5 páginas</li>
-              <li>Diseño responsive a medida</li>
-              <li>Formulario de contacto y Google Maps</li>
-              <li>SEO técnico básico</li>
-              <li>Hosting y dominio el primer año</li>
-              <li class="muted">Tienda online</li>
-              <li class="muted">Aplicación a medida</li>
-            </ul>
-            <a href="/contacto" class="btn btn-ghost btn-block">Solicitar presupuesto</a>
-          </div>
+            <%# Los mismos tres planes que la portada, desde los mismos datos.
 
-          <div class="price-card featured reveal">
-            <span class="badge">Más elegido</span>
-            <h3>Negocio</h3>
-            <p class="plan-desc">Para empresas que quieren captar clientes y vender online de forma seria.</p>
-            <div class="price"><span class="currency">desde</span><span class="amount">1.990</span><span class="currency">€</span></div>
-            <p class="price-note">Pago único · Entrega en 4–6 semanas</p>
-            <ul class="price-features">
-              <li>Web de hasta 12 páginas + blog</li>
-              <li>Tienda online o reservas online</li>
-              <li>Textos y SEO on-page incluidos</li>
-              <li>Analítica y objetivos configurados</li>
-              <li>Integraciones (CRM, email, pagos)</li>
-              <li>3 meses de soporte incluido</li>
-              <li class="muted">Aplicación a medida</li>
-            </ul>
-            <a href="/contacto" class="btn btn-primary btn-block">Solicitar presupuesto</a>
-          </div>
+                 Estaban duplicados bloque a bloque: la portada tenía
+                 su HTML con los números dentro y esta página el suyo. Los
+                 mismos tres planes, escritos dos veces, que es
+                 exactamente cómo una página acaba mostrando un precio
+                 y la otra otro.
 
-          <div class="price-card reveal">
-            <h3>A medida</h3>
-            <p class="plan-desc">Web apps, aplicativos y plataformas con lógica de negocio compleja.</p>
-            <div class="price"><span class="currency">desde</span><span class="amount">4.500</span><span class="currency">€</span></div>
-            <p class="price-note">Presupuesto por fases · 8–14 semanas</p>
-            <ul class="price-features">
-              <li>Arquitectura y diseño de producto</li>
-              <li>Usuarios, roles y paneles privados</li>
-              <li>API e integraciones con tu ERP</li>
-              <li>App móvil o PWA</li>
-              <li>Pruebas automatizadas y despliegue</li>
-              <li>SLA de soporte y evolución</li>
-              <li>Equipo dedicado</li>
-            </ul>
-            <a href="/contacto" class="btn btn-ghost btn-block">Hablemos del proyecto</a>
-          </div>
+                 Ahora los dos sitios leen `PROYECTOS`. Añadir un plan lo
+                 añade en las dos páginas y en los textos, con el mismo
+                 formato, sin que nadie tenga que acordarse. %>
+            <% PROYECTOS.forEach(function (p) { %>
+              <div class="price-card reveal<%= p.destacado ? " featured" : "" %>">
+                <% if (p.destacado) { %><span class="badge">Más elegido</span><% } %>
+                <h3><%= p.nombre %></h3>
+                <p class="plan-desc"><%= p.descripcion %></p>
+                <div class="price"><span class="currency">desde</span><span class="amount"><%= precio(p.precio) %></span><span class="currency"><%= simbolo() %></span></div>
+                <p class="price-note"><%= p.nota %></p>
+                <ul class="price-features">
+                  <% p.incluye.forEach(function (i) { %><li><%= i %></li><% }); %>
+                  <% p.noIncluye.forEach(function (i) { %><li class="muted"><%= i %></li><% }); %>
+                </ul>
+                <a href="<%= p.cta.href %>" class="<%= p.cta.clase %> btn-block"><%= p.cta.texto %></a>
+              </div>
+            <% }); %>
         </div>
 
         <p style="text-align:center; color:var(--text-dim); font-size:var(--fs-xs); margin-top:1.5rem;">
@@ -172,38 +146,28 @@
         </div>
 
         <div class="grid grid-3">
-          <div class="card reveal">
-            <h3>Mantenimiento Básico</h3>
-            <p>Actualizaciones, copias diarias y monitorización de tu web.</p>
-            <div class="price" style="margin-top:1rem;"><span class="currency">desde</span><span class="amount" style="font-size:1.8rem;">29</span><span class="currency">€/mes</span></div>
-            <ul class="card-list">
-              <li>Copias de seguridad diarias</li>
-              <li>Actualizaciones de seguridad</li>
-              <li>Monitorización y alertas</li>
-            </ul>
-          </div>
+            <%# Los tres recurrentes, también desde los datos.
 
-          <div class="card reveal">
-            <h3>Mantenimiento Pro</h3>
-            <p>Todo lo anterior más horas de mejoras y soporte prioritario.</p>
-            <div class="price" style="margin-top:1rem;"><span class="currency">desde</span><span class="amount" style="font-size:1.8rem;">89</span><span class="currency">€/mes</span></div>
-            <ul class="card-list">
-              <li>Todo lo del plan Básico</li>
-              <li>4 horas de mejoras al mes</li>
-              <li>Soporte prioritario en 24 h</li>
-            </ul>
-          </div>
-
-          <div class="card reveal">
-            <h3>SEO y contenidos</h3>
-            <p>Estrategia, artículos y optimización continua para crecer en Google.</p>
-            <div class="price" style="margin-top:1rem;"><span class="currency">desde</span><span class="amount" style="font-size:1.8rem;">350</span><span class="currency">€/mes</span></div>
-            <ul class="card-list">
-              <li>4 artículos optimizados al mes</li>
-              <li>Informe mensual de posiciones</li>
-              <li>SEO local para comercios</li>
-            </ul>
-          </div>
+                 Llevaban su propio `style="margin-top:1rem"` y su propio
+                 `font-size:1.8rem` escritos en la línea de cada uno. Con
+                 el bucle, ese detalle pasa a una clase y se toca en un
+                 sitio: hasta ahora, cambiar el tamaño de la cifra
+                 significaba editar tres líneas, y era fácil olvidar una
+                 y que un plan saliera más grande que los otros dos. %>
+            <% MANTENIMIENTO.forEach(function (m) { %>
+              <div class="card reveal">
+                <h3><%= m.nombre %></h3>
+                <p><%= m.descripcion %></p>
+                <div class="price precio-mensual">
+                  <span class="currency">desde</span>
+                  <span class="amount"><%= precio(m.precio) %></span>
+                  <span class="currency"><%= simbolo() %>/<%= m.periodo %></span>
+                </div>
+                <ul class="card-list">
+                  <% m.incluye.forEach(function (i) { %><li><%= i %></li><% }); %>
+                </ul>
+              </div>
+            <% }); %>
         </div>
       </div>
     </section>

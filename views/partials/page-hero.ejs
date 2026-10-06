@@ -108,22 +108,28 @@
                  también duplica content/stats.js. Lo editable debería
                  pasar por content/, como ya se hace en el resto de la
                  web. Ver PENDIENTES.md. -->
+            <!-- Los tres importes salen de `content/precios.js`.
+
+                 Estaban escritos aqui otra vez, y el propio archivo lo
+                 reconocia en un comentario: los mismos tres planes que
+                 muestra `views/precios.ejs`, duplicados.
+
+                 El coste de esa duplicacion no era el trabajo de cambiar
+                 un precio. Era que el sitio se contradijera: si se subia
+                 el plan de la portada y se olvidaba el hero, el visitante
+                 veía dos precios distintos en la MISMA pagina, a un
+                 scroll de distancia.
+
+                 El plazo sale del campo propio del plan, no de partir su nota:
+                 partir una frase es un dato que se rompe al reescribirla. -->
             <div class="mock-plans">
-              <div class="mock-plan">
-                <span class="mock-plan-name">Esencial</span>
-                <strong>890 €</strong>
-                <span class="mock-plan-meta">2–3 semanas</span>
-              </div>
-              <div class="mock-plan is-featured">
-                <span class="mock-plan-name">Negocio</span>
-                <strong>1.990 €</strong>
-                <span class="mock-plan-meta">4–6 semanas</span>
-              </div>
-              <div class="mock-plan">
-                <span class="mock-plan-name">A medida</span>
-                <strong>4.500 €</strong>
-                <span class="mock-plan-meta">8–14 semanas</span>
-              </div>
+              <% PROYECTOS.forEach(function (p) { %>
+                <div class="mock-plan<%= p.destacado ? " is-featured" : "" %>">
+                  <span class="mock-plan-name"><%= p.nombre %></span>
+                  <strong><%= precio(p.precio) %> <%= simbolo() %></strong>
+                  <span class="mock-plan-meta"><%= p.plazo %></span>
+                </div>
+              <% }); %>
             </div>
 
           <% } else if (variant === "contacto") { %>

@@ -2,6 +2,14 @@
  * Artículos del blog.
  * El metadata vive aquí y el cuerpo de cada artículo en views/posts/<slug>.ejs
  */
+/* Los importes del excerpt salen de `content/precios.js`.
+
+   Es un artículo sobre cuánto cuesta una web. Si el precio del plan
+   cambia y el excerpt sigue con el número viejo, el artículo que
+   explica los precios está mintiendo, que es peor que no hablar de
+   ellos: es el artículo al que va la gente justo cuando pregunta
+   cuánto va a pagar. */
+const precios = require("./precios.js");
 module.exports = [
   {
     slug: "cuanto-cuesta-una-web-para-una-empresa",
@@ -13,7 +21,7 @@ module.exports = [
     dateLabel: "12 sep 2026",
     readTime: "7 min de lectura",
     excerpt:
-      "Una web para una empresa cuesta entre 890 € y 5.000 € según alcance. Te explicamos de qué depende el precio y qué debe incluir un presupuesto honesto.",
+      `Una web para una empresa cuesta entre ${precios.precioDe(precios.plan("esencial"))} y ${precios.precioDe(precios.plan("a-medida"))} según alcance. Te explicamos de qué depende el precio y qué debe incluir un presupuesto honesto.`,
   },
   {
     slug: "seo-local-para-comercios",

@@ -1,4 +1,4 @@
-﻿<%- include('partials/head') %>
+<%- include('partials/head') %>
 <%- include('partials/header', { current: "inicio" }) %>
 
 <main>
@@ -385,57 +385,36 @@
         </div>
 
         <div class="price-grid">
-          <div class="price-card reveal">
-            <h3>Esencial</h3>
-            <p class="plan-desc">Para comercios y profesionales que necesitan una presencia online sólida.</p>
-            <div class="price"><span class="currency">desde</span><span class="amount">890</span><span class="currency">€</span></div>
-            <p class="price-note">Pago único · Entrega en 2–3 semanas</p>
-            <ul class="price-features">
-              <li>Web de hasta 5 páginas</li>
-              <li>Diseño responsive a medida</li>
-              <li>Formulario de contacto y Google Maps</li>
-              <li>SEO técnico básico</li>
-              <li>Hosting y dominio el primer año</li>
-              <li class="muted">Tienda online</li>
-              <li class="muted">Aplicación a medida</li>
-            </ul>
-            <a href="/contacto" class="btn btn-ghost btn-block">Solicitar presupuesto</a>
-          </div>
+            <%# Los tres planes se pintan desde `content/precios.js`.
 
-          <div class="price-card featured reveal">
-            <span class="badge">Más elegido</span>
-            <h3>Negocio</h3>
-            <p class="plan-desc">Para empresas que quieren captar clientes y vender online de forma seria.</p>
-            <div class="price"><span class="currency">desde</span><span class="amount">1.990</span><span class="currency">€</span></div>
-            <p class="price-note">Pago único · Entrega en 4–6 semanas</p>
-            <ul class="price-features">
-              <li>Web de hasta 12 páginas + blog</li>
-              <li>Tienda online o reservas online</li>
-              <li>Textos y SEO on-page incluidos</li>
-              <li>Analítica y objetivos configurados</li>
-              <li>Integraciones (CRM, email, pagos)</li>
-              <li>3 meses de soporte incluido</li>
-              <li class="muted">Aplicación a medida</li>
-            </ul>
-            <a href="/contacto" class="btn btn-primary btn-block">Solicitar presupuesto</a>
-          </div>
+                 Antes eran tres bloques de HTML con el número escrito
+                 dentro, uno por bloque. Los mismos tres valores
+                 estaban otra vez en /precios, y los otros tres
+                 recurrentes en /precios solamente, y los números en
+                 los textos de faq.js y posts.js. Ocho cifras en cuatro
+                 archivos.
 
-          <div class="price-card reveal">
-            <h3>A medida</h3>
-            <p class="plan-desc">Web apps, aplicativos y plataformas con lógica de negocio compleja.</p>
-            <div class="price"><span class="currency">desde</span><span class="amount">4.500</span><span class="currency">€</span></div>
-            <p class="price-note">Presupuesto por fases · 8–14 semanas</p>
-            <ul class="price-features">
-              <li>Arquitectura y diseño de producto</li>
-              <li>Usuarios, roles y paneles privados</li>
-              <li>API e integraciones con tu ERP</li>
-              <li>App móvil o PWA</li>
-              <li>Pruebas automatizadas y despliegue</li>
-              <li>SLA de soporte y evolución</li>
-              <li>Equipo dedicado</li>
-            </ul>
-            <a href="/contacto" class="btn btn-ghost btn-block">Hablemos del proyecto</a>
-          </div>
+                 Ahora el precio es un dato. Añadir un plan es añadir
+                 un objeto a PROYECTOS y ya aparece aquí y en la otra
+                 página, con el mismo formato y el mismo precio.
+
+                 `precio()` pone el separador de millares y `simbolo()`
+                 sale del mismo sitio, para que no se pueda pintar
+                 "1990" aquí y "1.990" allí por descuido. %>
+            <% PROYECTOS.forEach(function (p) { %>
+              <div class="price-card reveal<%= p.destacado ? " featured" : "" %>">
+                <% if (p.destacado) { %><span class="badge">Más elegido</span><% } %>
+                <h3><%= p.nombre %></h3>
+                <p class="plan-desc"><%= p.descripcion %></p>
+                <div class="price"><span class="currency">desde</span><span class="amount"><%= precio(p.precio) %></span><span class="currency"><%= simbolo() %></span></div>
+                <p class="price-note"><%= p.nota %></p>
+                <ul class="price-features">
+                  <% p.incluye.forEach(function (i) { %><li><%= i %></li><% }); %>
+                  <% p.noIncluye.forEach(function (i) { %><li class="muted"><%= i %></li><% }); %>
+                </ul>
+                <a href="<%= p.cta.href %>" class="<%= p.cta.clase %> btn-block"><%= p.cta.texto %></a>
+              </div>
+            <% }); %>
         </div>
 
         <div style="text-align:center; margin-top: 2.5rem;" class="reveal">
