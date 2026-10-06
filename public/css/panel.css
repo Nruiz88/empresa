@@ -2776,6 +2776,259 @@ a.panel-stat--ambar:hover {
 }
 
 /* =========================================================
+   RITMO: LA ESCALA DE ESPACIO
+   =========================================================
+   Antes estos valores vivían sueltos, uno a uno, en cada regla:
+   `0.7rem` por aquí, `0.9rem` por allá, y donde nadieLos dejó,
+   `13.6px`. Medido, la fila de clientes daba 48px y la de cobros
+   70px, y no había forma de saber cuál era el bueno.
+
+   Una escala no esड़Tl purismo: es lo que hace que dos pantallas
+   distintos se vean como el mismo panel. Con seis valores, el
+   siguiente bloque elige de una lista en vez de inventar un número.
+
+   La escala es un múltiplo de 4px. Cualquier valor que no salga de
+   aquí es probablemente un valor que se inventó alguien un día y
+   nadie revisó. */
+:root {
+  --p-1: 0.25rem;   /*  4px  -- ajuste fino, entre elementos pegados */
+  --p-2: 0.5rem;    /*  8px  -- dentro de un control, entre icono y texto */
+  --p-3: 0.75rem;   /* 12px  -- entre campos de un formulario */
+  --p-4: 1rem;      /* 16px  -- el padrão: relleno de celda, hueco de bloque */
+  --p-5: 1.5rem;    /* 24px  -- entre bloques de una página */
+  --p-6: 2rem;      /* 32px  -- separación de secciones */
+  --p-7: 3rem;      /* 48px  -- respiro grande, antes de un h1 */
+
+  /* Un solo alto para todo lo que se puede pulsar o escribir.
+
+     Medido: los campos daban 30px en consultas, 34px en catálogo y
+     38px en servicios. Tres alturas para el mismo control, y se
+     notaba al pasar de una pantalla a otra con el ratón encima:
+     el botón crecía o menguaba solo.
+
+     38px es el más alto de los tres porque ya es el tamaño de destino
+     táctil razonable; unificar hacia abajo dejaría los botones por
+     debajo de lo que se puede pulsar con comodidad. */
+  --control-h: 2.375rem;   /* 38px */
+}
+
+/* =========================================================
+   TABLAS: COLUMNAS FIJAS Y FILAS DEL MISMO ALTO
+   =========================================================
+   El problema medido: en clientes la columna del email medía 405px
+   —más ancha que el nombre de la empresa— y las filas alternaban 48
+   y 69px. En cobros, la columna de acciones medía 161px, más ancha
+   que la del importe.
+
+   ── POR QUÉ PASABA ──
+
+   `.panel-th-email` declaraba `max-width: 210px` y `text-overflow:
+   ellipsis`, y no cunplía ninguna de las dos cosas.
+
+   En una tabla con `table-layout: auto` —que es el valor por
+   defecto— el ancho de una columna lo decide el contenido más
+   largo, y el ancho máximo de una celda es una SUGERENCIA que el
+   navegador descarta. El navegador tiene una tabla de una fila con
+   un email largo, y el email largo gana.
+
+   De ahí las dos cosas: la columna se come el ancho, y las filas se
+   descuadran según lo que lleve dentro. La fila de 69px era la que
+   tenía algo que se partía en dos líneas.
+
+   ── LA SOLUCIÓN ──
+
+   `table-layout: fixed` hace que el navegador obedezca el ancho que
+   se le da, y no el que le dicta el contenido. Con eso:
+
+     · las columnas tienen la proporción que se ha elegido a mano
+     · las filas miden lo mismo porque el texto no engorda la celda
+     · el email se corta con puntos suspensivos, que es lo que se
+       había pedido y nunca ocurrió
+
+   ── POR QUÉ SOLO LAS LISTAS, Y NO TODAS ──
+
+   La tabla del catálogo también lleva `panel-table`, y con `fixed`
+   sus siete columnas se repartieron en partes iguales: 161px cada
+   una. Peor que antes. "Moneda" con 161px para un código de tres
+   letras, y "Producto" con 161px para un nombre de producto.
+
+   El catálogo no es una lista de texto: cada fila lleva un
+   formulario entero, con sus campos dentro. Repartir a partes
+   iguales aplasta justo las columnas que necesitan ancho, porque el
+   ancho se lo dan las más anchas y las cortas no lo necesitan.
+
+   Así que `fixed` va solo en las tres listas, que sí son texto
+   comparable, y el catálogo se queda con el reparto por contenido
+   que ya tenía.
+
+   ── POR QUÉ SOLO EN ESCRITORIO ──
+
+   Por debajo de 720px la tabla ya se ha convertido en tarjetas: todo
+   pasa a `display: block` y las celdas se apilan con su etiqueta.
+   En ese modo las columnas no existen, y `table-layout` no tiene
+   nada que repartir. Por eso va dentro de su `min-width`: no hace
+   falta tocar el modo tarjeta, que ya funciona. */
+@media (min-width: 721px) {
+  .panel-table--clientes,
+  .panel-table--servicios,
+  .panel-table--cobros {
+    table-layout: fixed;
+  }
+
+  /* El ancho se reparte a mano por pantalla. Se podría dejar que el
+     navegador lo hiciera sola —sin `fixed`—, y es lo que pasaba: se
+     lo dejaba y salía mal. Estas proporciones son de lectura, no de
+     contenido: lo que se compara entre filas va ancho, lo que solo
+     se reconoce va estrecho. */
+
+  /* Clientes: la empresa manda, porque es por donde se busca. El
+     email va en monoespaciada y se corta: es un dato de referencia,
+     se copia, no se lee entero. */
+  .panel-table--clientes th:nth-child(1),
+  .panel-table--clientes td:nth-child(1) { width: 34%; }
+  .panel-table--clientes th:nth-child(2),
+  .panel-table--clientes td:nth-child(2) { width: 22%; }
+  .panel-table--clientes th:nth-child(3),
+  .panel-table--clientes td:nth-child(3) { width: 30%; }
+  .panel-table--clientes th:nth-child(4),
+  .panel-table--clientes td:nth-child(4) { width: 14%; }
+
+  /* Servicios: el importe va siempre en la misma derecha para que
+     la columna de cifras se pueda leer de un tirón, sin seguirlas
+     con la vista. */
+  .panel-table--servicios th:nth-child(1),
+  .panel-table--servicios td:nth-child(1) { width: 32%; }
+  .panel-table--servicios th:nth-child(2),
+  .panel-table--servicios td:nth-child(2) { width: 24%; }
+  .panel-table--servicios th:nth-child(3),
+  .panel-table--servicios td:nth-child(3) { width: 16%; }
+  .panel-table--servicios th:nth-child(4),
+  .panel-table--servicios td:nth-child(4) { width: 14%; }
+  .panel-table--servicios th:nth-child(5),
+  .panel-table--servicios td:nth-child(5) { width: 14%; }
+
+  /* Cobros: seis columnas y la que menos necesita ancho es la de
+     acciones. Antes ocupaba 161px, más que el importe. */
+  .panel-table--cobros th:nth-child(1),
+  .panel-table--cobros td:nth-child(1) { width: 30%; }
+  .panel-table--cobros th:nth-child(2),
+  .panel-table--cobros td:nth-child(2) { width: 18%; }
+  .panel-table--cobros th:nth-child(3),
+  .panel-table--cobros td:nth-child(3) { width: 15%; }
+  .panel-table--cobros th:nth-child(4),
+  .panel-table--cobros td:nth-child(4) { width: 13%; }
+  .panel-table--cobros th:nth-child(5),
+  .panel-table--cobros td:nth-child(5) { width: 15%; }
+  .panel-table--cobros th:nth-child(6),
+  .panel-table--cobros td:nth-child(6) { width: 9%; }
+
+  /* ── La columna de acciones, cuando no hay nada en ella ──
+
+     En una tabla con `row-link` la fila entera es pulsable, así que
+     los botones de acción se ocultan: no hay nada que pulsar ahí. La
+     columna se queda vacía, con su cabecera invisible y sus 158px de
+     aire.
+
+     Medido: 158px de 1192, un 13% de la tabla, para nada.
+
+     Se colapsa a cero y el ancho vuelve a las columnas que sí
+     enseñan algo. Y la condición se lee del propio marcado, con
+     `:has()`, en vez de mantener a mano una lista de qué tablas son
+     de fila pulsable: esa lista se desactualiza en cuanto alguien
+     añade una tabla y no se da cuenta.
+
+     En móvil no se aplica: allí los botones sí se ven, al fondo de la
+     tarjeta y a lo ancho, que es lo que se hizo para que no quedaran
+     fuera de la pantalla. */
+  .panel-table:has(tbody tr.panel-row--link) th:last-child,
+  .panel-table:has(tbody tr.panel-row--link) td:last-child {
+    width: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+}
+
+/* La celda que puede partirse en dos líneas es la que descuadra las
+   filas. Se le da una sola línea con puntos suspensivos y el alto
+   queda garantizado.
+
+   Con `fixed` ya no debería pasar en escritorio, pero el modo tarjeta
+   de móvil apila todo en bloques y esta regla no le toca: solo
+   aplica a la tabla de verdad. Es la red de seguridad, no el
+   mecanismo. */
+@media (min-width: 721px) {
+  .panel-table--clientes tbody td,
+  .panel-table--servicios tbody td,
+  .panel-table--cobros tbody td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Excepción: el importe y el estado no se cortan nunca. Son cortos
+     y si se cortan es que la columna se ha quedado sin sitio, que
+     es un problema de la proporción, no del texto. */
+  .panel-table--clientes tbody td.panel-th-num,
+  .panel-table--clientes tbody td.panel-th-actions,
+  .panel-table--servicios tbody td.panel-th-num,
+  .panel-table--servicios tbody td.panel-th-actions,
+  .panel-table--cobros tbody td.panel-th-num,
+  .panel-table--cobros tbody td.panel-th-actions {
+    overflow: visible;
+    text-overflow: clip;
+  }
+}
+
+/* El email en monoespaciada. AntesOccupaba la columna más ancha de la
+   pantalla y no se entendía por qué: es una dirección, no una frase.
+   Al ponerla en monoespaciada se lee como lo que es, un identificador,
+   y ahora que la columna es estrecha se recorta sin que parezca un
+   error. */
+.panel-table tbody td.panel-th-email {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+
+/* ── La cabecera, que se leía a 10.88px ──
+
+   Medido en las cuatro tablas. Es un tamaño por debajo de lo que se
+   lee de un vistazo, y la cabecera es justo lo que tiene que leerse
+   de un vistazo para saber en qué columna se está uno.
+
+   De 10.88 a 11.5. Poco, pero salta de "no se lee sin apartar la
+   vista" a "se lee de reojo". */
+.panel-table thead th {
+  font-size: 0.72rem;
+}
+
+/* =========================================================
+   ALTO ÚNICO DE LOS CONTROLES
+   =========================================================
+   Es el segundo desacuerdo medido: los campos de texto daban 38px en
+   servicios, 34px en catálogo y 30px en consultas.
+
+   Tres alturas distintas para el mismo control. Passing el ratón de
+   una pantalla a otra, el botón de abajo crecía y menguaba sin que
+   nada lo explicara. */
+@media (min-width: 721px) {
+  .panel-input,
+  .panel-table input[type="text"],
+  .panel-table input[type="url"],
+  .panel-table input[type="number"],
+  .panel-table select {
+    min-height: var(--control-h);
+  }
+
+  /* El botón principal y el secundario también. Los botones con
+     `padding` en vez de alto se les da alto, porque si no el
+     relleno y la escala de espaciado se pelean. */
+  .panel-btn:not(.panel-btn--xs) {
+    min-height: var(--control-h);
+  }
+}
+
+/* =========================================================
    CONTADORES DEL LATERAL
    =========================================================
    El número que va al lado de una sección.
