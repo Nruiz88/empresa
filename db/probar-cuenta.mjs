@@ -471,16 +471,57 @@ if (mio) {
     buenClave.headers.get("location") || ""
   );
 
-  /* ── Limpieza ── */
-  const { data: aBorrar } = await db.from("profiles").select("id,client_id").ilike("nombre", "%" + MARCA + "%");
+  /* ── Limpieza ──
+     POR CORREO, NO POR NOMBRE.
 
-  for (const p of aBorrar || []) {
+     La primera versión borraba los perfiles cuyo `nombre` contuviera
+     la marca: `ilike("nombre", "%-test-cuenta-%")`. Y creaba tres
+     cuentas por ejecución —el alta normal, las dos de empresa
+     reutilizada y la del `rol=staff` a dedo—, de las cuales solo la
+     primera llevaba la marca en el nombre. Las otras dos se quedaban.
+
+     Resultado: 21 usuarios de prueba huérfanos en el Supabase de
+     PRODUCCIÓN, tres por ejecución. Un usuario de Auth es de pago, y
+     encima ensucia el listado que leen los listados de usuarios.
+
+     Y lo peor es que la prueba pasaba en verde mientras lo dejaba: la
+     limpieza va después de las comprobaciones, y nadie comprobaba que
+     se hubiera limpiado. Un fallo que no falla es el peor sitio para
+     un descuido de limpieza.
+
+     Ahora se borra por CORREO, que es único y todas las cuentas lo
+     llevan, y además se comprueba al final que no queda ninguna. */
+  const { data: todosPerfiles } = await db.from("profiles").select("id,client_id");
+
+  const { data: usuariosAuth } = await db.auth.admin.listUsers({ page: 1, perPage: 1000 });
+
+  const idsVuestras = new Set(
+    (usuariosAuth?.users || [])
+      .filter((u) => String(u.email).includes(MARCA))
+      .map((u) => u.id)
+  );
+
+  for (const p of todosPerfiles || []) {
+    if (!idsVuestras.has(p.id)) continue;
+
     await db.from("sessions").delete().eq("user_id", p.id);
     await db.auth.admin.deleteUser(p.id).catch(() => {});
     if (p.client_id) await db.from("clients").delete().eq("id", p.client_id);
   }
 
   await db.from("clients").delete().ilike("empresa", "%" + MARCA + "%");
+
+  /* Y se COMPRUEBA que no queda ninguna. Sin esta comprobación, esta
+     prueba habría seguido dando verde mientras dejaba basura. */
+  const { data: despuesLimpieza } = await db.auth.admin.listUsers({ page: 1, perPage: 1000 });
+
+  const quedan = (despuesLimpieza?.users || []).filter((u) => String(u.email).includes(MARCA));
+
+  comprobar(
+    "la prueba no deja usuarios de prueba en la base",
+    quedan.length === 0,
+    quedan.length + " usuarios sin borrar"
+  );
 }
 
 console.log("");
