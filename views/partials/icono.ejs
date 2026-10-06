@@ -1,0 +1,88 @@
+<%# =========================================================
+     Iconos del panel
+     ------------------------------------------------------------
+     include('../partials/icono', { nombre: 'usuarios' })
+
+     ── POR QUÉ EXISTE ESTE ARCHIVO ──
+
+     Porque hasta ahora el panel no tenía ni un icono, y en la
+     tarjeta de cifra de Argon el icono no es adorno: es la mitad
+     de lo que hace que se reconozca esa tarjeta a distancia. Una
+     fila de cuatro cifras iguales son cuatro números; con un
+     cuadrado de color distinto en cada una son cuatro cosas
+     distintas y se distinguen sin leer.
+
+     ── POR QUÉ SVG EN LÍNEA Y NO UNA FUENTE DE ICONOS ──
+
+     Argon usa Nucleo, una fuente de iconos. Eso son 80 KB de
+     fuente y una llamada de red que bloquea el primer pintado
+     del panel: quien entra con mala conexión ve las cifras sin
+     icono hasta que termina de cargar.
+
+     Con SVG en línea no hay archivo que cargar y no hay un
+     segundo diseño. El coste es que repetimos el trazo en cada
+     tarjeta, y con seis iconos eso son unas veinte líneas de más
+     en el HTML, que es un precio conocido y barato.
+
+     ── EL TRAZO ──
+
+     24x24, sin relleno, `currentColor`, grosor 2, sin uniones
+     redondeadas. Es el mismo criterio que usan los iconos de la
+     sección de WhatsApp en la portada, para que el panel y la
+     web pública no parezcan de dos sitios distintos.
+
+     `aria-hidden` en todos: son adorno al lado de una cifra que
+     ya dice en texto de qué va la tarjeta. Un lector de pantalla
+     leyendo "14 usuarios" no gana nada con un "icono de
+     usuarios" antes, y pierde el hilo.
+
+     El `viewBox` se declara aquí una sola vez y el `width`/
+     `height` los pone el CSS, que es quien decide de qué tamaño
+     se pinta.
+     ========================================================= %>
+<% var _iconos = {
+  /* Personas: clientes. Una persona y una silueta detras, que es
+     mas legible a 40px que un grupo de tres. */
+  usuarios:
+    '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+
+  /* Servicios: capas apiladas. Tres rectangulosOffset, que es lo
+     que distingue "varios servicios" de "una sola web". */
+  servicios:
+    '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+
+  /* Dinero: un recibo con la lineas deimporte. No un billete, que
+     aqui no se cobran billetes: se emiten facturas. */
+  dinero:
+    '<path d="M4 2h16v20l-3-2-3 2-2-2-2 2-3-2-3 2V2z"/><path d="M8 7h8M8 11h8M8 15h4"/>',
+
+  /* Consultas: un sobre. */
+  consultas:
+    '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/>',
+
+  /* Soporte: un globo de conversacion con tres puntos. Los tres
+     puntos son los del chat, no los del menu, que ya esta en el
+     lateral. */
+  soporte:
+    '<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/><path d="M8 12h.01M12 12h.01M16 12h.01"/>',
+
+  /* Reloj: para lo que vence. */
+  reloj:
+    '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+
+  /* Alerta: para lo vencido. Un triangulo con exclamacion, que a
+     40px se distingue de un circulo aunque no se lea el signo. */
+  alerta:
+    '<path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/>'
+};
+var _trazo = _iconos[nombre];
+if (_trazo) { %>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+       stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+       focusable="false"><%- _trazo %></svg>
+<% } else { %>
+  <%# Un nombre mal escrito no debe romper la pagina. Pinta el
+      hueco vacio y sigue: es un fallo de desarrollo, no un
+      incidente, y Buryarlo con un aviso en la consola dejaria
+      la pantalla a medio hacer. %>
+<% } %>

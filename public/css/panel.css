@@ -3809,6 +3809,27 @@ body.cmd-abierto {
   --elev-1: 0 1px 2px rgba(0, 0, 0, 0.14);
   --elev-2: 0 12px 32px -8px rgba(0, 0, 0, 0.45);
 
+    /* La sombra de tarjeta, que es otra cosa que --elev-2.
+
+       --elev-2 es "esto flota por encima de la pagina": un menu, una
+       paleta de busqueda, un dialogo. Es una sombra profunda y
+       direccional, con desplazamiento, porque el elemento esta
+       DESPEGADO.
+
+       La tarjeta al reves esta PEGADA al lienzo y lo que quiero es
+       que se destaque por un pelo, no que parezca flotando. Por eso
+       no lleva desplazamiento y el desenfoque es grande: muchos
+       pixeles de difuminacion y ninguno de recorrido.
+
+       Es la sombra de Argon, `0 0 2rem rgba(136,152,170,.15)`, y el
+       2rem sale de ahi, no de elegir a ojo. El gris azulado tambien
+       es el suyo porque en oscuro una sombra con tinte cold se
+       distingue de la superficie; una gris neutra se mezcla con
+       ella y no dibuja nada. */
+
+    --elev-card: 0 0 2rem rgba(136, 152, 170, 0.10);
+    --elev-card-fuerte: 0 0 2.5rem rgba(136, 152, 170, 0.16);
+
   /* Una sola sombra para el tema oscuro tambien. Las sombras
      sobre fondo casi negro no se ven; el relieve lo hace el
      borde. Y al ponerla como token, el tema claro la cambia sin
@@ -4183,4 +4204,394 @@ body.cmd-abierto {
     flex: 1 1 100%;
     justify-content: center;
   }
+}
+/* =========================================================
+   ARGON: EL VOCABULARIO DE COMPONENTES
+   =========================================================
+   Argon Dashboard es MIT (Creative Tim), así que su lenguaje
+   visual se puede tomar. Lo que NO se ha traido es Bootstrap
+   4 ni su paso de SASS: eso habria Meaning un reset de estilos,
+   una dependencia de 150 KB y una cadena de compilacion que este
+   proyecto no tiene, todo para acabar escribiendo el CSS a mano
+   igual.
+
+   Asi que de Argon se toma la ANATOMIA de las piezas, que es lo
+   que la gente reconoce, y se mide con los tokens de aqui.
+
+   ── LOS VALORES DE ARGON, Y QUE SE USA CADA UNO ──
+
+     tarjeta      0 0 2rem rgba(136,152,170,.15)   -> --elev-card
+     radio        .375rem (6px)                    -> --radius (12px)
+     boton        peso 600, translateY(-1px) hover  -> el nuestro ya es 600
+     cabecera th  .65rem, mayusculas, ls 1px        -> el nuestro ya es asi
+     rejilla      col-xl-8 + col-xl-4, xl = 1200px -> .panel-rejilla
+
+   Dos de los cuatro ya coincidian con lo que teniamos. No es
+   casualidad: las cabeceras de tabla en versalitas con 1px de
+   separacion son un patron de la casa desde antes de que
+   Argon se mirara.
+
+   ── LO QUE SI SE APLICA ──
+
+     .panel-rejilla   la division 8/4
+     .panel-card      la tarjeta con cabecera
+     .panel-stat      cifra con icono
+     .panel-meter     la barra de progreso
+     .panel-tendencia la flecha con porcentaje
+     .panel-timeline  la linea de tiempo
+     .panel-segmented las pastillas de periodo
+   ========================================================= */
+
+/* ── La tarjeta ──
+
+   El fondo tiene que poder separarse de la pagina, y en tema
+   oscuro eso no se consigue con una sombra: una sombra negra
+   sobre negro no se ve. Se consigue con un borde claro y una
+   superficie un punto por encima del fondo.
+
+   Por eso el borde no es decorativo aqui, es lo que dibuja la
+   tarjeta. En tema claro vuelve a hacer lo de siempre, que es
+   dar un contorno. */
+
+.panel-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--elev-card);
+  overflow: hidden;
+}
+
+/* ── La cabecera de la tarjeta ──
+
+   Cintillo pequeno encima, titulo debajo, y a la derecha la
+   accion. Ese orden es el de Argon y el motivo esta en el peso
+   tipografico: el cintillo va en 0.7rem y el titulo en 1.05rem,
+   asi que aunque los dos sean grandes, el titulo gana por
+   tamaño y el cintillo no compite. Se leen los dos y el ojo
+   se queda en el titulo. */
+
+.panel-card-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--p-4);
+  padding: var(--p-4) var(--p-5);
+  border-bottom: 1px solid var(--border);
+}
+
+.panel-card-head-texto {
+  min-width: 0;
+}
+
+.panel-card-cintillo {
+  display: block;
+  margin-bottom: 0.2rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.panel-card-titulo {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--text);
+}
+
+.panel-card-cuerpo {
+  padding: var(--p-5);
+}
+
+/* Cuando el cuerpo es una tabla, el padding estorba: la tabla
+   ya trae el suyo y con los dos quedan celdas metidas hacia
+   dentro y una fila que no llega al borde de la tarjeta. */
+.panel-card-cuerpo--sin-padding {
+  padding: 0;
+}
+
+/* ── La rejilla 8/4 ──
+
+   El reparto de Argon es 8 y 4, no 6 y 6. No es estetica: la
+   columna ancha es donde va una tabla de cinco columnas y la
+   estrecha es donde va una lista de una. Con 6/6 las dos
+   columnas estarian igual de anchas para dos cosas que no lo
+   necesitan.
+
+   Por debajo de 1000px cae a una columna. El ancho de Argon
+   para ese reparto es 1200px, y se baja antes porque aqui el
+   lateral fijo se come 248px del viewport: a 1200 de ventana
+   el contenido son 950, y una columna estrecha ya esta
+   pidiendo que le den la suya entera. */
+
+.panel-rejilla {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: var(--panel-gap-lg);
+  align-items: start;
+}
+
+@media (max-width: 1000px) {
+  .panel-rejilla {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ── La cifra con icono ──
+
+   La caja de color a la izquierda es lo que hace la tarjeta de
+   Argon reconocible. Sin ella son cuatro numeros en cuatro cajas
+   iguales, que es exactamente lo que habia antes.
+
+   El tamano es 2.75rem de caja con el trazo a 1.15rem dentro.
+   La proporcion importa: con el icono casi tan grande como la
+   caja se lee como un bloque de color, y con el icono pequeno
+   se lee como un icono. A mitad de camino se lee como los dos.
+
+   El color va en el fondo translucido y en el icono, no en la
+   tarjeta entera. Cuatro tarjetas de color entero parecen cuatro
+   alarmas, y solo una lo es: la del dinero vencido. */
+
+.panel-stat {
+  display: flex;
+  align-items: center;
+  gap: var(--p-4);
+  padding: var(--p-4) var(--p-5);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--elev-card);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color var(--mov-1) var(--ease-out),
+              transform var(--mov-1) var(--ease-out),
+              box-shadow var(--mov-1) var(--ease-out);
+}
+
+.panel-stat:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-1px);
+  box-shadow: var(--elev-card-fuerte);
+}
+
+.panel-stat-icono {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 10px;
+  background: var(--stat-tinte, color-mix(in srgb, var(--accent) 16%, transparent));
+  color: var(--stat-color, var(--accent-2));
+}
+
+.panel-stat-icono svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+/* El cuerpo es un contenedor aparte porque sin el, `strong` y
+   `span`serian hermanos directos de la caja del icono y
+   necesitarian cada uno su propio margen. Con el, el bloque de
+   texto se comporta como una unidad y se puede alinear con el
+   icono sin tocar los hijos. */
+.panel-stat-cuerpo {
+  min-width: 0;
+}
+
+.panel-stat strong {
+  display: block;
+  font-family: var(--font-display, "Space Grotesk", sans-serif);
+  font-size: 1.9rem;
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+
+.panel-stat span {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+/* Las dos de dinero no son "cifras", son avisos. Por eso el
+   numero va en el color del aviso y el texto no: si los dos
+   fueran rojo, la tarjeta gritaria. */
+.panel-stat--alerta { --stat-color: var(--danger); --stat-tinte: color-mix(in srgb, var(--danger) 15%, transparent); }
+.panel-stat--ambar  { --stat-color: var(--warning); --stat-tinte: color-mix(in srgb, var(--warning) 15%, transparent); }
+.panel-stat--info   { --stat-color: var(--info);    --stat-tinte: color-mix(in srgb, var(--info) 15%, transparent); }
+.panel-stat--ok     { --stat-color: var(--success); --stat-tinte: color-mix(in srgb, var(--success) 15%, transparent); }
+
+.panel-stat--alerta strong,
+.panel-stat--ambar strong {
+  color: var(--stat-color);
+}
+
+/* ── La barra de progreso ──
+
+   La de Argon, que es solo una pista y un relleno. El ancho se
+   pone en linea con `style="width: 62%"` porque es un dato, y
+   un dato no puede estar en una hoja de estilos: son 62 filas y
+   habria que escribir 62 clases.
+
+   El relleno va con transicion para que al cargar se vea crecer,
+   que es lo que dice que la cifra se esta formando. Con
+   `prefers-reduced-motion` la transicion se apaga, como en el
+   resto del panel. */
+
+.panel-meter {
+  display: block;
+  width: 100%;
+  min-width: 3rem;
+  height: 0.375rem;
+  border-radius: 999px;
+  background: var(--bg-soft);
+  overflow: hidden;
+}
+
+.panel-meter-relleno {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--meter-color, var(--accent-2));
+  transition: width var(--mov-3) var(--ease-out);
+}
+
+/* ── La tendencia ──
+
+   Flecha y porcentaje. El color es el de la flecha, no el del
+   texto: "sube" en verde con un 4% en blanco se lee, y en rojo
+   tambien, que es justo donde hace falta leerlo. */
+.panel-tendencia {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.panel-tendencia svg {
+  width: 0.8rem;
+  height: 0.8rem;
+}
+
+.panel-tendencia--sube { color: var(--success); }
+.panel-tendencia--baja { color: var(--danger); }
+.panel-tendencia--igual { color: var(--text-dim); }
+
+/* ── Las pastillas de periodo ──
+
+   Las nav-pills de Argon, para cambiar de semana a mes o de
+   30 dias a 12 meses. Van dentro de la cabecera de la tarjeta.
+
+   El interior lleva `border: 1px` en vez de relleno porque un
+   grupo de pastillas rellenas del color de acento pesa mas que
+   el grafico que controlan. */
+.panel-segmented {
+  display: inline-flex;
+  padding: 0.15rem;
+  gap: 0.15rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm, 8px);
+  background: var(--bg-soft);
+}
+
+.panel-segmented a,
+.panel-segmented button {
+  padding: 0.3rem 0.7rem;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color var(--mov-1) var(--ease-out),
+              color var(--mov-1) var(--ease-out);
+}
+
+.panel-segmented a:hover,
+.panel-segmented button:hover {
+  color: var(--text);
+}
+
+.panel-segmented [aria-current="true"],
+.panel-segmented .activo {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--elev-1);
+}
+
+/* ── La linea de tiempo ──
+
+   Argon la usa para el historial de una persona. Aqui encaja
+   para la actividad reciente, y el icono a la izquierda es el
+   que marca el tipo de movimiento.
+
+   El punto de la linea va en el pseudoelemento y no como un
+   hijo mas: asi el marcado sigue siendo una lista, que es lo
+   que necesita un lector de pantalla, y la linea se dibuja sola
+   sin una fila por cada elemento. */
+.panel-timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 var(--p-2);
+}
+
+.panel-timeline li {
+  position: relative;
+  padding: 0 0 var(--p-5) var(--p-6);
+}
+
+.panel-timeline li:last-child {
+  padding-bottom: 0;
+}
+
+.panel-timeline li::before {
+  content: "";
+  position: absolute;
+  left: 0.3125rem;
+  top: 0.45rem;
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 50%;
+  background: var(--punto, var(--accent-2));
+  box-shadow: 0 0 0 3px var(--surface);
+}
+
+.panel-timeline li::after {
+  content: "";
+  position: absolute;
+  left: 0.5775rem;
+  top: 1.2rem;
+  bottom: 0.15rem;
+  width: 1px;
+  background: var(--border);
+}
+
+.panel-timeline li:last-child::after {
+  display: none;
+}
+
+.panel-timeline strong {
+  display: block;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.panel-timeline span {
+  display: block;
+  margin-top: 0.1rem;
+  font-size: var(--fs-xs);
+  color: var(--text-dim);
 }

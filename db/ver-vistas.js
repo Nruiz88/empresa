@@ -91,6 +91,40 @@ for (const archivo of archivos) {
     ejs.compile(fuente, { filename: relativo });
   } catch (e) {
     rotos.push({ relativo, mensaje: e.message.split("\n")[0] });
+    continue;
+  }
+
+  /* ── Comentarios HTML sin cerrar ──
+
+     Esto no lo ve ni EJS ni el servidor, y por eso se comprueba
+     aparte.
+
+     Un `<!--` que no cierra no da error: el navegador se lo come
+     todo hasta el siguiente `-->`, que puede estar a cien líneas
+     más allá, o no estar nunca. Lo que pasa es que el HTML es
+     válido, la vista compila, el servidor contesta 200 y un bloque
+     entero no aparece.
+
+     Pasó con la portada: el comentario de las cifras de gente
+     terminaba con la secuencia de cierre de un comentario de
+     bloque de JavaScript en vez de la de un comentario de HTML. Las
+     cuatro tarjetas de cifras estaban escritas, correctas, y no se
+     veían. Un fallo que no se puede ver en un error porque no hay
+     error.
+
+     Cuenta aperturas y cierres y avisa si no cuadran. No repara: no
+     sabe cuál de los dos está mal, solo que hay uno de más. */
+  const abiertas = (fuente.match(/<!--/g) || []).length;
+  const cerradas = (fuente.match(/-->/g) || []).length;
+
+  if (abiertas !== cerradas) {
+    rotos.push({
+      relativo,
+      mensaje:
+        "comentario HTML sin cerrar: " + abiertas + " aperturas y " +
+        cerradas + " cierres. El HTML a partir de ahi se lo come el " +
+        "navegador en silencio.",
+    });
   }
 }
 
@@ -99,7 +133,7 @@ console.log("=== Vistas EJS ===");
 console.log("");
 
 if (!rotos.length) {
-  console.log("  ✓ Las " + archivos.length + " vistas compilan.");
+  console.log("  ✓ Las " + archivos.length + " vistas compilan y no tienen comentarios sin cerrar.");
   console.log("");
   process.exit(0);
 }

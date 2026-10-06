@@ -219,14 +219,24 @@
 
             <% if (c.nVencidos > 0) { %>
               <a class="panel-stat panel-stat--alerta" href="<%= base %>/cobros?estado=vencido">
-                <strong><%= c.textoVencidos %></strong>
-                <span><%= c.nVencidos %> cobro<%= c.nVencidos === 1 ? "" : "s" %> vencido<%= c.nVencidos === 1 ? "" : "s" %></span>
+                <span class="panel-stat-icono">
+                  <%- include('../partials/icono', { nombre: 'alerta' }) %>
+                </span>
+                <span class="panel-stat-cuerpo">
+                  <strong><%= c.textoVencidos %></strong>
+                  <span><%= c.nVencidos %> cobro<%= c.nVencidos === 1 ? "" : "s" %> vencido<%= c.nVencidos === 1 ? "" : "s" %></span>
+                </span>
               </a>
             <% } %>
 
             <a class="panel-stat panel-stat--ambar" href="<%= base %>/cobros?estado=pendiente">
-              <strong><%= c.texto %></strong>
-              <span><%= c.n %> por cobrar<%= c.moneda !== "EUR" ? " · " + c.moneda : "" %></span>
+              <span class="panel-stat-icono">
+                <%- include('../partials/icono', { nombre: 'dinero' }) %>
+              </span>
+              <span class="panel-stat-cuerpo">
+                <strong><%= c.texto %></strong>
+                <span><%= c.n %> por cobrar<%= c.moneda !== "EUR" ? " · " + c.moneda : "" %></span>
+              </span>
             </a>
           <% }); %>
         </div>
@@ -234,21 +244,58 @@
 
       <!-- ---------- Cifras de gente ----------
            Debajo del dinero, y neutras. Son datos, no alarmas: que se
-           vean como datos. -->
-    <div class="panel-stats">
-      <a class="panel-stat" href="<%= base %>/consultas?estado=nuevo">
-        <strong><%= resumen.consultasNuevas %></strong>
-        <span>consultas sin responder</span>
-      </a>
-      <a class="panel-stat" href="<%= base %>/clientes">
-        <strong><%= resumen.clientes %></strong>
-        <span>clientes activos</span>
-      </a>
-      <a class="panel-stat" href="<%= base %>/servicios?estado=activo">
-        <strong><%= resumen.serviciosActivos %></strong>
-        <span>servicios en marcha</span>
-      </a>
-    </div>
+           vean como datos.
+
+           Y con icono, que es la mitad de lo que hace reconocible una
+           tarjeta de Argon. Antes eran tres cajas iguales con un numero
+           dentro: tres numeros en tres cajas se distinguen solo con
+           leerlos, y con el cuadrado de color se distinguen sin leer.
+           En una fila de cuatro, esa es la diferencia entre verlos y
+           mirarlos.
+
+           Son cuatro y no tres porque los tickets sin resolver son
+           justo lo que el bloque de arriba pone en la lista y no
+           estaba en ninguna cifra. Una cuenta que aparece en una
+           lista de tareas pero no en el recuento se cuenta dos veces
+           y no se puede contrastar con nada. -->
+      <%
+        var _cont = (typeof contadores !== 'undefined' && contadores) ? contadores : {};
+        var _gente = [
+          { n: resumen.consultasNuevas,  txt: "consultas sin responder", icono: "consultas",  href: base + "/consultas?estado=nuevo", tinte: "info" },
+          { n: resumen.clientes,        txt: "clientes activos",        icono: "usuarios",   href: base + "/clientes",                        tinte: "" },
+          { n: resumen.serviciosActivos, txt: "servicios en marcha",  icono: "servicios",  href: base + "/servicios?estado=activo",         tinte: "" },
+          { n: _cont.tickets,            txt: "tickets sin resolver",   icono: "soporte",    href: base + "/tickets?estado=abierto",         tinte: "info" }
+        ];
+      %>
+      <div class="panel-stats">
+        <% _gente.forEach(function (g) { %>
+          <a class="panel-stat<%= g.tinte ? " panel-stat--" + g.tinte : "" %>" href="<%= g.href %>">
+            <span class="panel-stat-icono">
+              <%- include('../partials/icono', { nombre: g.icono }) %>
+            </span>
+            <span class="panel-stat-cuerpo">
+              <strong><%= g.n %></strong>
+              <span><%= g.txt %></span>
+            </span>
+          </a>
+        <% }); %>
+      </div>
+
+    <!-- ---------- LA REJILLA 8/4 ----------
+
+         El reparto de Argon, y el motivo esta en el contenido: la
+         columna ancha es la lista de vencimientos, que tiene fecha,
+         empresa, importe y una accion; la estrecha es la de consultas
+         recientes, que tiene nombre y un estado y ya esta.
+
+         Con 6/6 las dos columnas serian igual de anchas para dos
+         cosas que no lo necesitan, y la lista de vencimientos se
+         quedaria corta con el importe partido en dos lineas.
+
+         Baja a una columna por debajo de 1000px, antes que los 1200
+         de Argon, porque aqui el lateral fijo se come 248px del
+         viewport: a 1200 de ventana el contenido son 950. -->
+    <div class="panel-rejilla">
 
     <!-- ---------- Caducidades ----------
          Los avisos se agrupan cuando comparten el mismo texto. Tres
@@ -262,11 +309,15 @@
        }); %>
     <% var listaGrupos = Object.keys(grupos).map(function (k) { return grupos[k]; }); %>
 
-    <section class="panel-bloque">
-      <div class="panel-bloque-head">
-        <h2 class="panel-subtitle">Vencimientos y renovaciones</h2>
-        <a href="<%= base %>/servicios?estado=activo" class="panel-clear">Ver servicios</a>
+    <section class="panel-card">
+      <div class="panel-card-head">
+        <div class="panel-card-head-texto">
+          <span class="panel-card-cintillo">Agenda</span>
+          <h2 class="panel-card-titulo">Vencimientos y renovaciones</h2>
+        </div>
+        <a href="<%= base %>/servicios?estado=activo" class="panel-btn panel-btn--ghost panel-btn--xs">Ver servicios</a>
       </div>
+      <div class="panel-card-cuerpo">
 
       <% if (!listaGrupos.length) { %>
         <p class="panel-hint">
@@ -328,12 +379,19 @@
           <% }); %>
         </ul>
       <% } %>
+      </div>
     </section>
 
     <!-- ---------- Embudo ---------- -->
     <% if (consultas && consultas.length) { %>
-      <section class="panel-bloque">
-        <h2 class="panel-subtitle">Consultas recientes</h2>
+      <section class="panel-card">
+        <div class="panel-card-head">
+          <div class="panel-card-head-texto">
+            <span class="panel-card-cintillo">Entrada</span>
+            <h2 class="panel-card-titulo">Consultas recientes</h2>
+          </div>
+        </div>
+        <div class="panel-card-cuerpo">
         <ul class="panel-list">
           <% consultas.forEach(function (c) { %>
             <li>
@@ -345,8 +403,11 @@
         <p class="panel-hint" style="margin-top:.75rem">
           <a href="<%= base %>/consultas">Ver todas las consultas</a>
         </p>
+        </div>
       </section>
     <% } %>
+
+    </div>
 
   <% } %>
 </div>
