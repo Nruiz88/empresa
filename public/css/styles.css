@@ -126,6 +126,12 @@
   --section-y: clamp(4rem, 9vw, 7rem);
 
   --shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+
+  /* La sombra de tarjeta. --shadow es la profunda, para el menu y
+     la paleta, donde el elemento esta despegado. Esta es la suave,
+     pegada al lienzo, que en tema oscuro se apoya mas en el borde
+     que en la sombra: por eso el radio es pequeño. */
+  --shadow-soft: 0 10px 30px -12px rgba(0, 0, 0, 0.35);
   /* Alto suficiente para que la marca, la nav, el conmutador y el CTA
      respiren sin quedar apretados */
   --header-h: 78px;
@@ -1234,16 +1240,128 @@ table.compare .no {
 
 /* ---------- Detalle de servicios ---------- */
 .service-block {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: clamp(1.5rem, 4vw, 3.5rem);
   align-items: start;
-  padding-block: clamp(2rem, 5vw, 3rem);
-  border-bottom: 1px solid var(--border);
+  padding: clamp(1.6rem, 4vw, 2.6rem);
+  margin-bottom: var(--sp-5, 1.5rem);
+
+  /* Tarjeta, no separacion. Antes solo llevaba un borde abajo, que
+     hacia de cada bloque un parrafo con un rayon debajo. Con borde
+     completo, sombra y radio, cada bloque es una pieza y la pagina
+     se lee como una lista de seis cosas, no como un texto largo
+     con titulos. */
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg, 16px);
+  box-shadow: var(--shadow-soft, 0 10px 30px -12px rgba(0, 0, 0, 0.35));
 }
 
 .service-block:last-child {
-  border-bottom: none;
+  margin-bottom: 0;
+}
+
+/* ── El lavado de color ──
+
+   Un radial desde la esquina de arriba a la izquierda, en el color
+   del bloque, al 14%. Es deliberadamente tan bajo que no se lee
+   como "este bloque es violeta": se lee como que la luz cae mas
+   fuerte por ahi. Subirlo a 25% lo convierte en una mancha y hay
+   que subirlo mas para igualar el degradado entero, que es donde
+   el texto deja de leerse bien.
+
+   Va en un pseudoelemento con z-index -1 y el padre con isolation,
+   para que quede DETRAS del texto y no encima, y para que no se
+   salga por el radio: overflow hidden lo recorta. */
+.service-block::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(
+    130% 110% at 0% 0%,
+    color-mix(in srgb, var(--tinte) 14%, transparent) 0%,
+    transparent 58%
+  );
+}
+
+/* ── El numero del bloque ──
+
+   Arriba a la izquierda, al lado de la etiqueta, y en el color
+   del bloque. No va detras de nada: es la cifra del bloque, leida
+   de izquierda a derecha junto al titulo.
+
+   Estuvo primero como marca de agua gigante en la esquina de la
+   derecha y no funcionaba, porque ahi vive la caja de que incluye
+   y el numero quedaba partido por su borde. Un elemento que se ve
+   cortado no se lee como decoracion: se lee como roto.
+
+   El tamano es 2.1rem y no mas, porque es un indice y no un
+   titular: tiene que resaltar el bloque sin competir con el h2,
+   que va a 1.8rem. Y con tabular-nums, porque si no el 01 y el 02
+   ocupan anchuras distintas y la columna de titulos baila al
+   bajar por la pagina. */
+.service-cab {
+  display: flex;
+  align-items: baseline;
+  gap: 0.7rem;
+  margin-bottom: 0.9rem;
+}
+
+.service-num {
+  font-family: var(--font-display);
+  font-size: 2.1rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+  color: color-mix(in srgb, var(--tinte) 82%, var(--text));
+}
+
+/* La etiqueta se queda en apagada: al lado de una cifra de color,
+   si la etiqueta tambien va en color hay dos cosas compitiendo y
+   la etiqueta, que es la que dice de que va el bloque, pierde. */
+.service-cab .eyebrow {
+  font-size: var(--fs-xs);
+  letter-spacing: 0.12em;
+  color: var(--text-dim);
+}
+
+/* El tinte de cada uno. Los seis primeros colores de .thumb-1 a
+   .thumb-6, que son los degradados que ya usa /proyectos. */
+.servicio-1 { --tinte: #7c3aed; }
+.servicio-2 { --tinte: #0f766e; }
+.servicio-3 { --tinte: #db2777; }
+.servicio-4 { --tinte: #ea580c; }
+.servicio-5 { --tinte: #1e3a8a; }
+.servicio-6 { --tinte: #0891b2; }
+
+/* ── Lo que va DENTRO ──
+
+   El cintillo pasa a ser el numero grande del bloque, en vez de
+   repetir "01 · Web" en un tamano pequeno arriba. Se queda el
+   texto y se le quita la cifra, porque la cifra ya esta gigante en
+   la esquina y repetirla es ruido. */
+.service-block .eyebrow {
+  font-size: var(--fs-xs);
+  letter-spacing: 0.12em;
+  color: color-mix(in srgb, var(--tinte) 75%, var(--text-muted));
+}
+
+/* La caja de "que incluye" deja de estar pegada al borde del bloque
+   y coge relieve: es el contenido util y tiene que leerse antes que
+   el parrafo de al lado. */
+.service-block .deliverables {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: clamp(1.2rem, 2.6vw, 1.7rem);
+  box-shadow: var(--shadow-soft, 0 10px 30px -12px rgba(0, 0, 0, 0.35));
 }
 
 .service-block h2 {
