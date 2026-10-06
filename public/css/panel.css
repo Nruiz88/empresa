@@ -509,13 +509,6 @@ html[data-panel] {
   font-size: var(--fs-sm);
   color: var(--text-dim);
 }
-
-.panel-hoy {
-  font-size: var(--fs-sm);
-  color: var(--text-dim);
-  text-transform: capitalize;
-}
-
 .panel-head-actions {
   display: flex;
   gap: 0.5rem;
@@ -3985,4 +3978,209 @@ body.cmd-abierto {
     0 1px 0 var(--border-strong),
     0 8px 14px -8px rgba(0, 0, 0, 0.55);
   border-bottom-color: transparent;
+}
+
+/* =========================================================
+   "QUÉ HAY QUE HACER"
+   =========================================================
+   Lo primero de la portada.
+
+   ── POR QUÉ NO ES OTRA TARJETA MÁS ──
+
+   Porque la portada ya tenía tarjetas sueltas, y con cuatro
+   tarjetas al lado la pregunta "qué hago ahora" hay que
+   contestársela a uno mismo: leer los números, compararlos y decidir.
+   Eso es trabajo, y lo que esta pantalla tiene que hacer es
+   quitárselo.
+
+   Así que no enseña cuatro datos: enseña cuatro COSAS, en orden de
+   urgencia, y en ese orden el orden ES el mensaje. Lo vencido
+   primero porque es dinero que ya no está. Lo demás detrás, porque
+   tiene dueño y se está esperando.
+
+   ── LA FILA ──
+
+   El número va en un círculo a la izquierda, no encima y no dentro
+   de una caja. Es el primer dato que hay que ver al entrar y
+   cuanto más grande y menos ruido tenga alrededor, antes se lee.
+
+   Y el botón de la derecha dice la ACCIÓN, no "ver". "Ver" obliga a
+   adivinar qué va a pasar; "Cobrar" dice qué hay que hacer. Es la
+   diferencia entre un enlace y un botón, y aquí el botón es
+   correcto.
+
+   ── EL VACÍO ──
+
+   Cuando no hay nada, se dice que no hay nada y se dice por qué no
+   está lleno. Un bloque en blanco con "pendientes: 0" es un aviso
+   de que algo no se está leyendo. Esta frase dice "no hay cobros
+   vencidos, ni consultas sin responder..." —o sea, explica el
+   alcance de lo que se ha mirado— y la nota pequeña debajo recuerda
+   que es un estado, no un sitio vacío. */
+
+.panel-hacer {
+  margin-bottom: var(--p-6);
+  padding: var(--p-5);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg, 14px);
+  background: var(--surface);
+}
+
+.panel-hacer-titulo {
+  margin: 0 0 var(--p-4);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.panel-hacer-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-2);
+}
+
+.panel-hacer-item {
+  display: flex;
+  align-items: center;
+  gap: var(--p-4);
+  padding: var(--p-3) var(--p-3) var(--p-3) var(--p-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-soft);
+  transition: border-color var(--mov-1) var(--ease-out),
+              background-color var(--mov-1) var(--ease-out);
+}
+
+.panel-hacer-item:hover {
+  border-color: var(--border-strong);
+  background: var(--raise);
+}
+
+/* El número en círculo. El color va en el borde y en la cifra, no
+   en el fondo de la fila: cuatro filas de color entero parecen
+   cuatro alarmas, y solo una lo es. */
+.panel-hacer-n {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  height: 2rem;
+  padding: 0 0.4rem;
+  border: 1px solid;
+  border-radius: 999px;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.9rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.panel-hacer-item--rojo .panel-hacer-n {
+  color: var(--danger);
+  border-color: color-mix(in srgb, var(--danger) 50%, transparent);
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+}
+
+.panel-hacer-item--cian .panel-hacer-n {
+  color: var(--info);
+  border-color: color-mix(in srgb, var(--info) 50%, transparent);
+  background: color-mix(in srgb, var(--info) 12%, transparent);
+}
+
+.panel-hacer-item--ambar .panel-hacer-n {
+  color: var(--warning);
+  border-color: color-mix(in srgb, var(--warning) 50%, transparent);
+  background: color-mix(in srgb, var(--warning) 12%, transparent);
+}
+
+.panel-hacer-texto {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  text-decoration: none;
+  color: var(--text);
+}
+
+.panel-hacer-linea {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── La pista: POR QUÉ está en la lista ──
+
+   "Caducó hace 38 días" sin más es un dato suelto. "Caducó hace 38
+   días" debajo de "Panadería López · tienda online" ya es una tarea:
+   se sabe a quién hay que llamar y por qué.
+
+   Va en un tono apagado y más pequeña que el nombre, porque el
+   orden de lectura tiene que ser empresa primero. Al revés — el
+   motivo encima y la empresa debajo — el ojo lee el motivo, ve
+   "caducó", y no tiene con quién. */
+.panel-hacer-pista {
+  font-size: var(--fs-xs);
+  color: var(--text-dim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.panel-hacer-texto strong {
+  font-weight: 500;
+}
+
+.panel-hacer-texto:hover {
+  color: var(--text);
+  text-decoration: underline;
+}
+
+/* ── El vacío ── */
+
+.panel-hacer-vacio {
+  margin: 0;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.panel-hacer-vacio-nota {
+  display: block;
+  margin-top: var(--p-2);
+  font-size: var(--fs-xs);
+  color: var(--text-dim);
+}
+
+/* ── Movil ──
+
+   En una columna estrecha, la fila pasa a dos líneas: el texto
+   arriba y el botón debajo, a lo ancho. Con el número, el texto y el
+   botón en la misma línea a 390px, el texto se come el botón y la
+   acción queda ilegible. */
+
+@media (max-width: 560px) {
+  .panel-hacer-item {
+    flex-wrap: wrap;
+    gap: var(--p-3);
+  }
+
+  .panel-hacer-texto {
+    flex: 1 1 60%;
+  }
+
+  .panel-hacer-linea,
+  .panel-hacer-pista {
+    white-space: normal;
+  }
+
+  .panel-hacer-item .panel-btn {
+    flex: 1 1 100%;
+    justify-content: center;
+  }
 }

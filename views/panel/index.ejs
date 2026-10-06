@@ -23,6 +23,170 @@
     </div>
   </div>
 
+  <%# =========================================================
+      QUÉ HACER HOY
+
+      Lo que faltaba en esta pantalla no eran más cifras, era una
+      RESPUESTA. La portada tenía tarjetas sueltas y acertabas
+
+      ── POR QUÉ NO ES UNA TABLA MÁS ──
+
+      Porque una tabla de "4 cosas pendientes" obliga a leerlas para
+      saber si son urgentes, y aquí el orden ES el mensaje. Lo
+      vencido va primero porque es dinero que ya no está; lo demás va
+      detrás porque tiene dueño y se está esperando.
+
+      ── POR QUÉ NO HAY CONSULTAS NUEVAS ──
+
+      Cero citas sin contestar, cero tickets sin responder, nada
+      pausado, nada por vencer: la pantalla no ensucia con un bloque
+      vacío ni con un "0" en cada sitio. Un cero repetido cuatro
+      veces enseña a ignorar los números, y el día que haya 4.000
+      vencidos ese rojo ya no significa nada.
+
+      ── DE DÓNDE SALE, Y POR QUÉ NO CUESTA NADA ──
+
+      De `contadores`, que el middleware de `routes/panel.js` ya
+      calcula en CADA página del panel para los badges del lateral:
+      consultas, vencidos, servicios y tickets, en paralelo y con
+      `head: true`.
+
+      Aquí se reutiliza ese trabajo en vez de hacer una consulta
+      nueva. Una portada que cuenta lo mismo dos veces no es un
+      dato mejor, es una espera más.
+        ========================================================= %>
+  <%
+    var _c = (typeof contadores !== 'undefined' && contadores) ? contadores : {};
+
+    var _pendientes = [];
+      /* ── LOS VENCIMIENTOS: UNA FILA POR SERVICIO ──
+
+         Antes se agrupaban por TEXTO: todos los "caduca en 7 dias"
+         que caen en una sola fila que decía "caducó hace 38 días"
+         y llevaba a /servicios?estado=activo, o sea a un listado
+         de cinco servicios sin ninguno resaltado.
+
+         Era el peor sitio posible para perder contexto. Un bloque
+         titulado "qué hay que hacer" que dice "caducó hace 38 días"
+         sin decir DE QUE, y cuyo enlace obliga a buscar cuál
+         de los cinco, no es una respuesta: es la pregunta otra
+         vez.
+
+         Ahora cada fila es un servicio, con su empresa, su título y
+         su enlace a SU ficha. Los avisos de un mismo servicio se
+         juntan; los de servicios distintos no. */
+      var _porServicio = {};
+      (caducidades || []).forEach(function (x) {
+        if (!x.id) return;
+        var k = x.id;
+        if (!_porServicio[k]) {
+          _porServicio[k] = { nivel: x.nivel, titulo: x.titulo, empresa: x.empresa, id: x.id, dias: x.dias, avisos: [] };
+        }
+        _porServicio[k].avisos.push(x.texto);
+        /* Gana el mas urgente el color, que es el que explica por
+           que sale. Un servicio puede tener a la vez un cobro
+           caducado y una renovacion en dos semanas. */
+        if (x.dias !== null && (_porServicio[k].dias === null || x.dias < _porServicio[k].dias)) {
+          _porServicio[k].nivel = x.nivel;
+          _porServicio[k].dias = x.dias;
+        }
+      });
+
+      /* El color sale del NIVEL de urgencia, que lib/vencimientos.js
+         ya calcula: vencido, urgente, aviso, tranquilo, pendiente.
+
+         La primera version los ponia TODOS en ambar, con lo que un
+         servicio caducado hace 38 dias salia del mismo color que
+         uno que se renueva dentro de tres semanas. Y en una lista
+         ordenada por urgencia, que dos cosas distintas compartan
+         color es peor que no ordenarlas: da a entender que
+         igualan cuando no igualan. */
+      var _COLOR = { vencido: "rojo", urgente: "rojo", aviso: "ambar", pendiente: "ambar" };
+
+      /* "tranquilo" no sale. Una renovacion a dentro de dos meses
+         no es nada que hacer hoy, y meterla aqui haria que el
+         bloque creciera con cosas que no urgen. Para eso esta el
+         bloque de "Vencimientos y renovaciones", mas abajo, que si
+         las enseña. */
+      var _caducos = Object.keys(_porServicio)
+        .map(function (k) { return _porServicio[k]; })
+        .filter(function (g) { return _COLOR[g.nivel]; })
+        /* Y se ordenan por dias: lo mas vencido primero. */
+        .sort(function (a, b) { return (a.dias === null ? 1e9 : a.dias) - (b.dias === null ? 1e9 : b.dias); });
+      if (_c.vencidos > 0) {
+        _pendientes.push({ nivel: "rojo", n: _c.vencidos, texto: "cobro" + (_c.vencidos === 1 ? "" : "s") + " fuera de plazo", href: base + "/cobros?estado=vencido", accion: "Ver" });
+      }
+    if (_c.consultas > 0) {
+      _pendientes.push({ nivel: "cian", n: _c.consultas, texto: "consulta" + (_c.consultas === 1 ? "" : "s") + " sin responder", href: base + "/consultas?estado=nuevo", accion: "Responder" });
+    }
+    if (_c.tickets > 0) {
+      _pendientes.push({ nivel: "cian", n: _c.tickets, texto: "ticket" + (_c.tickets === 1 ? "" : "s") + " sin resolver", href: base + "/tickets?estado=abierto", accion: "Atender" });
+    }
+    if (_c.servicios > 0) {
+      _pendientes.push({ nivel: "ambar", n: _c.servicios, texto: "servicio" + (_c.servicios === 1 ? "" : "s") + " en pausa", href: base + "/servicios?estado=pausado", accion: "Revisar" });
+    }
+    _caducos.forEach(function (g) {
+      _pendientes.push({
+        nivel: _COLOR[g.nivel],
+        n: 1,
+        texto: (g.empresa ? g.empresa + " · " : "") + (g.titulo || "servicio"),
+        pista: g.avisos.join(" · "),
+        href: base + "/servicios/" + g.id + "/editar",
+        accion: "Abrir"
+      });
+    });
+
+    /* ── Y POR ÚLTIMO SE ORDENA ──
+
+       Los pushes de arriba agrupan por ORIGEN (dinero, consultas,
+       tickets, servicios, vencimientos), no por urgencia. Y esa
+       diferencia se notaba: un servicio caducado hace 38 días, que
+       es rojo, salía debajo de un "servicio en pausa", que es
+       ámbar, porque se había añadido después.
+
+
+       Es decir: la lista se leía en el orden en que se construía y
+       no en el que importa. Y en un bloque que se titula "qué hay
+       que hacer", el orden no es decorativo: es la respuesta.
+
+       El Array.sort de Node es estable, así que dentro de un mismo
+       color se respeta el orden de inserción — que para los
+       vencimientos ya viene ordenado por días, de más vencido a
+       menos. Por eso el cobro rojo sigue arriba: no porque se
+       clasifique aparte, sino porque se añadió primero. */
+    var _RANGO = { rojo: 0, cian: 1, ambar: 2 };
+    _pendientes.sort(function (a, b) { return _RANGO[a.nivel] - _RANGO[b.nivel]; });
+  %>
+
+  <section class="panel-hacer">
+    <h2 class="panel-hacer-titulo">
+      <% if (_pendientes.length) { %>Qué hay que hacer<% } else { %>Nada pendiente<% } %>
+    </h2>
+
+    <% if (!_pendientes.length) { %>
+      <p class="panel-hacer-vacio">
+        No hay cobros vencidos, ni consultas sin responder, ni tickets
+        sin resolver, ni servicios en pausa.
+        <span class="panel-hacer-vacio-nota">Si algo cambia, aparecerá aquí.</span>
+      </p>
+    <% } else { %>
+      <ul class="panel-hacer-lista">
+        <% _pendientes.forEach(function (p) { %>
+          <li class="panel-hacer-item panel-hacer-item--<%= p.nivel %>">
+            <span class="panel-hacer-n" aria-hidden="true"><%= p.n > 99 ? "99+" : p.n %></span>
+            <a href="<%= p.href %>" class="panel-hacer-texto">
+              <span class="panel-hacer-linea"><strong><%= p.texto %></strong></span>
+              <% if (p.pista) { %>
+                <span class="panel-hacer-pista"><%= p.pista %></span>
+              <% } %>
+            </a>
+            <a href="<%= p.href %>" class="panel-btn panel-btn--ghost panel-btn--xs"><%= p.accion %></a>
+          </li>
+        <% }); %>
+      </ul>
+    <% } %>
+  </section>
+
   <% if (!resumen) { %>
     <div class="panel-alert">
       No se pudo leer la base de datos. Revisa que Supabase esté bien
