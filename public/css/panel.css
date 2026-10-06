@@ -2774,3 +2774,384 @@ a.panel-stat--ambar:hover {
   font-family: var(--font-mono, ui-monospace, monospace);
   font-variant-numeric: tabular-nums;
 }
+
+/* =========================================================
+   CONTADORES DEL LATERAL
+   =========================================================
+   El número que va al lado de una sección.
+
+   ── POR QUÉ NO ES SOLO EL COLOR ──
+
+   Un 3 rojo junto a "Cobros" se lee como "los cobros están mal". Y a
+   lo mejor no lo están: lo que está mal son tres facturas concretas
+   que se pasaron de fecha. La sección está bien; lo que urge está
+   dentro.
+
+   Por eso cada uno lleva su `title` diciendo qué cuenta. El color
+   ordena por urgencia, que es lo único que tiene que hacer; el
+   título explica qué es. Un color solo no se puede leer, y un número
+   solo no se distingue de otro número.
+
+   ── TRES COLORES Y PARA QUÉ ──
+
+     rojo    lo que se pasó de fecha. Requiere una acción hoy.
+     ámbar   lo que está quieto y va a pedir atención pronto.
+     cian    lo nuevo. No es un problema: es una bandeja de entrada.
+
+   El cian es `--info`, no el acento. Con el acento el número se
+   confundía con "activo" y con el estado de la sección, que ya usa
+   ese color para otra cosa.
+
+   ── POR QUÉ SE OCULTA EN 0 ──
+
+   Un "0" al lado de cada sección es ruido que no enseña nada y
+   empuja el resto de la lista. Si no hay nada pendiente, no hay nada
+   que recordar. Y el hueco se queda: si el número crece, aparece en
+   su sitio sin que nada se mueva de golpe.
+
+   ── MÁS DE 99 ──
+
+   Se corta en "99+". Un número de cuatro cifras no cabe en el ancho
+   del lateral y empuja el texto de la sección hacia fuera. El
+   `title` lleva el número exacto, que es donde hace falta. */
+.panel-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.35rem;
+  height: 1.35rem;
+  margin-left: auto;
+  padding: 0 0.35rem;
+  border-radius: 999px;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.68rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0;
+
+  /* El borde de 1px compensa el `box-sizing`: sin él el círculo sale
+     2px más grande de lo que dice el alto y descuadra la fila. */
+  border: 1px solid transparent;
+}
+
+.panel-badge--vencido {
+  color: var(--danger);
+  border-color: color-mix(in srgb, var(--danger) 45%, transparent);
+  background: color-mix(in srgb, var(--danger) 14%, transparent);
+}
+
+.panel-badge--pausa {
+  color: var(--warning);
+  border-color: color-mix(in srgb, var(--warning) 45%, transparent);
+  background: color-mix(in srgb, var(--warning) 12%, transparent);
+}
+
+.panel-badge--nuevo {
+  color: var(--info);
+  border-color: color-mix(in srgb, var(--info) 45%, transparent);
+  background: color-mix(in srgb, var(--info) 14%, transparent);
+}
+
+/* En móvil el lateral es un cajón con el ancho de la pantalla, así
+   que el `margin-left: auto` funciona igual. Pero en pantallas
+   muy estrechas, con las tres secciones con contador, el número
+   empuja el texto: se permite que la sección ocupe dos líneas en vez
+   de dejar el nombre cortado. */
+.panel-menu-item {
+  flex-wrap: wrap;
+  row-gap: 0.15rem;
+}
+
+/* =========================================================
+   PALETA DE COMANDOS (Ctrl+K)
+   =========================================================
+   La capa va sobre todo, con `backdrop-filter` para que se vea que
+   hay algo encima. Sin oscurecer, la lista de resultados se mezcla
+   con la tabla que hay debajo y no se sabe dónde termina una cosa y
+   empieza la otra. */
+
+.cmd-capa {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: clamp(3rem, 12vh, 8rem) 1rem 2rem;
+  background: color-mix(in srgb, #05050a 62%, transparent);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: cmd-aparece 0.14s ease-out;
+}
+
+.cmd-capa[hidden] {
+  display: none;
+}
+
+/* `overflow-y: auto` en la CAPA y no en la caja: si la lista crece,
+   lo que scrollea es el fondo y la caja se queda en su sitio. Con el
+   scroll en la caja, el encabezado se iba con el contenido y ya no
+   se veía qué se estaba escribiendo. */
+.cmd-capa {
+  overflow-y: auto;
+}
+
+@keyframes cmd-aparece {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.cmd-caja {
+  width: min(40rem, 100%);
+  border: 1px solid var(--border-strong);
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
+  overflow: hidden;
+}
+
+/* ---------- El campo ---------- */
+
+.cmd-cabecera {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.cmd-icono {
+  flex: 0 0 auto;
+  width: 1rem;
+  height: 1rem;
+  border: 1.5px solid var(--text-dim);
+  border-radius: 999px;
+  position: relative;
+}
+
+/* El mango de la lupa: un palito, no otra forma. */
+.cmd-icono::after {
+  content: "";
+  position: absolute;
+  inset-block-start: 0.95rem;
+  inset-inline-start: 0.7rem;
+  width: 0.4rem;
+  height: 1.5px;
+  background: var(--text-dim);
+  transform: rotate(45deg);
+  transform-origin: left center;
+}
+
+.cmd-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 1.05rem;
+}
+
+/* El contorno del foco va en la CAJA, no en el input. Si se dejara en
+   el input se vería un rectángulo dentro de otro rectángulo, y el
+   input no llega al borde: queda hueco. */
+.cmd-input:focus {
+  outline: none;
+}
+
+.cmd-caja:focus-within {
+  border-color: var(--accent-2);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-2) 22%, transparent);
+}
+
+/* ---------- La lista ---------- */
+
+.cmd-lista {
+  max-height: min(24rem, 55vh);
+  overflow-y: auto;
+  padding: 0.35rem;
+  scrollbar-width: thin;
+}
+
+.cmd-grupo {
+  padding: 0.7rem 0.6rem 0.3rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.cmd-item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.7rem;
+  padding: 0.5rem 0.6rem;
+  border-radius: 8px;
+  color: var(--text);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* La marcada se pinta con el MISMO fondo que el hover, para que pasar
+   el ratón y bajar con el teclado den el mismo aviso de dónde
+   estás. Con dos estilos distintos, con el ratón no sabes cuál es
+   la que va a abrir Enter. */
+.cmd-item:hover,
+.cmd-item.es-marcada {
+  background: var(--raise);
+}
+
+.cmd-item.es-marcada {
+  box-shadow: inset 0 0 0 1px var(--border-strong);
+}
+
+.cmd-item-icono {
+  flex: 0 0 auto;
+  width: 1rem;
+  color: var(--text-dim);
+}
+
+.cmd-item-textos {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+.cmd-item-titulo {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cmd-item-detalle {
+  font-size: var(--fs-xs);
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cmd-vacio {
+  margin: 0;
+  padding: 1.5rem 1rem;
+  text-align: center;
+  font-size: var(--fs-sm);
+  color: var(--text-dim);
+}
+
+/* ---------- El pie ---------- */
+
+.cmd-pie {
+  display: flex;
+  gap: 1rem;
+  padding: 0.6rem 1rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.68rem;
+  color: var(--text-dim);
+}
+
+.cmd-pie kbd {
+  display: inline-block;
+  padding: 0.1rem 0.35rem;
+  margin-inline-end: 0.2rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  background: var(--bg-soft);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.65rem;
+}
+
+/* ---------- El botón de la barra ---------- */
+
+.panel-buscar {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+
+  /* SIN margin auto aquí.
+
+     El selector de tema ya lo lleva, y son los dos hijos últimos de
+     la barra. Con dos `margin-inline-start: auto` en la misma fila,
+     el hueco se reparte entre los dos y el tema queda flotando en
+     mitad de la pantalla en vez de pegado a la derecha.
+
+     En la barra del portal no hay selector de tema, y entonces sí lo
+     necesita: se le da más abajo. */
+  padding: 0.35rem 0.5rem 0.35rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg-soft);
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: var(--fs-sm);
+  cursor: pointer;
+  transition: border-color 0.14s ease, color 0.14s ease;
+}
+
+.panel-buscar:hover {
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+/* La barra del cliente no lleva selector de tema, así que aquí el
+   botón sí tiene que empujar el resto. */
+.panel-topbar--simple .panel-buscar {
+  margin-inline-start: auto;
+}
+
+.panel-buscar-lupa {
+  width: 0.85rem;
+  height: 0.85rem;
+  border: 1.5px solid currentColor;
+  border-radius: 999px;
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.panel-buscar-lupa::after {
+  content: "";
+  position: absolute;
+  inset-block-start: 0.8rem;
+  inset-inline-start: 0.6rem;
+  width: 0.35rem;
+  height: 1.5px;
+  background: currentColor;
+  transform: rotate(45deg);
+  transform-origin: left center;
+}
+
+.panel-buscar-atajo {
+  padding: 0.1rem 0.4rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 5px;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.65rem;
+  color: var(--text-dim);
+}
+
+/* Con la paleta abierta, el fondo no se mueve: scroll sigue
+   funcionando detrás, que es lo que se espera. */
+body.cmd-abierto {
+  overflow: hidden;
+}
+
+/* En móvil no hay sitio para un botón con texto y atajo, y además
+   el atajo no existe en un teléfono. Se queda solo la lupa. */
+@media (max-width: 560px) {
+  .panel-buscar-texto,
+  .panel-buscar-atajo {
+    display: none;
+  }
+
+  .panel-buscar {
+    padding: 0.45rem;
+    margin-inline-start: auto;
+  }
+
+  .cmd-pie {
+    display: none;
+  }
+}

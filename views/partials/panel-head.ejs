@@ -79,6 +79,22 @@
        <%= _current === 'consultas' ? 'aria-current="page"' : '' %>>
       <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h9"/></svg>
       Consultas
+      <%# Contadores del lateral.
+
+           Van al FINAL del enlace, y no envueltos en algo pulsable:
+           dentro, el área clicable se parte en dos y el clic entre el
+           número y el texto deja de llevar a la sección.
+
+           Y son números, no avisas. El color los ordena por urgencia
+           —rojo lo que se pasó, ámbar lo que está quieto, cian lo
+           nuevo— para que de un vistazo se sepa qué mirar primero. Un
+           badge rojo junto a "Cobros" significa "hay algo vencido", no
+           "hay cobros": la sección no está en error. Por eso el
+           título del badge lo dice, y no solo el color. %>
+      <% if (typeof contadores !== 'undefined' && contadores.consultas > 0) { %>
+        <span class="panel-badge panel-badge--nuevo"
+              title="<%= contadores.consultas %> consulta<%= contadores.consultas === 1 ? "" : "s" %> sin responder"><%= contadores.consultas > 99 ? "99+" : contadores.consultas %></span>
+      <% } %>
     </a>
 
     <p class="panel-menu-titulo">Gestión</p>
@@ -91,11 +107,19 @@
        <%= _current === 'servicios' ? 'aria-current="page"' : '' %>>
       <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v6l4 2"/><circle cx="10" cy="10" r="7"/></svg>
       Servicios
+      <% if (typeof contadores !== 'undefined' && contadores.servicios > 0) { %>
+        <span class="panel-badge panel-badge--pausa"
+              title="<%= contadores.servicios %> servicio<%= contadores.servicios === 1 ? "" : "s" %> pausado<%= contadores.servicios === 1 ? "" : "s" %>"><%= contadores.servicios > 99 ? "99+" : contadores.servicios %></span>
+      <% } %>
     </a>
     <a href="<%= base %>/cobros" class="panel-menu-item<%= _current === 'cobros' ? ' is-active' : '' %>"
        <%= _current === 'cobros' ? 'aria-current="page"' : '' %>>
       <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v14M13 6.5H8.5a2 2 0 0 0 0 4h3a2 2 0 0 1 0 4H6.5"/></svg>
       Cobros
+      <% if (typeof contadores !== 'undefined' && contadores.vencidos > 0) { %>
+        <span class="panel-badge panel-badge--vencido"
+              title="<%= contadores.vencidos %> cobro<%= contadores.vencidos === 1 ? "" : "s" %> fuera de plazo"><%= contadores.vencidos > 99 ? "99+" : contadores.vencidos %></span>
+      <% } %>
     </a>
 
     <%# Catálogo: lo que se vende, con sus precios.

@@ -51,7 +51,8 @@
     "test:cuenta": "node db/probar-cuenta.mjs",
     "test:web": "node db/ver-web.mjs",
     "test:maquetacion": "node db/auditar-maquetacion.mjs",
-    "test:catalogo": "node db/probar-catalogo.mjs"
+    "test:catalogo": "node db/probar-catalogo.mjs",
+    "test:paleta": "node db/probar-paleta.mjs"
   },
   "engines": {
     "node": ">=22"

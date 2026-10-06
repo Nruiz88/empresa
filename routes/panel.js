@@ -192,6 +192,181 @@ const router = express.Router();
   router.use(cargarSesion(db));
   router.use(exigeCsrf);
 
+  /* ---------- Buscar en todo el panel ----------
+     El backend de la paleta de comandos (Ctrl+K).
+
+     ── POR QUÉ EXISTE ──
+
+     Un panel tiene muchas pantallas y muchos registros. arriving a
+     "el cliente que se llama X" significa: recordar en qué sección
+     está, escribir el filtro, esperar, y a veces recorrer páginas. En
+     un panel con veinte clientes eso son cuatro pasos y dos decisiones.
+
+     Con Ctrl+K se escribe el nombre y se va. Es la función que más se
+     echa de menos cuando no está.
+
+     ── POR QUÉ DEVUELVE DATOS Y NO PÁGINAS ──
+
+     La paleta se pinta en el navegador a partir de lo que devuelve
+     esto. Mandar HTML hecho y meterlo en una URL seria mas facil,
+     entonces la búsqueda de dentro de lo ya pintado no se puede
+     filtrar sin recargar, y cada tecla sería un viaje al servidor.
+     Aquí va una lista corta y el filtrado es local.
+
+     ── EL LÍMITE DE RESULTADOS ──
+
+     Diez por tipo, treinta en total. Es un máximo de pantalla: más
+     de eso ya no es una paleta sino una tabla, y para lo largo está
+     la búsqueda de cada sección con sus filtros. */
+  router.get(BASE + "/buscar", requiereStaff, async (req, res) => {
+    const q = String(req.query.q || "").trim();
+
+    const vacio = {
+      consultas: [],
+      clientes: [],
+      servicios: [],
+      cobros: [],
+    };
+
+    /* Con menos de dos letras se devuelven las secciones y nada
+       más. Es lo que se espera al abrir con Ctrl+K: un campo vacío
+       con la lista de destinos, no un error. */
+    if (q.length < 2) {
+      return res.json({ q, secciones: [], ...vacio, pocasLetras: true });
+    }
+
+    /* El comodín de PostgREST. El texto va en `or` con ilike para
+       que encuentre por nombre, por empresa o por email; y en
+       `concepto`/`referencia` para los cobros.
+
+       Se escapan los `%` y los `_` porque en un ilike son comodines
+       de wildcard: si no, buscar "%" trae todo y buscar "a_b" trae
+       lo que empiece por a y cualquier cosa. */
+    const patron = "%" + q.replace(/[%_]/g, (m) => "\\" + m) + "%";
+
+    try {
+      const [clientes, servicios, cobros, consultas] = await Promise.all([
+        db
+          .from("clients")
+          .select("id,empresa,nombre")
+          .or(`empresa.ilike.${patron},nombre.ilike.${patron},email.ilike.${patron}`)
+          .eq("archivado", false)
+          .limit(10),
+        db
+          .from("services")
+          .select("id,titulo,estado,clients(empresa,nombre)")
+          .ilike("titulo", patron)
+          .limit(10),
+        db
+          .from("cobros")
+          .select("id,concepto,referencia,estado,services(titulo,clients(empresa,nombre))")
+          .or(`concepto.ilike.${patron},referencia.ilike.${patron}`)
+          .limit(10),
+        db
+          .from("leads")
+          .select("id,nombre,empresa,estado")
+          .or(`nombre.ilike.${patron},empresa.ilike.${patron}`)
+          .limit(10),
+      ]);
+
+      return res.json({
+        q,
+        pocasLetras: false,
+        clientes: (clientes.data || []).map((c) => ({
+          id: c.id,
+          titulo: c.empresa || c.nombre,
+          detalle: c.empresa && c.nombre !== c.empresa ? c.nombre : "",
+        })),
+        servicios: (servicios.data || []).map((s) => ({
+          id: s.id,
+          titulo: s.titulo,
+          detalle: (s.clients && (s.clients.empresa || s.clients.nombre)) || "",
+        })),
+        cobros: (cobros.data || []).map((c) => ({
+          id: c.id,
+          titulo: c.concepto,
+          detalle: c.referencia || "",
+        })),
+        consultas: (consultas.data || []).map((l) => ({
+          id: l.id,
+          titulo: l.nombre || l.empresa || "Sin nombre",
+          detalle: l.empresa || "",
+        })),
+      });
+    } catch (e) {
+      /* La paleta es una ayuda, no una función crítica. Si la búsqueda
+         falla se responde vacío y el panel sigue usable; una pantalla de
+         error en un cuadro de búsqueda sería peores que no buscar. */
+      console.warn("[panel] buscar falló:", e.message);
+      return res.json({ q, pocasLetras: false, ...vacio, error: true });
+    }
+  });
+
+  /* ---------- Los contadores del lateral ----------
+     Los números que aparecen al lado de cada sección: consultas sin
+     responder, cobros por vencer y servicios que se quedaron quietos.
+
+     ── POR QUÉ AQUÍ Y NO EN CADA VISTA ──
+
+     El lateral es el mismo en todas las pantallas, así que los
+     contadores son de todas. Si los calculara cada vista habría que
+     acordarse de añadirlos en las nuevas, y la primera que se
+     olvidara daría un lateral sin números sin que nada fallara.
+
+     ── POR QUÉ NO ROMPEN NADA SI LA BASE NO RESPONDE ──
+
+     `db` es null sin .env, y un error de red devuelve null en el
+     count. En los dos casos los contadores valen 0 y el lateral sale
+     sin números, que es lo que se quiera antes que la pantalla en
+     blanco. Un contador que se calcula por gusto no puede ser la
+     razón de que el panel no cargue.
+
+     ── EL COSTE ──
+
+     Tres consultas en cada carga del panel. Se piden EN PARALELO,
+     así que la espera es un viaje de red y no tres, y son `head:
+     true`, que no descargan filas: solo el número. Si algún día esto
+     se nota, lo que toca es un contador guardado y refrescado al
+     cambiar algo, no quitarlo. */
+  router.use(async (req, res, next) => {
+    res.locals.contadores = { consultas: 0, vencidos: 0, servicios: 0 };
+
+    /* Solo si hay sesión de equipo: en el portal del cliente el
+       lateral no se pinta, así que sería una consulta inútil en cada
+       carga de su parte. */
+    if (!db || !req.sesion || req.sesion.rol !== "staff") return next();
+
+    try {
+      const hoy = new Date().toISOString().slice(0, 10);
+
+      const [consultas, vencidos, servicios] = await Promise.all([
+        db.from("leads").select("id", { count: "exact", head: true }).eq("estado", "nuevo"),
+        db
+          .from("cobros")
+          .select("id", { count: "exact", head: true })
+          .in("estado", ["pendiente", "impagado"])
+          .lt("vence_en", hoy),
+        db
+          .from("services")
+          .select("id", { count: "exact", head: true })
+          .eq("estado", "pausado"),
+      ]);
+
+      res.locals.contadores = {
+        consultas: consultas.count || 0,
+        vencidos: vencidos.count || 0,
+        servicios: servicios.count || 0,
+      };
+    } catch (e) {
+      /* A propósito sin log de error: es un contador de un menú, y una
+         alerta en el log por algo que no ha sido un fallo enseña a
+         ignorar el log entero, que es donde de verdad se ven los
+         fallos. */
+    }
+
+    next();
+  });
+
   /* Datos de sesión como locals, NO como parámetros del include.
      Motivo: las vistas los pasaban una a una en forma abreviada
      ({ nombre, csrf }) y si una se olvidaba de uno, EJS reventaba

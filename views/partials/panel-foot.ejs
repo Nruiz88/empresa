@@ -10,5 +10,14 @@
   <!-- Comportamiento del panel (menú lateral, copiar, confirmar).
        Sin GSAP aquí: es una aplicación de gestión. -->
   <script src="/js/panel.js"></script>
+
+  <!-- La paleta de comandos (Ctrl+K).
+
+       Va DESPUÉS de panel.js porque crea su propio botón en la barra
+       superior, y si se cargara antes esa barra todavía no existiría.
+
+       Con `defer` para que no bloquee el pintado. Sigue siendo sin
+       dependencias y sin build, como el resto del panel. -->
+  <script src="/js/panel-buscar.js" defer></script>
 </body>
 </html>
