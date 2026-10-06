@@ -45,7 +45,9 @@
     "usuario": "node db/create-user.js",
     "test:render": "node db/test-render-completo.mjs",
     "test:salud": "node db/probar-salud.mjs",
-    "test:modulo": "node db/probar-modulo.mjs"
+    "test:modulo": "node db/probar-modulo.mjs",
+    "test:cifras": "node db/probar-cifras.mjs",
+    "test:capturas": "node db/ver-panel.mjs"
   },
   "engines": {
     "node": ">=22"

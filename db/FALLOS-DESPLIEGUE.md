@@ -125,4 +125,60 @@
 
    Costó dos reinicios. La segunda vez, escribiendo el comentario que
    explicaba justo el error anterior.
+
+   ── 22. ⭐ `git push` YA DESPLIEGA: NO ENCOLAR A MANO ──
+
+   Este repositorio tiene webhook de auto-deploy en Coolify. Cada
+   `git push` dispara un despliegue por su cuenta.
+
+   Encolando uno a mano además, salen los dos a la vez. No falla a la
+   primera, y por eso es difícil de ver. De cuatro pushes seguidos:
+
+       14:26:13  iuwq1g3l...  webhook    finished
+       14:26:23  y5twsv3yn...  a mano    finished   (colision, sobrevivio)
+       14:30:30  g7wgt6x5v...  webhook    finished
+       14:30:41  thspwhprqn...  a mano    FAILED
+
+   El que falla dice, y esto es lo que lía:
+
+       Container ...-143041195750 Started
+       ... error: no such object: ...-143041195750
+
+   O sea: el contenedor arrancó y desapareció. No es que la
+   aplicación no levante —la salud, el disco y la memoria estaban
+   bien, y `node --check` no encontraba nada. Es que los dos
+   despliegues limpian contenedores del otro por el camino, porque
+   `docker compose` va sobre el MISMO nombre de proyecto. El que
+   empieza segundo se queda sin el suyo.
+
+   La prueba de que es eso y no el código:
+
+       14:26:13  iuwq1g3l...  webhook    finished
+       14:26:23  y5twsv3yn...  a mano    finished
+
+   El a mano tardó 10 s más y hubo que mirar el desplegable entero
+   para verlo. Con solo el log del que falló, el diagnóstico es "la
+   app no arranca", que es falso y lleva a revisar el código en vez
+   del despliegue.
+
+   ── LO QUE SE HACE ──
+
+       git push        ← y ya esta desplegado
+
+   Para ver como va:
+
+       SELECT created_at, status, deployment_uuid
+         FROM application_deployment_queues
+        WHERE application_id::text =
+              (SELECT id::text FROM applications WHERE uuid = '<uuid>')
+        ORDER BY id DESC LIMIT 5;
+
+   Y para comprobar que corre el commit que crees, el nombre de la
+   imagen lleva el SHA completo:
+
+       docker inspect <contenedor> --format "{{.Config.Image}}"
+       → <uuid-de-la-app>:<sha-del-commit>
+
+   Si eso no es lo ultimo que has subido, el despliegue no es el que
+   crees que es.
    ========================================================= */
