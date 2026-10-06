@@ -43,7 +43,31 @@
 <% var _nombre = typeof nombre !== 'undefined' ? nombre : ''; %>
 <% var _csrf = typeof csrf !== 'undefined' ? csrf : ''; %>
 <% var _rol = typeof rol !== 'undefined' ? rol : ''; %>
-<% var _current = typeof current !== 'undefined' ? current : ''; %>
+<%# Los contadores del lateral, y a DÓNDE lleva cada sección.
+
+     ── POR QUÉ EL ENLACE CAMBIA Y NO EL BADGE ──
+
+     Lo obvious sería poner un `<a>` dentro del `<a>` del menú, para
+     que el número en sí fuese pulsable. Es HTML inválido: un enlace
+     anidado no se sabe qué abre, y los navegadores lo resuelven
+     como les da la gana. Además parte el área clicable en dos, que es
+     justo lo que el comentario de abajo del badge quiere evitar.
+
+     La solución buena es la que no necesita HTML nuevo: EL ENLACE
+     DEL MENÚ es el que apunta al filtro cuando hay algo pendiente.
+
+     Antes el menú llevaba a la sección entera, y el contador
+     señalaba un problema al que no se podía llegar. Es información
+     sin acción detrás, que es el peor tipo: paints una alerta y no
+     hay forma de atenderla.
+
+     Con esto, pinchar "Cobros 1" lleva directamente a los cobros
+     fuera de plazo. Y cuando no hay nada pendiente, el enlace va a
+     la sección entera, que es lo que se quiere entonces: consultar
+     el histórico, no filtrar por una lista vacía.
+
+     Un enlace por destino, sin anidar nada. %>
+<% var _c = (typeof contadores !== 'undefined' && contadores) ? contadores : { consultas: 0, vencidos: 0, servicios: 0, tickets: 0 }; %><% var _current = typeof current !== 'undefined' ? current : ''; %>
 
 <%# Con teclado se puede saltar el lateral. Sin esto, cada cambio de
     página son seis tabulaciones antes de llegar al contenido. %>
@@ -75,7 +99,7 @@
       <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10.5 10 4l7 6.5M5.5 9v7h9V9"/></svg>
       Resumen
     </a>
-    <a href="<%= base %>/consultas" class="panel-menu-item<%= _current === 'consultas' ? ' is-active' : '' %>"
+    <a href="<%= base %>/consultas<%= _c.consultas > 0 ? "?estado=nuevo" : "" %>" class="panel-menu-item<%= _current === 'consultas' ? ' is-active' : '' %>"
        <%= _current === 'consultas' ? 'aria-current="page"' : '' %>>
       <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h9"/></svg>
       Consultas
@@ -91,7 +115,7 @@
            badge rojo junto a "Cobros" significa "hay algo vencido", no
            "hay cobros": la sección no está en error. Por eso el
            título del badge lo dice, y no solo el color. %>
-      <% if (typeof contadores !== 'undefined' && contadores.consultas > 0) { %>
+      <% if (_c.consultas > 0) { %>
         <span class="panel-badge panel-badge--nuevo"
               title="<%= contadores.consultas %> consulta<%= contadores.consultas === 1 ? "" : "s" %> sin responder"><%= contadores.consultas > 99 ? "99+" : contadores.consultas %></span>
       <% } %>
@@ -103,20 +127,20 @@
       <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8" cy="7" r="3"/><path d="M2.5 16c0-3 2.5-4.5 5.5-4.5s5.5 1.5 5.5 4.5M14 5.5a2.5 2.5 0 1 1 0 5"/></svg>
       Clientes
     </a>
-    <a href="<%= base %>/servicios" class="panel-menu-item<%= _current === 'servicios' ? ' is-active' : '' %>"
+    <a href="<%= base %>/servicios<%= _c.servicios > 0 ? "?estado=pausado" : "" %>" class="panel-menu-item<%= _current === 'servicios' ? ' is-active' : '' %>"
        <%= _current === 'servicios' ? 'aria-current="page"' : '' %>>
       <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v6l4 2"/><circle cx="10" cy="10" r="7"/></svg>
       Servicios
-      <% if (typeof contadores !== 'undefined' && contadores.servicios > 0) { %>
+      <% if (_c.servicios > 0) { %>
         <span class="panel-badge panel-badge--pausa"
               title="<%= contadores.servicios %> servicio<%= contadores.servicios === 1 ? "" : "s" %> pausado<%= contadores.servicios === 1 ? "" : "s" %>"><%= contadores.servicios > 99 ? "99+" : contadores.servicios %></span>
       <% } %>
     </a>
-    <a href="<%= base %>/cobros" class="panel-menu-item<%= _current === 'cobros' ? ' is-active' : '' %>"
+    <a href="<%= base %>/cobros<%= _c.vencidos > 0 ? "?estado=vencido" : "" %>" class="panel-menu-item<%= _current === 'cobros' ? ' is-active' : '' %>"
        <%= _current === 'cobros' ? 'aria-current="page"' : '' %>>
       <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v14M13 6.5H8.5a2 2 0 0 0 0 4h3a2 2 0 0 1 0 4H6.5"/></svg>
       Cobros
-      <% if (typeof contadores !== 'undefined' && contadores.vencidos > 0) { %>
+      <% if (_c.vencidos > 0) { %>
         <span class="panel-badge panel-badge--vencido"
               title="<%= contadores.vencidos %> cobro<%= contadores.vencidos === 1 ? "" : "s" %> fuera de plazo"><%= contadores.vencidos > 99 ? "99+" : contadores.vencidos %></span>
       <% } %>
@@ -136,11 +160,11 @@
          los abiertos haría que el número cayera a cero en cuanto se
          contestara, y ese es justo el ticket que todavía se está
          resolviendo. %>
-    <a href="<%= base %>/tickets" class="panel-menu-item<%= _current === 'tickets' ? ' is-active' : '' %>"
+    <a href="<%= base %>/tickets<%= _c.tickets > 0 ? "?estado=abierto" : "" %>" class="panel-menu-item<%= _current === 'tickets' ? ' is-active' : '' %>"
        <%= _current === 'tickets' ? 'aria-current="page"' : '' %>>
       <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5h14v10H7l-4 3V5z"/></svg>
       Soporte
-      <% if (typeof contadores !== 'undefined' && contadores.tickets > 0) { %>
+      <% if (_c.tickets > 0) { %>
         <span class="panel-badge panel-badge--nuevo"
               title="<%= contadores.tickets %> ticket<%= contadores.tickets === 1 ? "" : "s" %> sin resolver"><%= contadores.tickets > 99 ? "99+" : contadores.tickets %></span>
       <% } %>
