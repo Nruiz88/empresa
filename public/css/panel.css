@@ -668,6 +668,11 @@ a.panel-stat:hover {
   transform: translateY(-2px);
 }
 
+/* El rojo de la portada lo pone .panel-stat--alerta, más abajo. No se
+   crea un --rojo que sería lo mismo con otro nombre: dos clases para
+   lo mismoGuarantizan que una acabe por cambiar y la otra no, y
+   entonces la misma idea aparece en dos tonos según la pantalla. */
+
 .panel-stat strong {
   display: block;
   font-family: var(--font-display, "Space Grotesk", sans-serif);
@@ -704,6 +709,43 @@ a.panel-stat:hover {
   color: var(--danger);
 }
 
+/* ---------- Ámbar: lo que está en plazo ----------
+
+   Va DESPUÉS de .panel-stat strong a propósito. Este bloque se
+   escribió primero, más arriba, y los números salían en violeta: la
+   regla de .panel-stat strong llega después y, con la misma
+   especificidad, gana. El fondo y el borde sí se veían, porque para
+   esos no compite nadie — y por eso el fallo era engañoso: media
+   tarjeta funcionaba y la otra mitad no.
+
+   Por eso `--ambar` está aquí y no arriba. Si se mueve, hay que
+   moverlo después de .panel-stat strong, no antes. */
+.panel-stat--ambar {
+  border-color: color-mix(in srgb, var(--warning) 32%, transparent);
+  background: color-mix(in srgb, var(--warning) 7%, var(--surface));
+}
+
+.panel-stat--ambar strong {
+  background: none;
+  color: var(--warning);
+  font-weight: 800;
+}
+
+a.panel-stat--ambar:hover {
+  border-color: color-mix(in srgb, var(--warning) 58%, transparent);
+}
+
+/* La etiqueta cambia con el número. Si el 7.809 va en rojo y debajo
+   pone "4 cobros vencidos" en gris, se lee como dos cosas
+   distintas: el dinero es una cifra y el aviso es otra. */
+.panel-stat--alerta span,
+.panel-stat--ambar span {
+  color: currentColor;
+}
+
+.panel-stat--alerta span { color: var(--danger); }
+.panel-stat--ambar span { color: var(--warning); }
+
 .panel-stat-pie {
   display: block;
   margin-top: 0.2rem;
@@ -716,6 +758,34 @@ a.panel-stat:hover {
 }
 
 /* ---------- Bloques del resumen ---------- */
+
+/* Una cifra que vale cero.
+   "0,00 € cobrado en octubre" estaba en violeta y a 1,9 rem, el mismo
+   peso visual que "8.809 € por cobrar". Eso enseña a no mirar las
+   cifras grandes, que es justo lo contrario de lo que sirven. Cuando
+   la cifra es cero, se atenúa el número y basta: no hace falta
+   borrarla, porque el hueco delata que esa tarjeta no tiene nada. */
+.panel-stat--vacia strong {
+  color: var(--text-dim);
+  font-weight: 600;
+  opacity: 0.55;
+}
+
+/* El pie de la tarjeta roja pasa a ser un enlace: si dice "7.809 €
+   vencido", lo natural es querer verlo. Con el texto plano había que
+   constructuir el filtro a mano. */
+.panel-stat-pie--enlace {
+  color: var(--danger);
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--danger) 40%, transparent);
+  align-self: flex-start;
+}
+
+.panel-stat-pie--enlace:hover {
+  color: var(--danger);
+  border-bottom-color: var(--danger);
+}
+
 .panel-bloque {
   margin-bottom: var(--panel-gap-xl);
 }
@@ -857,6 +927,31 @@ a.panel-stat:hover {
 .panel-chip--cobro-pagado    { color: var(--success); border-color: var(--success-border); background: var(--success-bg); }
 .panel-chip--cobro-impagado  { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 45%, transparent); background: color-mix(in srgb, var(--danger) 12%, transparent); }
 .panel-chip--cobro-anulado   { color: var(--text-dim); }
+
+/* Vencido es un estado DERIVADO: un pendiente cuya fecha ya pasó. No
+   está en el ENUM de la base, así que no hay regla para él y salía
+   sin estilo. Por eso necesita la suya, y no un alias a pendiente. */
+.panel-chip--cobro-vencido   { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 55%, transparent); background: color-mix(in srgb, var(--danger) 16%, transparent); font-weight: 700; }
+
+/* ---------- La fila vencida se ve vencida ----------
+   El archivo más urgente del negocio estaba pintado igual que uno
+   rutinario. Con ocho filas, la que lleva 16 días de retraso es la
+   primera que habría que ver, y era la que menos se distinguía.
+
+   El borde va en el borde de la celda, no en la fila: `border` en un
+   <tr> no se pinta en todos los navegadores, y una regla que a veces
+   no se aplica es peor que no tenerla. */
+.panel-table tbody tr.panel-tr--vencido > td {
+  background: color-mix(in srgb, var(--danger) 6%, var(--surface));
+}
+
+.panel-table tbody tr.panel-tr--vencido > td:first-child {
+  box-shadow: inset 3px 0 0 var(--danger);
+}
+
+.panel-table tbody tr.panel-tr--vencido > td:first-child .panel-cell-main {
+  font-weight: 600;
+}
 
 .panel-chip--equipo  { color: var(--accent-2); border-color: color-mix(in srgb, var(--accent-2) 40%, transparent); background: color-mix(in srgb, var(--accent-2) 12%, transparent); }
 .panel-chip--cliente { color: var(--accent-2); border-color: color-mix(in srgb, var(--accent-2) 40%, transparent); background: color-mix(in srgb, var(--accent-2) 12%, transparent); }
@@ -1512,6 +1607,23 @@ a.panel-stat:hover {
   background: color-mix(in srgb, var(--accent) 20%, transparent);
   color: var(--text);
   font-weight: 600;
+}
+
+/* La pestaña de vencidos va en rojo siempre, no solo cuando está
+   activa. Es la que se busca cuando hay un problema, y una pestaña
+   gris del mismo tono que las demás no se encuentra. */
+.panel-tabs a.panel-tab--vencido {
+  color: var(--danger);
+}
+
+.panel-tabs a.panel-tab--vencido:hover {
+  background: color-mix(in srgb, var(--danger) 10%, transparent);
+  color: var(--danger);
+}
+
+.panel-tabs a.panel-tab--vencido.is-active {
+  background: color-mix(in srgb, var(--danger) 16%, transparent);
+  color: var(--danger);
 }
 
 .panel-pager {

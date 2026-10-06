@@ -121,11 +121,34 @@ module.exports = function rutasCobros({ db, sitio, requiereStaff }) {
     const pagina = Math.max(1, parseInt(req.query.pagina || "1", 10) || 1);
     const desde = (pagina - 1) * POR_PAGINA;
 
+    /* ── "vencido" NO es un estado ──
+     *
+     * En la base los estados son pendiente, impagado, pagado y anulado.
+     * Vencido es otra cosa: un pendiente cuya fecha ya pasó. Por eso
+     * no se puede filtrar con `.eq("estado", "vencido")` — devolvería
+     * una lista vacía, sin error, que es lo peor que puede pasar un
+     * filtro: parece que no hay nada vencido.
+     *
+     * Y hace falta, porque es lo que se mira. La portada enlaza aquí
+     * con ?estado=vencido, y sin este bloque el enlace llevaba a una
+     * página en blanco. */
+    const VENCIDO = "vencido";
+    const hoy = new Date().toISOString().slice(0, 10);
+
     let consulta = db
       .from("cobros")
       .select("*, services(titulo,kind,estado,clients(id,empresa,nombre))", { count: "exact" });
 
-    if (estado) consulta = consulta.eq("estado", estado);
+    if (estado === VENCIDO) {
+      /* Lo vencido es un pendiente con fecha pasada. Un impagado cuenta
+         como vencido también: se emitió, no se cobró y pasó la fecha.
+         Por eso no se limita a `pendiente`. */
+      consulta = consulta
+        .in("estado", ["pendiente", "impagado"])
+        .lt("vence_en", hoy);
+    } else if (estado) {
+      consulta = consulta.eq("estado", estado);
+    }
     if (periodo) consulta = consulta.eq("periodo", periodo);
     if (q) {
       const patron = "%" + q.replace(/[%_]/g, (m) => "\\" + m) + "%";
@@ -152,15 +175,34 @@ module.exports = function rutasCobros({ db, sitio, requiereStaff }) {
       db.from("v_cobros_mensual").select("*").eq("periodo", mesActual).maybeSingle(),
       db
         .from("cobros")
-        .select("estado,importe,descuento")
+        .select("estado,importe,descuento,vence_en")
         .in("estado", ["pendiente", "impagado", "pagado"]),
     ]);
 
     /* Sumar en JS y no en SQL: son pocas filas (de miles) y así el
        mismo código sirve para el resumen del panel. */
     const suma = { pendiente: 0, impagado: 0, pagado: 0 };
+
+    /* Y lo VENCIDO: lo pendiente o impagado cuya fecha ya pasó.
+       Antes esta tarjeta decía "8.809 € por cobrar" y seacababa ahí,
+       cuando 7.809 de esos euros estaban fuera de plazo. Es la
+       diferencia entre "hay que mirar" y "hay que llamar a alguien".
+
+       Ojo: no es lo mismo que `impagado`. Un impagado está en mora
+       pero su fecha puede no haber llegado. Aquí va por fecha, que es
+       lo que el filtro Vencidos de más abajo usa — si las dos cosas
+       no contaran lo mismo, el número de la cabecera no cuadraría con
+       las filas de la lista. */
+    let vencido = 0;
+    let nVencidos = 0;
+
     for (const c of porEstado.data || []) {
       suma[c.estado] = (suma[c.estado] || 0) + (Number(c.importe) - Number(c.descuento || 0));
+
+      if (c.estado !== "pagado" && c.vence_en && c.vence_en < hoy) {
+        vencido += Number(c.importe) - Number(c.descuento || 0);
+        nVencidos++;
+      }
     }
 
     /* Periodos que existen, para el filtro. */
@@ -187,6 +229,9 @@ module.exports = function rutasCobros({ db, sitio, requiereStaff }) {
       fechaCorta,
       periodoLargo,
       diasDeRetraso,
+      /* Lo vencido, para el pie de la tarjeta roja. */
+      vencido,
+      nVencidos,
       estado,
       periodo,
       q,

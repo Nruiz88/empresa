@@ -430,9 +430,15 @@ const router = express.Router();
     let caducidades = [];
     let consultas = [];
 
+    /* El dinero que se debe. Antes no existía, y la portada contaba
+       gente. Se declara fuera del try porque el catch de abajo pone
+       `resumen = null` cuando algo falla, y la vista lo necesita
+       siempre para no reventar al pintar. */
+    let dineroPortada = { cuentas: [], hay: false };
+
     if (db) {
       try {
-        const [leads, clientes, servicios, sinLeer, vivos, recientes] = await Promise.all([
+        const [leads, clientes, servicios, sinLeer, vivos, recientes, cobrosPendientes] = await Promise.all([
           db.from("leads").select("id", { count: "exact", head: true }),
           db.from("clients").select("id", { count: "exact", head: true }).eq("archivado", false),
           db
@@ -449,13 +455,81 @@ const router = express.Router();
             .in("estado", ["activo", "en_curso", "pendiente", "pausado"]),
 
           db.from("leads").select("nombre,empresa,estado,recibido_en").order("recibido_en", { ascending: false }).limit(5),
+
+          /* El dinero. Faltaba por completo en la portada: se contaba
+             gente y no se contaba lo que se debe. Con 2.400 € vencidos
+             ahí fuera, la primera pantalla del panel no lo decía.
+
+             La moneda SÍ se pide, con un join al servicio. La primera
+             versión la daba por hecha en "EUR" y lo decía en un
+             comentario que lo explicaba como si fuera una decisión
+             sensata: si algún día hay un cobro en dólares, 100 USD
+             sumados como euros dan un número que no es de nadie. */
+          db
+            .from("cobros")
+            .select("importe,vence_en,services(moneda)"),
         ]);
+
+        /* `services(moneda)` es un objeto cuando la relación resuelve y
+           un array cuando no, según la fila. Con el casing de la
+           relación a mano esto es frágil; por eso se lee el primer
+           valor de las dos formas y se avisa si alguna vez hay más de
+           una moneda, en vez de sumarlas mezcladas. */
+        const hoy = new Date().toISOString().slice(0, 10);
+
+        const porMoneda = new Map();
+
+        for (const c of cobrosPendientes.data || []) {
+          if ((c.estado || "pendiente") !== "pendiente") continue;
+
+          const rel = c.services;
+          const servicio = Array.isArray(rel) ? rel[0] : rel;
+          const clave = (servicio && servicio.moneda) || "EUR";
+
+          if (!porMoneda.has(clave)) {
+            porMoneda.set(clave, { pendientes: 0, vencidos: 0, nVencidos: 0, n: 0 });
+          }
+
+          const t = porMoneda.get(clave);
+          const importe = Number(c.importe) || 0;
+          t.pendientes += importe;
+          t.n++;
+
+          if (c.vence_en && c.vence_en < hoy) {
+            t.vencidos += importe;
+            t.nVencidos++;
+          }
+        }
+
+        const cuentas = [...porMoneda.entries()].map(([moneda, t]) => ({
+          moneda,
+          n: t.n,
+          nVencidos: t.nVencidos,
+          pendientes: t.pendientes,
+          vencidos: t.vencidos,
+          texto: dinero(t.pendientes, moneda),
+          textoVencidos: dinero(t.vencidos, moneda),
+        }));
+
+        /* Más de una moneda: se avisa por el log, porque a partir de ahí
+           las cifras de la portada ya no son una sola cantidad y hay que
+           saberlo al mirar la pantalla, no al scoparla. */
+        if (cuentas.length > 1) {
+          console.warn(
+            "[panel] la portada tiene cobros en " +
+              cuentas.length +
+              " monedas: " +
+              cuentas.map((c) => c.moneda).join(", ")
+          );
+        }
 
         resumen = {
           consultasNuevas: sinLeer.count || 0,
           clientes: clientes.count || 0,
           serviciosActivos: servicios.count || 0,
         };
+
+        dineroPortada = { cuentas, hay: cuentas.length > 0 };
 
         caducidades = vencimientos.proximos(vivos.data || []);
 
@@ -478,6 +552,7 @@ const router = express.Router();
       base: BASE,
       noindex: true,
       resumen,
+      dineroPortada,
       caducidades,
       consultas,
       aviso: req.query.aviso || null,

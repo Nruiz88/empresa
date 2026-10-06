@@ -36,19 +36,35 @@
       <div class="panel-stat panel-stat--alerta">
         <strong><%= dinero(resumen.pendiente + resumen.impagado) %></strong>
         <span>por cobrar</span>
-        <% if (resumen.impagado > 0) { %>
-          <em class="panel-stat-pie"><%= dinero(resumen.impagado) %> vencido</em>
+
+        <!-- El pie decía `resumen.impagado`, que es "en mora", no
+             "fuera de plazo". Son cosas distintas y aquí se confundían:
+             con 7.809 € de verdad vencidos, el pie salía en 0 y la
+             tarjeta se leía como si no hubiera nada atrasado.
+             Ahora sale lo vencido de verdad, por fecha, que es lo
+             mismo que cuenta el filtro de más abajo. -->
+        <% if (nVencidos > 0) { %>
+          <a class="panel-stat-pie panel-stat-pie--enlace" href="<%= base %>/cobros?estado=vencido">
+            <%= dinero(vencido) %> vencido · <%= nVencidos %> cobro<%= nVencidos === 1 ? "" : "s" %>
+          </a>
         <% } %>
       </div>
-      <div class="panel-stat">
+
+      <!-- Un 0 en el mismo tamaño y color que un 8.809 pesa lo mismo
+           que un 8.809. Cuando no se ha cobrado nada en el mes, lo
+           único que dice esa tarjeta es "no ha pasado nada", y para
+           decirlo no hace falta un número de 1,9 rem. -->
+      <div class="panel-stat<%= resumen.mesCobrado > 0 ? '' : ' panel-stat--vacia' %>">
         <strong><%= dinero(resumen.mesCobrado) %></strong>
         <span>cobrado en <%= periodoLargo(resumen.mes) %></span>
       </div>
-      <div class="panel-stat">
+
+      <div class="panel-stat<%= resumen.mesPendiente > 0 ? '' : ' panel-stat--vacia' %>">
         <strong><%= dinero(resumen.mesPendiente) %></strong>
         <span>emitido sin cobrar en <%= periodoLargo(resumen.mes) %></span>
       </div>
-      <div class="panel-stat">
+
+      <div class="panel-stat<%= resumen.pagado > 0 ? '' : ' panel-stat--vacia' %>">
         <strong><%= dinero(resumen.pagado) %></strong>
         <span>cobrado histórico</span>
       </div>
@@ -58,6 +74,17 @@
   <!-- ---------- Filtros ---------- -->
   <nav class="panel-tabs">
     <a href="<%= base %>/cobros" class="<%= !estado ? 'is-active' : '' %>">Todos</a>
+
+    <!-- "Vencidos" va el primero y aparte de los estados.
+         No es un estado: es un pendiente cuya fecha ya pasó. Estaba
+         en el pedido desde antes y no existía, que es raro: es la
+         pregunta que más se hace y obligaba a recorrer la lista
+         mirando fechas una a una. La portada enlaza aquí. -->
+    <a href="<%= base %>/cobros?estado=vencido"
+       class="panel-tab--vencido<%= estado === 'vencido' ? ' is-active' : '' %>">
+      Vencidos
+    </a>
+
     <% estados.forEach(function (e) { %>
       <a href="<%= base %>/cobros?estado=<%= e.valor %>" class="<%= estado === e.valor ? 'is-active' : '' %>">
         <%= e.label %>
@@ -107,7 +134,14 @@
           <% cobros.forEach(function (c) { %>
             <% var srv = c.services || {}; %>
             <% var cli = srv.clients || {}; %>
-            <tr>
+            <% /* Los días de retraso se calculan AQUÍ y no dentro de
+                 la celda de estado, porque la fila entera necesita
+                 saberlo para pintarse de otro color. Con el cálculo
+                 dentro, la fila vencida no se distingue: se veía
+                 exactamente igual que una rutinaria, y el archivo más
+                 urgente del negocio era indistinguible. */ %>
+            <% var tarde = diasDeRetraso(c.vence_en, c.estado); %>
+            <tr class="<%= tarde ? 'panel-tr--vencido' : '' %>">
               <td>
                 <span class="panel-cell-main"><%= c.concepto %></span>
                 <% if (c.referencia) { %>
@@ -132,10 +166,13 @@
                 <%= dinero(Number(c.importe) - Number(c.descuento || 0), c.moneda) %>
               </td>
               <td>
-                <span class="panel-chip panel-chip--cobro-<%= c.estado %>">
-                  <%= etiqueta(c.estado) %>
+                <% /* Si la fecha ya pasó, el chip dice VENCIDO y no el
+                     estado. "Pendiente" con 16 días de retraso al lado
+                     es una forma elegante de no decirlo: el estado es
+                     cierto, pero no es lo que hay que leer primero. */ %>
+                <span class="panel-chip panel-chip--<%= tarde ? 'cobro-vencido' : 'cobro-' + c.estado %>">
+                  <%= tarde ? 'Vencido' : etiqueta(c.estado) %>
                 </span>
-                <% var tarde = diasDeRetraso(c.vence_en, c.estado); %>
                 <% if (tarde) { %>
                   <span class="panel-retraso"><%= tarde %> día<%= tarde === 1 ? '' : 's' %> tarde</span>
                 <% } %>

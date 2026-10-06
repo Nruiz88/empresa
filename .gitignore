@@ -17,6 +17,7 @@ logs/
 # Capturas del panel que se generan para revisarlas con un navegador.
 # No son código: son fotos del HTML con datos de clientes de prueba
 # (emails, importes, nombres). Fuera del repo.
+capturas/
 public/_captura.html
 public/_*.png
 public/*.png

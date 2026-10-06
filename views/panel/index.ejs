@@ -1,4 +1,4 @@
-﻿<%#
+<%#
   Resumen del panel.
 
   Lo primero que ve el equipo al entrar. Tres bloques:
@@ -31,6 +31,46 @@
   <% } else { %>
 
     <!-- ---------- Cifras ---------- -->
+      <!-- ---------- El dinero, primero ----------
+           El orden importa, y el motivo esta en la ruta.
+
+           Antes eran tres tarjetas iguales: consultas, clientes y
+           servicios. Las tres en violeta, del mismo tamano, en el
+           mismo sitio. Una consulta sin responder --una alerta-- se
+           veia igual que dieciocho clientes, que es un dato.
+
+           Y faltaba lo unico que no tiene arreglo tecnico: lo que se
+           debe. Aqui hay 2.400 EUR vencidos y la portada no lo decia.
+           El dinero va primero y en su color: lo vencido en rojo, lo
+           que esta en plazo en ambar. Si hay que mirar una sola cifra
+           al entrar, es esa.
+
+           Un detalle que parece raro y no lo es: si no hay nada
+           vencido, la tarjeta roja no se enseña. Un 0 en rojo es
+           ruido que entrena a ignorar el color, y el dia que haya
+           2.400 el rojo ya no significa nada. -->
+      <% if (dineroPortada && dineroPortada.hay) { %>
+        <div class="panel-stats">
+          <% dineroPortada.cuentas.forEach(function (c) { %>
+
+            <% if (c.nVencidos > 0) { %>
+              <a class="panel-stat panel-stat--alerta" href="<%= base %>/cobros?estado=vencido">
+                <strong><%= c.textoVencidos %></strong>
+                <span><%= c.nVencidos %> cobro<%= c.nVencidos === 1 ? "" : "s" %> vencido<%= c.nVencidos === 1 ? "" : "s" %></span>
+              </a>
+            <% } %>
+
+            <a class="panel-stat panel-stat--ambar" href="<%= base %>/cobros?estado=pendiente">
+              <strong><%= c.texto %></strong>
+              <span><%= c.n %> por cobrar<%= c.moneda !== "EUR" ? " · " + c.moneda : "" %></span>
+            </a>
+          <% }); %>
+        </div>
+      <% } %>
+
+      <!-- ---------- Cifras de gente ----------
+           Debajo del dinero, y neutras. Son datos, no alarmas: que se
+           vean como datos. -->
     <div class="panel-stats">
       <a class="panel-stat" href="<%= base %>/consultas?estado=nuevo">
         <strong><%= resumen.consultasNuevas %></strong>
