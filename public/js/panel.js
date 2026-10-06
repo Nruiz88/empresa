@@ -179,3 +179,85 @@
     });
   });
 })();
+  /* =========================================================
+     SOMBRA DE LA CABECERA PEGADA
+     ------------------------------------------------------------
+     Cuando la cabecera de una tabla deja de verse entera, se le
+     pone una sombra. Cuando vuelve a verse, se le quita.
+
+     ── POR QUE NO EN CSS ──
+
+     Porque en CSS no se puede saber cuanto ha bajado la pagina. Se
+     podria con `animation-timeline: scroll()`, que existe, pero no
+     esta en todos los navegadores y el panel no esta para eso.
+
+     ── POR QUE NO EN CADA EVENTO DE SCROLL ──
+
+     Porque un manejador de `scroll` salta decenas de veces por
+     segundo, y hacer trabajo —leer una geometria con
+     `getBoundingClientRect`, que fuerza reflow— en cada uno
+     bloquea el hilo y se nota como tirones en la barra de scroll.
+
+     El arreglo: se marca el scroll, y el trabajo se hace UNICAMENTE
+     en el siguiente fotograma con `requestAnimationFrame`. Si
+     llegan diez eventos antes de ese fotograma, se ejecutan el
+     codigo una vez, no diez. Esto es lo que llama "throttling por
+     fotograma" y es la diferencia entre un panel fluido y uno que
+     se queda pegado mientras se baja una tabla larga.
+
+     Y se mide con `getBoundingClientRect().top` de la cabecera
+     contra el alto de la barra: si ya se solapan, la sombra. Un
+     numero, sin categorias ni casos raros. */
+  (function sombraCabecera() {
+    const wraps = document.querySelectorAll(".panel-table-wrap");
+    if (!wraps.length) return;
+
+    /* En movil el modo tarjeta no tiene cabecera pegada: los `th`
+       estan en `display: none` y medirian cualquier cosa. */
+    if (window.matchMedia("(max-width: 720px)").matches) return;
+
+    const barra = document.querySelector(".panel-topbar");
+    const tope = barra ? barra.getBoundingClientRect().height : 0;
+
+    let pendiente = false;
+
+      function medir() {
+        pendiente = false;
+
+        wraps.forEach(function (wrap) {
+          const tabla = wrap.querySelector(".panel-table");
+          if (!tabla) return;
+
+          /* Se mide LA TABLA, no la cabecera.
+
+             Lo primero que se puso fue mirar el `top` del `th`, y
+             no puede funcionar: la barra superior y la cabecera
+             estan las dos fijas, asi que el `th` se queda clavado en
+             60 para siempre y comparar su posicion no dice nada. Da
+             igual que se bajen mil pixeles: sigue en 60.
+
+             Lo que si baja es la tabla. Cuando su borde superior
+             pasa de la barra, la cabecera ya esta pegada del todo, y
+             ahi es cuando hace falta la sombra: a partir de ese
+             momento, lo que va por debajo es una fila de datos.
+
+             Medido: al bajar 900px la tabla pasa de estar en 264 a
+             tener el borde superior muy por encima de la barra. */
+          wrap.classList.toggle(
+            "panel-table-wrap--scrolled",
+            tabla.getBoundingClientRect().top < tope - 1
+          );
+        });
+      }
+
+    function pedir() {
+      if (pendiente) return;
+      pendiente = true;
+      window.requestAnimationFrame(medir);
+    }
+
+    window.addEventListener("scroll", pedir, { passive: true });
+    window.addEventListener("resize", pedir);
+
+    medir();
+  })();

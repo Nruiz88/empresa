@@ -3740,3 +3740,249 @@ body.cmd-abierto {
     flex-wrap: wrap;
   }
 }
+
+/* =========================================================
+   SISTEMA DE MOVIMIENTO Y ELEVACION
+   =========================================================
+   Lo que faltaba no era decoracion: era un SISTEMA. Trece
+   `transition` sueltas repartidas por el archivo, cada una con su
+   duracion escrita a mano, y ni un token.
+
+   Eso hace que dos animaciones que se supone gemelas duren cosas
+   distintas, y que nadie pueda acelerar el panel entero cuando le
+   parece lento.
+
+   ── LAS TRES DURACIONES Y POR QUE TRES ──
+
+   Menos de tres y no se distinguen los momentos; mas de tres y
+   acabas eligiendo al azar.
+
+     --mov-1  120ms  micro. Hover, foco, pulsado.
+                       Por debajo de 100ms no se perceived; por
+                       encima de 150 el raton va por delante del
+                       boton y da la sensacion de que elraton se
+                       arrastra.
+
+     --mov-2  200ms  cambio de estado. Abrir, cerrar, expandir,
+                       cambiar de pestaña. Donde se nota que algo
+                       ha cambiado.
+
+     --mov-3  320ms  entrar en pantalla. Panel lateral, paleta,
+                       avisos. Solo lo que APARECE y por tanto
+                       tiene un sitio de donde salir.
+
+   ── LAS DOS CURVAS, Y POR QUE NO UNA ──
+
+     --ease-out    algo ENTRA: arranca rapido y frena. Se percibe
+                   como inmediato, que es lo que se quiere de una
+                   cosa que aparece.
+
+     --ease-in-out algo SE MUEVE: de un sitio a otro. Frena al
+                   arrancar y al llegar, que es lo que hace que se
+                   lea como movimiento y no como salto.
+
+   Escribirlos al reves —entrar lento, salir rapido— es el error
+   clasico: la cosa que aparece tarde en arrancar parece lenta
+   aunque tarde lo mismo en terminar. */
+
+:root {
+  --mov-1: 120ms;
+  --mov-2: 200ms;
+  --mov-3: 320ms;
+
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ── ELEVACION: TRES NIVELES Y NI UNO MAS ──
+
+     Antes habia nueve sombras distintas, y solo dos eran elevation
+     real; las demas eran anillos de foco y tramas. Nueve niveles
+     de sombra no significan nueve niveles de altura: significan
+     que nadie sabe cuando usar cada una, y acabas poniendo
+     `box-shadow` cuando lo que hace falta es un borde.
+
+     Tres niveles, y una regla: si dudas entre dos, usa el mas bajo.
+
+       --elev-0  nada. Plano. El nivel por defecto de TODO.
+       --elev-1  una tarjeta que se apoya en la pagina.
+       --elev-2  algo que flota: menu, paleta, aviso.
+
+     La diferencia entre 0 y 1 no es una sombra, es un BORDE. Una
+     tarjeta pegada a la pagina se separa con una linea, y el hueco
+     de sombra se reserva para lo que de verdad flota. Un borde es
+     mas barato de pintar y se lee mejor en un tema oscuro, donde
+     las sombras casi no se ven. */
+  --elev-0: none;
+  --elev-1: 0 1px 2px rgba(0, 0, 0, 0.14);
+  --elev-2: 0 12px 32px -8px rgba(0, 0, 0, 0.45);
+
+  /* Una sola sombra para el tema oscuro tambien. Las sombras
+     sobre fondo casi negro no se ven; el relieve lo hace el
+     borde. Y al ponerla como token, el tema claro la cambia sin
+     tener que buscar nueve reglas. */
+}
+
+
+/* ── CUANDO EL USUARIO PIDE MENOS MOVIMIENTO ──
+
+   No es un detalle de accesibilidad: es que hay gente a quien el
+   movimiento en pantalla le cae mal de verdad, y en el panel se
+   pasa horas.
+
+   Ponerlo a `0.01ms` en vez de a `none` deja las transiciones en su
+   sitio, asi que los estados finales se siguen aplicando y nada
+   se queda a medio camino. Con `none` un elemento con `transition`
+   y un estado final sigue mostrando el estado inicial en algunos
+   navegadores. */
+@media (prefers-reduced-motion: reduce) {
+  .panel-body *,
+  .panel-body *::before,
+  .panel-body *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+
+/* =========================================================
+   TRANSICIONES EN LO INTERACTIVO
+   =========================================================
+   Aqui hay una exclusion importante, y es la que mas se nota.
+
+   El hover de fila y de boton NO lleva transicion.
+
+   Un boton con `transition: 120ms` tarda esos 120ms en responder al
+   raton. En una pantalla en la que el usuario va moviendo el
+   raton de un elemento a otro, lo que ve no es "suave": es que el
+   raton va por delante. El hover tiene que ser INMEDIATO; lo que
+   se anima es la SALIDA, que es lo que no molesta.
+
+   Por eso el patron de abajo pone transicion solo en el estado de
+   reposo y no en el activo: el elemento llega al hover de golpe y
+   sale de él despacio. */
+.panel-btn,
+.panel-menu-item,
+.panel-tab,
+.panel-tabs a,
+.panel-filters input,
+.panel-filters select,
+.panel-chip,
+.panel-badge,
+.ticket-fila a,
+.panel-search {
+  transition:
+    background-color var(--mov-1) var(--ease-out),
+    border-color var(--mov-1) var(--ease-out),
+    color var(--mov-1) var(--ease-out),
+    box-shadow var(--mov-1) var(--ease-out);
+}
+
+.panel-btn--primary,
+.panel-theme,
+.cmd-caja,
+.cmd-item {
+  transition:
+    background-color var(--mov-2) var(--ease-out),
+    border-color var(--mov-2) var(--ease-out),
+    color var(--mov-2) var(--ease-out),
+    box-shadow var(--mov-2) var(--ease-out),
+    transform var(--mov-1) var(--ease-out);
+}
+
+/* El foco visible tambien se anima. Sin transicion aparece de
+   golpe con el Tab y da un tirón; con transicion se ve de donde
+   viene el foco. */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  transition: box-shadow var(--mov-1) var(--ease-out);
+}
+
+/* =========================================================
+   CABECERA PEGADA AL HACER SCROLL
+   =========================================================
+   El contenedor `.panel-table-wrap` lleva desde el principio un
+   comentario que dice "la cabecera sticky se ancla al contenedor
+   que hace scroll". O sea: se planeo, se dejo el sitio preparado y
+   nunca se aplico el `position: sticky`. Por eso al bajar en una
+   tabla de 40 cobros ya no sabes en que columna estas, y subes a
+   mirarlo.
+
+   ── POR QUE HAY QUE SACARLE EL SCROLL ──
+
+   Para que `position: sticky` funcione, el elemento se ancla al
+   ancestro con scroll mas cercano. Ahora el wrap es
+   `overflow-x: auto` + `overflow-y: auto`, asi que es contenedor de
+   scroll en los dos ejes, pero no tiene alto: crece hasta llenar la
+   tabla y nunca scrollea. El sticky se ancla a un contenedor que
+   no se mueve, y no pasa nada.
+
+   Y no se puede poner `overflow-y: visible` con `overflow-x: auto`
+   porque CSS no lo permite: si un eje no es `visible`, el otro
+   computes a `auto`. O los dos scrollean, o ninguno.
+
+   En escritorio el contenedor se abre. Las tablas tienen
+   `min-width: 560px` y el area de contenido mide 1192px a 1440, asi
+   que en la practica no hay scroll horizontal. En movil el modo
+   tarjeta ya pone `overflow: visible` y no hay tabla que anclar.
+
+   ── LA SOMBRA AL SCROLLEAR ──
+
+   Aqui no vale la sombra siempre puesta: la sombra indica que hay
+   algo por encima, y si esta siempre dice que lo hay aunque no lo
+   haya. Es un aviso que miente, y por eso no se pone.
+
+   La sombra la anade `panel.js` cuando la cabecera deja de verse
+   entera. No es decoracion: la sombra es la que separa el fondo
+   del texto, porque un fondo traslucido con las filas pasando por
+   debajo es ilegible, y ese es el problema que resuelve. */
+
+@media (min-width: 721px) {
+  .panel-table-wrap {
+    /* Solo hay dos pares validos en CSS para esto:
+       `visible visible` y `auto auto`. Y `visible visible` es lo
+       mismo que `visible`, que no scrollea: justo lo que se
+       quiere. */
+    overflow: visible;
+  }
+}
+
+.panel-table thead th {
+  position: sticky;
+  /* Se ancla DEBAJO de la barra superior, no en 0: si en 0, la
+     cabecera se esconde detras de la barra al bajar, y una
+     cabecera pegada que desaparece no esta pegada a nada. */
+  top: var(--panel-topbar);
+  z-index: 2;
+
+  /* El fondo va SOLID. Traslucido es mas elegante e ilegible: las
+     filas de detras se leen a traves del texto. Con `backdrop-filter`
+     encima solo se ve en los navegadores que lo soportan, y el resto
+     se queda sin fondo, que es peor. */
+  background: var(--surface);
+}
+
+/* La sombra, cuando toca. La pone `panel.js` cuando el borde superior
+   de la tabla pasa por debajo de la barra: a partir de ahi, lo que
+   asoma por debajo de la cabecera es una fila de datos.
+
+   ── POR QUE DOS SOMBRAS Y NO UNA ──
+
+   La primera es la linea de 1px que separa la cabecera de la fila
+   que tiene pegada debajo. La segunda es la difuminacion que dice
+   "por aqui hay algo tapado".
+
+   Con solo la linea se ve un recuadro plano pegado a la tabla. Con
+   solo la difuminacion no se distingue donde acaba la cabecera. Las
+   dos juntas hacen lo que hace un papel al que se pasa algo por
+   encima.
+
+   Y el borde de abajo se quita cuando la sombra esta puesta: los dos
+   juntos dan una linea doble que engorda la cabecera un pixel y se
+   nota como un fallo de calibrado. */
+.panel-table-wrap--scrolled > .panel-table > thead th {
+  box-shadow:
+    0 1px 0 var(--border-strong),
+    0 8px 14px -8px rgba(0, 0, 0, 0.55);
+  border-bottom-color: transparent;
+}
