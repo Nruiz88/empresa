@@ -4690,3 +4690,71 @@ body.cmd-abierto {
   font-size: var(--fs-xs);
   color: var(--text-dim);
 }
+
+/* =========================================================
+   RITMO VERTICAL: UN SOLO ESPACIO ENTRE BLOQUES
+   =========================================================
+   Este bloque va AL FINAL del archivo a proposito, y lleva `[class]`
+   en el selector. Las dos cosas son necesarias:
+
+   ── POR QUE AL FINAL ──
+
+   Porque portal.css se carga DESPUES de panel.css. Dos reglas con la
+   misma especificidad las gana la ultima del orden de carga, no la
+   ultima del archivo.
+
+   ── POR QUE [class] ──
+
+   Porque `.panel-page > *` tiene especificidad (0,1,0), la misma que
+   `.portal-catalogo`, y el `margin: 0` de esa lista —que está en
+   portal.css— le gana por orden de carga. Con `[class]` el selector
+   sube a (0,2,0) y ya no hay empate.
+
+   La alternativa era subir la especificidad a la fuerza con un
+   `!important` o un selector inventado. Esto al menos dice lo que
+   quiere decir: "los hijos de la pagina que son componentes", que es
+   exactamente lo que son, y deja fuera los `<script>` y los `<style>`
+   que no son nada.
+
+   ── POR QUE ESTA REGLA Y NO UN MARGEN EN CADA BLOQUE ──
+
+   Porque cada bloque se inventaba el suyo y no coincidían:
+
+     .portal-cab          2.25rem
+     .portal-sec          2.25rem
+     .panel-requiere      1.5rem
+     .panel-empty         1.35rem
+     .panel-alert         1.15rem
+     .panel-note          NINGUNO
+
+   El último es el que rompía. En /servicios-disponibles el aviso de
+   "¿Falta algo? Dinos qué necesitas" se quedaba PEGADO al final de
+   la lista de tarjetas. Medido: el <ul> acababa en 537 y el aviso
+   empezaba en 537. Cero píxeles.
+
+   Y con el ritmo único, /panel/perfil pasó a 36-24-24 y el hueco de
+   18px entre un aviso y las métricas de /panel/mis-servicios
+   desapareció: ahora son los mismos 36 que entre secciones.
+
+   ── POR QUE NO SE BORRAN LOS MARGENES VIEJOS ──
+
+   Porque los márgenes verticales adyacentes se funden y se queda el
+   MAYOR. Un margen de 1.15rem al lado de este de 2.25rem da 2.25rem:
+   los valores viejos se vuelven irrelevantes solos, y si alguno hace
+   falta para algo raro sigue ahí. Borrarlos sería work sin ganho y
+   dejaría sin margen a lo que hoy lo tiene.
+
+   ── EL VALOR ──
+
+   --panel-gap-xl, que ya usaban las secciones. Si el ritmo de
+   fuera fuera otro distinto de este, habría dos ritmos y el problema
+   volvería con otros números.
+   ========================================================= */
+
+.panel-page > [class] {
+  margin-bottom: var(--panel-gap-xl);
+}
+
+.panel-page > [class]:last-child {
+  margin-bottom: 0;
+}

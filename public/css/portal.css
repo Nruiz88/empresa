@@ -113,7 +113,7 @@
 .portal-metricas {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
-  gap: 0.75rem;
+  gap: var(--panel-gap);
   margin-bottom: var(--panel-gap-xl);
 }
 
@@ -203,7 +203,7 @@
   margin: 0;
   padding: 0;
   display: grid;
-  gap: 0.85rem;
+  gap: var(--panel-gap-lg);
   grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
 }
 
@@ -358,7 +358,7 @@
   margin: 0;
   padding: 0;
   display: grid;
-  gap: 0.5rem;
+  gap: 0.75rem;
 }
 
 .portal-serv {
@@ -472,7 +472,11 @@
   margin: 0;
   padding: 0;
   display: grid;
-  gap: var(--panel-gap);
+  gap: var(--panel-gap-lg);
+
+  /* 1.5rem y no 1rem. Con 1rem, dos tarjetas de 316px de alto se
+     leen como un bloque partido por la mitad y no como dos
+     productos distintos, que es lo que son. */
 }
 
 @media (min-width: 62rem) {
@@ -533,7 +537,11 @@
   margin: 0 0 1.1rem;
   padding: 0;
   display: grid;
-  gap: 0.35rem;
+
+  /* 0.5rem y no 0.35rem. Con 0.35 la linea de cada componente se
+     pego a la anterior y el conjunto se leia como un parrafo en
+     vez de como una lista de lo que incluye. */
+  gap: 0.5rem;
   font-size: var(--fs-sm);
   color: var(--text-muted);
 }
