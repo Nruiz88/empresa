@@ -68,18 +68,28 @@
      var loTiene = Boolean(m.yaTiene); %>
     <li class="portal-cat<%= loTiene ? ' portal-cat--tiene' : '' %>">
 
+      <!-- La ficha del icono, con su color. Antes era un icono de
+           20px pegado al nombre y se leia como una letra mas del
+           texto; a este tamano ya se lee como el producto. -->
       <div class="portal-cat-cab">
         <span class="portal-cat-icono"><%- m.icono %></span>
-        <div>
+        <div class="portal-cat-ident">
           <h2 class="portal-cat-nombre"><%= m.nombre %></h2>
           <% if (m.periodicidad && periodo[m.periodicidad]) { %>
             <span class="portal-cat-periodo"><%= periodo[m.periodicidad] %></span>
+          <% } else { %>
+            <span class="portal-cat-periodo"> Consultar</span>
           <% } %>
         </div>
       </div>
 
       <% if (m.descripcion) { %>
         <p class="portal-cat-desc"><%= m.descripcion %></p>
+      <% } else { %>
+        <p class="portal-cat-desc portal-cat-desc--vacio">
+          Este producto no tiene descripcion todavia. Escribenos y te
+          contamos que hace exactamente.
+        </p>
       <% } %>
 
       <!-- Los componentes vienen como claves técnicas ('turnos',
@@ -93,14 +103,46 @@
            «Proveedores» (correcto aunque suena seco) que inventar
            «Gestión avanzada de proveedores» (suena mejor y no está
            comprobado). -->
+      <!-- El cintillo va SIEMPRE, incluso sin componentes. Antes el
+           titulo de la lista aparecia y desaparecia segun el
+           producto, y eso hacia que dos fichas con la misma altura
+           tuvieran distinta forma. Con el cintillo siempre puesto, la
+           tabla de dos columnas se lee parejo. -->
+      <div class="portal-cat-bloque">
+        <h3 class="portal-cat-subtitulo">Qué incluye</h3>
       <% if (m.componentes && m.componentes.length) { %>
         <ul class="portal-cat-partes">
           <% m.componentes.forEach(function (c) { %>
             <li><%= LIBRES[c] || capitalizar(c) %></li>
           <% }); %>
         </ul>
+      <% } else { %>
+        <p class="portal-cat-nada">
+          Lo que incluye depende de lo que contracted. Preguntanos y te
+          lo detallamos antes de confirmar nada.
+        </p>
       <% } %>
+      </div>
 
+      <%# ── EL PIE ──
+
+         El precio y la accion van en una banda con su propio fondo,
+         separada del cuerpo de la ficha.
+
+         El motivo es que el precio es el dato por el que se decide y
+         estaba en el mismo renglon que el boton, con el mismo peso,
+         leidos a la vez. Con la banda, el precio se lee de un vistazo
+         sin recorrer la ficha entera.
+
+         Y el boton dice lo que hace. "Quiero este" parece un proceso
+         de dos clics y abre un correo. No hay pago automatico todavia,
+         y eso no se esconde: se pone una linea al lado que lo explica.
+         Un cliente que descubre al pulsar que le va a escribir el
+         equipo es un cliente que pierde la confianza un segundo antes
+         de escribir.
+
+         Cuando ya lo tiene, en vez de esa linea va un enlace a donde se
+         abre de verdad, que es lo que le interesa de esa ficha. --%>
       <div class="portal-cat-pie">
         <div class="portal-cat-precio">
           <% if (m.precio !== null && m.precio !== undefined) { %>
@@ -144,12 +186,23 @@
                y se activa. Un botón que dijera "contratar" sería una
                promesa que después hay que desatender: no hay pago
                automático todavía. -->
-          <a class="panel-btn panel-btn--primary"
+          <a class="panel-btn panel-btn--primary portal-cat-quiero"
              href="mailto:<%= site.email %>?subject=<%= encodeURIComponent('Quiero ' + m.nombre) %>">
             Quiero este
           </a>
         <% } %>
       </div>
+
+      <% if (loTiene) { %>
+        <p class="portal-cat-pie-nota">
+          Para abrirlo, está en <a href="<%= base %>/mis-servicios">Tus servicios</a>.
+        </p>
+      <% } else { %>
+        <p class="portal-cat-pie-nota">
+          Te escribimos y lo activamos. Sin pago por la web: lo acordamos
+          antes y se factura aparte.
+        </p>
+      <% } %>
     </li>
 <% }); %>
 

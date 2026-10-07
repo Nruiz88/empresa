@@ -442,6 +442,15 @@
 }
 
 /* Etiquetas pequeñas. */
+/* El tamano de las etiquetas del portal. El COLOR no se decide aqui.
+
+   Este bloque antes traia tambien el color y el fondo, y por eso
+   se comia el de panel.css: al cargar despues y tener la misma
+   especificidad, ganaba esta. Los chips de estado y de acceso se
+   quedaban con el gris de --text-muted, con lo que un "Pendiente
+   de pago" se veia igual que uno neutro.
+
+   Asi que aqui solo va el tamano, que si es propio del portal. */
 .panel-chip {
   display: inline-block;
   padding: 0.12rem 0.45rem;
@@ -449,9 +458,6 @@
   font-size: 0.7rem;
   font-weight: 600;
   letter-spacing: 0.02em;
-  color: var(--text-muted);
-  background: var(--raise);
-  border: 1px solid transparent;
   white-space: nowrap;
 }
 
@@ -867,5 +873,404 @@
 
   .portal-app:hover {
     transform: none;
+  }
+}
+
+/* =========================================================
+   LA FICHA DEL CATALOGO DEL CLIENTE
+   =========================================================
+   Lo que cambia es la JERARQUIA, no el adorno.
+
+   Antes todo el texto de la ficha tenia el mismo peso: nombre,
+   descripcion, lista y precio en el mismo tono. El cliente veia un
+   bloque de texto y no distinguia cual era el producto de lo que
+   incluia ni del precio.
+
+   Ahora hay tres niveles, y de arriba abajo:
+
+     la ficha del icono   lo que es      (grande, con color)
+     nombre + descripcion que hace       (el nombre manda)
+     cintillo + etiquetas  que incluye   (un tono por debajo)
+     la banda del pie      cuanto cuesta (separada, con su fondo)
+
+   ── LA BANDA DEL PIE ──
+
+   Va con su propio fondo porque el precio es el dato por el que se
+   decide, y estaba en el mismo renglon que el boton, leidos a la vez.
+   Separados, el precio se lee de un vistazo sin recorrer la ficha.
+
+   Y lleva una linea que explica que el boton abre un correo. "Quiero
+   este" suena a dos clics y son cuatro: escribir, que respondan,
+   activarlo. Un cliente que descubre eso al pulsar pierde la
+   confianza un segundo antes de escribir.
+   ========================================================= */
+
+.portal-cat {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft, 0 10px 30px -12px rgba(0, 0, 0, 0.35));
+  overflow: hidden;
+}
+
+/* ── La ficha del icono ──
+
+   De 2.4rem a 3.4rem. Antes era un icono de 20px pegado al texto y se
+   leia como una letra mas de la linea; a este tamano ya se lee como
+   la foto del producto.
+
+   El --tono lo pone la clase de estado, para que una ficha con el
+   producto activo se distinga de las que se pueden pedir sin tener que
+   leer el texto. */
+
+.portal-cat-cab {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.4rem 1.35rem 1.15rem;
+  margin: 0;
+  background: color-mix(in srgb, var(--tono, var(--accent)) 9%, transparent);
+  border-bottom: 1px solid var(--border);
+}
+
+.portal-cat-icono {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 3.4rem;
+  height: 3.4rem;
+  border-radius: 14px;
+  color: var(--tono, var(--accent));
+  background: color-mix(in srgb, var(--tono, var(--accent)) 16%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tono, var(--accent)) 28%, transparent);
+}
+
+.portal-cat-ident {
+  min-width: 0;
+}
+
+.portal-cat-nombre {
+  margin: 0;
+  font-size: 1.1rem;
+  line-height: 1.25;
+}
+
+.portal-cat-periodo {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: var(--fs-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+/* ── El cuerpo ── */
+
+.portal-cat-desc {
+  margin: 0;
+  padding: 1.15rem 1.35rem 0;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+/* Cuando no hay descripcion no se deja un hueco mudo: se dice que no la
+   hay y que pregunten. Un bloque de texto que empieza directamente en
+   "Que incluye" parece que le falta el primer parrafo por error. */
+.portal-cat-desc--vacio {
+  font-style: italic;
+  color: var(--text-dim);
+}
+
+/* ── Que incluye ── */
+
+.portal-cat-bloque {
+  padding: 1.15rem 1.35rem 1.3rem;
+}
+
+/* El cintillo va siempre, haya componentes o no. Antes el titulo de la
+   lista aparecia y desaparecia segun el producto, y dos fichas de la
+   misma altura acababan con distinta forma. Con el cintillo siempre
+   puesto, la rejilla de dos columnas se lee pareja. */
+.portal-cat-subtitulo {
+  margin: 0 0 0.7rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+/* Las componentes como etiquetas y no como lista con "v" delante.
+
+   Con seis lineas y el mismo prefijo, el bloque se lee como un parrafo.
+   Como etiquetas, se leen de un vistazo y se comparan entre productos:
+   es lo que el cliente viene a hacer aquí, ver qué incluye cada uno. */
+.portal-cat-partes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.portal-cat-partes li {
+  padding: 0.28rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg-soft);
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+/* El "v" delante se va porque la etiqueta ya lo dice: es una cosa que
+   incluye. Y ademas el "v" era un ::before con content, o sea texto
+   para lectores de pantalla que anuncia "V" antes de cada linea. */
+.portal-cat-partes li::before {
+  content: none;
+}
+
+.portal-cat-nada {
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--text-dim);
+  line-height: 1.55;
+}
+
+/* ── La banda del pie ──
+   El borde va arriba, no en los cuatro lados: el contenido de la ficha
+   esta arriba y la banda cierra abajo, asi que un recuadro entero
+   dibujaria una linea entre el cuerpo y el pie que no separa nada. */
+.portal-cat-pie {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: auto;
+  padding: 1.1rem 1.35rem;
+  border-top: 1px solid var(--border);
+  background: var(--bg-soft);
+}
+
+.portal-cat-precio strong {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.portal-cat-precio span {
+  margin-left: 0.35rem;
+  font-size: var(--fs-xs);
+  color: var(--text-dim);
+}
+
+/* ── La nota del pie ──
+   Es lo que convierte un boton ambiguo en una accion entendida. */
+.portal-cat-pie-nota {
+  margin: 0;
+  padding: 0.8rem 1.35rem 1.1rem;
+  border-top: 1px solid var(--border);
+  background: var(--bg-soft);
+  font-size: var(--fs-xs);
+  line-height: 1.55;
+  color: var(--text-dim);
+}
+
+.portal-cat-pie-nota a {
+  color: var(--text-muted);
+}
+
+/* ── El boton y el estado ──
+   "Ya lo tienes" en verde y "caduca en 7 dias" en rojo conviven en la
+   misma banda, asi que el verde va en el borde y en el texto y no en
+   un relleno entero: dos rellenos de color en la misma fila parecen
+   dos avisos y solo uno lo es. */
+.portal-cat--tiene .portal-cat-cab {
+  --tono: var(--success);
+}
+
+.portal-cat-activo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.portal-cat-flag {
+  padding: 0.22rem 0.55rem;
+  border: 1px solid color-mix(in srgb, var(--success) 45%, transparent);
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--success);
+  white-space: nowrap;
+}
+
+.portal-cat-sub {
+  font-size: var(--fs-xs);
+  color: var(--text-dim);
+}
+
+.portal-cat-sub--alerta {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+/* ── En una columna, la banda del pie ── */
+@media (max-width: 34rem) {
+  .portal-cat-pie {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+
+  .portal-cat-precio span {
+    display: block;
+    margin-left: 0;
+    margin-top: 0.1rem;
+  }
+}
+
+/* =========================================================
+   LAS FILAS DE SERVICIO DEL CLIENTE
+   =========================================================
+   Siguen siendo FILAS, no tarjetas, y el motivo sigue siendo el que
+   hay escrito en la vista: estas se consultan y las de arriba se
+   abren. Ademas, comparar importe y estado bajando el ojo es mas
+   facil en filas que en una rejilla, donde cada precio cae en un
+   sitio distinto.
+
+   Lo que se anade es informacion y una franja de estado, no cajas.
+
+   ── LA FRANJA ──
+
+   Es lo que hace que un cliente con ocho servicios sepa en dos
+   segundos si alguno necesita algo, sin leer ni un chip. Con ocho
+   filas de texto del mismo peso, el ojo no tiene por donde agarrarse
+   y acaba leyendolas todas.
+
+   Va como pseudoelemento a la izquierda, con `position: relative` en
+   la fila. Es lo unico que hace falta para que no sea una caja mas.
+
+   ── LA LINEA DE DATOS ──
+
+   Antes: "desde el 3 mar · 4 facturas · El sitio que haces", todo en
+   un renglon separado por puntos. Mezcla cosas de naturaleza distinta
+   —una fecha, un contador y una descripcion— y con los puntos
+   seguidos es dificil saber donde acaba una y empieza otra.
+
+   Ahora cada dato es una pieza con su separador propio. Se puede
+   quitar o anadir uno sin tocar los de al lado, y en movil, donde la
+   linea se parte en tres renglones, se lee igual.
+   ========================================================= */
+
+.portal-serv {
+  position: relative;
+  padding-left: 1.5rem;
+  overflow: hidden;
+}
+
+/* La franja. El color es el del nivel de acceso, que es el unico
+   dato de la fila que obliga a hacer algo: bloqueado es dinero,
+   oferta es una decision pendiente. El estado del trabajo, que va en
+   un chip, no pone franja: "en curso" y "activo" son el estado normal
+   de casi todo y si ponemos franja tambien por ahi, la franja deja de
+   significar que hay que hacer algo. */
+.portal-serv::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: 4px;
+  background: var(--franja, transparent);
+}
+
+/* ── La linea de datos ── */
+
+.portal-serv-datos {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem 0.55rem;
+  margin-top: 0.35rem;
+  font-size: var(--fs-xs);
+  color: var(--text-dim);
+}
+
+/* El separador va como `::after` en cada pieza y NO en la ultima, con
+   un pseudoelemento vacio al final de la lista. Poner el punto entre
+   dos spans exige un margen o un pseudoelemento en cada uno, y el
+   margen se cuela tambien en el primero y en el ultimo. Con el
+   pseudoelemento vacio, la ultima pieza queda sin punto porque no
+   tiene nada detras: es CSS sin casos especiales. */
+.portal-serv-dato:not(:last-child)::after {
+  content: "·";
+  margin-inline-start: 0.55rem;
+  color: var(--border-strong);
+}
+
+.portal-serv-datos::after {
+  content: none;
+}
+
+/* "pagadas" en verde, sin punto. Es lo unico de la fila que dice que
+   el dinero ya esta resuelto, y es lo que distingue una fila de otra
+   cuando las dos dicen lo mismo. */
+.portal-serv-paga {
+  margin-inline-start: 0.3rem;
+  color: var(--success);
+  font-weight: 600;
+}
+
+/* ── La franja por nivel ──
+   Los mismos cuatro niveles que hay en lib/acceso.js, con los mismos
+   colores que los chips `panel-chip--acceso-*`, para que el cliente no
+   vea dos paleta distintas para el mismo dato. */
+
+.portal-serv--bloqueado { --franja: var(--danger); }
+.portal-serv--oferta    { --franja: var(--accent-2); }
+.portal-serv--activo    { --franja: var(--success); }
+.portal-serv--inactivo  { --franja: var(--border-strong); }
+
+/* Con franja, el texto tiene que empezar un poco mas a la derecha o
+   el "Bloqueado" del chip toca la linea de color. */
+.portal-serv .portal-serv-tags {
+  padding-left: 0.35rem;
+}
+
+/* ── En una columna ──
+
+   La fila pasa a columna y el precio se alinea a la izquierda. A la
+   derecha, en un ancho de 390px, queda un hueco de 40px al lado del
+   importe y el numero parece caido. */
+@media (max-width: 40rem) {
+  .portal-serv {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.7rem;
+    padding-left: 1.25rem;
+  }
+
+  .portal-serv-precio {
+    text-align: left;
+    min-width: 0;
+  }
+
+  .portal-serv-accion,
+  .portal-serv-accion .panel-btn {
+    width: 100%;
+  }
+
+  .portal-serv-accion .panel-btn {
+    justify-content: center;
   }
 }

@@ -228,7 +228,17 @@
             <div class="portal-serv-principal">
               <div class="portal-serv-tags">
                 <span class="panel-chip panel-chip--<%= s.kind %>"><%= etiquetaTipo(s.kind) %></span>
-                <span class="panel-chip panel-chip--<%= nivel %>"><%= acc.titulo %></span>
+
+                <%# El ESTADO DEL TRABAJO, que no se enseñaba. El
+                    chip de al lado es el NIVEL DE ACCESO —puedes
+                    entrar o no— y son cosas distintas: un servicio
+                    puede estar accesible y pausado, o bloqueado y
+                    activo. Con los dos a la vista el cliente sabe
+                    si tiene algo parado o si es un tema de dinero. --%>
+                <span class="panel-chip panel-chip--estado-<%= s.estado %>"><%= etiquetaEstado(s.estado) %></span>
+                <% if (String(acc.titulo).trim() !== String(etiquetaEstado(s.estado)).trim()) { %>
+                  <span class="panel-chip panel-chip--acceso-<%= nivel %>"><%= acc.titulo %></span>
+                <% } %>
               </div>
               <span class="portal-serv-titulo"><%= s.titulo %></span>
 
@@ -240,11 +250,48 @@
                 <span class="portal-serv-sub"><%= acc.motivo %></span>
               <% } else { %>
                 <span class="portal-serv-sub">
-                  <% var datos = []; %>
-                  <% if (s.inicia_en) { datos.push('desde el ' + fecha(s.inicia_en)); } %>
-                  <% if (s.numCobros) { datos.push(s.numCobros + (s.numCobros === 1 ? ' factura' : ' facturas')); } %>
-                  <% if (s.descripcion) { datos.push(s.descripcion); } %>
-                  <%= datos.join(' · ') %>
+                  <% if (s.descripcion) { %>
+                    <%= s.descripcion %>
+                  <% } %>
+                </span>
+              <% } %>
+
+              <%# LA LINEA DE DATOS, FUERA DE LAS TRES RAMAS ──
+
+                  Va despues del `if / else if / else` y no dentro de
+                  ninguna rama, porque es informacion que vale igual en
+                  las tres.
+
+                  Estuvo dentro de la ultima rama, la de "no hay
+                  motivo", y ahi no salia nunca: los tres servicios de
+                  la base tienen motivo, porque o deben algo o tienen un
+                  presupuesto sin aceptar o una factura emitida. Es
+                  decir, justamente los casos en los que mas le
+                  interesa al cliente saber cuando empezo y cuantas
+                  facturas lleva.
+
+                  Cada dato es una pieza con su punto, y no un renglon
+                  de puntos: "desde el 3 mar · 4 facturas · El sitio que
+                  haces" mezcla una fecha, un contador y una
+                  descripcion, y con los puntos seguidos no se sabe
+                  donde acaba una y empieza otra.
+
+                  Y solo se pinta si hay algo que pintar. Un contenedor
+                  de datos vacio sigue ocupando su margen, y en una
+                  fila sin ningun dato queda un hueco de 6 pixeles que
+                  nadie sabe que es. --%>
+              <% var _datos = []; %>
+              <% if (s.inicia_en) { _datos.push('desde el ' + fecha(s.inicia_en)); } %>
+              <% if (s.termina_en) { _datos.push('hasta el ' + fecha(s.termina_en)); } %>
+              <% if (s.periodicidad && periodo[s.periodicidad]) { _datos.push(periodo[s.periodicidad].toLowerCase()); } %>
+              <% if (s.numCobros) {
+                   _datos.push(s.numCobros + (s.numCobros === 1 ? ' factura' : ' facturas') + (s.pagado ? ', pagadas' : ''));
+                 } %>
+              <% if (_datos.length) { %>
+                <span class="portal-serv-datos">
+                  <% _datos.forEach(function (x) { %>
+                    <span class="portal-serv-dato"><%= x %></span>
+                  <% }); %>
                 </span>
               <% } %>
             </div>
