@@ -208,7 +208,7 @@ comprobar(
    `precio_inventario=1` y lo llamaba "módulo inventado". Inventario
    no es inventado: existe. Así que el POST lo cambiaba —bien
    hecho, el servidor leyó el campo de un módulo que sí está— y la
-   prueba daba rojo。Es decir: estaba probando que la pantalla
+   prueba daba rojo. Es decir: estaba probando que la pantalla
    IGNORARA un cambio legítimo, que es lo contrario de lo que
    queremos.
 

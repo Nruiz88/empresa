@@ -638,7 +638,7 @@ module.exports = function rutasCobros({ db, sitio, requiereStaff }) {
   return router;
 };
 
-/** Vuelve a la vista queかり stylistsó estabas mirando, no al principio */
+/** Vuelve a la vista que estabas mirando, no al principio */
 function volver(req) {
   const v = (req.body && req.body.volver) || "";
   return String(v).startsWith("/panel") ? v : "/panel/cobros";

@@ -4,7 +4,7 @@
    Comprobación de que la base de datos está BIEN, no solo de
    que la migración dijo que pasó.
 
-  ，重点 en RLS: una tabla sin RLS activada se lee igual, pero
+     Ojo en RLS: una tabla sin RLS activada se lee igual, pero
    la saltan todas las políticas. Es el fallo más grave posible
    en este sistema, y es invisible desde la aplicación.
 

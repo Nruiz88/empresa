@@ -63,7 +63,7 @@
         <strong>
           <%= dinero.vencidos %> cobro<%= dinero.vencidos === 1 ? "" : "s" %> vencido<%= dinero.vencidos === 1 ? "" : "s" %>.
         </strong>
-        Hay <strong><%= dinero.vencidoImporte %></strong> que ya no se收了.
+        Hay <strong><%= dinero.vencidoImporte %></strong> que ya no se cobran.
         <a href="<%= base %>/cobros?estado=pendiente">Ver los cobros →</a>
       </div>
     <% } else if (dinero && dinero.pendientes > 0) { %>
@@ -89,7 +89,7 @@
       <% if (resumen.rojos === 0 && resumen.ambares === 0) { %>
         <div class="panel-alert panel-alert--ok">
           <strong>Todo lo comprobable está bien.</strong>
-          <%= resumen.total %> servicio<%= resumen.total === 1 ? "" : "s" %>之间的关系 encaja y comparte secreto con el panel.
+          <%= resumen.total %> servicio<%= resumen.total === 1 ? "" : "s" %>El circuito entre servicios encaja y comparte secreto con el panel.
         </div>
       <% } else { %>
         <div class="panel-alert panel-alert--<%= resumen.rojos > 0 ? "error" : "warn" %>">

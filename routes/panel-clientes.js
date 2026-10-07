@@ -283,7 +283,7 @@ module.exports = function rutasClientes({ db, sitio, csrf, requiereStaff }) {
   });
 
   /* ---------- Archivar (no borrar) ----------
-     Borrar un cliente con servicios es una后悔Decision: si se
+     Borrar un cliente con servicios es una decisión sin vuelta atrás: si se
      equivoca, se acabó. Archivar lo saca de las listas pero
      conserva el histórico y los servicios. */
   router.post("/clientes/:id/archivar", requiereStaff, async (req, res) => {
