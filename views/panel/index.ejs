@@ -281,6 +281,154 @@
         <% }); %>
       </div>
 
+<%# =========================================================
+     EL REPARTO
+     =========================================================
+
+     La fila de "Total Earning" de Materio, con datos reales.
+
+     Ni una consulta nueva: `vivos` ya son todos los servicios vivos
+     con su estado, `dineroPortada` las facturas sin cobrar, y
+     `resumen` lleva ahora el total de consultas —que se consultaba
+     desde siempre y no se usaba para nada—.
+
+     El orden de la cartera es el del ciclo de vida y no el
+     alfabetico: primero lo que esta pasando, luego lo parado, al
+     final lo terminado. Es el orden en que se lee un negocio, y
+     "pausado" arriba del todo no dice nada.
+
+     Y el reparto se agrupa: el boton de "Filtros" y el de
+     "Ajustes" ocupan la misma tarjeta porque al abrir uno se ve
+     la misma tabla de clientes con dos columnas distintas. Separar
+     en dos tarjetas haria que al cambiar de una a otra el usuario
+     perdiera el contexto de que es la misma lista. --%>
+    <%
+      var _mapa = {};
+      (vivos || []).forEach(function (s) {
+        _mapa[s.estado] = (_mapa[s.estado] || 0) + 1;
+      });
+      var _ORDEN = ["en_curso", "activo", "pendiente", "pausado", "finalizado", "cancelado"];
+      var _cartera = _ORDEN
+        .filter(function (k) { return _mapa[k]; })
+        .map(function (k) { return { etiqueta: etiquetaEstado(k), n: _mapa[k], estado: k }; });
+      var _totalCartera = (vivos || []).length;
+
+      var _nuevas = resumen ? (resumen.consultasNuevas || 0) : 0;
+      var _totalLeads = resumen ? (resumen.consultasTotales || 0) : 0;
+
+      /* El dinero pendiente, por moneda. Sin esto no hay forma de
+         saber si lo que hay sin cobrar son 95 euros o 95000 pesos:
+         el bloque es de reparto y sin cifras no tiene sentido. */
+      var _plata = (dineroPortada && dineroPortada.cuentas || []).map(function (c) {
+        return { texto: c.texto, moneda: c.moneda || "", vencidos: c.nVencidos || 0 };
+      });
+    %>
+
+<% if (_totalCartera || _totalLeads || _plata.length) { %>
+      <section class="panel-card">
+        <div class="panel-card-head">
+          <div class="panel-card-head-texto">
+            <span class="panel-card-cintillo">Reparto</span>
+            <h2 class="panel-card-titulo">En qué está cada cosa</h2>
+          </div>
+          <% if (_totalLeads && _nuevas > 0) { %>
+            <a class="panel-btn panel-btn--ghost panel-btn--xs" href="<%= base %>/consultas?estado=nuevo">Ver consultas</a>
+          <% } %>
+        </div>
+
+        <div class="panel-dist-filas">
+
+          <%# --- LA CARTERA --- %>
+          <% if (_totalCartera) { %>
+            <div class="panel-dist-fila">
+              <div class="panel-dist-cab">
+                <strong class="panel-dist-grande"><%= _totalCartera %></strong>
+                <span class="panel-dist-unidad"><%= _totalCartera === 1 ? "servicio vivo" : "servicios vivos" %></span>
+              </div>
+              <div class="panel-dist-cuerpo">
+                <div class="panel-dist-barra" role="img" aria-label="<%= _cartera.map(function (c) { return c.etiqueta + ": " + c.n; }).join(", ") %>">
+                  <% _cartera.forEach(function (c) { %>
+                    <i class="panel-dist-trozo panel-dist-trozo--<%= c.estado %>" style="flex-grow: <%= c.n %>"></i>
+                  <% }); %>
+                </div>
+                <ul class="panel-dist-detalle">
+                  <% _cartera.forEach(function (c) { %>
+                    <li>
+                      <i class="panel-dist-punto panel-dist-trozo--<%= c.estado %>"></i>
+                      <span><%= c.etiqueta %></span>
+                      <b><%= c.n %></b>
+                    </li>
+                  <% }); %>
+                </ul>
+              </div>
+            </div>
+          <% } %>
+
+          <%# --- EL EMBUDO ---
+              La comparacion aqui es real y va contra el otro lado de
+              la misma barra: si de 5 consultas hay 2 sin responder, se
+              dice "2 de 5". No es un porcentaje inventado del tema. --%>
+          <% if (_totalLeads) { %>
+            <div class="panel-dist-fila">
+              <div class="panel-dist-cab">
+                <strong class="panel-dist-grande"><%= _totalLeads %></strong>
+                <span class="panel-dist-unidad">consultas en total</span>
+              </div>
+              <div class="panel-dist-cuerpo">
+                <div class="panel-dist-barra" role="img" aria-label="<%= _nuevas %> de <%= _totalLeads %> consultas sin responder">
+                  <% if (_nuevas > 0) { %>
+                    <i class="panel-dist-trozo panel-dist-trozo--nuevo" style="flex-grow: <%= _nuevas %>"></i>
+                  <% } %>
+                  <i class="panel-dist-trozo panel-dist-trozo--respondidas" style="flex-grow: <%= _totalLeads - _nuevas %>"></i>
+                </div>
+                <ul class="panel-dist-detalle">
+                  <li>
+                    <i class="panel-dist-punto panel-dist-trozo--nuevo"></i>
+                    <span>sin responder</span>
+                    <b><%= _nuevas %></b>
+                  </li>
+                  <li>
+                    <i class="panel-dist-punto panel-dist-trozo--respondidas"></i>
+                    <span>respondidas</span>
+                    <b><%= _totalLeads - _nuevas %></b>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          <% } %>
+
+          <%# --- EL DINERO ---
+              Solo con mas de una moneda: con una sola, el reparto es
+              del 100% y una barra llena no dice nada. --%>
+          <% if (_plata.length > 1) { %>
+            <div class="panel-dist-fila">
+              <div class="panel-dist-cab">
+                <strong class="panel-dist-grande"><%= _plata.length %></strong>
+                <span class="panel-dist-unidad"><%= _plata.length === 1 ? "moneda" : "monedas" %> sin cobrar</span>
+              </div>
+              <div class="panel-dist-cuerpo">
+                <div class="panel-dist-barra" role="img" aria-label="<%= _plata.map(function (p) { return p.texto + " " + p.moneda; }).join(", ") %>">
+                  <% _plata.forEach(function (p, i) { %>
+                    <i class="panel-dist-trozo panel-dist-trozo--moneda<%= i %>" style="flex-grow: <%= p.n || 1 %>"></i>
+                  <% }); %>
+                </div>
+                <ul class="panel-dist-detalle">
+                  <% _plata.forEach(function (p, i) { %>
+                    <li>
+                      <i class="panel-dist-punto panel-dist-trozo--moneda<%= i %>"></i>
+                      <span><%= p.moneda || "sin moneda" %><%= p.vencidos ? " · vencidas" : "" %></span>
+                      <b><%= p.texto %></b>
+                    </li>
+                  <% }); %>
+                </ul>
+              </div>
+            </div>
+          <% } %>
+
+        </div>
+      </section>
+<% } %>
+
     <!-- ---------- LA REJILLA 8/4 ----------
 
          El reparto de Argon, y el motivo esta en el contenido: la

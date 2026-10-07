@@ -637,9 +637,17 @@ const router = express.Router();
        siempre para no reventar al pintar. */
     let dineroPortada = { cuentas: [], hay: false };
 
+    /* Los servicios vivos, para el bloque de reparto. Se declara aqui y
+       no dentro del try por lo mismo que `resumen`: el catch de abajo
+       deja las variables como estan y la vista las necesita siempre.
+       Si se declarara con `const` dentro del try, el render —que esta
+       FUERA— no la veria, y daria ReferenceError en vez de pintar una
+       portada vacia. */
+    let vivos = [];
+
     if (db) {
       try {
-        const [leads, clientes, servicios, sinLeer, vivos, recientes, cobrosPendientes] = await Promise.all([
+        const [leads, clientes, servicios, sinLeer, _vivos, recientes, cobrosPendientes] = await Promise.all([
           db.from("leads").select("id", { count: "exact", head: true }),
           db.from("clients").select("id", { count: "exact", head: true }).eq("archivado", false),
           db
@@ -741,13 +749,20 @@ const router = express.Router();
 
         resumen = {
           consultasNuevas: sinLeer.count || 0,
+        /* El total de consultas ya se pedia en la consulta de
+           arriba y no se usaba en ninguna parte: estaba ahi desde
+           siempre, pagandolo, sin que nadie lo mirara. Con el se
+           puede dibujar el embudo entero, que es lo que necesita el
+           bloque de reparto. */
+        consultasTotales: leads.count || 0,
           clientes: clientes.count || 0,
           serviciosActivos: servicios.count || 0,
         };
 
         dineroPortada = { cuentas, hay: cuentas.length > 0 };
 
-        caducidades = vencimientos.proximos(vivos.data || []);
+        vivos = _vivos.data || [];
+      caducidades = vencimientos.proximos(vivos);
 
         /* "Hace 3 h" en vez de una fecha: lo que importa al entrar
            es si es nuevo o lleva días ahí parado. */
@@ -770,9 +785,18 @@ const router = express.Router();
       resumen,
       dineroPortada,
       caducidades,
+      /* El reparto de la portada necesita los servicios VIVOS con su
+         estado, no solo los que avisan: `caducidades` sale de
+         `vivos.data` ya filtrado por lib/vencimientos.js y solo trae
+         los que tienen fecha de fin. Sin esto, agruparlos por estado no
+         tiene de donde sacar los datos. */
+      vivos,
       consultas,
       aviso: req.query.aviso || null,
       etiquetaLead: L.etiquetaLead,
+      /* Para el bloque de reparto: los servicios van agrupados por
+         estado y hay que poder poner el nombre de cada uno. */
+      etiquetaEstado: L.etiquetaEstado,
       dinero,
     });
   });

@@ -109,7 +109,23 @@
      compite con el boton de arriba: los dos parecen la misma
      accion y el que va al panel parece el que cierra la sesion. */
   volver:
-    '<path d="M15 21H19a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-4"/><path d="m8 17-5-5 5-5"/><path d="M3 12h12"/>'
+    '<path d="M15 21H19a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-4"/><path d="m8 17-5-5 5-5"/><path d="M3 12h12"/>',
+
+  /* Subida y bajada, para las tendencias.
+
+     Las dos van en un cuadrado porque no se usan sueltas: van al
+     lado de un porcentaje y forman una unidad, y un triangulo
+     suelto a 13px junto a una cifra se lee como un adorno que
+     puede ser de lo que sea. Adentro van en el trazo, no
+     rellenas, para que el color lo ponga el contenedor. */
+  sube:
+    '<rect x="3" y="3" width="18" height="18" rx="3"/><path d="m8 14 4-4 4 4"/><path d="M12 10v6"/>',
+
+  baja:
+    '<rect x="3" y="3" width="18" height="18" rx="3"/><path d="m8 10 4 4 4-4"/><path d="M12 14V8"/>',
+
+  igual:
+    '<rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 12h8"/>'
 };
 var _trazo = _iconos[nombre];
 if (_trazo) { %>

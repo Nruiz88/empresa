@@ -4758,3 +4758,196 @@ body.cmd-abierto {
 .panel-page > [class]:last-child {
   margin-bottom: 0;
 }
+
+/* =========================================================
+   EL BLOQUE DE REPARTO
+   =========================================================
+   La anatomia es la de "Total Earning" de Materio: cifra grande,
+   barra fina con el reparto, y filas con nombre, cifra y punto de
+   color.
+
+   ── LA BARRA ──
+
+   Va con `display: flex` y cada trozo crece con `flex-grow` segun su
+   cuenta. NO se usan porcentajes.
+
+   El motivo: con porcentajes hay que calcular el 100 - a - b en
+   algun sitio, el mas pequeno se come los decimales y la barra no
+   llega al borde. Con `flex-grow` cada trozo pide su parte de lo que
+   sobra, y siempre llena.
+
+   Y el hueco entre trozos es un `gap` de 2px y no un margen: un
+   margen se suma con el del vecino y el hueco interior queda al
+   doble que los exteriores.
+
+   ── LOS COLORES ──
+
+   Los estados usan los MISMOS tonos que los chips del panel, para
+   que "pausado" sea el mismo violeta aqui y en la tabla de servicios.
+   Una pieza que cambia de color segun donde se mire es peor que no
+   tener color. */
+.panel-dist-filas {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-6);
+  padding: var(--p-5);
+}
+
+.panel-dist-fila {
+  display: grid;
+  grid-template-columns: 11rem minmax(0, 1fr);
+  gap: var(--p-5);
+  align-items: start;
+}
+
+@media (max-width: 46rem) {
+  .panel-dist-fila {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--p-3);
+  }
+}
+
+/* ── La cifra ──
+   El numero grande y, al lado y mas pequeno, lo que cuenta. En
+   Materio van en la misma linea el numero, la flecha y el
+   porcentaje; aqui la flecha y el porcentaje solo salen cuando hay
+   algo real que comparar, y casi nunca lo hay. */
+.panel-dist-cab {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.panel-dist-grande {
+  font-family: var(--font-display, "Space Grotesk", sans-serif);
+  font-size: 2.4rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+
+.panel-dist-unidad {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+/* ── La barra ── */
+
+.panel-dist-barra {
+  display: flex;
+  gap: 2px;
+  height: 0.5rem;
+  margin-bottom: var(--p-4);
+}
+
+.panel-dist-trozo {
+  display: block;
+  min-width: 4px;
+  border-radius: 999px;
+  background: var(--tono, var(--accent-2));
+
+  /* El primer y el ultimo son mas cuadrados por fuera, para que la
+     barra entera se lea como una pieza y no como tres rectangulos
+     pegados con un hueco. */
+  transition: flex-grow var(--mov-3) var(--ease-out);
+}
+
+.panel-dist-trozo:first-child {
+  border-top-left-radius: 3px;
+  border-bottom-left-radius: 3px;
+}
+
+.panel-dist-trozo:last-child {
+  border-top-right-radius: 3px;
+  border-bottom-right-radius: 3px;
+}
+
+/* Los tonos coinciden con los de .panel-chip--estado-* y con las
+   franjas de las filas del portal. */
+.panel-dist-trozo--en_curso,
+.panel-dist-punto.panel-dist-trozo--en_curso { --tono: var(--accent-2); }
+
+.panel-dist-trozo--activo,
+.panel-dist-punto.panel-dist-trozo--activo { --tono: var(--success); }
+
+.panel-dist-trozo--pendiente,
+.panel-dist-punto.panel-dist-trozo--pendiente { --tono: var(--warning); }
+
+.panel-dist-trozo--pausado,
+.panel-dist-punto.panel-dist-trozo--pausado { --tono: var(--accent); }
+
+.panel-dist-trozo--finalizado,
+.panel-dist-punto.panel-dist-trozo--finalizado { --tono: var(--text-dim); }
+
+.panel-dist-trozo--cancelado,
+.panel-dist-punto.panel-dist-trozo--cancelado { --tono: var(--danger); }
+
+/* El embudo: lo que espera a que le contesten va en el color de la
+   alerta, y lo ya atendido en un tono apagado. Una consulta atendida no
+   es una alerta. */
+.panel-dist-trozo--nuevo { --tono: var(--warning); }
+.panel-dist-trozo--respondidas { --tono: var(--border-strong); }
+
+.panel-dist-trozo--moneda0 { --tono: var(--accent); }
+.panel-dist-trozo--moneda1 { --tono: var(--accent-2); }
+.panel-dist-trozo--moneda2 { --tono: var(--success); }
+.panel-dist-trozo--moneda3 { --tono: var(--warning); }
+
+/* ── El detalle ──
+   Las filas van en dos columnas: el nombre crece y la cifra se
+   apila a la derecha. El punto de color esta pegado al nombre, y no
+   suelto en una columna aparte, porque si no hay que alinear la
+   fila entera para que los puntos formen una columna. */
+
+.panel-dist-detalle {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.panel-dist-detalle li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: var(--fs-sm);
+}
+
+.panel-dist-punto {
+  flex: 0 0 auto;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: var(--tono, var(--accent-2));
+}
+
+.panel-dist-detalle span {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.panel-dist-detalle b {
+  flex: 0 0 auto;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* ── La tendencia ──
+   Es la pieza que teniamos escrita y sin usar. Ahora tiene su
+   icono: los tres iconos nuevos del parcial. */
+.panel-tendencia svg {
+  width: 0.85rem;
+  height: 0.85rem;
+}
