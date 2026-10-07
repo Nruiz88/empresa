@@ -2042,53 +2042,37 @@ a.panel-stat--ambar:hover {
    12. PORTAL DEL CLIENTE
    ========================================================= */
 
-.panel-serv-list--portal .panel-serv {
   grid-template-columns: minmax(0, 1fr) auto;
   padding: 1.2rem 1.4rem;
-}
 
-.panel-serv--portal {
   border-radius: var(--radius-lg);
-}
 
-.panel-serv-pricepanel {
   text-align: end;
   white-space: nowrap;
-}
 
-.panel-serv-pricepanel strong {
   display: block;
   font-family: var(--font-display, "Space Grotesk", sans-serif);
   font-size: 1.3rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-}
 
-.panel-serv-pricepanel span {
   font-size: var(--fs-xs);
   color: var(--text-dim);
-}
 
-.panel-serv-facts {
   display: flex;
   flex-wrap: wrap;
   gap: 1.4rem;
   margin: 0.7rem 0 0;
-}
 
-.panel-serv-facts dt {
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.07em;
   text-transform: uppercase;
   color: var(--text-dim);
-}
 
-.panel-serv-facts dd {
   margin: 0.15rem 0 0;
   font-size: var(--fs-sm);
   font-weight: 600;
-}
 
 /* =========================================================
    PORTAL DEL CLIENTE — ESTADO DE ACCESO
@@ -2103,9 +2087,7 @@ a.panel-stat--ambar:hover {
      inactivo  → gris: no en marcha
    ========================================================= */
 
-.panel-serv--portal {
   border-inline-start: 3px solid var(--border-strong);
-}
 
 .panel-serv--activo    { border-inline-start-color: var(--success); }
 .panel-serv--bloqueado { border-inline-start-color: var(--danger); }
@@ -2278,14 +2260,12 @@ a.panel-stat--ambar:hover {
   }
 
   .panel-serv,
-  .panel-serv-list--portal .panel-serv,
   .panel-caduco,
   .panel-acceso {
     grid-template-columns: minmax(0, 1fr);
   }
 
   .panel-serv-side,
-  .panel-serv-pricepanel,
   .panel-caduco-side,
   .panel-acceso-side {
     align-items: flex-start;
