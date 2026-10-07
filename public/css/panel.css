@@ -527,15 +527,6 @@ html[data-panel] {
   flex-wrap: wrap;
 }
 
-.panel-subtitle {
-  margin: 0 0 0.85rem;
-  font-family: var(--font-display, "Space Grotesk", sans-serif);
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--text-dim);
-}
 
 .panel-hint {
   margin: 0 0 0.9rem;
@@ -1415,25 +1406,8 @@ a.panel-stat--ambar:hover {
   color: var(--danger);
 }
 
-/* ---------- Ficha de cliente ---------- */
-.panel-split {
-  display: grid;
-  grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
-  gap: 1.5rem;
-  align-items: start;
-}
 
-.panel-split-side {
-  display: grid;
-  gap: var(--panel-gap);
-}
 
-.panel-box {
-  padding: 1.05rem 1.15rem;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-}
 
 .panel-box--peligro {
   border-color: color-mix(in srgb, var(--danger) 30%, transparent);
@@ -1483,6 +1457,51 @@ a.panel-stat--ambar:hover {
   font-size: var(--fs-xs);
   color: var(--text-dim);
 }
+/* ── La lista de dos columnas ──
+
+   Un nombre por lo que hace, no por dónde se usó. Antes esto era
+   `.panel-plan-lista`, que solo quería decir "la lista del plan de
+   facturación", y por eso no se podía reutilizar: el mismo problema
+   —una columna de texto y otra de cifras— aparece en el catálogo, en
+   los vencimientos y en cualquier sitio donde haya que comparar
+   importes, y cada uno tenía que inventarse su propia clase.
+
+   En una sola columna, el ojo lee la fila entera. En dos, lee la
+   cifra: por eso los importes van a la derecha, alineados, y el
+   texto se alinea a la izquierda. Con veinte filas eso es la
+   diferencia entre comparar y recontar. */
+
+.panel-doble li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--panel-gap);
+}
+
+.panel-doble li strong {
+  min-width: 0;
+}
+
+.panel-doble li span {
+  flex: none;
+  text-align: end;
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  /* En una columna la cifra ya no tiene a donde alinearse: se pasa
+     debajo y a la izquierda, que es como se lee. */
+  .panel-doble li {
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .panel-doble li span {
+    text-align: start;
+    white-space: normal;
+  }
+}
+
 
 .panel-code {
   display: block;
@@ -1710,16 +1729,7 @@ a.panel-stat--ambar:hover {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent);
 }
 
-.panel-clear {
-  font-size: var(--fs-sm);
-  color: var(--accent-2);
-  text-decoration: none;
-  white-space: nowrap;
-}
 
-.panel-clear:hover {
-  text-decoration: underline;
-}
 
 .panel-tabs {
   display: flex;
@@ -2106,6 +2116,27 @@ a.panel-stat--ambar:hover {
 .panel-chip--acceso-oferta    { color: var(--accent-2); border-color: color-mix(in srgb, var(--accent-2) 40%, transparent); background: color-mix(in srgb, var(--accent-2) 12%, transparent); }
 .panel-chip--acceso-inactivo  { color: var(--text-dim); }
 
+  /* El estado de un microservicio es el mismo dato que el estado de un
+     servicio, pero con otros tres valores: verde, rojo y "revisar", que
+     no es un color sino la ausencia de respuesta. Se nombran
+     `salud-*` y no `estado-*` porque `estado-*` ya lo usa la cartera de
+     servicios y las dos cosas nunca se pintan en la misma fila. */
+  .panel-chip--salud-verde { color: var(--success); border-color: var(--success-border); background: var(--success-bg); }
+  .panel-chip--salud-rojo  { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 55%, transparent); background: color-mix(in srgb, var(--danger) 16%, transparent); }
+  .panel-chip--salud-ambar { color: var(--warning); border-color: color-mix(in srgb, var(--warning) 40%, transparent); background: color-mix(in srgb, var(--warning) 12%, transparent); }
+
+  /* La ficha de un microservicio apila nombre, módulo, url, secreto y
+     notas. `.panel-serv-main p` ya tiene margen 0, así que sin esto las
+     líneas quedan pegadas y la ficha se lee como un bloque de texto. */
+  .panel-serv-main p + p {
+    margin-top: 0.4rem;
+  }
+
+  .panel-serv-main code {
+    font-size: var(--fs-xs);
+    word-break: break-all;
+  }
+
 /* El motivo es lo que hace que "bloqueado" se entienda. Sin esta
    frase, el candado es un muro sin explicación. */
 .panel-serv-motivo {
@@ -2181,29 +2212,11 @@ a.panel-stat--ambar:hover {
 }
 
 /* ---------- Generar cobros del mes ---------- */
-.panel-plan-lista {
-  margin-bottom: var(--panel-gap);
-}
 
 /* La lista de lo que se va a crear es la parte importante: se lee
    entera antes de pulsar nada. */
-.panel-plan-lista .panel-list li {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: var(--panel-gap);
-  padding: 0.5rem 0;
-  border-bottom: 1px solid var(--border);
-}
 
-.panel-plan-lista .panel-list li:last-child {
-  border-bottom: 0;
-}
 
-.panel-plan-lista .panel-list li span {
-  text-align: end;
-  white-space: nowrap;
-}
 
 /* =========================================================
    13. RESPONSIVE
@@ -2251,9 +2264,6 @@ a.panel-stat--ambar:hover {
     margin-inline-start: 0;
   }
 
-  .panel-split {
-    grid-template-columns: minmax(0, 1fr);
-  }
 
   .panel-form-grid {
     grid-template-columns: minmax(0, 1fr);
@@ -2489,14 +2499,7 @@ a.panel-stat--ambar:hover {
     padding: 1.75rem 1.25rem;
   }
 
-  .panel-plan-lista .panel-list li {
-    flex-direction: column;
-    gap: 0.15rem;
-  }
 
-  .panel-plan-lista .panel-list li span {
-    text-align: start;
-  }
 }
 
 /* =========================================================
@@ -2847,11 +2850,11 @@ a.panel-stat--ambar:hover {
    RITMO: LA ESCALA DE ESPACIO
    =========================================================
    Antes estos valores vivían sueltos, uno a uno, en cada regla:
-   `0.7rem` por aquí, `0.9rem` por allá, y donde nadieLos dejó,
+   `0.7rem` por aquí, `0.9rem` por allá, y donde nadie los dejó,
    `13.6px`. Medido, la fila de clientes daba 48px y la de cobros
    70px, y no había forma de saber cuál era el bueno.
 
-   Una escala no esड़Tl purismo: es lo que hace que dos pantallas
+   Una escala no es capricho ni purismo: es lo que hace que dos pantallas
    distintos se vean como el mismo panel. Con seis valores, el
    siguiente bloque elige de una lista en vez de inventar un número.
 
@@ -4407,6 +4410,32 @@ body.cmd-abierto {
   gap: var(--panel-gap-lg);
   align-items: start;
 }
+/* ── Lo que sustituye a las cajas y a la rejilla viejas ──
+
+   `.panel-card--peligro`: el borde en rojo de la caja de archivar.
+   No se queda el nombre viejo porque "peligro" ya no es un matiz de
+   estilo: es la unica accion de la ficha que no se puede deshacer, y
+   por eso tiene que destacar sin tener que leer el boton.
+
+   La cabecera tambien se tiñe, y solo ella. Si se tiñera el cuerpo
+   entero, el texto de aviso dejaria de leerse. */
+
+.panel-card--peligro {
+  border-color: color-mix(in srgb, var(--danger) 34%, transparent);
+}
+
+.panel-card--peligro .panel-card-head {
+  background: color-mix(in srgb, var(--danger) 8%, transparent);
+}
+
+/* La columna estrecha de la rejilla 8/4. Es una pila de tarjetas con
+   su propio ritmo, independiente del de la pagina. Antes era
+   `.panel-split-side`. */
+.panel-rejilla-lado {
+  display: grid;
+  gap: var(--panel-gap);
+}
+
 
 @media (max-width: 1000px) {
   .panel-rejilla {

@@ -45,7 +45,7 @@
 
 <section class="panel-page">
 
-  <div class="panel-bloque-head">
+  <div class="panel-page-head">
     <div>
       <h1>Salud del sistema</h1>
       <p class="panel-hint">
@@ -56,24 +56,27 @@
     <a href="<%= base %>/salud" class="panel-btn panel-btn--ghost panel-btn--xs">Comprobar otra vez</a>
   </div>
 
-  <%# ── El dinero. Primero, porque es lo que duele ── %>
-  <div class="panel-bloque">
-    <% if (dinero && dinero.vencidos > 0) { %>
-      <div class="panel-alert panel-alert--warn">
-        <strong>
-          <%= dinero.vencidos %> cobro<%= dinero.vencidos === 1 ? "" : "s" %> vencido<%= dinero.vencidos === 1 ? "" : "s" %>.
-        </strong>
-        Hay <strong><%= dinero.vencidoImporte %></strong> que ya no se cobran.
-        <a href="<%= base %>/cobros?estado=pendiente">Ver los cobros →</a>
-      </div>
-    <% } else if (dinero && dinero.pendientes > 0) { %>
-      <div class="panel-alert panel-alert--ok">
-        Nada vencido. Hay <%= dinero.pendientes %> cobro<%= dinero.pendientes === 1 ? "" : "s" %> por cobrar,
-        <strong><%= dinero.pendienteImporte %></strong> en total.
-        <a href="<%= base %>/cobros?estado=pendiente">Ver los cobros →</a>
-      </div>
-    <% } %>
-  </div>
+  <%# ── El dinero. Primero, porque es lo que duele ──
+       El aviso va suelto, sin tarjeta: un bloque de color sobre el
+       fondo de la pagina ya se lee como algo que hay que mirar, y
+       envolverlo en un marco lo hace parecer contenido. El ritmo
+       vertical lo pone `.panel-page > [class]`, asi que no hace
+       falta un envoltorio que solo aporte margen. ── %>
+  <% if (dinero && dinero.vencidos > 0) { %>
+    <div class="panel-alert panel-alert--warn">
+      <strong>
+        <%= dinero.vencidos %> cobro<%= dinero.vencidos === 1 ? "" : "s" %> vencido<%= dinero.vencidos === 1 ? "" : "s" %>.
+      </strong>
+      Hay <strong><%= dinero.vencidoImporte %></strong> que ya no se cobran.
+      <a href="<%= base %>/cobros?estado=pendiente">Ver los cobros →</a>
+    </div>
+  <% } else if (dinero && dinero.pendientes > 0) { %>
+    <div class="panel-alert panel-alert--ok">
+      Nada vencido. Hay <%= dinero.pendientes %> cobro<%= dinero.pendientes === 1 ? "" : "s" %> por cobrar,
+      <strong><%= dinero.pendienteImporte %></strong> en total.
+      <a href="<%= base %>/cobros?estado=pendiente">Ver los cobros →</a>
+    </div>
+  <% } %>
 
   <%# ── Si la propia comprobación reventó ── %>
   <% if (fallo) { %>
@@ -85,23 +88,21 @@
 
   <%# ── El número grande ── %>
   <% if (!fallo) { %>
-    <div class="panel-bloque">
-      <% if (resumen.rojos === 0 && resumen.ambares === 0) { %>
-        <div class="panel-alert panel-alert--ok">
-          <strong>Todo lo comprobable está bien.</strong>
-          <%= resumen.total %> servicio<%= resumen.total === 1 ? "" : "s" %>El circuito entre servicios encaja y comparte secreto con el panel.
-        </div>
-      <% } else { %>
-        <div class="panel-alert panel-alert--<%= resumen.rojos > 0 ? "error" : "warn" %>">
-          <% if (resumen.rojos > 0) { %>
-            <strong><%= resumen.rojos %> problema<%= resumen.rojos === 1 ? "" : "s" %> que rompe algo ahora mismo.</strong>
-          <% } %>
-          <% if (resumen.ambares > 0) { %>
-            <strong><%= resumen.ambares %> aviso<%= resumen.ambares === 1 ? "" : "s" %> que conviene mirar.</strong>
-          <% } %>
-        </div>
-      <% } %>
-    </div>
+    <% if (resumen.rojos === 0 && resumen.ambares === 0) { %>
+      <div class="panel-alert panel-alert--ok">
+        <strong>Todo lo comprobable está bien.</strong>
+        <%= resumen.total %> servicio<%= resumen.total === 1 ? "" : "s" %>. El circuito entre servicios encaja y comparte secreto con el panel.
+      </div>
+    <% } else { %>
+      <div class="panel-alert panel-alert--<%= resumen.rojos > 0 ? "error" : "warn" %>">
+        <% if (resumen.rojos > 0) { %>
+          <strong><%= resumen.rojos %> problema<%= resumen.rojos === 1 ? "" : "s" %> que rompe algo ahora mismo.</strong>
+        <% } %>
+        <% if (resumen.ambares > 0) { %>
+          <strong><%= resumen.ambares %> aviso<%= resumen.ambares === 1 ? "" : "s" %> que conviene mirar.</strong>
+        <% } %>
+      </div>
+    <% } %>
   <% } %>
 
   <%# ── Los avisos sueltos: migraciones y módulos sin registro ── %>
@@ -117,63 +118,83 @@
     <% }); %>
   <% } %>
 
-  <%# ── Cada microservicio ── %>
+  <%# ── Cada microservicio ──
+       Esto sí es una tarjeta. Son datos —nombre, módulo, estado,
+       latencia, si el secreto coincide— y dentro de un aviso suelto
+       se leen peor: un microservicio quiere su nombre a la altura
+       del resto, no en versalitas.
+
+       Cada fila es una ficha con borde, no un elemento de lista. El
+       panel compara microservicios entre sí, y para eso cada uno
+       tiene que ocupar lo mismo y verse igual. ── %>
   <% if (micros && micros.length) { %>
-    <div class="panel-bloque">
-      <h2 class="panel-subtitle">Microservicios</h2>
-      <p class="panel-hint">
-        El panel firma los tickets y cada servicio los verifica. Si los dos
-        no comparten <code>SERVICE_SECRET</code>, el botón «Abrir» da un
-        <em>401 «ese enlace no vale»</em> — el mismo texto que un ticket
-        manipulado.
-      </p>
+    <section class="panel-card">
+      <header class="panel-card-head">
+        <div class="panel-card-head-texto">
+          <span class="panel-card-cintillo">Comprobación en vivo</span>
+          <h2 class="panel-card-titulo">Microservicios</h2>
+        </div>
+        <span class="panel-chip panel-chip--mute"><%= micros.length %></span>
+      </header>
 
-      <ul class="panel-list">
-        <% micros.forEach(function (m) { %>
-          <li class="panel-bloque">
-            <div class="panel-bloque-head">
-              <div>
+      <div class="panel-card-cuerpo">
+        <p class="panel-hint">
+          El panel firma los tickets y cada servicio los verifica. Si los dos
+          no comparten <code>SERVICE_SECRET</code>, el botón «Abrir» da un
+          <em>401 «ese enlace no vale»</em> — el mismo texto que un ticket
+          manipulado.
+        </p>
+
+        <ul class="panel-serv-list">
+          <% micros.forEach(function (m) { %>
+            <%
+              var salud = m.estado === "verde" ? "verde" : (m.estado === "rojo" ? "rojo" : "ambar");
+            %>
+            <li class="panel-serv">
+              <div class="panel-serv-main">
                 <strong><%= m.nombre %></strong>
-                <div class="panel-hint"><%= m.modulo %></div>
-              </div>
-              <span class="panel-alert panel-alert--<%= m.estado === "verde" ? "ok" : (m.estado === "rojo" ? "error" : "warn") %>">
-                <% if (m.estado === "verde") { %>
-                  responde
-                  <% if (m.respuesta && m.respuesta.ms) { %><%= m.respuesta.ms %> ms<% } %>
-                <% } else if (m.estado === "rojo") { %>
-                  roto
-                <% } else { %>
-                  revisar
+                <p><%= m.modulo %></p>
+
+                <% if (m.url_base) { %>
+                  <p><code><%= m.url_base %></code></p>
                 <% } %>
-              </span>
-            </div>
 
-            <% if (m.url_base) { %>
-              <div class="panel-hint"><code><%= m.url_base %></code></div>
-            <% } %>
+                <% if (m.respuesta && m.respuesta.cuerpo && m.respuesta.cuerpo.secret_md5) { %>
+                  <p>
+                    md5 del secreto:
+                    <code><%= m.respuesta.cuerpo.secret_md5 %></code>
+                    <% if (nuestroMd5) { %>
+                      · el panel: <code><%= nuestroMd5 %></code>
+                      <%= m.respuesta.cuerpo.secret_md5 === nuestroMd5 ? "✓ coinciden" : "✗ NO coinciden" %>
+                    <% } %>
+                  </p>
+                <% } %>
 
-            <% if (m.notas && m.notas.length) { %>
-              <ul class="panel-list">
-                <% m.notas.forEach(function (nota) { %>
-                  <li><%= nota %></li>
-                <% }); %>
-              </ul>
-            <% } %>
-
-            <% if (m.respuesta && m.respuesta.cuerpo && m.respuesta.cuerpo.secret_md5) { %>
-              <div class="panel-hint">
-                md5 del secreto:
-                <code><%= m.respuesta.cuerpo.secret_md5 %></code>
-                <% if (nuestroMd5) { %>
-                  · el panel: <code><%= nuestroMd5 %></code>
-                  <%= m.respuesta.cuerpo.secret_md5 === nuestroMd5 ? "✓ coinciden" : "✗ NO coinciden" %>
+                <% if (m.notas && m.notas.length) { %>
+                  <ul class="panel-list">
+                    <% m.notas.forEach(function (nota) { %>
+                      <li><%= nota %></li>
+                    <% }); %>
+                  </ul>
                 <% } %>
               </div>
-            <% } %>
-          </li>
-        <% }); %>
-      </ul>
-    </div>
+
+              <div class="panel-serv-side">
+                <span class="panel-chip panel-chip--salud-<%= salud %>">
+                  <% if (salud === "verde") { %>
+                    responde<% if (m.respuesta && m.respuesta.ms) { %> · <%= m.respuesta.ms %> ms<% } %>
+                  <% } else if (salud === "rojo") { %>
+                    roto
+                  <% } else { %>
+                    revisar
+                  <% } %>
+                </span>
+              </div>
+            </li>
+          <% }); %>
+        </ul>
+      </div>
+    </section>
   <% } %>
 
 </section>

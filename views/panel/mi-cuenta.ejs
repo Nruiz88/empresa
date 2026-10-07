@@ -27,21 +27,30 @@
     <div class="panel-alert" role="alert"><%= error %></div>
   <% } %>
 
-  <div class="panel-box">
-    <h2 class="panel-subtitle">Con qué entras</h2>
-    <p class="panel-notes">
-      <%= email %>
-    </p>
-    <p class="panel-help">
-      Si el correo no es el tuyo, escríbenos: no lo cambies por tu
-      cuenta, porque el acceso va ligado a la cuenta antigua.
-    </p>
-  </div>
+  <%# ── Con qué entras ──
+       Antes era un `panel-box` suelto. Ahora es la misma `panel-card`
+       que el formulario de abajo, con la diferencia de que aquí la
+       cabecera no lleva cintillo: no hay dos cosas que contrastar,
+       solo un dato. ── %>
+  <section class="panel-card">
+    <header class="panel-card-head">
+      <div class="panel-card-head-texto">
+        <h2 class="panel-card-titulo">Con qué entras</h2>
+      </div>
+    </header>
+    <div class="panel-card-cuerpo">
+      <p class="panel-notes"><%= email %></p>
+      <p class="panel-help">
+        Si el correo no es el tuyo, escríbenos: no lo cambies por tu
+        cuenta, porque el acceso va ligado a la cuenta antigua.
+      </p>
+    </div>
+  </section>
 
   <form method="post" action="<%= base %>/mi-cuenta/password" class="panel-form-card">
     <input type="hidden" name="_csrf" value="<%= csrf %>" />
 
-    <h2 class="panel-subtitle">Cambiar la contraseña</h2>
+    <h2 class="panel-card-titulo">Cambiar la contraseña</h2>
 
     <label class="panel-field">
       <span>Contraseña actual *</span>

@@ -22,7 +22,18 @@ for (const l of fs.readFileSync(".env", "utf8").split(NL)) {
 }
 const req = createRequire("file:///D:/webs/empresa/db/ver-css.js");
 
-const PAGINAS = [
+/* Las páginas se arman con un argumento porque dos de ellas necesitan
+   datos que no se pueden escribir aquí:
+
+     · La ficha de un cliente. Su id cambia con los datos y la base, y
+       una lista con un id fijo acaba apuntando a una ficha que ya no
+       existe — que da 404, no un fallo de maquetación, y ese error
+       esconde todos los demás.
+
+     · Mi cuenta. Va al revés que las demás: es la única que necesita
+       sesión de cliente, y hasta hace poco daba 503 por falta de
+       `access_token`. Se descubrió midiendo. */
+const PAGINAS = (idCliente) => [
   "/panel",
   "/panel/clientes",
   "/panel/servicios",
@@ -35,6 +46,12 @@ const PAGINAS = [
   "/panel/clientes/nuevo",
   "/panel/servicios/nuevo",
   "/panel/cobros/generar",
+  /* Estas tres se miran porque se reestructuraron enteras al unificar
+     las cajas: la ficha pasó de `panel-box` a `panel-card` y su
+     rejilla pasó de 6/4 a 8/4. Si algo se hubiera quedado sin fondo ni
+     borde, es aquí donde se vería. */
+  ...(idCliente ? ["/panel/clientes/" + idCliente] : []),
+  "/panel/mi-cuenta",
 ];
 
 (async () => {
@@ -51,6 +68,15 @@ const PAGINAS = [
     expira_en: new Date(Date.now() + 900000).toISOString(),
   });
 
+  /* El cliente se busca antes de armar la lista de páginas, y si no
+     hay ninguno se dice en vez de recorrer doce páginas y dar por
+     buena una comprobación que no ha mirado la ficha. */
+  const { data: clientes } = await db.from("clients").select("id").limit(1);
+  if (!clientes || !clientes.length) {
+    console.log("  *** no hay ningun cliente en la base: no puedo comprobar la ficha");
+    process.exit(1);
+  }
+
   const { chromium } = req("D:/webs/wweb/node_modules/playwright");
   const b = await chromium.launch();
   const ctx = await b.newContext({
@@ -59,8 +85,14 @@ const PAGINAS = [
     storageState: { cookies: [{ name: "nexo_panel", value: tok, domain: "127.0.0.1", path: "/", httpOnly: true, sameSite: "Lax" }], origins: [] },
   });
 
-  let fallos = 0;
-  for (const url of PAGINAS) {
+  /* La lista se arma una vez y se recorre. Armarla dentro del bucle
+   haría que `PAGINAS.length` —que es la aridad de la función, o sea
+   1— saliera como total, y un recuento que miente sobre cuántas
+   páginas se han mirado no sirve para nada. */
+const RUTAS = PAGINAS(clientes[0].id);
+
+let fallos = 0;
+for (const url of RUTAS) {
     const p = await ctx.newPage();
     const errs = [];
     p.on("pageerror", (e) => errs.push(e.message.slice(0, 50)));
@@ -103,7 +135,7 @@ const PAGINAS = [
   }
 
   console.log("");
-  console.log("  paginas con problema: " + fallos + " de " + PAGINAS.length);
+  console.log("  paginas con problema: " + fallos + " de " + RUTAS.length);
 
   await b.close();
   await db.from("sessions").delete().eq("user_id", st[0].id);

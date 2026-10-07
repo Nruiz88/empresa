@@ -17,7 +17,7 @@
 -- bridging" y es la razón por la que esa tabla existe en el servidor.
 --
 -- Alternativa descartada: leer los servicios del cliente con la secret
--- key filtrando por client_id en el código. Funciona, pero тогда el
+-- key filtrando por client_id en el código. Funciona, pero entonces el
 -- aislamiento lo pone Express y no Postgres, que es donde queremos
 -- que esté.
 -- =====================================================================

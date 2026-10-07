@@ -18,7 +18,7 @@
   <!-- Filtros -->
   <form class="panel-filters" method="get" action="<%= base %>/clientes">
     <input type="search" name="q" value="<%= q %>" placeholder="Buscar por nombre, empresa o email…" class="panel-search" />
-    <% if (q) { %><a href="<%= base %>/clientes" class="panel-clear">Limpiar</a><% } %>
+    <% if (q) { %><a href="<%= base %>/clientes" class="panel-btn panel-btn--ghost panel-btn--xs">Limpiar</a><% } %>
   </form>
 
   <% if (!clientes.length) { %>

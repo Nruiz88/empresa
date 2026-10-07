@@ -53,6 +53,7 @@
 const fs = require("fs");
 const path = require("path");
 const ejs = require("ejs");
+const idioma = require("./ver-idioma");
 
 const VISTAS = path.join(__dirname, "..", "views");
 
@@ -135,19 +136,64 @@ console.log("");
 if (!rotos.length) {
   console.log("  ✓ Las " + archivos.length + " vistas compilan y no tienen comentarios sin cerrar.");
   console.log("");
-  process.exit(0);
+} else {
+  for (const r of rotos) {
+    console.log("  ✗ " + r.relativo);
+    console.log("    " + r.mensaje);
+  }
+
+  console.log("");
+  console.log(
+    "  " + rotos.length + " de " + archivos.length + " vistas no compilan. " +
+    "Cada una de estas es una pantalla que devuelve HTTP 500."
+  );
+  console.log("");
+  process.exit(1);
 }
 
-for (const r of rotos) {
-  console.log("  ✗ " + r.relativo);
-  console.log("    " + r.mensaje);
+/* ── Texto en otro idioma ──
+
+   Va después de la compilación y no antes, y el orden importa: si una
+   vista no compila, el aviso que interesa es el de compilación, y dos
+   listas de fallos una detrás de otra lo que hacen es que se lea la
+   segunda y se pase de la primera.
+
+   Se comprueba aquí porque este archivo ya es la puerta de entrada a
+   `npm test`, y una comprobación que hay que acordarse de lanzar es
+   una comprobación que no se lanza.
+
+   Y hay una razón de fondo: un U+FFFD o un trozo de cirílico en un
+   comentario no rompe la página. El fichero compila, el servidor
+   contesta 200, las pruebas pasan. Solo se ve leyendo, y solo si la
+   frase resulta rara. Con 27 caracteres perdidos en el artículo
+   público de precios y dos comentarios de migración en ruso, se ha
+   visto que "raro" no es un filtro fiable. */
+const sospechosos = [];
+
+for (const archivo of idioma.recorrer(path.join(__dirname, ".."))) {
+  const relativo = path.relative(path.join(__dirname, ".."), archivo);
+  for (const f of idioma.revisar(archivo)) {
+    sospechosos.push({ relativo, ...f });
+  }
 }
 
-console.log("");
-console.log(
-  "  " + rotos.length + " de " + archivos.length + " vistas no compilan. " +
-  "Cada una de estas es una pantalla que devuelve HTTP 500."
-);
+if (sospechosos.length) {
+  console.log("=== Texto que no es castellano ===");
+  console.log("");
+  for (const s of sospechosos) {
+    console.log("  ✗ " + s.relativo + " L" + s.linea + "  [" + s.alfabeto + "] " + s.codes);
+    console.log("      " + s.texto);
+  }
+  console.log("");
+  console.log(
+    "  " + sospechosos.length + " lineas. El fichero compila y la pagina responde 200: " +
+    "esto solo se ve leyendo."
+  );
+  console.log("");
+  process.exit(1);
+}
+
+console.log("  ✓ Ningún fichero tiene texto de otro alfabeto.");
 console.log("");
 
-process.exit(1);
+process.exit(0);

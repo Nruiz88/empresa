@@ -81,7 +81,7 @@
 -- `instance_name` es único, y a nivel global
 -- ---------------------------------------------------------------------
 -- Global, no (server_id, instance_name). Se podría hacer por servidor y
--- bastaría SI el webhook фильтara por los dos, pero no lo hace: recibe
+-- bastaría SI el webhook filtrara por los dos, pero no lo hace: recibe
 -- un nombre y busca por el nombre. Consecuencia de que sea global: dos
 -- cajas distintas no pueden tener instancias del mismo nombre, y eso es
 -- lo que hace que la búsqueda del webhook sea inequívoca.

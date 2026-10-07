@@ -44,34 +44,41 @@
     <noscript><button type="submit" class="panel-btn panel-btn--ghost">Ver</button></noscript>
   </form>
 
-  <!-- ---------- El plan ---------- -->
-  <div class="panel-bloque">
-    <h2 class="panel-subtitle">
-      <%= periodoLargo(periodo) %>
-    </h2>
-
-    <div class="panel-stats">
-      <div class="panel-stat panel-stat--<%= plan.total ? '' : 'alerta' %>">
-        <strong><%= plan.total %></strong>
-        <span>cobros a crear</span>
-        <% if (plan.total) { %>
-          <em class="panel-stat-pie"><%= dinero(plan.importe) %></em>
-        <% } %>
-      </div>
-      <div class="panel-stat">
-        <strong><%= plan.saltar.length %></strong>
-        <span>ya facturados o no aplican</span>
-      </div>
-      <div class="panel-stat <%= plan.bloqueados.length ? 'panel-stat--alerta' : '' %>">
-        <strong><%= plan.bloqueados.length %></strong>
-        <span>con deuda pendiente</span>
-      </div>
+  <!-- ---------- El plan ----------
+       Las tres cifras van sueltas, como en la portada: son el resumen
+       de la página, y para leerlas hay que estar dentro de un marco.
+       Lo que sí va en tarjeta es la lista de cobros: es larga, y le
+       viene bien un borde que la separe del botón de abajo. -->
+  <div class="panel-stats">
+    <div class="panel-stat panel-stat--<%= plan.total ? '' : 'alerta' %>">
+      <strong><%= plan.total %></strong>
+      <span>cobros a crear</span>
+      <% if (plan.total) { %>
+        <em class="panel-stat-pie"><%= dinero(plan.importe) %></em>
+      <% } %>
     </div>
+    <div class="panel-stat">
+      <strong><%= plan.saltar.length %></strong>
+      <span>ya facturados o no aplican</span>
+    </div>
+    <div class="panel-stat <%= plan.bloqueados.length ? 'panel-stat--alerta' : '' %>">
+      <strong><%= plan.bloqueados.length %></strong>
+      <span>con deuda pendiente</span>
+    </div>
+  </div>
 
-    <% if (plan.total) { %>
-      <div class="panel-plan-lista">
-        <h3 class="panel-subtitle">Se crearán estos <%= plan.total %></h3>
-        <ul class="panel-list">
+  <% if (plan.total) { %>
+    <section class="panel-card">
+      <header class="panel-card-head">
+        <div class="panel-card-head-texto">
+          <span class="panel-card-cintillo"><%= periodoLargo(periodo) %></span>
+          <h2 class="panel-card-titulo">Se crearán estos <%= plan.total %></h2>
+        </div>
+        <span class="panel-chip panel-chip--mute"><%= dinero(plan.importe) %></span>
+      </header>
+
+      <div class="panel-card-cuerpo">
+          <ul class="panel-list panel-doble">
           <% plan.crear.forEach(function (c) { %>
             <li>
               <strong><%= c.titulo %> · <%= c.empresa %></strong>
@@ -86,70 +93,88 @@
           <% }); %>
         </ul>
       </div>
+    </section>
 
-      <form method="post" action="<%= base %>/cobros/generar"
-            data-confirmar="Se crearán <%= plan.total %> cobros por <%= dinero(plan.importe) %>. Los cobros no se borran después: si te has equivocado, hay que anularlos uno a uno. ¿Seguir?">
-        <input type="hidden" name="_csrf" value="<%= csrf %>" />
-        <input type="hidden" name="periodo" value="<%= periodo %>" />
-        <button type="submit" class="panel-btn panel-btn--primary panel-btn--ancho">
-          Generar <%= plan.total %> <%= plan.total === 1 ? 'cobro' : 'cobros' %>
-        </button>
-      </form>
-    <% } else { %>
-      <div class="panel-empty">
-        <h2>No hay nada que facturar de <%= periodoLargo(periodo) %></h2>
-        <p>
-          O no hay mantenimientos activos, o ya los emitiste, o están
-          todos con deuda pendiente. Mira las listas de abajo.
-        </p>
-        <a href="<%= base %>/servicios?estado=activo" class="panel-btn panel-btn--ghost">Ver servicios activos</a>
-      </div>
-    <% } %>
-  </div>
+    <form method="post" action="<%= base %>/cobros/generar"
+          data-confirmar="Se crearán <%= plan.total %> cobros por <%= dinero(plan.importe) %>. Los cobros no se borran después: si te has equivocado, hay que anularlos uno a uno. ¿Seguir?">
+      <input type="hidden" name="_csrf" value="<%= csrf %>" />
+      <input type="hidden" name="periodo" value="<%= periodo %>" />
+      <button type="submit" class="panel-btn panel-btn--primary panel-btn--ancho">
+        Generar <%= plan.total %> <%= plan.total === 1 ? 'cobro' : 'cobros' %>
+      </button>
+    </form>
+  <% } else { %>
+    <div class="panel-empty">
+      <h2>No hay nada que facturar de <%= periodoLargo(periodo) %></h2>
+      <p>
+        O no hay mantenimientos activos, o ya los emitiste, o están
+        todos con deuda pendiente. Mira las listas de abajo.
+      </p>
+      <a href="<%= base %>/servicios?estado=activo" class="panel-btn panel-btn--ghost">Ver servicios activos</a>
+    </div>
+  <% } %>
 
   <!-- ---------- Bloqueados: lo que hay que mirar ----------
        Van primero y con color de alerta porque son los que pueden
        y acaba en reclamación: alguien espera su servicio y no le has
        facturado. -->
   <% if (plan.bloqueados.length) { %>
-    <div class="panel-bloque">
-      <h2 class="panel-subtitle">No se facturan porque ya deben</h2>
-      <p class="panel-hint">
-        Un cliente que ya tiene un cobro vencido no se le emite otro
-        este mes. Facturar a alguien que no está pagando es una
-        decisión tuya, no de este botón: mira la deuda y decide.
-      </p>
-      <ul class="panel-caducos">
-        <% plan.bloqueados.forEach(function (c) { %>
-          <li class="panel-caduco panel-caduco--vencido">
-            <div class="panel-caduco-main">
-              <strong><%= c.titulo %></strong>
-              <span class="panel-caduco-empresa"><%= c.empresa %></span>
-            </div>
-            <div class="panel-caduco-side">
-              <span class="panel-serv-price"><%= dinero(c.importe, c.moneda) %></span>
-              <span class="panel-caduco-cuando"><%= c.motivo %></span>
-            </div>
-            <a href="<%= base %>/cobros?estado=impagado" class="panel-btn panel-btn--ghost panel-btn--xs">Ver</a>
-          </li>
-        <% }); %>
-      </ul>
-    </div>
+    <section class="panel-card">
+      <header class="panel-card-head">
+        <div class="panel-card-head-texto">
+          <span class="panel-card-cintillo">No se facturan</span>
+          <h2 class="panel-card-titulo">Ya deben <%= plan.bloqueados.length %></h2>
+        </div>
+        <span class="panel-chip panel-chip--cobro-vencido">Reclamación</span>
+      </header>
+
+      <div class="panel-card-cuerpo">
+        <p class="panel-hint">
+          Un cliente que ya tiene un cobro vencido no se le emite otro
+          este mes. Facturar a alguien que no está pagando es una
+          decisión tuya, no de este botón: mira la deuda y decide.
+        </p>
+
+        <ul class="panel-caducos">
+          <% plan.bloqueados.forEach(function (c) { %>
+            <li class="panel-caduco panel-caduco--vencido">
+              <div class="panel-caduco-main">
+                <strong><%= c.titulo %></strong>
+                <span class="panel-caduco-empresa"><%= c.empresa %></span>
+              </div>
+              <div class="panel-caduco-side">
+                <span class="panel-serv-price"><%= dinero(c.importe, c.moneda) %></span>
+                <span class="panel-caduco-cuando"><%= c.motivo %></span>
+              </div>
+              <a href="<%= base %>/cobros?estado=impagado" class="panel-btn panel-btn--ghost panel-btn--xs">Ver</a>
+            </li>
+          <% }); %>
+        </ul>
+      </div>
+    </section>
   <% } %>
 
   <!-- ---------- Saltados ---------- -->
   <% if (plan.saltar.length) { %>
-    <div class="panel-bloque">
-      <h2 class="panel-subtitle">Se dejan fuera (<%= plan.saltar.length %>)</h2>
-      <ul class="panel-list">
-        <% plan.saltar.forEach(function (c) { %>
-          <li>
-            <strong><%= c.titulo %> · <%= c.empresa %></strong>
-            <span><%= c.motivo %></span>
-          </li>
-        <% }); %>
-      </ul>
-    </div>
+    <section class="panel-card">
+      <header class="panel-card-head">
+        <div class="panel-card-head-texto">
+          <span class="panel-card-cintillo">Se dejan fuera</span>
+          <h2 class="panel-card-titulo"><%= plan.saltar.length %></h2>
+        </div>
+      </header>
+
+      <div class="panel-card-cuerpo">
+        <ul class="panel-list">
+          <% plan.saltar.forEach(function (c) { %>
+            <li>
+              <strong><%= c.titulo %> · <%= c.empresa %></strong>
+              <span><%= c.motivo %></span>
+            </li>
+          <% }); %>
+        </ul>
+      </div>
+    </section>
   <% } %>
 
   <div class="panel-note">
