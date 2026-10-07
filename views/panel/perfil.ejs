@@ -108,8 +108,8 @@
     </div>
 
     <div class="panel-field<%= errores.cif ? " has-error" : "" %>">
-      <span class="panel-field-label" id="lbl-cif">CIF / NIF</span>
-      <input type="text" id="cif" name="cif" placeholder="B12345678"
+      <span class="panel-field-label" id="lbl-cif">CUIT / CUIL</span>
+      <input type="text" id="cif" name="cif" placeholder="30-12345678-9"
              value="<%= ficha.cif || '' %>" />
       <p class="panel-field-ayuda">Lo pone el equipo cuando lo verifiquemos.</p>
       <% if (errores.cif) { %><p class="panel-field-error"><%= errores.cif %></p><% } %>
@@ -117,27 +117,27 @@
 
     <div class="panel-field panel-field--ancho">
       <span class="panel-field-label" id="lbl-direccion">Dirección</span>
-      <input type="text" id="direccion" name="direccion" placeholder="Calle Mayor 12, 3º B"
+      <input type="text" id="direccion" name="direccion" placeholder="Av. Corrientes 1234, 3 B"
              value="<%= ficha.direccion || '' %>" />
     </div>
 
     <div class="panel-field<%= errores.codigo_postal ? " has-error" : "" %>">
       <span class="panel-field-label" id="lbl-codigo_postal">Código postal</span>
-      <input type="text" id="codigo_postal" name="codigo_postal" placeholder="28013"
-             maxlength="5" inputmode="numeric"
+      <input type="text" id="codigo_postal" name="codigo_postal" placeholder="C1414"
+             maxlength="5" inputmode="text"
              value="<%= ficha.codigo_postal || '' %>" />
       <% if (errores.codigo_postal) { %><p class="panel-field-error"><%= errores.codigo_postal %></p><% } %>
     </div>
 
     <div class="panel-field">
       <span class="panel-field-label" id="lbl-ciudad">Ciudad</span>
-      <input type="text" id="ciudad" name="ciudad" placeholder="Madrid"
+      <input type="text" id="ciudad" name="ciudad" placeholder="CABA"
              value="<%= ficha.ciudad || '' %>" />
     </div>
 
     <div class="panel-field">
       <span class="panel-field-label" id="lbl-provincia">Provincia</span>
-      <input type="text" id="provincia" name="provincia" placeholder="Madrid"
+      <input type="text" id="provincia" name="provincia" placeholder="Buenos Aires"
              value="<%= ficha.provincia || '' %>" />
     </div>
 
@@ -156,9 +156,12 @@
 
     <div class="panel-field">
       <span class="panel-field-label" id="lbl-whatsapp">WhatsApp</span>
-      <input type="tel" id="whatsapp" name="whatsapp" placeholder="600 111 222"
+      <input type="tel" id="whatsapp" name="whatsapp" placeholder="9 11 1234-5678"
              value="<%= ficha.whatsapp || '' %>" />
-      <p class="panel-field-ayuda">Con prefijo 34. Lo guardamos normalizado.</p>
+      <p class="panel-field-ayuda">
+              Ponlo como quieras: con o sin el 9 delante, con espacios
+              o sin ellos. Le ponemos el 54 y guardamos solo los dígitos.
+            </p>
     </div>
   </div>
 
@@ -244,14 +247,14 @@
   <div class="panel-form-grid">
     <div class="panel-field panel-field--ancho">
       <span class="panel-field-label" id="lbl-razon_social">Razón social <span class="panel-requerido">*</span></span>
-      <input type="text" id="razon_social" name="razon_social" placeholder="Panadería La Espiga S.L."
+      <input type="text" id="razon_social" name="razon_social" placeholder="Panadería La Espiga S.A."
              value="<%= facturacion.razon_social || '' %>" />
       <% if (errores.razon_social) { %><p class="panel-field-error"><%= errores.razon_social %></p><% } %>
     </div>
 
     <div class="panel-field">
-      <span class="panel-field-label" id="lbl-nif_fact">NIF de facturación</span>
-      <input type="text" id="nif_fact" name="nif" placeholder="B12345678"
+      <span class="panel-field-label" id="lbl-nif_fact">CUIT de facturación</span>
+      <input type="text" id="nif_fact" name="nif" placeholder="30-12345678-9"
              value="<%= facturacion.nif || '' %>" />
     </div>
 
@@ -264,32 +267,32 @@
 
     <div class="panel-field panel-field--ancho">
       <span class="panel-field-label" id="lbl-dir_fact">Dirección de facturación</span>
-      <input type="text" id="dir_fact" name="direccion" placeholder="Calle Mayor 12, 3º B"
+      <input type="text" id="dir_fact" name="direccion" placeholder="Av. Corrientes 1234, 3 B"
              value="<%= facturacion.direccion || '' %>" />
     </div>
 
     <div class="panel-field">
       <span class="panel-field-label" id="lbl-cp_fact">Código postal</span>
-      <input type="text" id="cp_fact" name="codigo_postal" maxlength="5" inputmode="numeric"
-             placeholder="28013" value="<%= facturacion.codigo_postal || '' %>" />
+      <input type="text" id="cp_fact" name="codigo_postal" maxlength="5" inputmode="text"
+             placeholder="C1414" value="<%= facturacion.codigo_postal || '' %>" />
       <% if (errores.codigo_postal) { %><p class="panel-field-error"><%= errores.codigo_postal %></p><% } %>
     </div>
 
     <div class="panel-field">
       <span class="panel-field-label" id="lbl-ciudad_fact">Ciudad</span>
-      <input type="text" id="ciudad_fact" name="ciudad" placeholder="Madrid"
+      <input type="text" id="ciudad_fact" name="ciudad" placeholder="CABA"
              value="<%= facturacion.ciudad || '' %>" />
     </div>
 
     <div class="panel-field">
       <span class="panel-field-label" id="lbl-provincia_fact">Provincia</span>
-      <input type="text" id="provincia_fact" name="provincia" placeholder="Madrid"
+      <input type="text" id="provincia_fact" name="provincia" placeholder="Buenos Aires"
              value="<%= facturacion.provincia || '' %>" />
     </div>
 
     <div class="panel-field panel-field--ancho">
       <span class="panel-field-label" id="lbl-iban">IBAN o cuenta</span>
-      <input type="text" id="iban" name="iban" placeholder="ES91 2100 0418 4502 0005 1332"
+      <input type="text" id="iban" name="iban" placeholder="AR29 0000 0000 0000 0000 0000 0"
              value="<%= facturacion.iban || '' %>" />
       <p class="panel-field-ayuda">Para pagarte por transferencia sin escribirla cada vez.</p>
     </div>

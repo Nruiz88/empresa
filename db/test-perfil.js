@@ -45,28 +45,48 @@ let userId = null;
   /* ---------- Validación pura (sin base) ---------- */
   seccion("limpiar los datos antes de guardarlos");
 
-  const { datos: whatsapp } = perfil.prepararFicha({ whatsapp: "600 111 222" });
-  comprobar("un móvil de 9 dígitos se guarda con el 34", whatsapp.whatsapp === "34600111222");
+  /* El móvil local: 11 1234-5678 son 10 dígitos y NO llevan el 9 de
+     troncal, así que hay que ponérselo. Sin él, wa.me abre el fijo. */
+  const { datos: whatsapp } = perfil.prepararFicha({ whatsapp: "11 1234-5678" });
+  comprobar("un móvil de 10 dígitos se guarda con el 54 y el 9", whatsapp.whatsapp === "5491112345678");
 
-  const { datos: conPlus } = perfil.prepararFicha({ whatsapp: "+34 600 111 222" });
-  comprobar("con +34 y espacios también", conPlus.whatsapp === "34600111222");
+  /* Y con el 9 ya puesto, que es como lo escribe media gente. Los dos
+     tienen que acabar EXACTAMENTE igual: son el mismo número escrito
+     de dos maneras. */
+  const { datos: conNueve } = perfil.prepararFicha({ whatsapp: "9 11 1234-5678" });
+  comprobar("con el 9 de troncal puesto da el mismo número", conNueve.whatsapp === "5491112345678");
 
-  const { datos: conGuion } = perfil.prepararFicha({ whatsapp: "0034-600-111-222" });
-  comprobar("con guiones y prefijo internacional 00", conGuion.whatsapp === "34600111222");
+  const { datos: conPlus } = perfil.prepararFicha({ whatsapp: "+54 9 11 1234-5678" });
+  comprobar("con +54 y espacios también", conPlus.whatsapp === "5491112345678");
 
-  const { datos: pegado } = perfil.prepararFicha({ whatsapp: "34 600 111 222" });
-  comprobar("con el 34 pegado y espacios", pegado.whatsapp === "34600111222");
+  const { datos: conGuion } = perfil.prepararFicha({ whatsapp: "0054-9-11-1234-5678" });
+  comprobar("con guiones y prefijo internacional 00", conGuion.whatsapp === "5491112345678");
 
-  const { datos: duplicado } = perfil.prepararFicha({ whatsapp: "+34 34 600 111 222" });
-  comprobar("si duplican el 34, lo quita", duplicado.whatsapp === "34600111222");
+  const { datos: pegado } = perfil.prepararFicha({ whatsapp: "54 9 11 1234 5678" });
+  comprobar("con el 54 pegado y espacios", pegado.whatsapp === "5491112345678");
 
-  const { datos: sinPrefijoLarga } = perfil.prepararFicha({ whatsapp: "34600111222" });
-  comprobar("si ya viene completo, no se toca", sinPrefijoLarga.whatsapp === "34600111222");
+  const { datos: sinEspacios } = perfil.prepararFicha({ whatsapp: "5491112345678" });
+  comprobar("si ya viene completo, no se toca", sinEspacios.whatsapp === "5491112345678");
 
-  /* Un teléfono de casa de otro país no debe llevar 34 por delante. */
+  /* Un teléfono de casa de otro país no debe llevar el 54 por delante. */
   const { datos: extranjero } = perfil.prepararFicha({ whatsapp: "+44 20 7123 4567" });
-  comprobar("un número extranjero no se le cuela el 34",
+  comprobar("un número extranjero no se le cuela el 54",
     extranjero.whatsapp === "442071234567");
+
+  /* Y el fijo con su código de área, que son 12 dígitos y ya es
+     internacional: es el 54 sin el 9 de troncal. Esta línea es la
+     que NO hay que "arreglar": si alguien le mete un 9, wa.me
+     abre un número que no es el de ese cliente. */
+  const { datos: fijo } = perfil.prepararFicha({ whatsapp: "+54 11 4321-1234" });
+  comprobar("un fijo con el 54 y sin el 9 se deja como está",
+    fijo.whatsapp === "541143211234");
+
+  /* Un fijo sin código de área son 8 dígitos y no hay forma de saber
+     a qué zona es. Se guarda tal cual, que es lo menos malo:
+     inventar un área sería peor. */
+  const { datos: fijoSinArea } = perfil.prepararFicha({ whatsapp: "4321-1234" });
+  comprobar("un fijo sin área se guarda tal cual",
+    fijoSinArea.whatsapp === "43211234");
 
   seccion("rechazar lo que no es una dirección");
 
