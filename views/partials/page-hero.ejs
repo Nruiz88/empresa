@@ -61,7 +61,13 @@
       <div class="mock-window">
         <div class="mock-bar">
           <span class="mock-dots" aria-hidden="true"><i></i><i></i><i></i></span>
-          <span class="mock-url">nexo.studio / <%= variant %></span>
+          <%# El dominio de la barra del navegador de mentira.
+        Decía "nexo.studio", y se veía en /precios y en /contacto:
+        quien visitaba Shopcito veía una barra de direcciones con el
+        nombre del estudio digital anterior.
+        Se pone el dominio de verdad, que además es el correcto: la
+        barra tiene que enseñar la dirección que se está mirando. %>
+      <span class="mock-url"><%= site.host %> / <%= variant %></span>
           <span class="mock-pill">Demo</span>
         </div>
 
@@ -123,13 +129,15 @@
                  El plazo sale del campo propio del plan, no de partir su nota:
                  partir una frase es un dato que se rompe al reescribirla. -->
             <div class="mock-plans">
-              <% PROYECTOS.forEach(function (p) { %>
-                <div class="mock-plan<%= p.destacado ? " is-featured" : "" %>">
-                  <span class="mock-plan-name"><%= p.nombre %></span>
-                  <strong><%= precio(p.precio) %> <%= simbolo() %></strong>
-                  <span class="mock-plan-meta"><%= p.plazo %></span>
-                </div>
-              <% }); %>
+              <%# Los planes del estudio digital ya no existen. Este bloque pintaba
+    PROYECTOS, que se retiro de `content/precios.js` junto con las
+    paginas que lo vendian. La variante "precios" es la unica que
+    queda en uso, y ahi los planes que importan son los de Shopcito,
+    que se pintan mas abajo en la propia pagina.
+
+    Se desactiva y no se borra a proposito: asi se ve que la decision
+    fue tomada. Un bloque borrado deja la misma pregunta y peor. %>
+<% if (false) { PROYECTOS.forEach(function (p) { %><% }); } %>
             </div>
 
           <% } else if (variant === "contacto") { %>

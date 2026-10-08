@@ -86,8 +86,10 @@ const router = express.Router();
      —que es el mismo motivo por el que `csrf` y `rol` van así en el
      panel. */
   router.use(function inyectaPrecios(req, res, next) {
-    res.locals.PROYECTOS = precios.PROYECTOS;
-    res.locals.MANTENIMIENTO = precios.MANTENIMIENTO;
+    /* PROYECTOS y MANTENIMIENTO ya no se inyectan: eran los planes del
+       estudio digital y se retiraron con las páginas que los vendían.
+       Serpintían como undefined, que no rompe, y por eso esto pasó
+       desapercibido hasta que una vista los recorrió con forEach. */
     res.locals.BANDAS_PRESUPUESTO = precios.BANDAS_PRESUPUESTO;
     res.locals.precio = precios.importe;
     res.locals.simbolo = precios.simbolo;
@@ -122,117 +124,48 @@ const router = express.Router();
     });
   });
 
-  /* ---------- Servicios ---------- */
-  router.get("/servicios", (req, res) => {
-    res.locals.current = "servicios";
-    res.locals.structuredFaq = faq.servicios;
-    res.render("servicios", {
-      title: "Servicios — Nexo Studio",
-      description:
-        "Diseño y desarrollo web, tiendas online, web apps, aplicaciones a medida, SEO y mantenimiento para empresas y comercios.",
-    });
-  });
+  /* ---------- Servicios ----------
+     Retirado. Vendía diseño web, que no es lo que se vende.
+
+     302 y no 301: hay enlaces fuera que se llevan a la portada, y no
+     se cierra la puerta a reescribirla si algún día hace falta. */
+  router.get("/servicios", (req, res) => res.redirect(302, "/#precios"));
 
   /* ---------- Precios ---------- */
   router.get("/precios", page("precios", "precios", {
-    title: "Precios — Nexo Studio",
+    title: "Planes de Shopcito — el bot, el catálogo y los turnos",
     description:
-      "Planes y precios de diseño y desarrollo web, tiendas online, web apps y aplicaciones a medida. Presupuesto cerrado y sin sorpresas.",
+      "Los tres planes de Shopcito: bot de WhatsApp, mini shop y agenda de turnos. Mensuales y sin permanencia. El precio se dice cuando nos escribís.",
   }));
 
   /* ---------- Contacto ---------- */
   router.get("/contacto", page("contacto", "contacto", {
-    title: "Contacto — Nexo Studio",
+    title: "Contacto — Shopcito",
     description:
-      "Pide tu presupuesto gratuito de diseño y desarrollo web, tiendas online, web apps o aplicaciones a medida. Respondemos en menos de 24 horas.",
+      "Escribinos y te decimos cuánto cuesta el plan que te sirve. Respondemos en menos de 24 horas.",
   }));
 
-  /* ---------- Proyectos ---------- */
-  router.get("/proyectos", page("proyectos", "proyectos", {
-    title: "Proyectos — Nexo Studio",
-    description:
-      "Portafolio de webs, tiendas online, web apps y aplicaciones a medida realizadas para empresas y comercios.",
-  }));
+  /* ---------- Proyectos ----------
+     Retirado: los seis casos que había eran de ejemplo, con nombres y
+     métricas inventadas. Publicarlos en nombre de Shopcito sería
+     publicar cifras falsas. */
+  router.get("/proyectos", (req, res) => res.redirect(302, "/"));
 
-  /* ---------- Caso de proyecto ---------- */
-  router.get("/proyectos/:slug", (req, res, next) => {
-    const project = projects.find((p) => p.slug === req.params.slug);
-    if (!project) return next();
+  /* ---------- Caso de proyecto ----------
+     Retirado junto con /proyectos: los casos que había eran de ejemplo,
+     con nombres y métricas inventadas. Publicarlos en nombre de
+     Shopcito sería publicar cifras falsas.
 
-    const caseData = cases[project.slug];
-    if (!caseData) return next();
+     302 y no 301: hay enlaces fuera y una redirección lleva a donde sí
+     hay algo. El 301 lo cachea el navegador un año, y esta decisión no
+     está tomada. */
+  router.get("/proyectos/:slug", (req, res) => res.redirect(302, "/"));
 
-    res.locals.current = "proyectos";
-    res.locals.project = project;
-    res.locals.caseData = caseData;
-    res.locals.breadcrumbs = [
-      { name: "Inicio", url: "/" },
-      { name: "Proyectos", url: "/proyectos" },
-      { name: project.name, url: null },
-    ];
-
-    res.locals.structuredData = {
-      "@context": "https://schema.org",
-      "@type": "CreativeWork",
-      name: caseData.heroTitle,
-      headline: caseData.heroTitle,
-      description: caseData.heroLead,
-      abstract: caseData.challenge,
-      dateCreated: String(project.year),
-      creator: { "@type": "Organization", name: site.company, url: site.url },
-      about: project.tags,
-      url: site.url + "/proyectos/" + project.slug,
-      image: site.url + site.ogImage,
-    };
-
-    res.locals.relatedProjects = projects.filter((p) => p.slug !== project.slug).slice(0, 3);
-
-    res.render("proyecto", {
-      title: caseData.heroTitle + " — Nexo Studio",
-      description: caseData.heroLead,
-    });
-  });
-
-  /* ---------- Blog ---------- */
-  router.get("/blog", page("blog", "blog", {
-    title: "Blog — Nexo Studio",
-    description:
-      "Guías sobre precios de webs, SEO local, apps para empresas y tecnología: lo que necesitas saber antes de contratar un estudio digital.",
-    data: { posts },
-  }));
-
-  router.get("/blog/:slug", (req, res) => {
-    const post = posts.find((p) => p.slug === req.params.slug);
-    if (!post) {
-      return res.status(404).render("404", { title: "Artículo no encontrado", description: "", current: "" });
-    }
-
-    const related = posts.filter((p) => p.slug !== post.slug).slice(0, 3);
-    res.locals.current = "blog";
-    res.locals.ogType = "article";
-    res.locals.breadcrumbs = [
-      { name: "Inicio", url: "/" },
-      { name: "Blog", url: "/blog" },
-      { name: post.title, url: null },
-    ];
-    res.locals.structuredData = {
-      "@context": "https://schema.org",
-      "@type": "Article",
-      headline: post.title,
-      description: post.description,
-      author: { "@type": "Organization", name: site.company },
-      publisher: {
-        "@type": "Organization",
-        name: site.company,
-        logo: { "@type": "ImageObject", url: site.url + site.ogImage, width: 540, height: 140 },
-      },
-      datePublished: post.dateISO,
-      dateModified: post.dateISO,
-      image: site.url + site.ogImage,
-      url: site.url + "/blog/" + post.slug,
-    };
-    res.render("post", { title: post.title + " — Nexo Studio", description: post.description, post, related });
-  });
+  /* ---------- Blog ----------
+     Retirado. Los tres artículos hablan de cuánto cuesta una web, con
+     cifras en euros de un negocio que ya no existe. */
+  router.get("/blog", (req, res) => res.redirect(302, "/"));
+  router.get("/blog/:slug", (req, res) => res.redirect(302, "/"));
 
   /* ---------- Legales ---------- */
   router.get("/aviso-legal", page("aviso-legal", "", {
@@ -329,23 +262,12 @@ const router = express.Router();
     const today = new Date().toISOString().slice(0, 10);
     const urls = [
       { loc: site.url + "/", lastmod: today, changefreq: "weekly", priority: "1.0" },
-      { loc: site.url + "/servicios", lastmod: today, changefreq: "monthly", priority: "0.8" },
-      { loc: site.url + "/proyectos", lastmod: today, changefreq: "monthly", priority: "0.8" },
-      ...projects.map((p) => ({
-        loc: site.url + "/proyectos/" + p.slug,
-        lastmod: String(p.year) + "-01-01",
-        changefreq: "yearly",
-        priority: "0.7",
-      })),
+      /* /servicios, /proyectos y /blog ya no se publican: ahora
+           redirigen a la portada. Una URL que redirige no va en el
+           sitemap, y dejarlas hacia que Google las indexara con el
+           contenido del estudio digital. */
       { loc: site.url + "/precios", lastmod: today, changefreq: "monthly", priority: "0.8" },
       { loc: site.url + "/contacto", lastmod: today, changefreq: "monthly", priority: "0.8" },
-      { loc: site.url + "/blog", lastmod: today, changefreq: "weekly", priority: "0.7" },
-      ...posts.map((p) => ({
-        loc: site.url + "/blog/" + p.slug,
-        lastmod: p.dateISO,
-        changefreq: "monthly",
-        priority: "0.7",
-      })),
       { loc: site.url + "/aviso-legal", lastmod: today, changefreq: "monthly", priority: "0.4" },
       { loc: site.url + "/privacidad", lastmod: today, changefreq: "monthly", priority: "0.4" },
       { loc: site.url + "/cookies", lastmod: today, changefreq: "monthly", priority: "0.4" },

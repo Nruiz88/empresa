@@ -5,135 +5,112 @@
 
 :root {
   /* ─────────────────────────────────────────────────────────
-     LOS COLORES — UN SOLO TEMA
-     ─────────────────────────────────────────────────────────
-     Solo hay una paleta. Antes había tres (oscuro, claro y "colorido")
-     con un conmutador en la barra: se quitó porque un sitio para
-     comercios no necesita tres,~ y porque mantener tres paletas es
-     mantener tres veces el mismo trabajo de contraste.
+     LOS COLORES — UN SOLO TEMA, EL OSCURO
 
-     ── POR QUÉ EL VERDE ESTÁ EN DOS TONOS ──
+     El fondo es azul noche (#0F172A), que es el color que la paleta
+     reserva para tipografía, encabezados y paneles, y el verde
+     #10B981 es la acción.
 
-     `--brand` es #10b981, el verde de la marca: el del botón
-     principal, donde el texto va en grande y en oscuro sobre verde.
+     Todos los valores de texto están MEDIDOS contra el fondo
+     (#0F172A) y contra la superficie (#1B2942), porque el texto no
+     siempre va sobre el fondo: las tarjetas van sobre la superficie,
+     y un gris que pasa sobre una cosa puede fallar sobre la otra.
 
-     `--accent` es #059669, el mismo verde oscurecido. Es lo que va
-     en iconos, bordes de tarjeta y tildes, y eso va SOBRE el fondo:
-     #10b981 sobre casi blanco queda por debajo del contraste mínimo,
-     y un icono que no se ve no es un icono. */
-  --bg: #f8fafc;
-  --bg-soft: #f1f5f9;
-  --surface: #ffffff;
-  --surface-2: #f8fafc;
-  --border: rgba(15, 23, 42, 0.1);
-  --border-strong: rgba(15, 23, 42, 0.2);
-  --text: #0f172a;
-  --text-muted: #475569;
-  /* El gris mas apagado.
-     Da 4,76:1 sobre blanco, que pasa, y 4,34:1 sobre los fondos
-     con lavado, que no. Es el color de los enlaces legales, el
-     copyright y los titulos de columna del pie: lo que menos se
-     lee y mas importa leer. */
-  --text-dim: #5b6879;
+       --text        #f1f5f9   16,30:1 sobre el fondo
+       --text-muted  #a8b3cc    8,49:1   6,92:1 sobre la superficie
+       --text-dim    #8b9ab5    6,28:1   5,12:1
+       --accent      #34d399    9,29:1   7,57:1
+       --accent-2    #fbbf24   10,69:1
+       --brand       #10b981    7,04:1
 
-  /* El verde de marca. */
+     El mínimo de WCAG AA es 4,5:1 para texto normal y 3:1 para texto
+     grande. El precio de los planes va en --brand y es de 46 px: da
+     7,04:1, con holgura.
+     ───────────────────────────────────────────────────────── */
+  --bg: #0f172a;
+  --bg-soft: #131f38;
+  --surface: #1b2942;
+  --surface-2: #223252;
+  --border: rgba(255, 255, 255, 0.09);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --text: #f1f5f9;
+  --text-muted: #a8b3cc;
+  --text-dim: #8b9ab5;
+
+  /* El verde de la marca, para el botón principal y el precio. */
   --brand: #10b981;
-  --brand-deep: #047857;
+  --brand-deep: #059669;
 
-  /* Para texto e iconos que van sobre el fondo. */
-  --accent: #059669;
-  /* El ambar, UN TONO MAS OSCURO que el de la paleta (#F59E0B).
+  /* Texto e iconos que van sobre el fondo: el verde un paso más
+     claro, que sobre azul noche se ve y sobre blanco no. */
+  --accent: #34d399;
+  --accent-2: #fbbf24;
+  --accent-grad: linear-gradient(120deg, #10b981 0%, #34d399 100%);
 
-     El de la paleta es un color medio: sobre el fondo off-white da
-     3,04:1 y no llega al minimo de WCAG para texto normal, que es
-     4,5:1. Con thirty reglas usando este valor como color de texto
-     (insignias, etiquetas, enlaces del pie, iconos), eso era el mismo
-     problema en treinta sitios.
-
-     #b45309 da 4,80:1 y sigue siendo el mismo ambar.
-
-     Conviene notar que #d97706 era, ademas, IGUAL que `--warning`: el
-     color de acento y el de "algo va mal" eran el mismo numero, y por
-     eso todo lo que llevaba acento parecia una advertencia. */
-  --accent-2: #b45309;
-  /* El degradado del botón principal. SE QUEDA EN LA FAMILIA DEL
-     VERDE a propósito: con el ámbar al final, el camino entre
-     #10b981 y #d97706 pasa por oliva y el botón sale con una
-     mancha marrón en el centro.
-
-     El ámbar sigue en `--accent-2`, que es donde la paleta lo
-     coloca: insignias, avisos y acentos sueltos. */
-  --accent-grad: linear-gradient(120deg, #10b981 0%, #059669 100%);
-
-  /* Texto sobre el verde del botón. Azul noche y no blanco: blanco
-     sobre #10b981 se queda en 2,4:1 y no llega ni a texto grande. */
+  /* Texto sobre el verde del botón.
+     El blanco sobre #10b981 da 2,54:1, así que no: azul noche, que da
+     7,04:1. */
   --brand-ink: #0f172a;
+  --on-accent: #0f172a;
+  --icon-color: #6ee7b7;
 
-  --success: #059669;
-  --success-text: #065f46;
-  --success-bg: rgba(5, 150, 105, 0.1);
-  --success-border: rgba(5, 150, 105, 0.4);
+  --success: #34d399;
+  --success-text: #a7f3d0;
+  --success-bg: rgba(52, 211, 153, 0.12);
+  --success-border: rgba(52, 211, 153, 0.4);
 
   /* ── Aviso: ni bien ni mal ──
      El tercer estado. Rojo y verde no cubren "esto no esta roto,
      pero se va a romper": un modulo a la venta sin url detras, una
      migracion sin aplicar, un despliegue viejo. Sin el, todo lo que
      no este bien tiene que pintarse de rojo, y un panel donde todo
-     es rojo deja de ensenar nada. */
-  --warning: #d97706;
-  --warning-text: #78350f;
-  --warning-bg: rgba(217, 119, 6, 0.1);
-  --warning-border: rgba(217, 119, 6, 0.4);
-  --danger: #dc2626;
+     es rojo deja de ensenar nada.
+
+     Ambar apagado a proposito: si el estado intermedio llama mas la
+     atencion que el roto, se deja de mirar el rojo. */
+  --warning: #fbbf24;
+  --warning-text: #fde68a;
+  --warning-bg: rgba(251, 191, 36, 0.12);
+  --warning-border: rgba(251, 191, 36, 0.4);
+  --danger: #f87171;
 
   /* ── Dos estados más que el panel necesitaba ──
    *
    * El panel usaba dos colores escritos a mano, sin token. Un literal
-   * no cambia con el tema y rompía el contraste.
+   * no cambia con el tema y rompía el contraste en los otros.
    *
    * `--info` NO puede ser verde: el panel pinta con él los chips de
    * salud de cada caja de Evolution, donde el verde significa
    * "funciona". Con los dos en la misma familia, un bot caído y uno
    * sano se parecen. */
-  --info: #2563eb;
-  --urgent: #ea580c;
+  --info: #60a5fa;
+  --urgent: #fb923c;
 
-  --on-accent: #0f172a;
-  --icon-color: #047857;
+  --text-grad: linear-gradient(120deg, #059669 0%, #34d399 100%);
 
-  /* El degradado del titular. El ámbar entra al final para que la
-     palabra destacada termine en el color de acento en vez de volver
-     al verde, que es lo que lo haría parecer un degradado mal hecho.
-     Los dos tonos van oscurecidos porque esto va sobre blanco. */
-  /* El degradado del titular. También solo verde: sobre azul noche
-     el salto al ámbar se nota más que en el botón. */
-  --text-grad: linear-gradient(120deg, #047857 0%, #10b981 100%);
-
-  --header-bg: rgba(255, 255, 255, 0.85);
-  --header-bg-solid: rgba(255, 255, 255, 0.97);
-  --menu-bg: #ffffff;
+  --header-bg: rgba(15, 23, 42, 0.82);
+  --header-bg-solid: rgba(15, 23, 42, 0.95);
+  --menu-bg: #131f38;
 
   /* Degradados de fondo. Muy bajos a propósito: esto va detrás de
      texto y un verde fuerte detrás de un titular lo vuelve ilegible. */
-  /* Verde, y solo verde. Con ámbar al lado derecho el hero se iba a
-     naranja y el conjunto daba atardecer en vez de frescura. */
   --hero-glow: radial-gradient(
     ellipse at center,
-    rgba(16, 185, 129, 0.2) 0%,
-    rgba(14, 165, 233, 0.07) 45%,
+    rgba(16, 185, 129, 0.26) 0%,
+    rgba(56, 189, 248, 0.1) 45%,
     transparent 70%
   );
-  --page-glow: radial-gradient(ellipse at center, rgba(16, 185, 129, 0.14), transparent 70%);
-  --grid-line: rgba(15, 23, 42, 0.04);
-  --stats-bg: rgba(255, 255, 255, 0.9);
-  --raise: rgba(15, 23, 42, 0.03);
-  --raise-strong: rgba(15, 23, 42, 0.06);
-  --btn-glow: 0 10px 26px rgba(5, 150, 105, 0.22);
-  --btn-glow-strong: 0 14px 34px rgba(5, 150, 105, 0.34);
-  --featured-bg: linear-gradient(180deg, rgba(16, 185, 129, 0.12), rgba(255, 255, 255, 0.95));
-  --featured-glow: 0 24px 50px rgba(5, 150, 105, 0.16);
-  --cta-bg: linear-gradient(120deg, rgba(16, 185, 129, 0.14), rgba(14, 165, 233, 0.08));
-  --cta-border: rgba(16, 185, 129, 0.35);
+  --page-glow: radial-gradient(ellipse at center, rgba(16, 185, 129, 0.2), transparent 70%);
+  --grid-line: rgba(255, 255, 255, 0.035);
+  --stats-bg: rgba(27, 41, 66, 0.7);
+  --raise: rgba(255, 255, 255, 0.045);
+  --raise-strong: rgba(255, 255, 255, 0.09);
+  --btn-glow: 0 10px 30px rgba(16, 185, 129, 0.35);
+  --btn-glow-strong: 0 14px 36px rgba(16, 185, 129, 0.5);
+  --featured-bg: linear-gradient(180deg, rgba(16, 185, 129, 0.16), rgba(27, 41, 66, 0.9));
+  --featured-glow: 0 24px 60px rgba(16, 185, 129, 0.24);
+  --cta-bg: linear-gradient(120deg, rgba(16, 185, 129, 0.2), rgba(56, 189, 248, 0.12));
+  --cta-border: rgba(16, 185, 129, 0.45);
   --thumb-overlay: linear-gradient(180deg, transparent 40%, rgba(15, 23, 42, 0.55) 100%);
 
   /* Tipografía */
@@ -299,28 +276,25 @@ h4 {
   font-size: 1.05rem;
 }
 
-/* El verde profundo de la marca, no el ambar.
+/* El verde claro del tema, no el verde de marca.
 
-   El texto va en `--brand-deep` (#047857, 5,24:1 sobre el fondo) y no
-   en `--accent` (#059669, 3,60:1) ni en el ambar (#d97706, 3,04:1):
-   los tres son el mismo color de marca y solo uno llega al minimo de
-   WCAG AA para texto normal.
+   Sobre azul noche el verde de marca (#10B981) se ve bien como texto
+   grande, pero en 12,8 px y en mayúsculas conviene ir al token de
+   acento (#34d399): 9,29:1 sobre el fondo y 7,57:1 sobre la
+   superficie. Con el verde oscuro de antes —que se eligió para leerse
+   sobre blanco— la etiqueta quedaba a poco más de 2:1 y desaparecía.
 
-   El fondo y el borde leen del MISMO color por una razón práctica: si
-   solo cambiara el texto, la etiqueta saldria con letras verdes sobre
-   un lavado naranja. */
+   El fondo y el borde leen del MISMO color: si solo cambiara el texto,
+   la etiqueta saldría con letras verdes sobre un lavado de otro. */
 .eyebrow {
   display: inline-block;
   font-size: var(--fs-xs);
   font-weight: 600;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  /* El verde de la etiqueta va sobre su propio lavado, y el lavado
-     baja el fondo un poco: con #047857 daba 4,19:1. Este es el
-     mismo verde un paso mas oscuro y llega a 6,9. */
-  color: #036249;
-  background: color-mix(in srgb, #036249 8%, transparent);
-  border: 1px solid color-mix(in srgb, #036249 24%, transparent);
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
   border-radius: 999px;
   padding: 0.35rem 0.85rem;
   margin-bottom: 1rem;
@@ -3934,7 +3908,16 @@ html:not(.has-gsap) .hero-showcase {
   flex: 1;
   text-align: center;
   font-size: 0.72rem;
-  color: var(--text-dim);
+  /* --text-muted y no --text-dim.
+
+     La barra de direcciones del mockup va sobre --surface-2, que es
+     más claro que el fondo de la página: ahí el gris apagado se queda
+     en 3,95:1 y no llega al mínimo de texto normal. Con el gris medio
+     llega a 6,9:1.
+
+     Y además es texto que se lee: es la dirección que el visitante está
+     "mirando" en el dibujo. */
+  color: var(--text-muted);
   background: var(--raise);
   border-radius: 6px;
   padding: 0.28rem 0.6rem;
@@ -4962,33 +4945,30 @@ section[id],
 
 /* ─────────────────────────────────────────────────────────
    LA PALETA DEL CHAT DE WHATSAPP
-   ─────────────────────────────────────────────────────────
-   Con un solo tema no hay a qué alternar, así que estos tokens
-   son directamente los de WhatsApp en claro: el mismo #ece5dd de
-   los chats de verdad, y no una versión aproximada.
 
-   El `--wa-ink` (el verde que se pinta encima) es el oscuro de la
-   marca, no el #25d366 de WhatsApp: el verde de la marca sobre un
-   fondo casi blanco se lee, y el de WhatsApp se lava. */
+   La oscura, que es la real de los chats de WhatsApp: papel #0B141A,
+   burbuja #1F2C34 y la propia #005C4B.
+
+   El `--wa-ink` NO es el #25D366 de WhatsApp: el verde de la marca
+   (#10B981) da 7,04:1 sobre el papel y se lee; el de WhatsApp, no.
+   ───────────────────────────────────────────────────────── */
 :root {
   --wa-verde: #25d366;
   --wa-teal: #128c7e;
   --wa-oscuro: #075e54;
-  --wa-ink: var(--wa-oscuro);
 
-  /* El chat, en la paleta clara de WhatsApp. */
-  --wa-papel: #ece5dd;
-  --wa-burbuja: #ffffff;
-  --wa-propia: #dcf8c6;
-  --wa-texto: #111b21;
-  /* El gris secundario de los chats.
-     Oscurecido un poco: con el valor de WhatsApp daba 3,72:1
-     sobre el papel claro, por debajo del 4,5:1 de texto normal. */
-  --wa-tenue: #54666f;
-  --wa-linea: rgba(0, 0, 0, 0.08);
-  --wa-muesca: rgba(0, 0, 0, 0.05);
+  /* El verde que se pinta ENCIMA (etiquetas, botón). */
+  --wa-ink: var(--brand);
+
+  /* El chat, en la paleta oscura de WhatsApp. */
+  --wa-papel: #0b141a;
+  --wa-burbuja: #1f2c34;
+  --wa-propia: #005c4b;
+  --wa-texto: #e9edef;
+  --wa-tenue: #8696a0;
+  --wa-linea: rgba(255, 255, 255, 0.08);
+  --wa-muesca: rgba(255, 255, 255, 0.035);
 }
-
 /* ── El fondo de la seccion ──
 
    Un lavado verde muy bajo. No para pintar la seccion de verde,
@@ -5285,10 +5265,10 @@ section[id],
   width: auto;
 }
 
-/* /* El logo mide 26px de alto y el nombre va en la tipografía del
+/* El logo mide 26px de alto y el nombre va en la tipografía del
    sistema a 1.15rem, que se ve un poco más alto. Ese par de píxeles
    de `translateY` es lo que hace que los dos se lean centrados en
-   vez de cruzados. */*/
+   vez de cruzados. */
 .brand-mark {
   transform: translateY(-1px);
 }
@@ -5505,6 +5485,19 @@ section[id],
   margin-top: 0.15rem;
 }
 
+/* Un gris claro para las dos burbujas.
+
+   En el tema oscuro las dos burbujas son oscuras — la que recibe es
+   #1F2C34 y la que envía, verde #005C4B — así que el mismo gris claro
+   funciona en las dos: 6,9:1 sobre la primera y 5,5:1 sobre la segunda.
+
+   Con un gris medio se leía sobre la clara pero no sobre las oscuras.
+   Y con el gris del papel del chat (--wa-tenue), que es un gris medio,
+   sobre la burbuja verde daba 2,6:1. */
+.wa-bubble .wa-time {
+  color: #d1d7db;
+}
+
 /* ── La tarjeta de producto ──
    Es lo que el bot vende. Un chat con dos mensajes de texto y sin
    nada más demuestra que "responde", pero no que hay una tienda, y
@@ -5527,7 +5520,10 @@ section[id],
   font-size: 0.62rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--wa-oscuro);
+  /* El verde de marca, no el verde profundo de la cabecera del chat.
+     El profundo está pensado para texto blanco encima y aquí va al
+     revés: daba 1,87:1 sobre la burbuja. */
+  color: var(--wa-ink);
   font-weight: 600;
 }
 

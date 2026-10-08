@@ -2,346 +2,146 @@
 <%- include('partials/header', { current: "precios" }) %>
 
 <main>
-    <%- include('partials/page-hero', {
-      variant: "precios",
-      eyebrow: "Precios",
-      titleLines: ["Planes claros,", "precio cerrado"],
-      lead: "Publicamos nuestros precios porque creemos que mereces saberlo antes de escribirnos. El importe final se confirma tras una conversación de 30 minutos, sin compromiso."
-    }) %>
+  <%- include('partials/page-hero', {
+    variant: "precios",
+    eyebrow: "Planes",
+    titleLines: ["Tres planes,", "sin letra pequeña"],
+    lead: "Mensuales, sin permanencia y sin comisiones por venta. Empezás con el que necesitás hoy y subís de plan solo si te hace falta."
+  }) %>
 
-    <%# =========================================================
-         PLANES DE SHOPCITO — ARRIBA DE TODO, A PROPÓSITO
+  <%# ─────────────────────────────────────────────────────────
+       LOS TRES PLANES
 
-         Va primero porque es lo único que se vende hoy. Los planes
-         del estudio digital que vienen después están en la página
-         porque el rebranding va por partes y `/precios` los usa
-         todavía el FAQ del blog y los excerpts de los artículos a
-         través de `content/precios.js`.
+       Los mismos datos que la portada, desde `content/shopcito.js`.
 
-         Borrarlos de aquí sin borrar aquello rompe las otras dos
-         cosas, así que se dejan marcados y se van con la segunda
-         parte del cambio de marca.
-         ========================================================= %>
-    <section class="section" id="planes-shopcito" style="padding-top: 1rem;">
-      <div class="container">
-        <div class="section-head section-head--center reveal">
-          <span class="eyebrow">Planes de Shopcito</span>
-          <h2>El bot, el catálogo y los turnos, <span class="gradient-text">en un plan</span></h2>
+       Antes esta página tenía dos bloques de planes: los de Shopcito y
+       los del estudio digital de antes ("Webs y proyectos a medida",
+       "desde 890 €"). Los segundos se han retirado.
+
+       No es que se ocultaran. Tenían dos cosas que ya no pueden
+       publicarse:
+
+         · la cifra estaba en euros, y `MONEDA` estaba en euros para
+           todo el sitio. Con los tres planes viejos fuera, el símbolo
+           se cambió a pesos ($), que es lo que correspondía y lo que
+           llevaba años pendiente en un comentario de `precios.js`.
+         · eran servicios que Shopcito no vende. Anunciar "diseño web y
+           aplicaciones a medida" al lado de un bot de WhatsApp hace
+           dudar de las dos cosas.
+
+       Y hay una consecuencia que conviene tener presente: al quitar
+       `PROYECTOS` y `MANTENIMIENTO` de `content/precios.js` también
+       se quedaron sin uso `plan()` y `precioDe()`, que solo existían
+       para leerlos. El FAQ y un artículo del blog los usaban; los dos
+       textos están reescritos.
+       ───────────────────────────────────────────────────────── %>
+  <section class="section" style="padding-top: 1rem;">
+    <div class="container">
+      <div class="price-grid">
+        <% shopcito.PLANES.forEach(function (p) { %>
+          <article class="price-card reveal<%= p.destacado ? " featured" : "" %>">
+            <% if (p.destacado) { %><span class="badge">Recomendado</span><% } %>
+
+            <h3><%= p.nombre %></h3>
+            <p class="plan-desc"><%= p.descripcion %></p>
+
+            <div class="price">
+              <span class="amount<%= p.precio ? '' : ' amount--consultar' %>"><%= precioDePlan(p) %></span>
+            </div>
+
+            <ul class="price-features">
+              <% p.incluye.forEach(function (i) { %><li><%= i %></li><% }); %>
+            </ul>
+
+            <p class="price-note"><%= p.nota %></p>
+
+            <a href="<%= p.cta.href %>" class="<%= p.cta.clase %> btn-block"><%= p.cta.texto %></a>
+          </article>
+        <% }); %>
+      </div>
+
+      <p style="text-align:center; color:var(--text-dim); font-size:var(--fs-xs); margin-top:1.5rem;">
+        Sin cargo de instalación. Sin permanencia: si lo das de baja, no hay nada que cancelar.
+        Sin comisiones por venta, ni de Mercado Pago ni nuestras.
+      </p>
+    </div>
+  </section>
+
+  <!-- ================= DIFERENCIAS =================
+       En lugar de una tabla con ✓ y ✗ de todo, las cuatro cosas por
+       las que más nos preguntan, cada una con su respuesta corta.
+
+       La tabla anterior tenía tres filas que comparaban "tienda
+       online" y "SEO local" entre planes de diseño web. Eran
+       decisiones de alcance de un estudio, no de un bot, y la tabla
+       ocupaba más espacio que los planes que intentaba explicar. -->
+  <section class="section section--soft">
+    <div class="container">
+      <div class="section-head section-head--center reveal">
+        <span class="eyebrow">Dudas</span>
+        <h2>Las cuatro preguntas que siempre nos hacen</h2>
+      </div>
+
+      <div class="grid grid-2">
+        <article class="card reveal">
+          <h3>¿Tengo que pagar si no vendo nada?</h3>
           <p>
-            Los tres son mensuales y sin permanencia. El precio te lo decimos cuando nos
-            escribís: todavía no hay cifra publicada.
+            No. El plan es mensual y no tiene permanencia, así que el mes que no lo uses lo das
+            de baja y no hay nada que cancelar ni penalización.
           </p>
-        </div>
+        </article>
 
-        <div class="price-grid">
-          <% shopcito.PLANES.forEach(function (p) { %>
-            <article class="price-card reveal<%= p.destacado ? " featured" : "" %>">
-              <% if (p.destacado) { %><span class="badge">Recomendado</span><% } %>
-              <h3><%= p.nombre %></h3>
-              <p class="plan-desc"><%= p.descripcion %></p>
-              <div class="price">
-                <span class="amount<%= p.precio ? '' : ' amount--consultar' %>"><%= precioDePlan(p) %></span>
-              </div>
-              <ul class="price-features">
-                <% p.incluye.forEach(function (i) { %><li><%= i %></li><% }); %>
-              </ul>
-              <p class="price-note"><%= p.nota %></p>
-              <a href="<%= p.cta.href %>" class="<%= p.cta.clase %> btn-block"><%= p.cta.texto %></a>
-            </article>
-          <% }); %>
-        </div>
+        <article class="card reveal">
+          <h3>¿El bot manda mensajes por mí?</h3>
+          <p>
+            Contesta lo que está escrito en tus reglas —horarios, precios, disponibilidad— y
+            cuando alguien pide algo que no está previsto, te pasa la conversación a vos.
+            Ningún pedido se cierra solo.
+          </p>
+        </article>
 
-        <p style="text-align:center; color:var(--text-dim); font-size:var(--fs-xs); margin-top:1.5rem;">
-          Sin cargo de instalación. Sin permanencia: si lo das de baja, no hay nada que
-          cancelar. Sin comisiones por venta, ni de Mercado Pago ni nuestras.
+        <article class="card reveal">
+          <h3>¿Me cobran comisión por las ventas?</h3>
+          <p>
+            Ni de Mercado Pago ni nuestras. Lo único que pays o cobra Mercado Pago por cobrar
+            con su medio de pago es un tema de Mercado Pago.
+          </p>
+        </article>
+
+        <article class="card reveal">
+          <h3>¿Y si después quiero algo más?</h3>
+          <p>
+            Se cambia de plan sin perder la configuración: el número queda enlazado y los
+            chats siguen ahí. Podés empezar con el Inicial y pasar al Comercio cuando te
+            quede corto.
+          </p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CIERRE ================= -->
+  <section class="section">
+    <div class="container">
+      <div class="cta-band reveal">
+        <span class="eyebrow">Empecemos</span>
+        <h2>Probá 14 días y decidí después</h2>
+        <p>
+          Sin tarjeta y sin instalación. Si en dos semanas no te sirvió, lo das de baja y no
+          pasa nada.
         </p>
+        <div class="cta-actions">
+          <a href="/cuenta/crear" class="btn btn-primary btn-lg">Probar gratis por 14 días</a>
+          <a href="/contacto" class="btn btn-ghost btn-lg">Preguntar antes</a>
+        </div>
+        <ul class="trust-row">
+          <li>Sin tarjeta</li>
+          <li>Sin permanencia</li>
+          <li>Sin comisiones por venta</li>
+        </ul>
       </div>
-    </section>
-
-    <%# ─────────────────────────────────────────────────────────
-         ⚠️  DE AQUÍ PARA ABAJO: PLANES DEL ESTUDIO DIGITAL ANTIGUO
-
-         webs a medida y mantenimiento, con las cifras de la época en
-         euros. El negocio ya no los vende.
-
-         NO se borran en esta vuelta por dos razones que no son
-         de estilo:
-
-           1. `content/faq.js` y `content/posts.js` sacan sus
-              importes de estos mismos datos con `plan("esencial")`
-              y `precioDe()`. Borrar PROYECTOS rompe el FAQ entero
-              (llama a `precioDe(null)` y revienta al pintar).
-           2. `/servicios`, `/proyectos` y el hero de página los
-              enumeran.
-
-         Se borran juntos, con el resto del rebranding, y hay que
-         rehacer el FAQ y los excerpts en el mismo movimiento.
-
-         Y ojo con la moneda: estos importes son EUROS y
-         `MONEDA` sigue en "€". El sitio publica, a día de hoy,
-         precios en euros de un negocio que ya no existe. Ver la
-         advertencia de `MONEDA` en `content/precios.js`.
-         ───────────────────────────────────────────────────────── %>
-    <section class="section section--soft">
-      <div class="container">
-        <div class="section-head section-head--center reveal">
-          <span class="eyebrow">Planes antiguos</span>
-          <h2>Webs y proyectos a medida</h2>
-          <p>Del estudio digital anterior. No se contratan: quedan aquí mientras termina el cambio de marca.</p>
-        </div>
-
-        <div class="price-grid">
-            <%# Los mismos tres planes que la portada, desde los mismos datos.
-
-                 Estaban duplicados bloque a bloque: la portada tenía
-                 su HTML con los números dentro y esta página el suyo. Los
-                 mismos tres planes, escritos dos veces, que es
-                 exactamente cómo una página acaba mostrando un precio
-                 y la otra otro.
-
-                 Ahora los dos sitios leen `PROYECTOS`. Añadir un plan lo
-                 añade en las dos páginas y en los textos, con el mismo
-                 formato, sin que nadie tenga que acordarse. %>
-            <% PROYECTOS.forEach(function (p) { %>
-              <div class="price-card reveal<%= p.destacado ? " featured" : "" %>">
-                <% if (p.destacado) { %><span class="badge">Más elegido</span><% } %>
-                <h3><%= p.nombre %></h3>
-                <p class="plan-desc"><%= p.descripcion %></p>
-                <div class="price"><span class="currency">desde</span><span class="amount"><%= precio(p.precio) %></span><span class="currency"><%= simbolo() %></span></div>
-                <p class="price-note"><%= p.nota %></p>
-                <ul class="price-features">
-                  <% p.incluye.forEach(function (i) { %><li><%= i %></li><% }); %>
-                  <% p.noIncluye.forEach(function (i) { %><li class="muted"><%= i %></li><% }); %>
-                </ul>
-                <a href="<%= p.cta.href %>" class="<%= p.cta.clase %> btn-block"><%= p.cta.texto %></a>
-              </div>
-            <% }); %>
-        </div>
-
-        <p style="text-align:center; color:var(--text-dim); font-size:var(--fs-xs); margin-top:1.5rem;">
-          Precios sin IVA. Forma de pago: 50% al inicio y 50% en la entrega.
-        </p>
-      </div>
-    </section>
-
-    <!-- Comparativa -->
-    <section class="section section--soft">
-      <div class="container">
-        <div class="section-head section-head--center reveal">
-          <span class="eyebrow">Comparativa</span>
-          <h2>Qué incluye cada plan</h2>
-        </div>
-
-        <div class="compare-wrap reveal">
-          <table class="compare">
-            <thead>
-              <tr>
-                <th scope="col">Característica</th>
-                <th scope="col">Esencial</th>
-                <th scope="col">Negocio</th>
-                <th scope="col">A medida</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Páginas incluidas</td>
-                <td>Hasta 5</td>
-                <td>Hasta 12</td>
-                <td>Ilimitadas</td>
-              </tr>
-              <tr>
-                <td>Diseño a medida</td>
-                <td class="yes">✓</td>
-                <td class="yes">✓</td>
-                <td class="yes">✓</td>
-              </tr>
-              <tr>
-                <td>CMS autogestionable</td>
-                <td class="yes">✓</td>
-                <td class="yes">✓</td>
-                <td class="yes">✓</td>
-              </tr>
-              <tr>
-                <td>Blog / noticias</td>
-                <td class="no">—</td>
-                <td class="yes">✓</td>
-                <td class="yes">✓</td>
-              </tr>
-              <tr>
-                <td>Tienda online o reservas</td>
-                <td class="no">—</td>
-                <td class="yes">✓</td>
-                <td class="yes">✓</td>
-              </tr>
-              <tr>
-                <td>Textos y SEO on-page</td>
-                <td class="no">—</td>
-                <td class="yes">✓</td>
-                <td class="yes">✓</td>
-              </tr>
-              <tr>
-                <td>Integraciones (CRM, ERP, pagos)</td>
-                <td class="no">—</td>
-                <td class="yes">Básicas</td>
-                <td class="yes">Completa</td>
-              </tr>
-              <tr>
-                <td>Usuarios, roles y panel privado</td>
-                <td class="no">—</td>
-                <td class="no">—</td>
-                <td class="yes">✓</td>
-              </tr>
-              <tr>
-                <td>App móvil o PWA</td>
-                <td class="no">—</td>
-                <td class="no">—</td>
-                <td class="yes">✓</td>
-              </tr>
-              <tr>
-                <td>Soporte incluido</td>
-                <td>15 días</td>
-                <td>3 meses</td>
-                <td>SLA mensual</td>
-              </tr>
-              <tr>
-                <td>Entrega estimada</td>
-                <td>2–3 semanas</td>
-                <td>4–6 semanas</td>
-                <td>8–14 semanas</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- Mantenimiento -->
-    <section class="section">
-      <div class="container">
-        <div class="section-head section-head--center reveal">
-          <span class="eyebrow">Extras y mantenimiento</span>
-          <h2>Servicios adicionales</h2>
-          <p>Puedes añadirlos a cualquier plan o contratarlos por separado si ya tienes web.</p>
-        </div>
-
-        <div class="grid grid-3">
-            <%# Los tres recurrentes, también desde los datos.
-
-                 Llevaban su propio `style="margin-top:1rem"` y su propio
-                 `font-size:1.8rem` escritos en la línea de cada uno. Con
-                 el bucle, ese detalle pasa a una clase y se toca en un
-                 sitio: hasta ahora, cambiar el tamaño de la cifra
-                 significaba editar tres líneas, y era fácil olvidar una
-                 y que un plan saliera más grande que los otros dos. %>
-            <% MANTENIMIENTO.forEach(function (m) { %>
-              <div class="card reveal">
-                <h3><%= m.nombre %></h3>
-                <p><%= m.descripcion %></p>
-                <div class="price precio-mensual">
-                  <span class="currency">desde</span>
-                  <span class="amount"><%= precio(m.precio) %></span>
-                  <span class="currency"><%= simbolo() %>/<%= m.periodo %></span>
-                </div>
-                <ul class="card-list">
-                  <% m.incluye.forEach(function (i) { %><li><%= i %></li><% }); %>
-                </ul>
-              </div>
-            <% }); %>
-        </div>
-      </div>
-    </section>
-
-    <!-- FAQ -->
-    <section class="section section--soft">
-      <div class="container">
-        <div class="section-head section-head--center reveal">
-          <span class="eyebrow">Preguntas frecuentes</span>
-          <h2>Dudas habituales sobre precios</h2>
-        </div>
-
-        <div class="accordion reveal">
-          <div class="acc-item">
-            <button class="acc-trigger" aria-expanded="false">
-              ¿Los precios son definitivos?
-              <span class="acc-icon" aria-hidden="true">+</span>
-            </button>
-            <div class="acc-panel">
-              <p>Los publicados son precios de partida ("desde"). Tras una llamada de 30 minutos cerramos un presupuesto fijo por escrito: si el alcance no cambia, el precio no cambia.</p>
-            </div>
-          </div>
-
-          <div class="acc-item">
-            <button class="acc-trigger" aria-expanded="false">
-              ¿Cómo son los pagos?
-              <span class="acc-icon" aria-hidden="true">+</span>
-            </button>
-            <div class="acc-panel">
-              <p>50% al firmar el inicio y 50% en la entrega. En proyectos de más de 5.000 € dividimos el pago en fases mensuales ligadas a hitos.</p>
-            </div>
-          </div>
-
-          <div class="acc-item">
-            <button class="acc-trigger" aria-expanded="false">
-              ¿El hosting y el dominio están incluidos?
-              <span class="acc-icon" aria-hidden="true">+</span>
-            </button>
-            <div class="acc-panel">
-              <p>Sí, el primer año en todos los planes. A partir del segundo año se renueva por unos 15 €/mes o puedes contratarlo con tu propio proveedor.</p>
-            </div>
-          </div>
-
-          <div class="acc-item">
-            <button class="acc-trigger" aria-expanded="false">
-              ¿Qué pasa si necesito cambios después del lanzamiento?
-              <span class="acc-icon" aria-hidden="true">+</span>
-            </button>
-            <div class="acc-panel">
-              <p>Todos los proyectos incluyen un periodo de garantía para corregir cualquier defecto. Los cambios de alcance se presupuestan por horas (45 €/h) o con una cuota mensual de mantenimiento.</p>
-            </div>
-          </div>
-
-          <div class="acc-item">
-            <button class="acc-trigger" aria-expanded="false">
-              ¿Trabajáis con empresas fuera de España?
-              <span class="acc-icon" aria-hidden="true">+</span>
-            </button>
-            <div class="acc-panel">
-              <p>Sí. Trabajamos en remoto con clientes de toda Europa y Latinoamérica, con reuniones por videollamada y documentación compartida en español o inglés.</p>
-            </div>
-          </div>
-
-          <div class="acc-item">
-            <button class="acc-trigger" aria-expanded="false">
-              ¿Podemos empezar con un plan pequeño y crecer después?
-              <span class="acc-icon" aria-hidden="true">+</span>
-            </button>
-            <div class="acc-panel">
-              <p>Claro. Construimos sobre una base escalable, así que pasar de "Esencial" a "Negocio" o a una aplicación a medida es una evolución natural, no un reinicio.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <%- include('partials/proof', {
-          type: "quotes",
-          title: "Clientes que ya trabajan con nosotros",
-          lead: "Estas son sus palabras después de la entrega, sin guion ni retoque."
-        }) %>
-
-    <section class="section">
-      <div class="container">
-        <div class="cta-band reveal">
-          <span class="eyebrow">Presupuesto</span>
-          <h2>¿Quieres un precio exacto para tu caso?</h2>
-          <p>Escríbenos con tu proyecto y te enviamos una propuesta cerrada en menos de 48 horas.</p>
-          <div class="cta-actions">
-            <a href="/contacto" class="btn btn-primary btn-lg">Pedir presupuesto gratis</a>
-            <a href="/servicios" class="btn btn-ghost btn-lg">Ver servicios</a>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
+    </div>
+  </section>
+</main>
 
 <%- include('partials/footer') %>

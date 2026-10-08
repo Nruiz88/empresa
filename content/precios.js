@@ -1,86 +1,32 @@
 /* =========================================================
-   Nexo Studio — Los precios públicos, en UN solo sitio
+   Shopcito — La moneda y el formateador de importes
    ------------------------------------------------------------
-   Antes estos números vivían en cuatro archivos:
+   Aquí queda lo que se usa: el símbolo y las tres funciones que
+   ponen un número en pantalla.
 
-     views/index.ejs      los 3 planes de proyecto
-     views/precios.ejs    los 3 de proyecto + los 3 de mantenimiento
-     content/faq.js       el texto que dice "desde 890 €"
-     content/posts.js     el texto que dice "entre 890 € y 5.000 €"
+   ── POR QUÉ ESTE ARCHIVO YA NO TIENE PLANES ──
 
-   Ocho cifras repetidas a mano. Para cambiar un precio había que
-   editar cuatro archivos, y olvidar uno es tener dos precios
-   distintos en la propia web —el peor sitio posible para que pase,
-   porque en la portada y en /precios, que es donde se mira antes de
-   escribir, se ven los dos.
+   Tenía los tres planes de proyecto del estudio digital (con cifra
+   en euros) y los tres de mantenimiento. Se retiraron con las páginas
+   que los vendían, y con ellos desaparece el problema de la moneda:
+   MONEDA estaba en EUR desde hacía años, y como la usaba el
+   formateador, poner un precio a un plan de Shopcito imprimía euros.
 
-   ── ESTO NO ES EL CATÁLOGO DE MÓDULOS ──
+   ── DÓNDE ESTÁN AHORA LOS PLANES ──
 
-   Y hay que decirlo, porque se confunden y no es lo mismo:
+   Los de Shopcito, en `content/shopcito.js`, sin cifra todavía. Salen
+   "A consultar" porque `precioDePlan()` devuelve ese texto cuando
+   `precio` es null.
 
-     · ESTE archivo: precios de PROYECTO y mantenimiento que se
-       anuncian en la web pública. "Una web cuesta X".
-     · `modules`: los servicios RECURRENTES que se contratan por
-       mensual —el bot de WhatsApp, el inventario, las reservas—.
+   ── POR QUÉ LA MONEDA ESTÁ EN UNA LÍNEA ──
 
-   Son productos distintos, con precios distintos. Por eso los
-   precios públicos NO salen de `modules` y por eso cambiar el
-   catálogo no cambia esta página. Se Sunderstood que es lo que
-   decía el catálogo y no: eso era un error.
+   Es un cambio de negocio, no un detalle de formato: el mismo número
+   con otro símbolo es otro precio, y hay que decidirlo una vez.
+   ========================================================= */
 
-   ── POR QUÉ NO SALE DE `modules` ──
-
-   Porque un precio "desde" de proyecto no es una fila de catálogo.
-   `modules.precio` es el precio de un módulo recurrente concreto;
-   "una web desde X" es una oferta comercial que agrupa horas de
-   trabajo. Meter una en la otra obligaría a modelar las ofertas
-   como si fueran módulos, y el panel de catálogo enseñaría cosas
-   que no se venden así.
-
-   Lo que se puede —y es lo que se ha hecho— es que no haya ni un
-   solo número escrito a mano fuera de este archivo.
-
-
-   ── LA MONEDA ──
-
-   ⚠️  PENDIENTE, Y NO SE ARREGLA CAMBIANDO UNA LÍNEA.
-
-   Hay dos comercializaciones conviviendo en el sitio:
-
-     · ESTA (PROYECTOS + MANTENIMIENTO): los planes del estudio
-       digital de antes, con cifras que SON euros (890, 1990,
-       4500) y páginas que siguen vivas: /precios, /servicios,
-       /proyectos y los excerpts del blog, que leen de aquí.
-
-     · LOS PLANES DE SHOPCITO (`content/shopcito.js`): pesos
-       argentinos. Nadie presupuesta un bot en euros.
-
-   Poner `simbolo: "$"` arregla los nuevos y rompe los viejos,
-   que pasarían a decir "890 $" siendo euros. Arreglar los dos
-   exige cambiar las cifras viejas también, y eso ya es un
-   recorte de contenido —el negocio ya no vende webs— que
-   arrastra al FAQ y a los artículos.
-
-   Por eso no se tocó. Se resuelve con el resto del rebranding.
-
-   LO QUE HAY QUE HACER ANTES DE PONERLE PRECIO A UN PLAN DE
-   SHOPCITO:
-
-     `precioDePlan()` formatea con este mismo símbolo, así que
-     escribir `precio: 25000` en un plan de Shopcito HOY
-     imprimiría "25.000 €". Es un error de un carácter que no
-     va a ver nadie hasta que lo lea un cliente.
-
-   ── EL FORMATO ──
-
-   `importe()` pone el separador de millares con punto, como se
-   escribe en español: 4500 -> "4.500". Sin esto, cada sitio que
-   imprima el número elige su propio formato y se acaba viendo
-   "1990" en un sitio y "1.990" en otro, para el mismo plan. */
-
-const MONEDA = {
-  codigo: "EUR",
-  simbolo: "€",
+   MONEDA = {
+  codigo: "ARS",
+  simbolo: "$",
   sufijo: "",
 };
 
@@ -101,110 +47,6 @@ const MONEDA = {
    `precio` es un NÚMERO, no un texto:
    escrito como texto no se puede sumar ni comparar, y alguien acaba
    haciendo aritmética a mano. El formato lo pone `importe()`. */
-const PROYECTOS = [
-  {
-    id: "esencial",
-    nombre: "Esencial",
-    precio: 890,
-    destacado: false,
-    descripcion:
-      "Para comercios y profesionales que necesitan una presencia online sólida.",
-    nota: "Pago único · Entrega en 2-3 semanas",
-    plazo: "2-3 semanas",
-    incluye: [
-      "Web de hasta 5 páginas",
-      "Diseño responsive a medida",
-      "Formulario de contacto y Google Maps",
-      "SEO técnico básico",
-      "Hosting y dominio el primer año",
-    ],
-    noIncluye: ["Tienda online", "Aplicación a medida"],
-    cta: { texto: "Solicitar presupuesto", href: "/contacto", clase: "btn btn-ghost" },
-  },
-  {
-    id: "negocio",
-    nombre: "Negocio",
-    precio: 1990,
-    destacado: true,
-    descripcion:
-      "Para empresas que quieren captar clientes y vender online de forma seria.",
-    nota: "Pago único · Entrega en 4-6 semanas",
-    plazo: "4-6 semanas",
-    incluye: [
-      "Web de hasta 12 páginas + blog",
-      "Tienda online o reservas online",
-      "Textos y SEO on-page incluidos",
-      "Analítica y objetivos configurados",
-      "Integraciones (CRM, email, pagos)",
-      "3 meses de soporte incluido",
-    ],
-    noIncluye: ["Aplicación a medida"],
-    cta: { texto: "Solicitar presupuesto", href: "/contacto", clase: "btn btn-primary" },
-  },
-  {
-    id: "a-medida",
-    nombre: "A medida",
-    precio: 4500,
-    destacado: false,
-    descripcion: "Web apps, aplicativos y plataformas con lógica de negocio compleja.",
-    nota: "Presupuesto por fases · 8-14 semanas",
-    plazo: "8-14 semanas",
-    incluye: [
-      "Arquitectura y diseño de producto",
-      "Usuarios, roles y paneles privados",
-      "API e integraciones con tu ERP",
-      "App móvil o PWA",
-      "Pruebas automatizadas y despliegue",
-      "SLA de soporte y evolución",
-      "Equipo dedicado",
-    ],
-    noIncluye: [],
-    cta: { texto: "Hablemos del proyecto", href: "/contacto", clase: "btn btn-ghost" },
-  },
-];
-
-/* Los tres planes recurrentes. `periodo` va aparte del precio porque
-   "89 €" y "89 €/mes" no son el mismo dato, y si el periodo está en
-   el texto hay gente que lo lee como un pago único. */
-const MANTENIMIENTO = [
-  {
-    id: "mantenimiento-basico",
-    nombre: "Mantenimiento Básico",
-    precio: 29,
-    periodo: "mes",
-    descripcion: "Actualizaciones, copias diarias y monitorización de tu web.",
-    incluye: [
-      "Copias de seguridad diarias",
-      "Actualizaciones de seguridad",
-      "Monitorización y alertas",
-    ],
-  },
-  {
-    id: "mantenimiento-pro",
-    nombre: "Mantenimiento Pro",
-    precio: 89,
-    periodo: "mes",
-    descripcion: "Todo lo anterior más horas de mejoras y soporte prioritario.",
-    incluye: [
-      "Todo lo del plan Básico",
-      "4 horas de mejoras al mes",
-      "Soporte prioritario en 24 h",
-    ],
-  },
-  {
-    id: "seo-contenidos",
-    nombre: "SEO y contenidos",
-    precio: 350,
-    periodo: "mes",
-    descripcion: "Estrategia, artículos y optimización continua para crecer en Google.",
-    incluye: [
-      "4 artículos optimizados al mes",
-      "Informe mensual de posiciones",
-      "SEO local para comercios",
-    ],
-  },
-];
-
 /**
  * Las bandas de presupuesto del formulario de contacto.
  *
@@ -310,36 +152,11 @@ function precioDePlan(plan) {
   return plan.periodo ? base + " / " + plan.periodo : base;
 }
 
-/**
- * El precio de un plan ya pintado, para los textos de `faq.js` y
- * `posts.js`.
- *
- * Se pasa el plan entero y no el número porque el texto que lo
- * rodea cambia: "desde 890 €", "entre 890 € y 5.000 €" y "89 €/mes"
- * son tres frases con formatos distintos. Lo que NO cambia es de
- * dónde sale el número, y eso es lo que importa.
- *
- * @param {{precio:number, periodo?:string}} plan
- * @returns {string}
- */
-function precioDe(plan) {
-  const base = importe(plan.precio) + " " + MONEDA.simbolo;
-  return plan.periodo ? base + "/" + plan.periodo : base;
-}
-
-/** Busca un plan por id. Devuelve null si no existe. */
-function plan(id) {
-  return [...PROYECTOS, ...MANTENIMIENTO].find((p) => p.id === id) || null;
-}
-
 module.exports = {
   MONEDA,
-  PROYECTOS,
-  MANTENIMIENTO,
+
   BANDAS_PRESUPUESTO,
   importe,
   simbolo,
-  precioDe,
   precioDePlan,
-  plan,
 };

@@ -19,9 +19,6 @@
    si el precio cambia en `precios.js` el texto de la FAQ cambia
    solo. No puede quedar desactualizado, porque no está escrito. */
 const precios = require("./precios.js");
-const esencial = precios.precioDe(precios.plan("esencial"));
-const negocio = precios.precioDe(precios.plan("negocio"));
-const aMedida = precios.precioDe(precios.plan("a-medida"));
 module.exports.servicios = [
   {
     q: "¿Cuánto tarda un proyecto de diseño web?",
@@ -52,8 +49,8 @@ module.exports.servicios = [
 /* Preguntas frecuentes de la home (objetivo SEO y objeciones) */
 module.exports.home = [
   {
-    q: "¿Cuánto cuesta una web?",
-    a: `Desde ${esencial} para una web de hasta 5 páginas. Una tienda online parte de ${negocio} y una aplicación a medida de ${aMedida}. El precio se cierra por escrito antes de empezar.`,
+    q: "¿Cuánto cuesta?",
+    a: "Todavía no lo hemos publicado, y se sabe por qué: lo estamos ajustando con los primeros comercios que lo prueban. Escríbenos y te decimos el precio del plan que te sirve. Los tres planes son mensuales y no tienen permanencia.",
   },
   {
     q: "¿Trabajáis con clientes fuera de Argentina?",

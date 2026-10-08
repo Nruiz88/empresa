@@ -164,11 +164,26 @@
       </div>
     </section>
 
-    <%- include('partials/proof', {
           type: "quotes",
           title: "Lo que dicen antes de contratar",
           lead: "Opiniones de clientes que empezaron exactamente donde estás tú."
         }) %>
-  </main>
+  <%# ─────────────────────────────────────────────────────────
+     NO HAY TESTIMONIOS EN ESTA PÁGINA, Y ES A PROPÓSITO
+
+     Antes aquí iba `partials/proof`, con tres testimonios de gente
+     inventada: nombre, cargo y empresa. Publicados en nombre de
+     Shopcito.
+
+     No se sustituyen por otros nombres: un testimonio inventado es
+     PEOR que ningún testimonio, porque el que lo lee se queda con la
+     impresión de que es real. Hasta que haya testimonios de verdad de
+     clientes de verdad, aquí no va ninguno.
+
+     `content/testimonials.js` sigue teniendo los datos, porque
+     /proyectos y /servicios —que ya redirigen— los usan. Cuando se
+     decida qué hacer con esas páginas, se borra el archivo entero.
+     ───────────────────────────────────────────────────────── %>
+</main>
 
 <%- include('partials/footer') %>

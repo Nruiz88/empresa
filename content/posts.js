@@ -21,7 +21,7 @@ module.exports = [
     dateLabel: "12 sep 2026",
     readTime: "7 min de lectura",
     excerpt:
-      `Una web para una empresa cuesta entre ${precios.precioDe(precios.plan("esencial"))} y ${precios.precioDe(precios.plan("a-medida"))} según alcance. Te explicamos de qué depende el precio y qué debe incluir un presupuesto honesto.`,
+      "Retirado: el artículo hablaba de cuánto cuesta una web, con cifras en euros de un negocio que ya no existe.",
   },
   {
     slug: "seo-local-para-comercios",

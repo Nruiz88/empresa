@@ -68,19 +68,64 @@ const MEDIR = `
       if (x.length < 4 || x[3] >= 1) return x.slice(0, 3);
       return [x[0]*x[3]+y[0]*(1-x[3]), x[1]*x[3]+y[1]*(1-x[3]), x[2]*x[3]+y[2]*(1-x[3])];
     };
-    const fondoDe = (el) => {
-      const pila = [];
-      let p = el;
-      while (p) {
-        const c = getComputedStyle(p).backgroundColor;
-        if (!rgba(c)) { pila.push(c); break; }
-        pila.push(c);
-        p = p.parentElement;
-      }
-      let fondo = nums(pila[pila.length - 1]).slice(0, 3);
-      for (let i = pila.length - 2; i >= 0; i--) fondo = sobre(pila[i], fondo);
-      return fondo;
-    };
+    // ── EL FONDO CON DEGRADADO ──
+//
+// Un boton con un degradado de fondo no tiene color de fondo: es
+// transparente, y el fondo de verdad esta en la imagen de fondo. La
+// primera version del script no lo tenia en cuenta y subia por el arbol
+// hasta el fondo de la pagina, asi que comparaba el texto del boton
+// contra el fondo de la web y salia 1:1.
+//
+// Eso no es un problema de contraste, es un error de medicion, y hace
+// que el informe enseñe fallos donde no los hay.
+//
+// Aqui, cuando hay un degradado, se toma el PRIMER color de los topes
+// que aparecen en la imagen de fondo. No es exacto para un degradado
+// que cambie de color a mitad, pero para el caso del sitio —verde a
+// verde— la diferencia es de décimas.
+const primerColorDelDegradado = (img) => {
+  const colores = img.match(/(rgba?\([^)]+\)|#[0-9a-f]{3,8})/gi);
+  return colores && colores.length ? colores[0] : null;
+};
+
+const fondoDe = (el) => {
+  const cs = getComputedStyle(el);
+
+  if (cs.backgroundImage && cs.backgroundImage !== "none") {
+    const primero = primerColorDelDegradado(cs.backgroundImage);
+    if (primero) {
+      // Se compone igualmente sobre el fondo real, por si el primer
+      // tope del degradado es translúcido.
+      return sobre(primero, fondoDeAbuelo(el));
+    }
+  }
+
+  const pila = [];
+  let p = el;
+  while (p) {
+    const c = getComputedStyle(p).backgroundColor;
+    if (!rgba(c)) { pila.push(c); break; }
+    pila.push(c);
+    p = p.parentElement;
+  }
+  let fondo = nums(pila[pila.length - 1]).slice(0, 3);
+  for (let i = pila.length - 2; i >= 0; i--) fondo = sobre(pila[i], fondo);
+  return fondo;
+};
+
+// El fondo del padre, sin mirar el elemento: sirve para componer el
+// primer tope de un degradado translúcido.
+const fondoDeAbuelo = (el) => {
+  const padre = el.parentElement;
+  if (!padre) return [255, 255, 255];
+  const cs = getComputedStyle(padre);
+  if (cs.backgroundImage && cs.backgroundImage !== "none") {
+    const primero = primerColorDelDegradado(cs.backgroundImage);
+    if (primero && !rgba(primero)) return nums(primero).slice(0, 3);
+  }
+  if (!rgba(cs.backgroundColor)) return nums(cs.backgroundColor).slice(0, 3);
+  return fondoDeAbuelo(padre);
+};
     const ratio = (a, b) => {
       const la = lum(a[0], a[1], a[2]), lb = lum(b[0], b[1], b[2]);
       return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
