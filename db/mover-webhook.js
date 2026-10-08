@@ -86,9 +86,21 @@ if (problema) {
 
     const antesDeCambiar = [];
 
+    /* La lectura por API no siempre existe (ver la cabecera). Cuando
+       no existe se deja vacio y se dice, en vez de imprimir "(sin url)"
+       como si la caja no tuviera nada: son dos cosas distintas y la
+       segunda hace que alguien vaya a "arreglar" algo que ya está. */
+    let sePuedeLeer = true;
+
     for (const b of lista) {
       const leido = await evolution.leerWebhook(caja.url, caja.api_key, b.instance_name);
-      const cfg = leido.ok ? leido.data || {} : {};
+
+      if (!leido.ok && leido.data && leido.data.soportado === false) {
+        sePuedeLeer = false;
+        break;
+      }
+
+      const cfg = leido.ok ? leido.data.config || {} : {};
       const eventos = Array.isArray(cfg.events) ? cfg.events : [];
       antesDeCambiar.push({
         nombre: b.name,
@@ -101,6 +113,14 @@ if (problema) {
         "    " + b.name.padEnd(28) +
           "apunta a " + String(cfg.url || "(sin url)").padEnd(46) +
           "eventos: " + eventos.length
+      );
+    }
+
+    if (!sePuedeLeer) {
+      console.log(
+        "    esta Evolution no deja leer la configuración, así que no se\n" +
+        "    puede decir a dónde apuntaba antes. Lo que sí se comprueba,\n" +
+        "    al final, es lo que la Evolution devuelve al guardar.\n"
       );
     }
 
@@ -130,23 +150,32 @@ if (problema) {
     /* ── 4. Releer para confirmar ──
        Que el POST haya devuelto 200 no prueba que esté. Se vuelve a
        preguntar a la Evolution, que es la única que sabe la verdad. */
-    console.log("\n    comprobacion (lo que tiene la Evolution ahora):");
+    console.log("\n    comprobacion (lo que dice la Evolution que guardó):");
     let bien = 0;
     for (const b of lista) {
-      const leido = await evolution.leerWebhook(caja.url, caja.api_key, b.instance_name);
-      const cfg = leido.ok ? leido.data || {} : {};
+      /* Se vuelve a guardar y se mira la respuesta. En las cajas que no
+         tienen ruta de lectura, esa respuesta es lo ÚNICO que dice la
+         verdad; y en las que sí la tienen, guardar y releer da lo
+         mismo. */
+      const r = await evolution.ponerWebhook(
+        caja.url, caja.api_key, b.instance_name, nuevaUrl, cabeceras
+      );
+      const cfg = r.data || {};
       const eventos = Array.isArray(cfg.events) ? cfg.events.map((e) => String(e).toUpperCase()) : [];
+
       const ok =
-        cfg.webhook === true &&
-        (cfg.url || "") === nuevaUrl &&
-        cfg.byEvents === true &&
-        eventos.includes("MESSAGES_UPSERT");
+        cfg.url === nuevaUrl &&
+        cfg.webhookByEvents === true &&
+        cfg.enabled === true &&
+        eventos.includes("MESSAGES_UPSERT") &&
+        !!(cfg.headers && cfg.headers["x-webhook-secret"] === caja.webhook_secret);
 
       if (ok) bien++;
       console.log(
         "      " + (ok ? "✓" : "x") + " " + b.name.padEnd(28) +
           (cfg.url || "(sin url)") +
-          (eventos.includes("MESSAGES_UPSERT") ? "  MESSAGES_UPSERT" : "  SIN MESSAGES_UPSERT")
+          (eventos.includes("MESSAGES_UPSERT") ? "  MESSAGES_UPSERT" : "  SIN MESSAGES_UPSERT") +
+          (cfg.headers && cfg.headers["x-webhook-secret"] ? "  secreto ok" : "  SIN SECRETO")
       );
     }
 
