@@ -52,7 +52,12 @@ const BASE = "/panel";
 
 /* Los textos de los ?aviso=, para no repetirlos en cada vista.
    Un mensaje que se escribe dos veces acaba siendo distinto en las dos,
-   y el que se queda viejo es el que nadie busca. */
+   y el que se queda viejo es el que nadie busca.
+
+   Los de reconfigurar llevan números pegados porque vienen del POST:
+   cuántos quedaron, cuántos fallaron y a qué URL se movieron. Van en el
+   texto y no en datos aparte de la vista para que el aviso se entienda
+   entero de un vistazo, que es justo cuando se lee. */
 const AVISOS = {
   "bot:creado": "Bot creado. El cliente ya puede entrar y conectar su número.",
   "bot:revisado": "Estado consultado en la caja.",
@@ -61,6 +66,7 @@ const AVISOS = {
   "servidor:creado": "Caja dada de alta.",
   "servidor:guardado": "Caja guardada.",
   "servidor:probado": "Caja probada.",
+  "servidor:reconfigurado": "Bots de la caja reconfigurados.",
   "servidor:activado": "Caja activada.",
   "servidor:desactivado": "Caja desactivada. Los bots que ya viven ahí siguen funcionando.",
 };
@@ -105,6 +111,28 @@ const ESQUEMA_SERVIDOR = {
   max_instances: [],
   notas: [["texto", { max: 500 }]],
   webhook_secret: [["texto", { max: 200 }]],
+  /* El patrón de reglas va en REGLAS_SERVIDOR porque esta necesita mirar
+     la ruta del webhook, no solo la forma de la URL. */
+  webhook_url: [],
+};
+
+/** La URL del webhook tiene que acabar en la ruta que escucha.
+
+    Es la comprobación que más vale aquí, y por eso merece su propio
+    mensaje: una Evolution a la que se le manda a la home del bot
+    contesta 200 igual, el panel da el alta por buena, y el bot no
+    recibe un solo mensaje. El fallo es idéntico al de no tener
+    webhook, pero la causa y el arreglo son otros. */
+const reglaUrlWebhook = (v) => {
+  const problema = botsLib.problemaDeUrlWebhook(v);
+  if (problema) return problema;
+  /* Y si no hay ninguna, que se vea que la deducida existe. Si no
+     existe tampoco, la caja se queda sin webhook y hay que decirlo
+     antes de guardar, no al probar el bot. */
+  if (!String(v || "").trim() && !botsLib.urlDeWebhook()) {
+    return " vacía y el panel no tiene dominio del bot, así que esta caja se quedaría sin webhook. Pon la URL a mano, o configura SITE_URL.";
+  }
+  return undefined;
 };
 
 /** La url tiene que ser una url de verdad, y no cualquier cosa.
@@ -145,6 +173,7 @@ const reglaCupos = (v) => {
 const REGLAS_SERVIDOR = {
   url: reglaUrl,
   max_instances: reglaCupos,
+  webhook_url: reglaUrlWebhook,
 };
 
 /* El validador del panel, más las dos reglas de aquí. */
@@ -165,7 +194,37 @@ module.exports = function rutasBots({ db, sitio, requiereStaff }) {
       Devuelve siempre la misma forma, y si el texto no se reconoce
       devuelve null en vez de inventar uno: una URL manipulada a mano no
       puede pintar en la pantalla del panel lo que quiera. */
+  /* Las cuentas de la redirección, que vienen del POST y no se pueden
+       guardar de otra forma. Se limpian aquí y no en la vista para que
+       `detalle` no pueda acabar pintándose sin limpiar. */
+  const enteroDe = (req, clave) => {
+    const n = Number(req.query[clave]);
+    return Number.isFinite(n) && n >= 0 ? Math.floor(n) : null;
+  };
+
   const mensajeDe = (req) => {
+    /* El aviso de reconfigurar se arma aquí, con sus números, porque es
+       el único que describe una operación con recuento. Va antes que
+       los textos fijos porque estos no aplican. */
+    if (req.query.aviso === "servidor:reconfigurado") {
+      const hechos = enteroDe(req, "hechos");
+      const fallos = enteroDe(req, "fallos");
+      const url = String(req.query.url || "").trim();
+      const destinatario = url ? " Todos ahora llaman a " + url + "." : "";
+
+      if (fallos === null) {
+        return { tipo: "ok", texto: "Bots de la caja reconfigurados." + destinatario };
+      }
+      return {
+        tipo: fallos ? "error" : "ok",
+        texto:
+          (hechos || 0) +
+          " bot(s) reconfigurados" +
+          (fallos ? " y " + fallos + " no se pudieron" : "") +
+          "." + destinatario,
+      };
+    }
+
     const ok = AVISOS[req.query.aviso];
     if (ok) {
       /* "Caja probada" sin el número no dice nada: lo que se quiere saber
@@ -724,8 +783,15 @@ module.exports = function rutasBots({ db, sitio, requiereStaff }) {
         max_instances: botsLib.CUPOS_POR_DEFECTO,
         notas: "",
         webhook_secret: "",
+        webhook_url: "",
         tieneSecreto: false,
       },
+      /* Las dos direcciones, desde el GET. La deducida va en el
+         `placeholder` del campo para que se vea qué se pondría, y la que
+         está en uso en el aviso de arriba. */
+      deducida: botsLib.urlDeWebhook(),
+      enUso: botsLib.urlDeWebhook(),
+      tieneBots: 0,
       errores: {},
       mensaje: mensajeDe(req),
       aviso: null,
@@ -770,6 +836,7 @@ module.exports = function rutasBots({ db, sitio, requiereStaff }) {
        nada que escuchar. Bloquear el alta obligaría a tener el bot
        levantado para poder dar de alta la caja. */
     const sinSecreto = !String(datos.webhook_secret || "").trim();
+    const urlNueva = String(datos.webhook_url || "").trim();
 
     /* Una caja con la misma url es la misma caja. Doblarla no da más
        capacidad (es el mismo servidor) y reparte los bots entre dos
@@ -793,6 +860,13 @@ module.exports = function rutasBots({ db, sitio, requiereStaff }) {
         current: "servidores",
         modo,
         servidor: datos,
+        /* La deducida y la que queda. En el alta casi siempre coinciden
+           (el campo viene vacío), pero si alguien manda una URL a mano
+           y hay otro error, la pantalla tiene que enseñar la que se
+           va a guardar, no la deducida. */
+        deducida: botsLib.urlDeWebhook(),
+        enUso: urlNueva || botsLib.urlDeWebhook(),
+        tieneBots: 0,
         errores,
         mensaje: null,
         aviso: sinSecreto ? AVISO_SIN_SECRETO : null,
@@ -823,6 +897,10 @@ module.exports = function rutasBots({ db, sitio, requiereStaff }) {
            `String(null)` sería lo mismo, pero vacío se lee como lo que
            es, que es que todavía no se ha puesto. */
         webhook_secret: String(datos.webhook_secret || "").trim() || null,
+        /* Igual con la URL: null significa "usa la deducida". Ver la nota
+           del POST de edición sobre por qué no se guarda la cadena
+           vacía. */
+        webhook_url: urlNueva || null,
       })
       .select("id")
       .single();
@@ -871,11 +949,21 @@ module.exports = function rutasBots({ db, sitio, requiereStaff }) {
   router.get("/servidores/:id/editar", requiereStaff, async (req, res) => {
     const { data, error } = await db
       .from("evolution_servers")
-      .select("id,name,url,plan,max_instances,activo,notas,webhook_secret")
+      .select("id,name,url,plan,max_instances,activo,notas,webhook_secret,webhook_url")
       .eq("id", req.params.id)
       .maybeSingle();
 
     if (error || !data) return res.redirect(BASE + "/servidores?error=servidor:no-existe");
+
+    /* Cuántos bots hay, para poder avisar de que cambiar la URL no basta
+       con guardar: lo que hay dentro de la Evolution no se mueve solo. Es
+       un count de una fila y evita el caso de cambiar la URL, no tocar
+       nada más, y que veinte bots sigan mudos sin que nadie lo relacione
+       con este guardado. */
+    const { count: cuantosBots } = await db
+      .from("bots")
+      .select("id", { count: "exact", head: true })
+      .eq("server_id", req.params.id);
 
     /* Ni la clave ni el secreto del webhook llegan al formulario. De los
        dos solo se envía si hay. El formulario solo necesita saber SI hay
@@ -892,11 +980,20 @@ module.exports = function rutasBots({ db, sitio, requiereStaff }) {
       base: BASE,
       current: "servidores",
       modo: "editar",
+      /* La URL del webhook SÍ se enseña: no es un secreto, es la
+         dirección a la que la caja tiene que llamar, y el que edita la
+         caja es justo quien necesita verla. */
       servidor: Object.assign({}, data, {
         api_key: "",
         webhook_secret: "",
         tieneSecreto: Boolean(data.webhook_secret),
       }),
+      /* Lo que se está usando ahora, y lo que se usaría si se vacía el
+         campo. La vista lo escribe para que la pregunta "¿a dónde
+         llaman estos bots?" se conteste sin abrir nada más. */
+      deducida: botsLib.urlDeWebhook(),
+      enUso: botsLib.urlDeWebhookDe(data),
+      tieneBots: cuantosBots || 0,
       errores: {},
       mensaje: mensajeDe(req),
       aviso: data.webhook_secret ? null : AVISO_SIN_SECRETO,
@@ -907,7 +1004,7 @@ module.exports = function rutasBots({ db, sitio, requiereStaff }) {
   router.post("/servidores/:id/editar", requiereStaff, async (req, res) => {
     const { data: antes } = await db
       .from("evolution_servers")
-      .select("id,name,url,plan,max_instances,activo,notas,webhook_secret")
+      .select("id,name,url,plan,max_instances,activo,notas,webhook_secret,webhook_url")
       .eq("id", req.params.id)
       .maybeSingle();
 
@@ -917,7 +1014,29 @@ module.exports = function rutasBots({ db, sitio, requiereStaff }) {
     const cuerpo = Object.assign({}, req.body);
     if (!String(cuerpo.api_key || "").trim()) delete cuerpo.api_key;
 
+    /* El destino del webhook se resuelve DESPUÉS de validar, porque
+       vaciar el campo es una operación válida: pasa a usarse la deducida.
+       Por eso no se lee `req.body` aquí sino los datos ya limpios. */
     const { errores, datos } = validarServidor(cuerpo);
+
+    /* Un cambio de URL con bots dentro NO se aplica solo. No es que no se
+       pueda guardar: es que guardar no cambia lo que hay dentro de la
+       Evolution, así que la pantalla tiene que decirlo en el sitio donde
+       se decide. Si no, el gesto completo ("cambio la URL para
+       arreglar el bot") se queda a medias y nadie lo nota hasta que el
+       cliente escribe que no le funcionan los mensajes. */
+    if (!errores.webhook_url) {
+      const { count: cuantosBots } = await db
+        .from("bots")
+        .select("id", { count: "exact", head: true })
+        .eq("server_id", req.params.id);
+      if (cuantosBots && String(datos.webhook_url || "").trim() !== String(antes.webhook_url || "").trim()) {
+        errores.webhook_url =
+          "Vas a cambiar la URL con " +
+          cuantosBots +
+          " bot(s) dentro. Guarda y luego usa «Reconfigurar los bots» en la tarjeta de la caja: guardar no cambia lo que ya está apuntado dentro de la Evolution.";
+      }
+    }
 
     /* Bajar los cupos por debajo de los bots que ya hay no se puede
        dejar pasar: la caja quedaría "llena" y el reparto dejaría de
@@ -955,6 +1074,14 @@ module.exports = function rutasBots({ db, sitio, requiereStaff }) {
       notas: datos.notas || null,
     };
     if (datos.api_key) actualizar.api_key = datos.api_key;
+
+    /* La URL del webhook. Vacío = null, que es lo que significa "usa la
+       deducida". Se guarda como null y no como "" a propósito: la
+       diferencia entre "no lo he puesto" y "lo he puesto vacío" no
+       existe, y guardar la cadena vacía haría que la caja pareciera
+       configurada con una URL que no es ninguna. */
+    const urlNueva = String(datos.webhook_url || "").trim();
+    actualizar.webhook_url = urlNueva || null;
 
     /* El secreto del webhook, igual que la clave: vacío = se deja el
        que hay. Y no se puede BORRAR desde aquí a propósito: si alguien
@@ -1000,6 +1127,12 @@ module.exports = function rutasBots({ db, sitio, requiereStaff }) {
           tieneSecreto: Boolean(actualizar.webhook_secret || antes.webhook_secret),
           activo: actualizar.activo,
         }),
+        /* Lo mismo que en el GET: la URL deducida y la que queda en uso
+           se recomputan para que el aviso de "cambia y reconfigura" siga
+           teniendo sentido aunque el error venga de otro campo. */
+        deducida: botsLib.urlDeWebhook(),
+        enUso: botsLib.urlDeWebhookDe(Object.assign({}, antes, { webhook_url: actualizar.webhook_url })),
+        tieneBots: await cuentaDeBots(db, req.params.id),
         errores,
         mensaje: null,
         aviso: actualizar.webhook_secret || antes.webhook_secret ? null : AVISO_SIN_SECRETO,
@@ -1022,6 +1155,9 @@ module.exports = function rutasBots({ db, sitio, requiereStaff }) {
           tieneSecreto: Boolean(antes.webhook_secret),
           activo: actualizar.activo,
         }),
+        deducida: botsLib.urlDeWebhook(),
+        enUso: botsLib.urlDeWebhookDe(antes),
+        tieneBots: await cuentaDeBots(db, req.params.id),
         errores: { general: "No se pudo guardar: " + eUpd.message },
         mensaje: null,
         aviso: antes.webhook_secret ? null : AVISO_SIN_SECRETO,
@@ -1094,10 +1230,13 @@ module.exports = function rutasBots({ db, sitio, requiereStaff }) {
       );
     }
 
-    const urlEsperada = botsLib.urlDeWebhook();
+    /* La URL esperada sale de la CAJA, no del dominio del panel. Una
+       caja puede tener su propia y, si se comparara con la deducida,
+       saldría "mal apuntado" en una caja que está bien. */
+    const urlEsperada = botsLib.urlDeWebhookDe(caja);
     if (!urlEsperada) {
       avisos.push(
-        "No hay dominio del bot configurado (SITE_URL o BOT_URL), así que no se puede comprobar a dónde debería llamar la caja."
+        "No hay dominio del bot configurado (SITE_URL o BOT_URL) y esta caja no tiene URL propia, así que no se puede comprobar a dónde debería llamar."
       );
     }
 
@@ -1108,16 +1247,30 @@ module.exports = function rutasBots({ db, sitio, requiereStaff }) {
 
     let webhooksFlojos = 0;
     let webhooksMalApuntados = 0;
+    let sinPoderLeer = 0;
 
     for (const b of bots || []) {
       const leido = await evolution.leerWebhook(caja.url, caja.api_key, b.instance_name);
-      if (!leido.ok) continue;
 
-      const cfg = leido.data || {};
+      /* Sin forma de leer no se puede acusar a nadie. Se cuenta aparte
+         para poder decirlo con sus palabras, y no como "el webhook no
+         está puesto", que sería mentira.
+
+         No es un caso raro: la Evolution de producción no tiene la
+         ruta de lectura, y con la comprobación anterior salía un aviso
+         en rojo para un bot que estaba bien. */
+      if (!leido.ok && leido.data && leido.data.soportado === false) {
+        sinPoderLeer++;
+        continue;
+      }
+
+      if (!leido.ok) continue; // aquí sí es un fallo de red o de la caja
+
+      const cfg = leido.data.config || {};
       const eventos = Array.isArray(cfg.events) ? cfg.events.map((e) => String(e).toUpperCase()) : [];
 
-      /* Lo primero, lo que deja el bot MUDO: sin webhook, sin eventos, o
-         sin `byEvents` (que hace que Evolution ignore lo guardado por
+      /* Lo que deja el bot MUDO: sin webhook, sin eventos, o sin
+         `byEvents` (que hace que Evolution ignore lo guardado por
          instancia y use su configuración global). */
       if (cfg.webhook !== true || cfg.byEvents !== true || !eventos.includes("MESSAGES_UPSERT")) {
         webhooksFlojos++;
@@ -1139,15 +1292,143 @@ module.exports = function rutasBots({ db, sitio, requiereStaff }) {
     if (webhooksMalApuntados) {
       avisos.push(
         webhooksMalApuntados +
-          " bot(s) tienen el webhook apuntando a otro sitio, y no a " +
-          urlEsperada +
-          "."
+          " bot(s) tienen el webhook apuntando a otro sitio, y no a " + urlEsperada + "."
+      );
+    }
+    if (sinPoderLeer) {
+      avisos.push(
+        "Esta Evolution no tiene forma de leer el webhook de sus instancias (esa ruta no existe en esta versión), así que el estado de " +
+          sinPoderLeer +
+          " bot(s) no se ha podido comprobar. Que la caja acepte el webhook sí."
       );
     }
 
     const nota = avisos.length ? "&nota=" + encodeURIComponent(avisos.join(" ")) : "";
     res.redirect(
       BASE + "/servidores?aviso=servidor:probado&instancias=" + r.data.instancias + nota + "#" + caja.id
+    );
+  });
+
+  /* ---------- Reconfigurar los bots de una caja ----------
+     Vuelve a engancharle el webhook a TODOS los bots de la caja.
+
+     Es lo que hacía `api/admin/sync-webhooks` en el admin de wweb, que
+     se borró con el resto. Hace falta por un motivo concreto: la URL
+     del webhook vive DENTRO de cada instancia de Evolution, no en
+     nuestra base. Si la URL de la caja cambia, o se pone por primera
+     vez el secreto, guardar en el panel no cambia nada dentro de la
+     Evolution: los bots siguen apuntando al sitio viejo y siguen mudos.
+
+     Por eso el botón va con aviso: es una operación que toca todos los
+     números de la caja a la vez.
+
+     ── POR QUÉ NO SE ARREGLA SOLO AL GUARDAR ──
+     Porque guardar una caja es una operación de una línea, y esta hace
+     una llamada a la Evolution por cada bot que tiene. Si se hiciera de
+     paso, guardar el plan de una caja con veinte bots sería esperar
+     veinte peticiones a un servidor que puede estar lento, y un fallo a
+     mitad dejaría algunos bots reconfigurados y otros no, sin que nadie
+     supiera por dónde empezar. */
+  router.post("/servidores/:id/reconfigurar", requiereStaff, async (req, res) => {
+    const { data: caja } = await db
+      .from("evolution_servers")
+      .select("id,name,url,api_key,webhook_secret,webhook_url")
+      .eq("id", req.params.id)
+      .maybeSingle();
+
+    if (!caja) return res.redirect(BASE + "/servidores?error=servidor:no-existe");
+
+    /* Antes de tocar nada, se comprueba que hay con qué hacerlo. Es
+       lo mismo que hace `prepararEnCaja` antes de crear una instancia,
+       y por el mismo motivo: si va a fallar, que falle sin haber
+       reconfigurado ni el primero. */
+    if (!caja.webhook_secret) {
+      return res.redirect(
+        BASE + "/servidores?error=servidor:no-contesta&detalle=" +
+          encodeURIComponent(AVISO_SIN_SECRETO) + "#" + caja.id
+      );
+    }
+
+    const webhook = botsLib.urlDeWebhookDe(caja);
+    if (!webhook) {
+      return res.redirect(
+        BASE + "/servidores?error=servidor:no-contesta&detalle=" +
+          encodeURIComponent(
+            "No hay destino para el webhook: el panel no tiene dominio del bot (SITE_URL) y esta caja no tiene URL propia."
+          ) + "#" + caja.id
+      );
+    }
+
+    const { data: bots, error: eBots } = await db
+      .from("bots")
+      .select("id,name,instance_name")
+      .eq("server_id", caja.id)
+      .order("name");
+
+    if (eBots) {
+      return res.redirect(BASE + "/servidores?error=servidor:no-existe");
+    }
+
+    if (!bots || !bots.length) {
+      return res.redirect(
+        BASE + "/servidores?aviso=servidor:reconfigurado&hechos=0&url=" +
+          encodeURIComponent(webhook) + "#" + caja.id
+      );
+    }
+
+    /* Se cuentan los dos resultados por separado, no solo los errores.
+
+       Un fallo a mitad NO se aborta: se sigue con los demás. La razón
+       es que el objetivo es dejar los números en un sitio conocido, y un
+       bot que falla por culpa de la caja no puede arreglar a los veinte
+       que sí dependían solo de la URL. Abortar en el primero dejaría el
+       resto igual y sin registro de por qué. */
+    const cabeceras = botsLib.cabecerasDeWebhook(caja);
+    let hechos = 0;
+    let fallos = 0;
+    const problemas = [];
+
+    for (const b of bots) {
+      try {
+        const enganchado = await evolution.engancharWebhook(
+          caja.url,
+          caja.api_key,
+          b.instance_name,
+          webhook,
+          cabeceras
+        );
+        if (enganchado.ok) {
+          hechos++;
+        } else {
+          fallos++;
+          if (problemas.length < 3) problemas.push(b.name + ": " + enganchado.mensaje);
+        }
+      } catch (err) {
+        fallos++;
+        if (problemas.length < 3) problemas.push(b.name + ": " + err.message);
+      }
+    }
+
+    await auth.auditar(db, {
+      actor: { id: req.sesion.user_id, email: null },
+      accion: "reconfigurar-servidor",
+      entidad: "evolution_servers",
+      entidadId: caja.id,
+      /* La URL sí: es lo que se ha cambiado en todos los bots a la vez.
+         Los nombres de los bots, no: son veinte filas y el registro se
+         lee peor que la cuenta. El detalle de los que fallaron va en el
+         aviso de la pantalla, que es donde se van a mirar. */
+      detalle: { webhook_url: webhook, hechos, fallos },
+      req,
+    });
+
+    const nota = problemas.length
+      ? "&nota=" + encodeURIComponent(problemas.join(" · "))
+      : "";
+
+    res.redirect(
+      BASE + "/servidores?aviso=servidor:reconfigurado&hechos=" + hechos +
+        "&fallos=" + fallos + "&url=" + encodeURIComponent(webhook) + nota + "#" + caja.id
     );
   });
 
@@ -1224,6 +1505,22 @@ module.exports = function rutasBots({ db, sitio, requiereStaff }) {
 
   return router;
 };
+
+/* Cuántos bots hay en una caja. Sale en su propia función porque lo
+   usan el GET de editar y los dos POST que vuelven a pintar el
+   formulario con errores, y duplicar el count tres veces era una forma
+   de que uno se quedara con un filtro distinto a los otros dos.
+
+   Un fallo aquí devuelve 0 y no rompe la pantalla: es un dato
+   informativo del aviso, y la edición tiene que poder abrirse aunque la
+   base se ponga raro con esa consulta. */
+async function cuentaDeBots(db, serverId) {
+  const { count } = await db
+    .from("bots")
+    .select("id", { count: "exact", head: true })
+    .eq("server_id", serverId);
+  return count || 0;
+}
 
 /** Los clientes partidos en dos: los que pueden tener un bot y los que
     ya lo tienen.

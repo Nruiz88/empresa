@@ -1,516 +1,309 @@
 <%- include('partials/head') %>
 <%- include('partials/header', { current: "inicio" }) %>
 
+<%# =========================================================
+     Shopcito — Portada
+
+     ESTRUCTURA (A/B/C), y el orden importa:
+
+       A. Hero            qué es esto y qué hago
+       B. Problema vs.    por qué me tiene que importar
+          Solución
+       C. Planes          qué compro, cuánto sale
+
+     No hay secciones de servicios, precios comparados,
+     contacto, proyectos, blog ni testimonios, y es
+     deliberado. En una landing de producto, todo eso es
+     ruido: el visitante no llega a leer un texto largo
+     buscando precios a ver si lo que vende le sirve. Lo
+     que tiene que encontrar, en este orden y sin buscar,
+     es qué es, por qué le importa y cuánto sale.
+
+     ── LO QUE SE SACA Y POR QUÉ ──
+
+     · "Proyectos" y "Testimonios": son de estudio digital,
+       no de producto. Y los que había eran de ejemplo, con
+       nombres inventados y métricas sin fuente (ver
+       PENDIENTES.md): dejarlos era publicar cifras falsas.
+     · "Servicios": la web anterior vendía diseño web. Esta
+       vende un bot. Son cosas distintas y la lista vieja
+       decía lo contrario.
+     · "Cómo trabajamos": era el idioma de una agencia.
+     · Blog: sigue existiendo en /blog y el footer lo enlaza,
+       pero no ocupa media portada para alguien que aún no
+       entendió qué se le está vendiendo.
+
+     ⚠️  LO QUE FALTA Y HAY QUE PONER ANTES DE PUBLICAR
+     ----------------------------------------------------
+     · Los tres planes salen SIN precio ("A consultar").
+       No hay cifra confirmada. Ver la cabecera de
+       `content/shopcito.js`.
+     · El CTA de "Probar gratis por 14 días" va a
+       `/cuenta/crear`, que es el alta de cuenta de este
+       proyecto. Si el alta de prueba no se monta, ese
+       botón promete algo que no existe.
+     · No hay capturas reales del producto. El hero muestra
+       una conversación de ejemplo.
+     ========================================================= %>
+
 <main>
-    <!-- ================= HERO =================
-         Nota: nombres de clientes, métricas y datos de contacto son de ejemplo.
-         Sustituye el bloque .hero-showcase por capturas reales cuando las tengas. -->
-    <section class="hero" id="hero">
-      <div class="hero-bg" aria-hidden="true">
-        <div class="hero-grid"></div>
-        <span class="aurora aurora-1"></span>
-        <span class="aurora aurora-2"></span>
-        <span class="aurora aurora-3"></span>
-        <div class="hero-noise"></div>
-      </div>
 
-      <div class="container">
-        <div class="hero-layout">
-          <!-- ---------- Columna de texto ---------- -->
-          <div class="hero-copy">
-            <span class="eyebrow eyebrow-pill">
-              <span class="dot" aria-hidden="true"></span>
-              Estudio digital · Webs, apps y e-commerce
-            </span>
+  <!-- ================= A. HERO ================= -->
+  <section class="hero hero--shopcito" id="hero">
+    <div class="hero-bg" aria-hidden="true">
+      <div class="hero-grid"></div>
+      <span class="aurora aurora-1"></span>
+      <span class="aurora aurora-2"></span>
+      <span class="aurora aurora-3"></span>
+      <div class="hero-noise"></div>
+    </div>
 
-            <h1 class="hero-title">
-              <span class="line"><span>Webs y aplicaciones</span></span>
-              <span class="line"><span>que <em class="gradient-text">hacen crecer</em></span></span>
-              <span class="line"><span>tu negocio</span></span>
-            </h1>
+    <div class="container">
+      <div class="hero-layout">
+        <!-- ---------- Columna de texto ---------- -->
+        <div class="hero-copy">
+          <span class="eyebrow eyebrow-pill">
+            <span class="dot" aria-hidden="true"></span>
+            <%= shopcito.HERO.etiqueta %>
+          </span>
 
-            <p class="lead">
-              Diseñamos y desarrollamos sitios web, tiendas online, web apps y aplicaciones
-              a medida para empresas y comercios que quieren <strong>resultados</strong>,
-              no solo una web bonita.
-            </p>
+          <h1 class="hero-title">
+            <%# Una línea por <span>, y la que lleva la palabra
+                destacada se envuelve sola para poder darle el
+                degradado. La palabra viene DENTRO de la línea,
+                no aparte: separarla obligaba a que el título se
+                partiera en cinco líneas en móvil y a que el
+                texto y el resaltado no coincidieran al
+                cambiar el copy. %>
+            <%# La palabra destacada se busca DENTRO de la línea.
 
-            <div class="hero-actions">
-              <a href="/contacto" class="btn btn-primary btn-lg magnetic">
-                Pedir presupuesto gratis
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-              </a>
-              <a href="/proyectos" class="btn btn-ghost btn-lg magnetic">Ver proyectos</a>
-            </div>
+                  Antes se comparaba la línea entera contra el dato, y
+                  como el dato es una palabra ("comercio") y la línea
+                  es una frase ("para tu comercio"), nunca coincidía y el
+                  titular salía entero en azul noche, sin acento.
 
-            <!-- Prueba social inmediata bajo los CTA -->
-
-            <!-- TODO(contenido): los avatares de abajo están
-                 hardcodeados y duplican lo que ya hay en
-                 content/stats.js (heroProof.avatars y overflowLabel).
-                 Cuando se limpien los datos inventados, leerlos de
-                 content/ como el resto. Ver PENDIENTES.md. -->
-            <div class="hero-proof">
-              <div class="avatar-stack" aria-hidden="true">
-                <span class="avatar avatar-1">LM</span>
-                <span class="avatar avatar-2">RO</span>
-                <span class="avatar avatar-3">CV</span>
-                <span class="avatar avatar-4">+80</span>
-              </div>
-              <div class="hero-proof-text">
-                <span class="stars" role="img" aria-label="Valoración media 4,9 de 5 sobre 5">
-                  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                  Con esto da igual en qué línea esté: se parte por la
+                  palabra y se envuelve solo esa parte. Si la palabra
+                  no aparece en ninguna línea —porque alguien cambió el
+                  titular y no el dato— no se resalta nada y la página
+                  sigue siendo válida; por eso el índice se
+                  comprueba. %>
+            <% shopcito.HERO.titulo.forEach(function (linea) { %>
+              <% var iDestacado = linea.indexOf(shopcito.HERO.destacado); %>
+              <span class="line">
+                <span>
+                  <% if (iDestacado < 0) { %>
+                    <%= linea %>
+                  <% } else { %>
+                    <%= linea.slice(0, iDestacado) %><em class="gradient-text"><%= shopcito.HERO.destacado %></em><%= linea.slice(iDestacado + shopcito.HERO.destacado.length) %>
+                  <% } %>
                 </span>
-                <p><strong><%= figures.heroProof.rating %></strong> · <%= figures.heroProof.claim %></p>
-              </div>
-            </div>
+              </span>
+            <% }); %>
+          </h1>
 
-            <p class="hero-note"><span class="dot"></span> <%= figures.disponibilidad %></p>
+          <p class="lead"><%= shopcito.HERO.subtitulo %></p>
+
+          <div class="hero-actions">
+            <a href="<%= shopcito.HERO.cta.href %>" class="btn btn-primary btn-lg magnetic">
+              <%= shopcito.HERO.cta.texto %>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            </a>
           </div>
 
-          <!-- ---------- Mockup de producto ---------- -->
-          <div class="hero-showcase" data-tilt>
-            <div class="mock-window">
-              <div class="mock-bar">
-                <span class="mock-dots" aria-hidden="true"><i></i><i></i><i></i></span>
-                <span class="mock-url">nexo.studio / panel</span>
-                <span class="mock-pill">En vivo</span>
-              </div>
+          <p class="hero-note"><span class="dot"></span> <%= shopcito.HERO.ctaNota %></p>
 
-              <div class="mock-body">
-                <aside class="mock-side" aria-hidden="true">
-                  <span class="mock-logo"></span>
-                  <span class="mock-nav is-active"></span>
-                  <span class="mock-nav"></span>
-                  <span class="mock-nav"></span>
-                  <span class="mock-nav"></span>
-                  <span class="mock-nav"></span>
-                </aside>
-
-                <div class="mock-main">
-                  <div class="mock-head">
-                    <div>
-                      <span class="mock-kicker">Rendimiento</span>
-                      <strong>Resumen del mes</strong>
-                    </div>
-                    <span class="mock-chip">Últimos 30 días</span>
-                  </div>
-
-                  <div class="mock-kpis">
-                    <div class="mock-kpi">
-                      <span>Conversiones</span>
-                      <strong>1.284</strong>
-                      <em class="up">↑ 18,2 %</em>
-                    </div>
-                    <div class="mock-kpi">
-                      <span>Velocidad</span>
-                      <strong>98</strong>
-                      <em class="up">↑ 6 pts</em>
-                    </div>
-                    <div class="mock-kpi">
-                      <span>Tráfico</span>
-                      <strong>24,8k</strong>
-                      <em class="down">↓ 3,1 %</em>
-                    </div>
-                  </div>
-
-                  <div class="mock-chart" aria-hidden="true">
-                    <span style="--h:38%"></span><span style="--h:52%"></span><span style="--h:44%"></span>
-                    <span style="--h:66%"></span><span style="--h:58%"></span><span style="--h:78%"></span>
-                    <span style="--h:62%"></span><span style="--h:88%"></span><span style="--h:74%"></span>
-                    <span style="--h:96%"></span><span style="--h:83%"></span><span style="--h:100%"></span>
-                  </div>
+          <!-- Las tres promesas. Sin nota de "clientes" ni
+               estrellas: en una landing de producto, un 4,9/5
+               con tres avatares inventados es una afirmación
+               falsa, y por lo mismo no se pone. -->
+          <ul class="promise-row">
+            <% shopcito.HERO.promesa.forEach(function (p) { %>
+              <li class="promise">
+                <span class="promise-icon" aria-hidden="true"><%- include('partials/icono-shop', { nombre: p.icono }) %></span>
+                <div>
+                  <strong><%= p.texto %></strong>
+                  <span class="promise-detalle"><%= p.detalle %></span>
                 </div>
+              </li>
+            <% }); %>
+          </ul>
+        </div>
+
+        <!-- ---------- Conversación de ejemplo ----------
+             Sustituye al mockup de panel de la web anterior.
+
+             Un mockup de "panel de rendimiento" le dice al
+             visitante "esto es una web más". Una conversación de
+             WhatsApp le dice "esto es lo que va a pasar con mis
+             clientes", que es lo que está a la venta.
+
+             Es un ejemplo escrito, no una captura: no hay
+             cliente real que pueda mostrarse todavía. -->
+        <div class="hero-showcase" data-tilt>
+          <div class="wa-window">
+            <div class="wa-bar">
+              <span class="wa-avatar" aria-hidden="true">T</span>
+              <div class="wa-who">
+                <strong>Tu comercio</strong>
+                <span>en línea</span>
               </div>
             </div>
 
-            <!-- Tarjetas flotantes -->
-            <div class="float-card float-card--a" data-float="1">
-              <span class="float-icon float-icon--up" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 7-7"/><path d="M14 8h7v7"/></svg>
-              </span>
-              <div>
-                <strong>+40 %</strong>
-                <span>conversiones en 3 meses</span>
+            <div class="wa-body">
+              <p class="wa-time">09:41</p>
+
+              <div class="wa-bubble wa-in">
+                <p>Hola! Buenas, tienen turno para mañana?</p>
+                <span class="wa-time">09:41</span>
+              </div>
+
+              <div class="wa-bubble wa-out">
+                <p>¡Hola! Sí 🙌 Tengo dos opciones para mañana:</p>
+                <span class="wa-time">09:41</span>
+              </div>
+
+              <!-- La tarjeta del producto: es lo que el bot
+                   vende y lo que la gente quiere ver. Un texto
+                   solo no demuestra que haya una tienda. -->
+              <div class="wa-card">
+                <span class="wa-card-tag">Catálogo</span>
+                <strong>Medialunas x6 · $ 12.000</strong>
+                <span class="wa-card-stock">24 disponibles</span>
+                <span class="wa-card-btn">Reservar</span>
+              </div>
+
+              <div class="wa-bubble wa-out">
+                <p>Listo, te lo dejo agendado. Te escribo el detalle 📋</p>
+                <span class="wa-time">09:42</span>
               </div>
             </div>
 
-            <div class="float-card float-card--b" data-float="2">
-              <span class="float-icon float-icon--ok" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
-              </span>
-              <div>
-                <strong>Nuevo lead</strong>
-                <span>Ticket #2481 · hace 2 min</span>
-              </div>
+            <div class="wa-input" aria-hidden="true">
+              <span>Escribí tu mensaje…</span>
             </div>
-
-            <span class="orbit orbit--1" aria-hidden="true"></span>
-            <span class="orbit orbit--2" aria-hidden="true"></span>
           </div>
         </div>
-
-        <!-- ---------- Métricas ---------- -->
-        <div class="stats reveal">
-          <% figures.stats.forEach(function (s) { %>
-            <div class="stat">
-              <strong
-                data-count="<%= s.count %>"
-                <% if (s.prefix) { %>data-prefix="<%= s.prefix %>"<% } %>
-                <% if (s.suffix) { %>data-suffix="<%= s.suffix %>"<% } %>
-                <% if (s.decimals) { %>data-decimals="<%= s.decimals %>"<% } %>>
-                <%= s.prefix || "" %><%= s.count %><%= s.suffix || "" %>
-              </strong>
-              <span><%= s.label %></span>
-            </div>
-          <% }) %>
-        </div>
-      </div>
-
-      <!-- Indicador de scroll -->
-      <a href="#servicios" class="scroll-hint" aria-label="Ir a la sección de servicios">
-        <span class="scroll-hint-text">Descubre</span>
-        <span class="scroll-hint-line" aria-hidden="true"></span>
-      </a>
-    </section>
-
-    <!-- MARCAS: se eliminó este bloque.
-     La prueba social ya vive en el hero (avatares + 4,9/5 + nº de
-     proyectos) y volver a listar los mismos nombres aquí solo ocupaba
-     espacio sin aportar confianza nueva. Si algún día hay logotipos
-     reales con permiso, este es el sitio natural para mostrarlos. -->
-
-    <!-- ================= MARQUEE ================= -->
-    <div class="marquee" aria-hidden="true">
-      <div class="marquee-track">
-        <span>Diseño web</span><span>Tiendas online</span><span>Web apps</span><span>Aplicaciones a medida</span><span>SEO local</span><span>Reservas online</span><span>Paneles de gestión</span><span>Integraciones con ERP</span><span>Mantenimiento y soporte</span>
-        <span>Diseño web</span><span>Tiendas online</span><span>Web apps</span><span>Aplicaciones a medida</span><span>SEO local</span><span>Reservas online</span><span>Paneles de gestión</span><span>Integraciones con ERP</span><span>Mantenimiento y soporte</span>
       </div>
     </div>
 
-    <!-- ================= SERVICIOS ================= -->
-    <section class="section section--soft" id="servicios">
-      <div class="container">
-        <div class="section-head section-head--center reveal">
-          <span class="eyebrow">Servicios</span>
-          <h2>Todo lo que tu negocio necesita para <span class="gradient-text">existir online</span></h2>
-          <p>Desde la primera web de tu comercio hasta una plataforma completa con reservas, pagos y panel de gestión.</p>
-        </div>
+    <a href="#problema" class="scroll-hint" aria-label="Ir a la sección siguiente">
+      <span class="scroll-hint-text">Cómo funciona</span>
+      <span class="scroll-hint-line"></span>
+    </a>
+  </section>
 
-        <div class="grid grid-3">
-          <article class="card reveal">
-            <div class="icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
-            </div>
-            <h3>Diseño y desarrollo web</h3>
-            <p>Sitios corporativos rápidos, modernos y optimizados para posicionar en Google y convertir visitas en clientes.</p>
-            <ul class="card-list">
-              <li>Diseño a medida y responsive</li>
-              <li>SEO técnico incluido</li>
-              <li>CMS para autogestionar contenidos</li>
-            </ul>
-          </article>
+  <!-- ================= B. PROBLEMA VS. SOLUCIÓN ================= -->
+  <section class="section section--soft" id="problema">
+    <div class="container">
+      <div class="duelo">
 
-          <article class="card reveal">
-            <div class="icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2 3h2l2.6 12.4a2 2 0 0 0 2 1.6h8.7a2 2 0 0 0 2-1.6L21 7H6"/></svg>
-            </div>
-            <h3>Tiendas online</h3>
-            <p>E-commerce con catálogo, pasarela de pago, envíos y facturación listos para vender desde el primer día.</p>
-            <ul class="card-list">
-              <li>Shopify o solución a medida</li>
-              <li>Integración con ERP y albaranes</li>
-              <li>Recuperación de carritos</li>
-            </ul>
-          </article>
+        <!-- ---------- El problema ---------- -->
+        <div class="duelo-col duelo-col--mal reveal">
+          <span class="eyebrow"><%= shopcito.PROBLEMA.etiqueta %></span>
+          <h2><%= shopcito.PROBLEMA.titulo %></h2>
+          <p><%= shopcito.PROBLEMA.texto %></p>
 
-          <article class="card reveal">
-            <div class="icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-            </div>
-            <h3>Web apps</h3>
-            <p>Aplicaciones web robustas: portales de clientes, herramientas internas, paneles de control y SaaS.</p>
-            <ul class="card-list">
-              <li>Arquitectura escalable y segura</li>
-              <li>Roles, permisos y auditoría</li>
-              <li>Integraciones con APIs</li>
-            </ul>
-          </article>
-
-          <article class="card reveal">
-            <div class="icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg>
-            </div>
-            <h3>Aplicaciones a medida</h3>
-            <p>Apps para empresa y comercios: reservas, pedidos, gestión de stock, fidelización y más, en web y móvil.</p>
-            <ul class="card-list">
-              <li>iOS, Android y web</li>
-              <li>PWA de bajo coste</li>
-              <li>Panel de administración</li>
-            </ul>
-          </article>
-
-          <article class="card reveal">
-            <div class="icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-            </div>
-            <h3>SEO y rendimiento</h3>
-            <p>Auditamos, corregimos y aceleramos tu web para que cargue en menos de 2 segundos y suba en los resultados.</p>
-            <ul class="card-list">
-              <li>Auditoría técnica completa</li>
-              <li>Core Web Vitals</li>
-              <li>SEO local para comercios</li>
-            </ul>
-          </article>
-
-          <article class="card reveal">
-            <div class="icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
-            </div>
-            <h3>Mantenimiento e integraciones</h3>
-            <p>Nos ocupamos de actualizaciones, copias de seguridad, incidencias y conectar tu web con las herramientas que ya usas.</p>
-            <ul class="card-list">
-              <li>Soporte mensual con SLA</li>
-              <li>Copias y monitorización 24/7</li>
-              <li>Automatizaciones a medida</li>
-            </ul>
-          </article>
-        </div>
-
-        <div style="text-align:center; margin-top: 2.5rem;" class="reveal">
-          <a href="/servicios" class="btn btn-ghost">Ver todos los servicios en detalle →</a>
-        </div>
-      </div>
-    </section>
-
-    <!-- ================= AUTOMATIZACIÓN =================
-         Sección aparte y no una tarjeta más de servicios: la
-         automatización no es "diseño web", es otra categoría
-         (integración con APIs de terceros) y mezclarla diluiría
-         las dos. -->
-    <%- include('partials/automation') %>
-
-    <!-- ================= WHATSAPP =================
-         Va justo después de automatización, y por el mismo motivo: el
-         bot es otra categoría, no un servicio más. Estaba en el
-         catálogo a la venta y no aparecía en la web por ninguna parte.
-
-         Es la primera vez que el visitante ve el producto en su
-         formato de verdad, con la interacción y no con una captura. -->
-    <%- include('partials/whatsapp') %>
-
-    <!-- ================= PROYECTOS ================= -->
-    <section class="section" id="proyectos">
-      <div class="container">
-        <div class="section-head reveal">
-          <span class="eyebrow">Proyectos</span>
-          <h2>Resultados que puedes <span class="gradient-text">medir</span></h2>
-          <p>No enseñamos pantallas bonitas: enseñamos lo que pasó después de lanzar. Una selección de webs, tiendas y aplicaciones con métricas reales.</p>
-          <ul class="result-pills">
-            <% figures.resultPills.forEach(function (pill) { %>
-              <li><%= pill %></li>
-            <% }); %>
-          </ul>
-        </div>
-
-        <div class="grid grid-3">
-          <% projects.slice(0, 6).forEach(function (p) { %>
-            <article class="project-card reveal">
-              <div class="project-thumb thumb-<%= p.thumb %>"><span class="thumb-art"><%= p.initials %></span></div>
-              <div class="project-body">
-                <div class="project-tags">
-                  <% p.tags.forEach(function (t) { %><span class="tag"><%= t %></span><% }); %>
-                </div>
-                <h3><%= p.name %></h3>
-                <p><%= p.summaryShort || p.summary %></p>
-                <div class="project-result">↑ <%= p.result %></div>
-              </div>
-            </article>
-          <% }) %>
-        </div>
-
-        <div style="text-align:center; margin-top: 2.5rem;" class="reveal">
-          <a href="/proyectos" class="btn btn-ghost">Explorar todos los proyectos →</a>
-        </div>
-      </div>
-    </section>
-
-    <!-- ================= PROCESO ================= -->
-    <!-- Versión compacta: antes ocupaba un bloque alto con un párrafo por
-         fase. Ahora es una franja con las 4 fases en una línea, que se lee
-         de un vistazo y deja respirar a las secciones de conversión. -->
-    <section class="section section--soft section--slim">
-      <div class="container">
-        <div class="section-head section-head--center reveal">
-          <span class="eyebrow">Cómo trabajamos</span>
-          <h2>Un proceso claro, sin sorpresas</h2>
-        </div>
-
-        <ol class="process-strip reveal">
-          <li>
-            <span class="process-num">01</span>
-            <h3>Descubrimiento</h3>
-            <p>Alcance, plazos y presupuesto cerrado.</p>
-          </li>
-          <li>
-            <span class="process-num">02</span>
-            <h3>Diseño</h3>
-            <p>Validas el diseño antes de una línea de código.</p>
-          </li>
-          <li>
-            <span class="process-num">03</span>
-            <h3>Desarrollo</h3>
-            <p>Entregas quincenales con entorno de pruebas.</p>
-          </li>
-          <li>
-            <span class="process-num">04</span>
-            <h3>Lanzamiento</h3>
-            <p>Publicamos, medimos y damos soporte.</p>
-          </li>
-        </ol>
-      </div>
-    </section>
-
-    <!-- ================= PRECIOS ================= -->
-    <section class="section" id="precios">
-      <div class="container">
-        <div class="section-head section-head--center reveal">
-          <span class="eyebrow">Precios</span>
-          <h2>Planes transparentes, sin letra pequeña</h2>
-          <p>Precio cerrado por proyecto. Sabes lo que pagas desde el primer día y qué recibes a cambio.</p>
-        </div>
-
-        <div class="price-grid">
-            <%# Los tres planes se pintan desde `content/precios.js`.
-
-                 Antes eran tres bloques de HTML con el número escrito
-                 dentro, uno por bloque. Los mismos tres valores
-                 estaban otra vez en /precios, y los otros tres
-                 recurrentes en /precios solamente, y los números en
-                 los textos de faq.js y posts.js. Ocho cifras en cuatro
-                 archivos.
-
-                 Ahora el precio es un dato. Añadir un plan es añadir
-                 un objeto a PROYECTOS y ya aparece aquí y en la otra
-                 página, con el mismo formato y el mismo precio.
-
-                 `precio()` pone el separador de millares y `simbolo()`
-                 sale del mismo sitio, para que no se pueda pintar
-                 "1990" aquí y "1.990" allí por descuido. %>
-            <% PROYECTOS.forEach(function (p) { %>
-              <div class="price-card reveal<%= p.destacado ? " featured" : "" %>">
-                <% if (p.destacado) { %><span class="badge">Más elegido</span><% } %>
-                <h3><%= p.nombre %></h3>
-                <p class="plan-desc"><%= p.descripcion %></p>
-                <div class="price"><span class="currency">desde</span><span class="amount"><%= precio(p.precio) %></span><span class="currency"><%= simbolo() %></span></div>
-                <p class="price-note"><%= p.nota %></p>
-                <ul class="price-features">
-                  <% p.incluye.forEach(function (i) { %><li><%= i %></li><% }); %>
-                  <% p.noIncluye.forEach(function (i) { %><li class="muted"><%= i %></li><% }); %>
-                </ul>
-                <a href="<%= p.cta.href %>" class="<%= p.cta.clase %> btn-block"><%= p.cta.texto %></a>
-              </div>
-            <% }); %>
-        </div>
-
-        <div style="text-align:center; margin-top: 2.5rem;" class="reveal">
-          <a href="/precios" class="btn btn-ghost">Ver comparativa completa y FAQ →</a>
-        </div>
-      </div>
-    </section>
-
-    <!-- ================= TESTIMONIOS ================= -->
-    <section class="section section--soft">
-      <div class="container">
-        <div class="section-head section-head--center reveal">
-          <span class="eyebrow">Testimonios</span>
-          <h2>Lo que dicen nuestros clientes</h2>
-        </div>
-
-        <div class="grid grid-3">
-          <% testimonials.forEach(function (t) { %>
-            <figure class="quote reveal">
-              <blockquote><%= t.quote %></blockquote>
-              <figcaption class="quote-person">
-                <span class="avatar avatar-<%= t.avatar %>" aria-hidden="true"><%= t.initials %></span>
-                <div>
-                  <strong><%= t.name %></strong>
-                  <span><%= t.role %></span>
-                </div>
-              </figcaption>
-            </figure>
-          <% }) %>
-        </div>
-      </div>
-    </section>
-
-    <!-- ================= BLOG ================= -->
-    <!-- Versión compacta: antes eran 3 tarjetas completas + botón, un pliegue
-         entero que no convertía en la home. Ahora solo enlaza al blog, que es
-         donde el contenido sí encuentra a su lector. -->
-    <section class="section section--soft section--slim">
-      <div class="container">
-        <div class="blog-strip reveal">
-          <div class="blog-strip-copy">
-            <span class="eyebrow">Desde el blog</span>
-            <h2>Decide con datos, no con suposiciones</h2>
-            <p>Guías breves sobre precios, SEO local y tecnología, escritas con lo que nos preguntan los clientes.</p>
-          </div>
-          <ul class="blog-strip-list">
-            <% posts.slice(0, 3).forEach(function (post) { %>
+          <ul class="duelo-list">
+            <% shopcito.PROBLEMA.puntos.forEach(function (p) { %>
               <li>
-                <a href="/blog/<%= post.slug %>">
-                  <span class="tag"><%= post.category %></span>
-                  <strong><%= post.title %></strong>
-                  <em><%= post.readTime %></em>
-                </a>
+                <span class="duelo-icon" aria-hidden="true"><%- include('partials/icono-shop', { nombre: p.icono }) %></span>
+                <div>
+                  <strong><%= p.titulo %></strong>
+                  <span><%= p.texto %></span>
+                </div>
               </li>
-            <% }) %>
-          </ul>
-          <a href="/blog" class="btn btn-ghost blog-strip-cta">Ver todos los artículos →</a>
-        </div>
-      </div>
-    </section>
-
-    <!-- ================= FAQ ================= -->
-    <%- include('partials/faq', {
-          items: faq.home,
-          title: "Lo que más nos preguntan",
-          lead: "Respuestas directas a las cuatro dudas que aparecen en casi todas las primeras conversaciones."
-        }) %>
-
-    <!-- ================= CTA FINAL ================= -->
-    <section class="section">
-      <div class="container">
-        <div class="cta-band reveal">
-          <span class="eyebrow">Empecemos</span>
-          <h2>¿Tienes un proyecto en mente?</h2>
-          <p>Cuéntanos qué necesitas y te enviamos un presupuesto cerrado en menos de 48 horas. Sin compromiso.</p>
-          <div class="cta-actions">
-            <a href="/contacto" class="btn btn-primary btn-lg">Pedir presupuesto gratis</a>
-            <a href="/proyectos" class="btn btn-ghost btn-lg">Ver nuestro trabajo</a>
-          </div>
-          <ul class="trust-row">
-            <li>Sin compromiso</li>
-            <li>Respuesta en 24 h</li>
-            <li>Precio cerrado por escrito</li>
+            <% }); %>
           </ul>
         </div>
+
+        <!-- ---------- La solución ----------
+             Va a la DERECHA y no debajo a propósito: el ojo va
+             de izquierda a derecha, así que el problema se lee
+             primero y la solución es lo que se lleva. Puesta
+             abajo, la solución es lo segundo que se ve. -->
+        <div class="duelo-col duelo-col--bien reveal">
+          <span class="eyebrow"><%= shopcito.SOLUCION.etiqueta %></span>
+          <h2><%= shopcito.SOLUCION.titulo %></h2>
+          <p><%= shopcito.SOLUCION.texto %></p>
+
+          <ol class="pasos-list">
+            <% shopcito.SOLUCION.pasos.forEach(function (p) { %>
+              <li>
+                <span class="paso-num" aria-hidden="true"><%= p.numero %></span>
+                <div>
+                  <strong><%= p.titulo %></strong>
+                  <span><%= p.texto %></span>
+                </div>
+              </li>
+            <% }); %>
+          </ol>
+        </div>
       </div>
-    </section>
-  </main>
+    </div>
+  </section>
+
+  <!-- ================= C. PLANES ================= -->
+  <section class="section" id="precios">
+    <div class="container">
+      <div class="section-head section-head--center reveal">
+        <span class="eyebrow">Planes</span>
+        <h2>Empezá chico y crecé cuando <span class="gradient-text">hagas falta</span></h2>
+        <p>Los tres planes son mensuales y sin permanencia. El precio te lo decimos cuando nos escribís, y no cambia mientras no lo pidas.</p>
+      </div>
+
+      <div class="price-grid">
+        <% shopcito.PLANES.forEach(function (p) { %>
+          <article class="price-card reveal<%= p.destacado ? " featured" : "" %>">
+            <% if (p.destacado) { %>
+              <span class="badge">Recomendado</span>
+            <% } %>
+
+            <h3><%= p.nombre %></h3>
+            <p class="plan-desc"><%= p.descripcion %></p>
+
+            <%# ── EL PRECIO ──
+                 El formateador vive en `content/precios.js` y
+                 no acá. Cuando el plan tenga cifra devuelve el
+                 importe y esta caja desaparece sola.
+
+                 `precioDePlan` sale del mismo sitio que los
+                 precios viejos a propósito, para que no haya dos
+                 reglas distintas para poner un número en pantalla. %>
+
+            <div class="price">
+              <span class="amount<%= p.precio ? '' : ' amount--consultar' %>"><%= precioDePlan(p) %></span>
+            </div>
+
+            <ul class="price-features">
+              <% p.incluye.forEach(function (i) { %><li><%= i %></li><% }); %>
+            </ul>
+
+            <p class="price-note"><%= p.nota %></p>
+
+            <a href="<%= p.cta.href %>" class="<%= p.cta.clase %> btn-block"><%= p.cta.texto %></a>
+          </article>
+        <% }); %>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CIERRE ================= -->
+  <section class="section section--soft">
+    <div class="container">
+      <div class="cta-band reveal">
+        <h2><%= shopcito.CIERRE.titulo %></h2>
+        <p><%= shopcito.CIERRE.texto %></p>
+        <div class="cta-actions">
+          <a href="<%= shopcito.CIERRE.cta.href %>" class="btn btn-primary btn-lg"><%= shopcito.CIERRE.cta.texto %></a>
+        </div>
+        <ul class="trust-row">
+          <% shopcito.CIERRE.garantias.forEach(function (g) { %><li><%= g %></li><% }); %>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+</main>
 
 <%- include('partials/footer') %>
-
-<%# El guion del bot, aquí y no en el <head>.
-
-     Va al final a propósito: quien lee el blog no debería
-     descargarlo, y quien llega abajo sí lo va a usar. Con
-     `defer` no bloquea el pintado —que es lo que importa en una
-     página con un hero animado— y aun así está listo antes de que
-     alguien llegue a la sección, que está a media página. %>
-<script src="/js/demo-bot.js" defer></script>

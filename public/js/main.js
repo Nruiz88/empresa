@@ -352,54 +352,7 @@
         });
     });
   }
-
-  /* ---------- Tema visual ----------
-
-     Leer el tema guardado NO va dentro de `if (themeBtns.length)`.
-
-     Estaba dentro, y los botones .theme-btn solo existen en la
-     cabecera pública. En el panel no hay ninguno, asi que el tema
-     guardado no se llegaba a aplicar nunca: el panel se dibujaba
-     siempre en oscuro, pasara lo que pasara en el selector de la web.
-
-     Que no se notase tiene una explicacion: oscuro es el valor por
-     defecto, asi que en la web se veía bien y no hacia falta mirar
-     otra parte. Y aqui tampoco, porque el unico tema que llegaba era
-     el oscuro. Un fallo que solo se manifiesta cuando ya no cabe.
-
-     Ahora se aplica siempre; los botones se enganchan solo si hay.
-  */
-  var themeBtns = document.querySelectorAll(".theme-btn");
-
-  var applyTheme = function (theme) {
-    document.documentElement.className = theme === "dark" ? "" : "theme-" + theme;
-    themeBtns.forEach(function (btn) {
-      var active = btn.getAttribute("data-theme") === theme;
-      btn.classList.toggle("is-active", active);
-      btn.setAttribute("aria-pressed", String(active));
-    });
-    try {
-      localStorage.setItem("nexo-theme", theme);
-    } catch (e) {}
-  };
-
-  var saved = "dark";
-  try {
-    saved = localStorage.getItem("nexo-theme") || "dark";
-  } catch (e) {}
-  if (saved !== "dark" && saved !== "light" && saved !== "colorful") saved = "dark";
-
-  applyTheme(saved);
-
-  if (themeBtns.length) {
-    themeBtns.forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        applyTheme(btn.getAttribute("data-theme"));
-      });
-    });
-  }
-
-  /* ---------- Hero: paralaje de fondo, tilt 3D y botones magnéticos ---------- */
+  /* * ---------- Hero: paralaje de fondo, tilt 3D y botones magnéticos ---------- */
   var hero = document.getElementById("hero");
   var showcase = document.querySelector(".hero-showcase");
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;

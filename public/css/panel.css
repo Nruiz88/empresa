@@ -1,7 +1,7 @@
 /* =========================================================
    Nexo Studio — Estilos del panel
    ------------------------------------------------------------
-   El panel reutiliza los tokens de themes.css (--bg, --surface,
+   El panel reutiliza los tokens de styles.css (--bg, --surface,
    --accent, --radius, tipografías) para que se vea parte de la
    misma marca, pero NO carga la parte pública del sitio: sin
    cabecera, sin heroes, sin GSAP.
@@ -135,7 +135,7 @@ html[data-panel] {
   border-radius: 9px;
   background: var(--accent-grad);
   color: var(--on-accent);
-  font-family: var(--font-display, "Space Grotesk", sans-serif);
+  font-family: var(--font-display, "Outfit", sans-serif);
   font-weight: 700;
   font-size: 1rem;
 }
@@ -148,7 +148,7 @@ html[data-panel] {
 }
 
 .panel-brand-text strong {
-  font-family: var(--font-display, "Space Grotesk", sans-serif);
+  font-family: var(--font-display, "Outfit", sans-serif);
   font-size: 0.95rem;
   letter-spacing: -0.01em;
 }
@@ -499,7 +499,7 @@ html[data-panel] {
 
 .panel-page-head h1 {
   margin: 0;
-  font-family: var(--font-display, "Space Grotesk", sans-serif);
+  font-family: var(--font-display, "Outfit", sans-serif);
   font-size: clamp(1.5rem, 2.6vw, 1.95rem);
   font-weight: 700;
   letter-spacing: -0.03em;
@@ -702,7 +702,7 @@ a.panel-stat:hover {
    el color de la cifra. Eso SÍ dice algo. */
 .panel-stat strong {
   display: block;
-  font-family: var(--font-display, "Space Grotesk", sans-serif);
+  font-family: var(--font-display, "Outfit", sans-serif);
   font-size: 1.9rem;
   font-weight: 700;
   line-height: 1.05;
@@ -1131,7 +1131,7 @@ a.panel-stat--ambar:hover {
 }
 
 .panel-serv-price {
-  font-family: var(--font-display, "Space Grotesk", sans-serif);
+  font-family: var(--font-display, "Outfit", sans-serif);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
@@ -1819,7 +1819,7 @@ a.panel-stat--ambar:hover {
 
 .panel-empty h2 {
   margin: 0 0 0.4rem;
-  font-family: var(--font-display, "Space Grotesk", sans-serif);
+  font-family: var(--font-display, "Outfit", sans-serif);
   font-size: 1.1rem;
   font-weight: 700;
 }
@@ -1968,7 +1968,7 @@ a.panel-stat--ambar:hover {
 
 .panel-login-titulo {
   margin: 0;
-  font-family: var(--font-display, "Space Grotesk", sans-serif);
+  font-family: var(--font-display, "Outfit", sans-serif);
   font-size: 1.3rem;
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -2038,7 +2038,7 @@ a.panel-stat--ambar:hover {
 
 .panel-error-page h1 {
   margin: 0 0 0.5rem;
-  font-family: var(--font-display, "Space Grotesk", sans-serif);
+  font-family: var(--font-display, "Outfit", sans-serif);
   font-size: 1.5rem;
 }
 
@@ -2061,7 +2061,7 @@ a.panel-stat--ambar:hover {
   white-space: nowrap;
 
   display: block;
-  font-family: var(--font-display, "Space Grotesk", sans-serif);
+  font-family: var(--font-display, "Outfit", sans-serif);
   font-size: 1.3rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
@@ -2152,7 +2152,7 @@ a.panel-stat--ambar:hover {
 
 .panel-requiere-dinero {
   color: var(--danger);
-  font-family: var(--font-display, "Space Grotesk", sans-serif);
+  font-family: var(--font-display, "Outfit", sans-serif);
   font-size: 1.1rem;
 }
 
@@ -4508,7 +4508,7 @@ body.cmd-abierto {
 
 .panel-stat strong {
   display: block;
-  font-family: var(--font-display, "Space Grotesk", sans-serif);
+  font-family: var(--font-display, "Outfit", sans-serif);
   font-size: 1.9rem;
   font-weight: 700;
   line-height: 1.05;
@@ -4829,7 +4829,7 @@ body.cmd-abierto {
 }
 
 .panel-dist-grande {
-  font-family: var(--font-display, "Space Grotesk", sans-serif);
+  font-family: var(--font-display, "Outfit", sans-serif);
   font-size: 2.4rem;
   font-weight: 700;
   line-height: 1;

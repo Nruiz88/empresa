@@ -43,11 +43,33 @@
 
    ── LA MONEDA ──
 
-   Un solo sitio. Ahora mismo está en EUR, que es un resto de cuando
-   el negocio se planteó en España y se cambió el contenido sin
-   cambiar las cifras. En Argentina no se presupuesta una web en
-   euros, así que este valor hay que cambiarlo —está aquí arriba, en
-   una línea— y no en ocho sitios.
+   ⚠️  PENDIENTE, Y NO SE ARREGLA CAMBIANDO UNA LÍNEA.
+
+   Hay dos comercializaciones conviviendo en el sitio:
+
+     · ESTA (PROYECTOS + MANTENIMIENTO): los planes del estudio
+       digital de antes, con cifras que SON euros (890, 1990,
+       4500) y páginas que siguen vivas: /precios, /servicios,
+       /proyectos y los excerpts del blog, que leen de aquí.
+
+     · LOS PLANES DE SHOPCITO (`content/shopcito.js`): pesos
+       argentinos. Nadie presupuesta un bot en euros.
+
+   Poner `simbolo: "$"` arregla los nuevos y rompe los viejos,
+   que pasarían a decir "890 $" siendo euros. Arreglar los dos
+   exige cambiar las cifras viejas también, y eso ya es un
+   recorte de contenido —el negocio ya no vende webs— que
+   arrastra al FAQ y a los artículos.
+
+   Por eso no se tocó. Se resuelve con el resto del rebranding.
+
+   LO QUE HAY QUE HACER ANTES DE PONERLE PRECIO A UN PLAN DE
+   SHOPCITO:
+
+     `precioDePlan()` formatea con este mismo símbolo, así que
+     escribir `precio: 25000` en un plan de Shopcito HOY
+     imprimiría "25.000 €". Es un error de un carácter que no
+     va a ver nadie hasta que lo lea un cliente.
 
    ── EL FORMATO ──
 
@@ -243,6 +265,52 @@ function simbolo() {
 }
 
 /**
+ * Cómo se pinta un plan SIN precio confirmado.
+ *
+ * ── POR QUÉ HACE FALTA ESTA FUNCIÓN ──
+ *
+ * Porque los tres planes de Shopcito (`content/shopcito.js`) no
+ * tienen cifra todavía, y hay tres formas de jugar eso y solo una
+ * es honesta:
+ *
+ *   · `precio: 0`   → "desde $0". Publica que el bot es gratis.
+ *                     Peor: un cliente que se baja al bar y se
+ *                     encuentra con la cifra real se lleva la
+ *                     impresión de que le mentimos, y con
+ *                     razón.
+ *   · ocultar el    → la portada muestra tres tarjetas sin lo
+ *     precio            único que el visitante fue a mirar. La
+ *                     línea vacía es el hueco más visible de la
+ *                     pantalla.
+ *   · "A consultar" → dice la verdad y cumple la misma función
+ *                     comercial: el CTA está al lado, a un clic.
+ *
+ * ── POR QUÉ NO BASTA CON PONERLO EN EL DATO ──
+ *
+ * Porque "A consultar" es una decisión de PANTALLA, no del
+ * contenido: el mismo plan, en la portada, es un titular, y en
+ * el panel de cobros es una fila con el número al lado. Si el
+ * texto viviera en el dato, habría que cambiarlo en tres sitios
+ * el día que haya cifra — que es exactamente el problema que
+ * este archivo de precios existe para no tener.
+ *
+ * Con `precio === null` se decide en un solo sitio, y cuando la
+ * cifra llegue esta función empieza a devolver el importe y las
+ * vistas no se enteran.
+ *
+ * @param {{precio: number|null, periodo?: string}} plan
+ * @returns {string}
+ */
+function precioDePlan(plan) {
+  if (!plan) return "";
+  if (plan.precio === null || plan.precio === undefined) {
+    return plan.sinPrecio || "A consultar";
+  }
+  const base = importe(plan.precio) + " " + MONEDA.simbolo;
+  return plan.periodo ? base + " / " + plan.periodo : base;
+}
+
+/**
  * El precio de un plan ya pintado, para los textos de `faq.js` y
  * `posts.js`.
  *
@@ -272,5 +340,6 @@ module.exports = {
   importe,
   simbolo,
   precioDe,
+  precioDePlan,
   plan,
 };

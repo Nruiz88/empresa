@@ -97,6 +97,30 @@
           <dt>Dirección</dt>
           <dd class="panel-cell-mono"><%= c.url %></dd>
 
+          <%# A dónde llama esta caja. Es la fila que más se mira cuando
+              un bot no contesta, así que dice tres cosas: adónde va, si
+              la URL es la deducida del dominio o una puesta a mano, y si
+              hay alguna. Una URL a la que no hay nada escuchando devuelve
+              200 igual, así que "no contesta" y "no apunta a ninguna parte"
+              se parecen tanto que hay que verlas juntas. %>
+          <dt>Llama a</dt>
+          <dd>
+            <% if (c.webhookEnUso) { %>
+              <span class="panel-cell-mono"><%= c.webhookEnUso %></span>
+              <% if (c.webhookPropia) { %>
+                <span class="panel-chip panel-chip--mantenimiento">Propia</span>
+              <% } else { %>
+                <span class="panel-cell-sub">la del dominio</span>
+              <% } %>
+            <% } else { %>
+              <span class="panel-chip panel-chip--cobro-impagado">Sin destino</span>
+              <span class="panel-cell-sub">
+                Ni esta caja tiene URL propia ni el panel tiene dominio del bot.
+                Los bots de aquí no recibirán nada.
+              </span>
+            <% } %>
+          </dd>
+
           <%# El secreto del webhook. Va como dato y no como nota al pie porque
             es lo que decide si esta caja puede tener bots funcionando:
             sin él, todo lo que hay dentro está mudo. %>
@@ -161,6 +185,25 @@
           </form>
 
           <a href="<%= base %>/servidores/<%= c.id %>/editar" class="panel-btn panel-btn--ghost panel-btn--xs">Editar</a>
+
+          <%# Reconfigurar los bots de la caja.
+              Va solo si hay bots: sin ellos no hay nada a reconfigurar y
+              el botón sería ruido.
+
+              Y lleva confirmación con el número, porque toca TODOS los
+              números de la caja a la vez. Es lo que hace falta cuando se
+              pone la URL o el secreto por primera vez, o cuando se
+              cambia la URL: guardar en el panel no mueve lo que ya está
+              apuntado dentro de la Evolution. %>
+          <% if (c.contenido.length) { %>
+            <form method="post" action="<%= base %>/servidores/<%= c.id %>/reconfigurar">
+              <input type="hidden" name="_csrf" value="<%= csrf %>" />
+              <button type="submit" class="panel-btn panel-btn--ghost panel-btn--xs"
+                      data-confirmar="Se va a volver a guardar el webhook de los <%= c.contenido.length %> bot(s) de esta caja, apuntando a <%= c.webhookEnUso || '(sin destino)' %>. ¿Seguir?">
+                Reconfigurar los bots
+              </button>
+            </form>
+          <% } %>
 
           <%# Cambiar la clave va en un desplegable, no en un botón al
               lado. Es una operación rara (una vez cada varios meses) y

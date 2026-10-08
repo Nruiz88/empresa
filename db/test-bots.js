@@ -331,7 +331,66 @@ function caja(id, libres, extra) {
       }
     }
 
-    titulo("El secreto del webhook");
+    titulo("La URL del webhook");
+
+  {
+    /* La URL es por caja, no una sola para todo. Sin esta comprobación,
+       que alguien la deje en el entorno otra vez, volvería a ser
+       imposible mover un bot a otro sitio desde el panel, que es
+       justo lo que motivó la migración 022. */
+    const propia = bots.urlDeWebhookDe({ webhook_url: "https://otro.example/api/webhook" });
+    comprobar("si la caja tiene URL, manda la suya", propia === "https://otro.example/api/webhook");
+
+    const deducida = bots.urlDeWebhook();
+    comprobar(
+      "si no tiene, se usa la deducida",
+      deducida ? bots.urlDeWebhookDe({ webhook_url: "" }) === deducida : true
+    );
+    comprobar("una caja sin fila tampoco revienta", bots.urlDeWebhookDe(null) === deducida);
+
+    /* La barra final no debe duplicar: la URL se guarda tal cual y
+      .some() la compara con lo que tiene la Evolution, y "/api/webhook/"
+       con barra no es igual a "/api/webhook". */
+    comprobar(
+      "no deja doble barra al final",
+      bots.urlDeWebhookDe({ webhook_url: "https://x.example/api/webhook/" }) ===
+        "https://x.example/api/webhook"
+    );
+  }
+
+  {
+    /* Lo importante: una Evolution a la que se le manda a la home del
+       bot contesta 200 igual, y el bot queda mudo sin ningún error. Por
+       eso el campo tiene que exigir la ruta del webhook. */
+    const malas = [
+      ["https://bot.example", /\/api\/webhook/],
+      ["https://bot.example/api/webhook/v2", /\/api\/webhook/],
+      ["https://bot.example/api/webhook#salta", /#/],
+      ["bot.example/api/webhook", /http/i],
+      ["https://con espacio/api/webhook", /espacios/i],
+    ];
+    for (const [url, patron] of malas) {
+      const e = bots.problemaDeUrlWebhook(url);
+      comprobar('"' + url + '" se rechaza', Boolean(e) && patron.test(e));
+    }
+
+    const buenas = [
+      "https://bot.example/api/webhook",
+      "http://127.0.0.1:3200/api/webhook",
+      "https://bot.example/api/webhook/",
+      "",
+    ];
+    for (const url of buenas) {
+      comprobar(
+        '"' + (url || "(vacío)") + '" se acepta',
+        /* `null` y no `undefined`: las dos funciones de validación de
+           este fichero devuelven null cuando está bien. */
+        bots.problemaDeUrlWebhook(url) === null
+      );
+    }
+  }
+
+  titulo("Los secretos");
 
     {
       /* Sin `webhook_secret` la caja no puede tener bots funcionando: la
@@ -378,7 +437,7 @@ function caja(id, libres, extra) {
     {
       /* Y cada caja que ya tiene bots debería tener secreto. Una que no
          lo tiene es un bot mudo esperando a que alguien escriba, así
-         que se avisa aunque no sea un fallo de estamigration. */
+         que se avisa aunque no sea un fallo de esta migración. */
       const cajas = await bots.cajasConCupos(db);
       const conBots = cajas.filter((c) => c.bots > 0);
       const sinSecreto = conBots.filter((c) => !c.tieneSecreto);
@@ -391,6 +450,20 @@ function caja(id, libres, extra) {
         );
       } else {
         comprobar("toda caja con bots tiene el secreto del webhook", true);
+      }
+
+      /* Y lo mismo con el destino. Sin a dónde llamar, el bot también
+         está mudo, y por un motivo distinto: la caja acepta los
+         mensajes pero no hay nadie escuchando. */
+      const sinDestino = conBots.filter((c) => !c.webhookEnUso);
+      if (sinDestino.length) {
+        console.log(
+          "  ⚠ " +
+            sinDestino.map((c) => c.name).join(", ") +
+            " tiene bots y no tiene a dónde llamar. Ponle URL propia en la caja o configura SITE_URL."
+        );
+      } else {
+        comprobar("toda caja con bots tiene a dónde llamar", true);
       }
     }
 

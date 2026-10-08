@@ -41,14 +41,29 @@
   <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
   <link rel="apple-touch-icon" href="/assets/favicon.svg" />
 
-  <!-- Fonts -->
+  <!-- Fonts
+
+       Outfit entra en lugar de Space Grotesk: es la redondeada que
+       pide la marca, y la que mejor va con un producto para comercios.
+       "Plus Jakarta Sans" queda como reserva en la pila de
+       `--font-display` por si se quiere probar la otra.
+
+       En el `font-family` de la URL van primero las que se usan, y
+       quedan las tres iguales en la web y en el panel: los dos
+       comparten los tokens de color y también las tipografías, y no
+       tiene sentido que los titulares de una pantalla y los de la de
+       al lado se vean distintos.
+
+       `display=swap` no es un detalle menor: sin él la página se queda
+       sin texto hasta que chegam las fuentes, y en un móvil con 4G eso
+       son dos segundos de blanco. Con `swap` se ve el texto en la
+       tipografía del sistema y se sustituye al llegar. -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet" />
 
   <!-- CSS -->
   <link rel="stylesheet" href="/css/styles.css" />
-  <link rel="stylesheet" href="/css/themes.css" />
 
   <!-- JSON-LD Structured Data -->
   <!-- Organization -->
@@ -100,14 +115,22 @@
   }, null, 0).replace(/</g, '\\u003c') %></script>
   <% } %>
 
-  <!-- Theme preference (runs before body paints) -->
+  
+<!-- Que hay JavaScript, antes de pintar.
+
+     La clase `js` de arriba es lo que activa el estado inicial
+     oculto de los bloques con `.reveal`. Sin esta linea, quien no
+     tenga JavaScript se encuentra con la pagina entera en blanco
+     menos el hero: el texto, los planes y el cierre estan dentro
+     de bloques `.reveal`, que en CSS plano empiezan en opacity 0.
+
+     Va aqui y no al final del body porque tiene que estar puesta
+     antes del primer pintado: si se añadiera mas tarde, la pagina
+     se pintaria con el contenido visible, se pondria oculta y
+     saltaria. Un parpadeo en cada carga. -->
   <script>
-    (function () {
-      try {
-        var t = localStorage.getItem("nexo-theme");
-        if (t === "light" || t === "colorful") document.documentElement.className = "theme-" + t;
-      } catch (e) {}
-    })();
+    document.documentElement.classList.add("js");
   </script>
+
 </head>
 <body>

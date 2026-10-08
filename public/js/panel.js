@@ -119,66 +119,7 @@
     if (aviso && !window.confirm(aviso)) ev.preventDefault();
   });
 
-  /* ---------- 4. Tema visual ----------
-
-     El panel estaba en oscuro siempre, y no era una decisión.
-
-     En la web pública main.js guarda el tema en localStorage y pone
-     `theme-light` o `theme-colorful` en el <html>. El panel carga
-     panel.js, no main.js, y panel.js no leía nada de eso. El tema se
-     guardaba en un sitio al que el panel no miraba.
-
-     No se notaba porque oscuro es el valor por defecto: en la web se
-     veía bien, y aquí solo se veía el oscuro. El fallo solo podía
-     aparecer al cambiar de tema en la web y entrar al panel.
-
-     themes.css ya resuelve los tokens del panel en claro y en color,
-     porque panel.css usa los mismos tokens que la web. Comprobado con
-     capturas antes de tocar esto: el claro aguanta entero, incluida la
-     fila vencida, las tarjetas rojo y ambar y los chips.
-
-     La clave de localStorage es la misma a proposito —"nexo-theme"—
-     para que cambiarlo en el panel se vea en la web y al reves.
-  */
-  const themeBtns = document.querySelectorAll(".theme-btn");
-  const VALIDOS = ["dark", "light", "colorful"];
-
-  function aplicarTema(tema) {
-    document.documentElement.className = tema === "dark" ? "" : "theme-" + tema;
-
-    themeBtns.forEach(function (btn) {
-      const activo = btn.getAttribute("data-theme") === tema;
-      btn.classList.toggle("is-active", activo);
-      btn.setAttribute("aria-pressed", String(activo));
-    });
-
-    try {
-      localStorage.setItem("nexo-theme", tema);
-    } catch (e) {
-      /* Sin almacenamiento (modo privado) el tema solo dura esta
-         pagina. Se aplica igual, que es lo importante. */
-    }
-  }
-
-  let guardado = "dark";
-  try {
-    guardado = localStorage.getItem("nexo-theme") || "dark";
-  } catch (e) {}
-
-  /* Cualquier cosa que no sea uno de los tres se descarta: si alguien
-     edita la clave a mano y pone "azul", sin esto el <html> se
-     quedaria con class="theme-azul" y los tokens caerian al oscuro
-     sin avisar. */
-  if (VALIDOS.indexOf(guardado) === -1) guardado = "dark";
-
-  aplicarTema(guardado);
-
-  themeBtns.forEach(function (btn) {
-    btn.addEventListener("click", function () {
-      aplicarTema(btn.getAttribute("data-theme"));
-    });
-  });
-})();
+  })();
   /* =========================================================
      SOMBRA DE LA CABECERA PEGADA
      ------------------------------------------------------------

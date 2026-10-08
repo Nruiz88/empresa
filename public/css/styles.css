@@ -4,87 +4,140 @@
    ========================================================= */
 
 :root {
-  /* Color */
-  --bg: #07070d;
-  --bg-soft: #0c0c15;
-  --surface: #12121d;
-  --surface-2: #191926;
-  --border: rgba(255, 255, 255, 0.09);
-  --border-strong: rgba(255, 255, 255, 0.16);
-  --text: #f2f3f7;
-  --text-muted: #a2a6b8;
-  --text-dim: #767b90;
+  /* ─────────────────────────────────────────────────────────
+     LOS COLORES — UN SOLO TEMA
+     ─────────────────────────────────────────────────────────
+     Solo hay una paleta. Antes había tres (oscuro, claro y "colorido")
+     con un conmutador en la barra: se quitó porque un sitio para
+     comercios no necesita tres,~ y porque mantener tres paletas es
+     mantener tres veces el mismo trabajo de contraste.
 
-  --accent: #8b5cf6;
-  --accent-2: #22d3ee;
-  --accent-grad: linear-gradient(120deg, #8b5cf6 0%, #6366f1 45%, #22d3ee 100%);
-  --success: #34d399;
-  --success-text: #a7f3d0;
-  --success-bg: rgba(52, 211, 153, 0.1);
-  --success-border: rgba(52, 211, 153, 0.4);
+     ── POR QUÉ EL VERDE ESTÁ EN DOS TONOS ──
+
+     `--brand` es #10b981, el verde de la marca: el del botón
+     principal, donde el texto va en grande y en oscuro sobre verde.
+
+     `--accent` es #059669, el mismo verde oscurecido. Es lo que va
+     en iconos, bordes de tarjeta y tildes, y eso va SOBRE el fondo:
+     #10b981 sobre casi blanco queda por debajo del contraste mínimo,
+     y un icono que no se ve no es un icono. */
+  --bg: #f8fafc;
+  --bg-soft: #f1f5f9;
+  --surface: #ffffff;
+  --surface-2: #f8fafc;
+  --border: rgba(15, 23, 42, 0.1);
+  --border-strong: rgba(15, 23, 42, 0.2);
+  --text: #0f172a;
+  --text-muted: #475569;
+  /* El gris mas apagado.
+     Da 4,76:1 sobre blanco, que pasa, y 4,34:1 sobre los fondos
+     con lavado, que no. Es el color de los enlaces legales, el
+     copyright y los titulos de columna del pie: lo que menos se
+     lee y mas importa leer. */
+  --text-dim: #5b6879;
+
+  /* El verde de marca. */
+  --brand: #10b981;
+  --brand-deep: #047857;
+
+  /* Para texto e iconos que van sobre el fondo. */
+  --accent: #059669;
+  /* El ambar, UN TONO MAS OSCURO que el de la paleta (#F59E0B).
+
+     El de la paleta es un color medio: sobre el fondo off-white da
+     3,04:1 y no llega al minimo de WCAG para texto normal, que es
+     4,5:1. Con thirty reglas usando este valor como color de texto
+     (insignias, etiquetas, enlaces del pie, iconos), eso era el mismo
+     problema en treinta sitios.
+
+     #b45309 da 4,80:1 y sigue siendo el mismo ambar.
+
+     Conviene notar que #d97706 era, ademas, IGUAL que `--warning`: el
+     color de acento y el de "algo va mal" eran el mismo numero, y por
+     eso todo lo que llevaba acento parecia una advertencia. */
+  --accent-2: #b45309;
+  /* El degradado del botón principal. SE QUEDA EN LA FAMILIA DEL
+     VERDE a propósito: con el ámbar al final, el camino entre
+     #10b981 y #d97706 pasa por oliva y el botón sale con una
+     mancha marrón en el centro.
+
+     El ámbar sigue en `--accent-2`, que es donde la paleta lo
+     coloca: insignias, avisos y acentos sueltos. */
+  --accent-grad: linear-gradient(120deg, #10b981 0%, #059669 100%);
+
+  /* Texto sobre el verde del botón. Azul noche y no blanco: blanco
+     sobre #10b981 se queda en 2,4:1 y no llega ni a texto grande. */
+  --brand-ink: #0f172a;
+
+  --success: #059669;
+  --success-text: #065f46;
+  --success-bg: rgba(5, 150, 105, 0.1);
+  --success-border: rgba(5, 150, 105, 0.4);
 
   /* ── Aviso: ni bien ni mal ──
-     El tercer estado. Rojo y verde no cubren "esto no esta roto,"
+     El tercer estado. Rojo y verde no cubren "esto no esta roto,
      pero se va a romper": un modulo a la venta sin url detras, una
      migracion sin aplicar, un despliegue viejo. Sin el, todo lo que
      no este bien tiene que pintarse de rojo, y un panel donde todo
-     es rojo deja de ensenar nada.
-
-     Ambar apagado a proposito: si el estado intermedio llama mas la
-     atencion que el roto, se deja de mirar el rojo. */
-  --warning: #fbbf24;
-  --warning-text: #fde68a;
-  --warning-bg: rgba(251, 191, 36, 0.1);
-  --warning-border: rgba(251, 191, 36, 0.4);
-  --danger: #f87171;
+     es rojo deja de ensenar nada. */
+  --warning: #d97706;
+  --warning-text: #78350f;
+  --warning-bg: rgba(217, 119, 6, 0.1);
+  --warning-border: rgba(217, 119, 6, 0.4);
+  --danger: #dc2626;
 
   /* ── Dos estados más que el panel necesitaba ──
    *
-   * El panel usaba dos colores escritos a mano, sin token: el violeta
-   * claro de "proyecto" y el naranja de "urgente". Con lo único que
-   * había (`--accent`, `--accent-2`, `--warning`, `--danger`) no
-   * tenían a dónde apuntar, así que se quedaron literales.
+   * El panel usaba dos colores escritos a mano, sin token. Un literal
+   * no cambia con el tema y rompía el contraste.
    *
-   * Un literal no cambia con el tema, y eso rompía el contraste en los
-   * otros dos: `--accent-2` pasa de `#22d3ee` a `#0e7fa8` en claro y a
-   * `#ffd23f` en el rosa, pero los chips seguían pintados de cian
-   * fijo. Sobre un fondo claro, cian a 10% con texto cian es
-   * ilegible.
-   *
-   * `--info`   violeta: proyectos, things informative
-   * `--urgent` naranja: más apremiante que `--warning`, sin ser error
-   */
-  --info: #a78bfa;
-  --urgent: #fb923c;
+   * `--info` NO puede ser verde: el panel pinta con él los chips de
+   * salud de cada caja de Evolution, donde el verde significa
+   * "funciona". Con los dos en la misma familia, un bot caído y uno
+   * sano se parecen. */
+  --info: #2563eb;
+  --urgent: #ea580c;
 
-  /* Tematizables — los temas alternativos redefinen estos valores */
-  --on-accent: #08080f;
-  --icon-color: #c4b5fd;
-  --text-grad: linear-gradient(120deg, #8b5cf6 0%, #6366f1 45%, #22d3ee 100%);
-  --header-bg: rgba(7, 7, 13, 0.78);
-  --header-bg-solid: rgba(7, 7, 13, 0.94);
-  --menu-bg: #0a0a12;
+  --on-accent: #0f172a;
+  --icon-color: #047857;
+
+  /* El degradado del titular. El ámbar entra al final para que la
+     palabra destacada termine en el color de acento en vez de volver
+     al verde, que es lo que lo haría parecer un degradado mal hecho.
+     Los dos tonos van oscurecidos porque esto va sobre blanco. */
+  /* El degradado del titular. También solo verde: sobre azul noche
+     el salto al ámbar se nota más que en el botón. */
+  --text-grad: linear-gradient(120deg, #047857 0%, #10b981 100%);
+
+  --header-bg: rgba(255, 255, 255, 0.85);
+  --header-bg-solid: rgba(255, 255, 255, 0.97);
+  --menu-bg: #ffffff;
+
+  /* Degradados de fondo. Muy bajos a propósito: esto va detrás de
+     texto y un verde fuerte detrás de un titular lo vuelve ilegible. */
+  /* Verde, y solo verde. Con ámbar al lado derecho el hero se iba a
+     naranja y el conjunto daba atardecer en vez de frescura. */
   --hero-glow: radial-gradient(
     ellipse at center,
-    rgba(139, 92, 246, 0.28) 0%,
-    rgba(34, 211, 238, 0.12) 45%,
+    rgba(16, 185, 129, 0.2) 0%,
+    rgba(14, 165, 233, 0.07) 45%,
     transparent 70%
   );
-  --page-glow: radial-gradient(ellipse at center, rgba(139, 92, 246, 0.22), transparent 70%);
-  --grid-line: rgba(255, 255, 255, 0.035);
-  --stats-bg: rgba(18, 18, 29, 0.7);
-  --raise: rgba(255, 255, 255, 0.045);
-  --raise-strong: rgba(255, 255, 255, 0.09);
-  --btn-glow: 0 10px 30px rgba(139, 92, 246, 0.35);
-  --btn-glow-strong: 0 14px 36px rgba(139, 92, 246, 0.5);
-  --featured-bg: linear-gradient(180deg, rgba(139, 92, 246, 0.14), rgba(18, 18, 29, 0.9));
-  --featured-glow: 0 24px 60px rgba(139, 92, 246, 0.22);
-  --cta-bg: linear-gradient(120deg, rgba(139, 92, 246, 0.2), rgba(34, 211, 238, 0.14));
-  --cta-border: rgba(139, 92, 246, 0.4);
-  --thumb-overlay: linear-gradient(180deg, transparent 40%, rgba(7, 7, 13, 0.55) 100%);
+  --page-glow: radial-gradient(ellipse at center, rgba(16, 185, 129, 0.14), transparent 70%);
+  --grid-line: rgba(15, 23, 42, 0.04);
+  --stats-bg: rgba(255, 255, 255, 0.9);
+  --raise: rgba(15, 23, 42, 0.03);
+  --raise-strong: rgba(15, 23, 42, 0.06);
+  --btn-glow: 0 10px 26px rgba(5, 150, 105, 0.22);
+  --btn-glow-strong: 0 14px 34px rgba(5, 150, 105, 0.34);
+  --featured-bg: linear-gradient(180deg, rgba(16, 185, 129, 0.12), rgba(255, 255, 255, 0.95));
+  --featured-glow: 0 24px 50px rgba(5, 150, 105, 0.16);
+  --cta-bg: linear-gradient(120deg, rgba(16, 185, 129, 0.14), rgba(14, 165, 233, 0.08));
+  --cta-border: rgba(16, 185, 129, 0.35);
+  --thumb-overlay: linear-gradient(180deg, transparent 40%, rgba(15, 23, 42, 0.55) 100%);
 
   /* Tipografía */
-  --font-display: "Space Grotesk", "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Outfit", "Plus Jakarta Sans", "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-body: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
 
   /* ── La monoespaciada ──
@@ -246,15 +299,28 @@ h4 {
   font-size: 1.05rem;
 }
 
+/* El verde profundo de la marca, no el ambar.
+
+   El texto va en `--brand-deep` (#047857, 5,24:1 sobre el fondo) y no
+   en `--accent` (#059669, 3,60:1) ni en el ambar (#d97706, 3,04:1):
+   los tres son el mismo color de marca y solo uno llega al minimo de
+   WCAG AA para texto normal.
+
+   El fondo y el borde leen del MISMO color por una razón práctica: si
+   solo cambiara el texto, la etiqueta saldria con letras verdes sobre
+   un lavado naranja. */
 .eyebrow {
   display: inline-block;
   font-size: var(--fs-xs);
   font-weight: 600;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--accent-2);
-  background: color-mix(in srgb, var(--accent-2) 10%, transparent);
-  border: 1px solid color-mix(in srgb, var(--accent-2) 28%, transparent);
+  /* El verde de la etiqueta va sobre su propio lavado, y el lavado
+     baja el fondo un poco: con #047857 daba 4,19:1. Este es el
+     mismo verde un paso mas oscuro y llega a 6,9. */
+  color: #036249;
+  background: color-mix(in srgb, #036249 8%, transparent);
+  border: 1px solid color-mix(in srgb, #036249 24%, transparent);
   border-radius: 999px;
   padding: 0.35rem 0.85rem;
   margin-bottom: 1rem;
@@ -349,7 +415,7 @@ h4 {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22);
 }
 
-html.theme-light .site-header.is-compact {
+.site-header.is-compact {
   box-shadow: 0 10px 24px rgba(18, 20, 44, 0.08);
 }
 
@@ -417,45 +483,19 @@ html.theme-light .site-header.is-compact {
 }
 
 /* Conmutador de temas */
-.theme-switch {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 7px;
-  border: 1px solid var(--border);
-  background: var(--raise);
-  border-radius: 999px;
-}
 
-.theme-btn {
-  width: 18px;
-  height: 18px;
-  padding: 0;
-  border-radius: 50%;
-  border: 1px solid var(--border-strong);
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
 
-.theme-btn:hover {
-  transform: scale(1.15);
-}
 
-.theme-btn.is-active {
-  box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--accent);
-}
 
-.theme-btn[data-theme="dark"] {
-  background: linear-gradient(135deg, #07070d 55%, #8b5cf6);
-}
 
-.theme-btn[data-theme="light"] {
-  background: linear-gradient(135deg, #f7f8fc 55%, #6d3bf5);
-}
 
-.theme-btn[data-theme="colorful"] {
-  background: conic-gradient(from 210deg, #ff4d9d, #ffd23f, #4de0d0, #ff4d9d);
-}
+
+
+
+
+
+
+
 
 .nav-toggle {
   display: none;
@@ -749,12 +789,12 @@ html.theme-light .site-header.is-compact {
   background: var(--thumb-overlay);
 }
 
-.thumb-1 { background: linear-gradient(135deg, #7c3aed, #2563eb 55%, #06b6d4); }
-.thumb-2 { background: linear-gradient(135deg, #0f766e, #059669 50%, #84cc16); }
-.thumb-3 { background: linear-gradient(135deg, #db2777, #7c3aed 55%, #4f46e5); }
-.thumb-4 { background: linear-gradient(135deg, #ea580c, #f59e0b 55%, #facc15); }
-.thumb-5 { background: linear-gradient(135deg, #1e3a8a, #4338ca 50%, #7c3aed); }
-.thumb-6 { background: linear-gradient(135deg, #0891b2, #0d9488 50%, #65a30d); }
+.thumb-1 { background: linear-gradient(135deg, #047857, #0ea5e9 55%, #0b7285); }
+.thumb-2 { background: linear-gradient(135deg, #059669, #34d399 50%, #84cc16); }
+.thumb-3 { background: linear-gradient(135deg, #0f766e, #0e7490 55%, #1d4ed8); }
+.thumb-4 { background: linear-gradient(135deg, #d97706, #f59e0b 55%, #fbbf24); }
+.thumb-5 { background: linear-gradient(135deg, #065f46, #047857 50%, #0f172a); }
+.thumb-6 { background: linear-gradient(135deg, #0e7490, #14b8a6 50%, #4d7c0f); }
 
 .project-body {
   padding: 1.4rem 1.5rem 1.6rem;
@@ -1149,9 +1189,9 @@ table.compare .no {
   flex-shrink: 0;
 }
 
-.avatar-1 { background: linear-gradient(135deg, #a78bfa, #22d3ee); }
-.avatar-2 { background: linear-gradient(135deg, #f472b6, #fbbf24); }
-.avatar-3 { background: linear-gradient(135deg, #34d399, #22d3ee); }
+.avatar-1 { background: linear-gradient(135deg, #059669, #0ea5e9); }
+.avatar-2 { background: linear-gradient(135deg, #d97706, #fbbf24); }
+  .avatar-3 { background: linear-gradient(135deg, #10b981, #34d399); }
 
 .quote-person strong {
   display: block;
@@ -1334,12 +1374,12 @@ table.compare .no {
 
 /* El tinte de cada uno. Los seis primeros colores de .thumb-1 a
    .thumb-6, que son los degradados que ya usa /proyectos. */
-.servicio-1 { --tinte: #7c3aed; }
-.servicio-2 { --tinte: #0f766e; }
-.servicio-3 { --tinte: #db2777; }
-.servicio-4 { --tinte: #ea580c; }
-.servicio-5 { --tinte: #1e3a8a; }
-.servicio-6 { --tinte: #0891b2; }
+.servicio-1 { --tinte: #047857; }
+.servicio-2 { --tinte: #0e7490; }
+.servicio-3 { --tinte: #0f766e; }
+.servicio-4 { --tinte: #d97706; }
+.servicio-5 { --tinte: #0f172a; }
+.servicio-6 { --tinte: #0d9488; }
 
 /* ── Lo que va DENTRO ──
 
@@ -1665,7 +1705,30 @@ table.compare .no {
 }
 
 /* ---------- Reveal animation ---------- */
-.reveal {
+/* ─────────────────────────────────────────────────────────
+   LA ANIMACIÓN DE ENTRADA, Y POR QUÉ DEPENDE DE QUE HAYA JS
+
+   El estado inicial (invisible, desplazado 24 px) está detrás de
+   `.js`, que el <head> añade con una línea de script.
+
+   Sin esa condición, todo bloque con `.reveal` empieza en
+   `opacity: 0` y solo se ve cuando JavaScript le añade
+   `.is-visible`. Medido en el navegador: con JS aparecen los 7
+   bloques de la portada al hacer scroll; SIN JS, los 7 se quedan
+   invisibles.
+
+   Eso no es una animación que no se anima: es la página entera menos
+   el hero en blanco para quien tenga JavaScript desactivado. Y en la
+   portada ese texto es el producto —el problema, la solución y los
+   tres planes—, no un adorno.
+
+   `.reveal.is-visible` va después a propósito. `.js .reveal` y
+   `.reveal.is-visible` valen lo mismo (dos clases), así que gana la
+   que viene después: con las dos clases presentes, gana la que
+   muestra. Si se invirtieran, añadir `js` dejaría la página
+   invisible para siempre.
+   ───────────────────────────────────────────────────────── */
+.js .reveal {
   opacity: 0;
   transform: translateY(24px);
   transition: opacity 0.6s ease, transform 0.6s ease;
@@ -3030,7 +3093,7 @@ table.compare .no {
   opacity: 0.45;
 }
 
-html.theme-light .page-hero--premium .page-hero-bg .aurora {
+.page-hero--premium .page-hero-bg .aurora {
   opacity: 0.34;
 }
 
@@ -3210,12 +3273,12 @@ html:not(.has-gsap) .page-hero-showcase {
   text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
 }
 
-.mock-tile.t1 { background: linear-gradient(135deg, #6366f1, #22d3ee); }
-.mock-tile.t2 { background: linear-gradient(135deg, #8b5cf6, #f472b6); }
-.mock-tile.t3 { background: linear-gradient(135deg, #22d3ee, #34d399); }
-.mock-tile.t4 { background: linear-gradient(135deg, #f59e0b, #ef4444); }
-.mock-tile.t5 { background: linear-gradient(135deg, #a855f7, #6366f1); }
-.mock-tile.t6 { background: linear-gradient(135deg, #34d399, #22d3ee); }
+.mock-tile.t1 { background: linear-gradient(135deg, #059669, #0ea5e9); }
+.mock-tile.t2 { background: linear-gradient(135deg, #047857, #0d9488); }
+.mock-tile.t3 { background: linear-gradient(135deg, #0d9488, #34d399); }
+.mock-tile.t4 { background: linear-gradient(135deg, #f59e0b, #d97706); }
+.mock-tile.t5 { background: linear-gradient(135deg, #0f172a, #047857); }
+  .mock-tile.t6 { background: linear-gradient(135deg, #10b981, #34d399); }
 
 /* ---------- Variante: precios (planes) ---------- */
 .mock-plans {
@@ -3605,12 +3668,22 @@ html.lenis body {
   animation: drift1 22s ease-in-out infinite alternate;
 }
 
+/* El verde azulado, no el ambar.
+
+   Este halo es de 560 px en la esquina superior derecha: con el ambar
+   teñia media cabecera de arena y la pagina daba atardecer. El verde
+   azulado mantiene la profundidad que daba el ambar y sigue siendo de
+   la familia. */
 .aurora-2 {
   width: 560px;
   height: 560px;
   top: -120px;
   right: -120px;
-  background: radial-gradient(circle at 60% 40%, var(--accent-2) 0%, transparent 68%);
+  background: radial-gradient(
+    circle at 60% 40%,
+    color-mix(in srgb, var(--accent) 60%, var(--info)) 0%,
+    transparent 68%
+  );
   animation: drift2 26s ease-in-out infinite alternate;
 }
 
@@ -3771,38 +3844,6 @@ html:not(.has-gsap) .hero-title .line:nth-child(3) > span { animation-delay: 0.3
   align-items: center;
   gap: 1rem;
   margin-bottom: 1.25rem;
-}
-
-.avatar-stack {
-  display: flex;
-}
-
-.avatar-stack .avatar {
-  width: 38px;
-  height: 38px;
-  margin-left: -11px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  font-size: 0.72rem;
-  font-weight: 700;
-  font-family: var(--font-display);
-  color: #fff;
-  border: 2px solid var(--bg);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
-.avatar-stack .avatar:first-child {
-  margin-left: 0;
-}
-
-.avatar-stack .avatar-1 { background: linear-gradient(135deg, #8b5cf6, #6366f1); }
-.avatar-stack .avatar-2 { background: linear-gradient(135deg, #22d3ee, #0ea5e9); }
-.avatar-stack .avatar-3 { background: linear-gradient(135deg, #f472b6, #a855f7); }
-.avatar-stack .avatar-4 {
-  background: var(--surface-2);
-  color: var(--text-muted);
-  font-size: 0.66rem;
 }
 
 .hero-proof-text p {
@@ -4231,20 +4272,16 @@ html:not(.has-gsap) .mock-chart span:nth-child(12) { animation-delay: 1.52s; }
 }
 
 /* ---------- Ajustes por tema ---------- */
-html.theme-light .mock-window {
+.mock-window {
   box-shadow: 0 30px 70px rgba(18, 20, 44, 0.16), 0 0 0 1px rgba(13, 16, 40, 0.05);
 }
 
-html.theme-light .float-card {
+.float-card {
   box-shadow: 0 18px 40px rgba(18, 20, 44, 0.14);
 }
 
-html.theme-light .aurora {
+.aurora {
   opacity: 0.42;
-}
-
-html.theme-light .avatar-stack .avatar {
-  border-color: var(--bg);
 }
 
 /* ---------- Responsive del hero ---------- */
@@ -4907,37 +4944,47 @@ section[id],
    el chat oscuro da 15.79 y el claro 13.99.
    ========================================================= */
 
-#whatsapp {
-  /* La marca. Se usan tal cual, sin retocar: si el dia que
-     WhatsApp cambia de verde hay que tocar cuatro lineas, es
-     porque son cuatro usos y no cuarenta. */
+/* ── Los tokens de la paleta de WhatsApp ──
+
+   Estaban encerrados en `#whatsapp`, y el hero los necesita
+   tambien: pinta un chat del mismo servicio. Con los tokens
+   dentro del id, tenerlos en los dos sitios obligaba a copiar
+   los ocho hex, que es la forma segura de que un dia cambien
+   uno y no el otro.
+
+   Aqui no hay selector. Las propiedades personalizadas se
+   heredan, asi que `#whatsapp` sigue recibirlas sin que se haya
+   tocado ni una de las reglas que las usa.
+
+   La marca se usa tal cual, sin retocar: si el dia que WhatsApp
+   cambia de verde hay que tocar cuatro lineas, es porque son
+   cuatro usos y no cuarenta. */
+
+/* ─────────────────────────────────────────────────────────
+   LA PALETA DEL CHAT DE WHATSAPP
+   ─────────────────────────────────────────────────────────
+   Con un solo tema no hay a qué alternar, así que estos tokens
+   son directamente los de WhatsApp en claro: el mismo #ece5dd de
+   los chats de verdad, y no una versión aproximada.
+
+   El `--wa-ink` (el verde que se pinta encima) es el oscuro de la
+   marca, no el #25d366 de WhatsApp: el verde de la marca sobre un
+   fondo casi blanco se lee, y el de WhatsApp se lava. */
+:root {
   --wa-verde: #25d366;
   --wa-teal: #128c7e;
   --wa-oscuro: #075e54;
-
-  /* La tinta de esta pagina. Es lo unico que cambia por tema,
-     y por el motivo que esta en el comentario de arriba. */
-  --wa-ink: var(--wa-verde);
-
-  /* El chat, en paleta oscura de WhatsApp. */
-  --wa-papel: #0b141a;
-  --wa-burbuja: #1f2c34;
-  --wa-propia: #005c4b;
-  --wa-texto: #e9edef;
-  --wa-tenue: #8696a0;
-  --wa-linea: rgba(255, 255, 255, 0.08);
-  --wa-muesca: rgba(255, 255, 255, 0.035);
-}
-
-html.theme-light #whatsapp {
   --wa-ink: var(--wa-oscuro);
 
-  /* El chat, en paleta clara de WhatsApp. */
+  /* El chat, en la paleta clara de WhatsApp. */
   --wa-papel: #ece5dd;
   --wa-burbuja: #ffffff;
   --wa-propia: #dcf8c6;
   --wa-texto: #111b21;
-  --wa-tenue: #667781;
+  /* El gris secundario de los chats.
+     Oscurecido un poco: con el valor de WhatsApp daba 3,72:1
+     sobre el papel claro, por debajo del 4,5:1 de texto normal. */
+  --wa-tenue: #54666f;
   --wa-linea: rgba(0, 0, 0, 0.08);
   --wa-muesca: rgba(0, 0, 0, 0.05);
 }
@@ -5166,13 +5213,559 @@ html.theme-light #whatsapp {
    justo por debajo del minimo de texto normal, asi que ahi se
    oscurece. Sigue siendo el mismo verde de familia, y gana el
    contraste. */
-html.theme-light #whatsapp .wa-cta .btn-primary {
+#whatsapp .wa-cta .btn-primary {
   background: var(--wa-oscuro);
   color: #ffffff;
 }
 
-html.theme-light #whatsapp .wa-cta .btn-primary:hover,
-html.theme-light #whatsapp .wa-cta .btn-primary:focus-visible {
+#whatsapp .wa-cta .btn-primary:hover,
+#whatsapp .wa-cta .btn-primary:focus-visible {
   background: color-mix(in srgb, var(--wa-oscuro) 88%, #000000);
   color: #ffffff;
+}
+
+/* =========================================================
+   Shopcito — La portada
+   ------------------------------------------------------------
+   Todo lo de esta sección está debajo de `.hero--shopcito` o de
+   un bloque propio, y NO usa los tokens de sección antigua.
+
+   ── POR QUÉ ESTA SECCIÓN VA AL FINAL Y NO EN SU SITIO ──
+
+   Porque el orden importa en CSS solo cuando hay Selectores del
+   mismo peso. Lo de aquí son clases nuevas que antes no existían,
+   así que da igual dónde se declaren.
+
+   Lo que NO se hace, en cambio, es reciclar las clases de la web
+   anterior (`.mock-window`, `.float-card`, `.orbit`) para la
+   conversación: son la maqueta de un panel de rendimiento, con sus
+   medidas pensadas para eso. Pintar un chat con ellas daría algo
+   que parece un panel con un chat dentro, que es justo el mensaje
+   equivocado: aquí no se vende un panel, se vende una conversación.
+
+   ── LOS COLORES DEL CHAT ──
+
+   Vienen de los tokens `--wa-*`, los mismos que usa la sección de
+   WhatsApp. Ver la cabecera de ese bloque.
+   ========================================================= */
+
+/* ─────────────────────────────────────────────────────────
+   EL LOGO EN LA CHAPA BLANCA
+   ─────────────────────────────────────────────────────────
+   El archivo es un JPEG con fondo casi blanco y el sitio tiene
+   tres temas: tal cual, sobre el oscuro sería un rectángulo
+   blanco en la barra de arriba.
+
+   La chapa lo convierte en parte del logotipo en vez de un
+   defecto. Es un PARCHE: en cuanto llegue el PNG con
+   transparencia o el SVG, esto sobra. */
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* El fondo del logo NO es blanco: medido sobre sus esquinas va de
+     #eff4ed a #f2f7f1, con #f0f5ee en el medio. Con la chapa en
+     #ffffff se ve un borde alrededor del logo, que es el unico
+     detalle que delata que el logo es un recorte pegado sobre otra
+     cosa.
+
+     Si se regenera el logo, hay que volver a medir este valor. El
+     generador de la imagen de Open Graph lleva el hash del logo con el
+     que se midio y avisa cuando ya no coincide. */
+  background: #f0f5ee;
+  border-radius: 10px;
+  padding: 4px 7px;
+  flex-shrink: 0;
+  line-height: 0;
+}
+
+.brand-mark img {
+  display: block;
+  height: 26px;
+  width: auto;
+}
+
+/* /* El logo mide 26px de alto y el nombre va en la tipografía del
+   sistema a 1.15rem, que se ve un poco más alto. Ese par de píxeles
+   de `translateY` es lo que hace que los dos se lean centrados en
+   vez de cruzados. */*/
+.brand-mark {
+  transform: translateY(-1px);
+}
+
+/* ─────────────────────────────────────────────────────────
+   EL HERO
+   ─────────────────────────────────────────────────────────
+   La variante reutiliza la maqueta de dos columnas que ya había
+   (`.hero-layout`): texto a la izquierda, visual a la derecha. La
+   maqueta es buena y no era el problema.
+
+   Lo que cambia es el contenido y lo que se ve al entrar. */
+.hero--shopcito .hero-note {
+  color: var(--text-muted);
+}
+
+/* ── Las tres promesas ──
+   Van en fila en escritorio y se apilan en móvil.
+
+   El hueco entre ellas es de 1px de línea, no un marco: son tres
+   datos de la misma familia y un borde alrededor de cada uno los
+   convierte en tres cajas que compiten con el botón de arriba. */
+.promise-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  list-style: none;
+  margin: 2.2rem 0 0;
+  padding: 0;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.promise {
+  display: flex;
+  gap: 0.7rem;
+  padding: 1rem 0.9rem;
+  background: var(--surface);
+  align-items: flex-start;
+}
+
+.promise-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 9px;
+  background: var(--accent-bg, rgba(16, 185, 129, 0.12));
+  color: var(--accent);
+}
+
+.promise-icon svg {
+  width: 17px;
+  height: 17px;
+}
+
+.promise strong {
+  display: block;
+  font-size: var(--fs-sm);
+  line-height: 1.35;
+  color: var(--text);
+}
+
+/* ".promise-detalle" y no ".promise span".
+
+   El icono de la izquierda también es un <span> dentro de
+   ".promise", así que ".promise span" lo alcanzaba y, por tener más
+   especificidad que ".promise-icon", le ponía el color gris, el
+   display:block y un margen. El icono salía apagado.
+
+   Con clase propia, cada elemento se pinta lo que dice su nombre. */
+.promise-detalle {
+  display: block;
+  font-size: var(--fs-xs);
+  line-height: 1.4;
+  color: var(--text-muted);
+  margin-top: 0.2rem;
+}
+
+/* ─────────────────────────────────────────────────────────
+   EL CHAT DEL HERO
+   ─────────────────────────────────────────────────────────
+   Una conversación de ejemplo, no una captura: no hay cliente real
+   que pueda mostrarse todavía.
+
+   Los colores son los de WhatsApp de verdad (`--wa-*`). Un chat con
+   los verdes de la marca se leería como "esto es un dibujo nuestro";
+   con los de WhatsApp se lee como "esto es lo que vas a ver". */
+.wa-window {
+  width: 100%;
+  max-width: 360px;
+  margin-left: auto;
+  background: var(--wa-papel);
+  border: 1px solid var(--wa-linea);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.35);
+}
+
+/* La cabecera del chat, con la barra de "escribiendo…" de fondo. */
+.wa-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.75rem 0.9rem;
+  background: var(--wa-oscuro);
+  color: #ffffff;
+}
+
+.wa-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--wa-verde);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.wa-who strong {
+  display: block;
+  font-size: 0.9rem;
+  line-height: 1.2;
+}
+
+.wa-who span {
+  display: block;
+  font-size: var(--fs-xs);
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.3;
+  margin-top: 0.1rem;
+}
+
+/* El "muesca" es el fondo con textura de punto que lleva WhatsApp
+   detrás de los mensajes. Se hace con un radial muy tenue; con la
+   imagen real pesa un poco más y aquí no vale la pena. */
+.wa-body {
+  padding: 0.9rem 0.8rem 0.4rem;
+  background-image: radial-gradient(var(--wa-muesca) 1px, transparent 1px);
+  background-size: 18px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  min-height: 340px;
+}
+
+.wa-time {
+  font-size: 0.68rem;
+  color: var(--wa-tenue);
+}
+
+/* La hora va centrada arriba del todo, como en WhatsApp. */
+.wa-body > .wa-time {
+  text-align: center;
+  margin: 0 0 0.3rem;
+}
+
+.wa-bubble {
+  position: relative;
+  max-width: 82%;
+  padding: 0.5rem 0.65rem 0.35rem;
+  border-radius: 10px;
+  background: var(--wa-burbuja);
+  color: var(--wa-texto);
+  font-size: 0.85rem;
+  line-height: 1.4;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.14);
+}
+
+/* La burbuja de la derecha es la PROPIA: verde, pegada al borde. */
+.wa-bubble.wa-out {
+  align-self: flex-end;
+  background: var(--wa-propia);
+}
+
+/* El rabito de la burbuja. Se hace con dos triángulos ya que con
+   `border-radius` solo se consigue media esquina: el rabito es
+   una punta y con dos radios no sale. */
+.wa-bubble::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 8px;
+  height: 13px;
+}
+
+.wa-bubble.wa-in::after {
+  left: -7px;
+  background: var(--wa-burbuja);
+  clip-path: polygon(100% 0, 100% 100%, 0 0);
+}
+
+.wa-bubble.wa-out::after {
+  right: -7px;
+  background: var(--wa-propia);
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+
+.wa-bubble p {
+  margin: 0;
+}
+
+.wa-bubble .wa-time {
+  display: block;
+  text-align: right;
+  margin-top: 0.15rem;
+}
+
+/* ── La tarjeta de producto ──
+   Es lo que el bot vende. Un chat con dos mensajes de texto y sin
+   nada más demuestra que "responde", pero no que hay una tienda, y
+   la tienda es la mitad de lo que se vende. */
+.wa-card {
+  align-self: flex-end;
+  max-width: 82%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.6rem 0.65rem;
+  border-radius: 10px;
+  background: var(--wa-burbuja);
+  color: var(--wa-texto);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.14);
+  border-left: 3px solid var(--wa-verde);
+}
+
+.wa-card-tag {
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--wa-oscuro);
+  font-weight: 600;
+}
+
+.wa-card strong {
+  font-size: 0.85rem;
+  line-height: 1.3;
+}
+
+.wa-card-stock {
+  font-size: var(--fs-xs);
+  color: var(--wa-tenue);
+}
+
+/* El texto del boton NO va en blanco.
+   Blanco sobre el verde de WhatsApp da 1,98:1, muy por debajo
+   del 4,5:1. Es lo que hace WhatsApp en su propia interfaz y es
+   una de esas decisiones que se copian sin medir. Con un verde
+   muy oscuro se lee a 6,25:1 y el boton sigue siendo verde. */
+.wa-card-btn {
+  margin-top: 0.4rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.4rem;
+  border-radius: 7px;
+  background: var(--wa-verde);
+  color: #0b3d16;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+/* La barra de escribir. No hace nada: es parte del dibujo, no un
+   formulario. Va con `aria-hidden` en la vista. */
+.wa-input {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.35rem 0.6rem 0.7rem;
+  padding: 0.55rem 0.75rem;
+  border-radius: 10px;
+  background: var(--wa-burbuja);
+  color: var(--wa-tenue);
+  font-size: 0.82rem;
+}
+
+/* ─────────────────────────────────────────────────────────
+   PROBLEMA VS. SOLUCIÓN
+   ─────────────────────────────────────────────────────────
+   Dos columnas. En móvil se apilan con el problema primero, y ese
+   orden no es casual: es el orden en que se leen las dos frases. */
+.duelo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2.2rem;
+  align-items: start;
+}
+
+.duelo-col h2 {
+  font-size: var(--fs-h2);
+  line-height: 1.15;
+  margin: 0.6rem 0 0.9rem;
+}
+
+.duelo-col > p {
+  color: var(--text-muted);
+  line-height: 1.65;
+  margin: 0 0 1.5rem;
+}
+
+.duelo-list,
+.pasos-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.duelo-list li {
+  display: flex;
+  gap: 0.8rem;
+  align-items: flex-start;
+}
+
+.duelo-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border-radius: 10px;
+}
+
+.duelo-icon svg {
+  width: 19px;
+  height: 19px;
+}
+
+/* Los iconos del problema son de aviso y los de la solución no.
+   Es lo que hace que la columna se lea de un vistazo sin leer: un
+   ojo entrenado distingue "esto te duele" de "esto te pasa". */
+.duelo-col--mal .duelo-icon {
+  background: var(--warning-bg);
+  color: var(--warning-text);
+}
+
+.duelo-col--bien .duelo-icon {
+  background: var(--success-bg);
+  color: var(--success-text);
+}
+
+.duelo-list strong,
+.pasos-list strong {
+  display: block;
+  font-size: var(--fs-body);
+  color: var(--text);
+  line-height: 1.35;
+}
+
+.duelo-list span,
+.pasos-list span {
+  display: block;
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  line-height: 1.55;
+  margin-top: 0.25rem;
+}
+
+/* Los pasos van numerados con un círculo de marca, no con la lista
+   por defecto, y con una línea que los une. */
+.pasos-list {
+  position: relative;
+  gap: 1.35rem;
+}
+
+.pasos-list li {
+  display: flex;
+  gap: 0.9rem;
+  align-items: flex-start;
+  position: relative;
+}
+
+/* La línea vertical que une los tres pasos. Va en el `<ol>` y no en
+   cada `<li>` para que no haya que ocultarla en el último a mano y
+   se pueda añadir un paso sin acordarse. */
+.pasos-list::before {
+  content: "";
+  position: absolute;
+  left: 15px;
+  top: 34px;
+  bottom: 18px;
+  width: 2px;
+  background: var(--border);
+}
+
+.paso-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--featured-bg);
+  border: 1px solid var(--cta-border);
+  color: var(--accent);
+  font-size: 0.78rem;
+  font-weight: 700;
+  position: relative;
+  z-index: 1;
+}
+
+/* ─────────────────────────────────────────────────────────
+   EL PRECIO "A CONSULTAR"
+   ─────────────────────────────────────────────────────────
+   Sale más grande que una cifra, pero no del tamaño de un titular:
+   si ocupa lo mismo que el precio de un plan, promete una cantidad
+   que no existe.
+
+   Y lleva el "a" en un tono atenuado para que se lea como una
+   ausencia y no como un dato. */
+.amount--consultar {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  color: var(--text-muted);
+  letter-spacing: -0.01em;
+}
+
+/* Sin cifra, el "desde" y el símbolo sobrarían. El bloque entero se
+   apaga un poco para que la atención caiga en la lista de lo que
+   incluye, que es lo que el visitante puede leer. */
+/* Los precios CON cifra van en --accent (#059669, 3,77:1), no en
+   --brand (#10b981, 2,54:1). A 46 px es texto grande y solo
+   necesita 3:1, y 2,54 no llega. */
+.price-card .price:not(:has(.amount--consultar)) {
+  color: var(--accent);
+}
+
+/* ─────────────────────────────────────────────────────────
+   RESPONSIVE
+   ───────────────────────────────────────────────────────── */
+@media (max-width: 980px) {
+  .promise-row {
+    grid-template-columns: 1fr;
+  }
+
+  .duelo {
+    grid-template-columns: 1fr;
+    gap: 2.6rem;
+  }
+}
+
+@media (max-width: 720px) {
+  .wa-window {
+    max-width: 100%;
+    margin: 0 auto;
+  }
+
+  /* La maqueta del hero en una sola columna ya está tratada en
+     `styles.css`. Lo que hace falta aquí es que el chat no se
+     salga de lado: sin esto, a 360px de ancho la conversación
+     empuja el scroll horizontal. */
+  .wa-bubble,
+  .wa-card {
+    max-width: 88%;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────
+   PREFERENCIA DE MOVIMIENTO
+   ─────────────────────────────────────────────────────────
+   El tilt del visual (`data-tilt` lo mueve `motion.js`) y las
+   animaciones de entrada respectan esto ya en el resto del sitio.
+   Aquí solo se recuerda que este bloque hereda ese comportamiento,
+   por si alguien añade un `animation` nuevo debajo. */
+@media (prefers-reduced-motion: reduce) {
+  .wa-window {
+    transition: none;
+  }
 }

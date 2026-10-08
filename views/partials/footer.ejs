@@ -2,14 +2,22 @@
     <div class="container">
       <div class="footer-grid">
         <div class="footer-brand">
+          <%# El logo es el MISMO archivo que el de la cabecera. Antes este
+     icono repetía el `rect` con `fill="url(#brandGrad)"`, un
+     `linearGradient` DEFINIDO en `header.ejs`: si la cabecera no se
+     pintaba, el pie quedaba con un cuadro negro sin explicación
+     posible desde el archivo que lo dibujaba. Un archivo, dos
+     usos.
+
+     `.brand-mark` y el fondo blanco en la chapa están explicados en
+     la cabecera. Ver la cabecera de `views/partials/header.ejs`. %>
           <a href="/" class="brand">
-            <svg viewBox="0 0 40 40" fill="none" aria-hidden="true">
-              <rect width="40" height="40" rx="11" fill="url(#brandGrad)" />
-              <path d="M12 27V13l8 8 8-8v14" stroke="#08080f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-            Nexo Studio
+            <span class="brand-mark">
+              <img src="/assets/shopcito-logo.jpg" alt="" width="240" height="170" loading="lazy" decoding="async" />
+            </span>
+            Shopcito
           </a>
-          <p>Estudio de diseño y desarrollo web. Creamos webs, tiendas online, web apps y aplicaciones a medida para empresas y comercios.</p>
+          <p>El copiloto digital para tu comercio: responde por WhatsApp las 24 horas, vende desde tu mini shop y te avisa los turnos, todo desde tu celular.</p>
           <div class="socials">
             <a href="<%= site.linkedin %>" target="_blank" rel="noopener" aria-label="LinkedIn">
               <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4.98 3.5C4.98 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM.24 8.5h4.52V23H.24V8.5zM8.5 8.5h4.33v1.98h.06c.6-1.14 2.08-2.34 4.28-2.34 4.58 0 5.43 3.01 5.43 6.93V23h-4.52v-6.6c0-1.57-.03-3.6-2.19-3.6-2.2 0-2.53 1.71-2.53 3.48V23H8.5V8.5z"/></svg>
@@ -23,25 +31,38 @@
           </div>
         </div>
 
+        <%# ── LAS COLUMNAS ──
+     Antes ponía "Diseño y desarrollo web", "Tiendas online", "Web
+     apps", "Aplicaciones a medida" y "SEO y mantenimiento": los
+     servicios del estudio digital.
+
+     Esos servicios ya no se venden, y la portada nueva ni los
+     menciona. Un pie que anuncia lo contrario al que promete la
+     portada hace dudar de las dos: si el titular promete un bot y
+     abajo dice que hacen webs, el que no sabe qué es esto se va.
+
+     Ahora las columnas son lo que se vende —bot, catálogo, turnos,
+     pagos— y los enlaces de empresa son los que existen.
+     ───────────────────────────────────────────────────────── %>
         <div class="footer-col">
-          <h4>Servicios</h4>
+          <h4>Qué incluye</h4>
           <ul>
-            <li><a href="/servicios">Diseño y desarrollo web</a></li>
-            <li><a href="/servicios">Tiendas online</a></li>
-            <li><a href="/servicios">Web apps</a></li>
-            <li><a href="/servicios">Aplicaciones a medida</a></li>
-            <li><a href="/servicios">SEO y mantenimiento</a></li>
+            <li><a href="/#problema">Bot de WhatsApp 24/7</a></li>
+            <li><a href="/#precios">Mini shop y catálogo</a></li>
+            <li><a href="/#problema">Agenda de turnos</a></li>
+            <li><a href="/#precios">Links de pago</a></li>
+            <li><a href="/#precios">Ver los planes</a></li>
           </ul>
         </div>
 
         <div class="footer-col">
-          <h4>Empresa</h4>
+          <h4>Shopcito</h4>
           <ul>
             <li><a href="/">Inicio</a></li>
-            <li><a href="/proyectos">Proyectos</a></li>
             <li><a href="/precios">Precios</a></li>
-            <li><a href="/blog">Blog</a></li>
             <li><a href="/contacto">Contacto</a></li>
+            <li><a href="/condiciones">Condiciones</a></li>
+            <li><a href="/privacidad">Privacidad</a></li>
           </ul>
         </div>
 
@@ -57,7 +78,7 @@
       </div>
 
       <div class="footer-bottom">
-        <span>© <span data-year><%= year %></span> Nexo Studio. Todos los derechos reservados.</span>
+        <span>© <span data-year><%= year %></span> Shopcito. Todos los derechos reservados.</span>
         <span>
           <a href="/cuenta/entrar" class="footer-login">Acceso clientes</a> ·
           <a href="/aviso-legal">Aviso legal</a> ·

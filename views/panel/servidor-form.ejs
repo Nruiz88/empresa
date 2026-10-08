@@ -39,6 +39,25 @@
       <div class="panel-note"><%= aviso %></div>
     <% } %>
 
+    <%# Lo que esta caja va a usar ahora mismo, escrito aunque no se toque
+        el campo. Es la pregunta "¿a dónde llaman estos bots?", y tener que
+        abrir Editar para contestarla es lo que hace que alguien suponga
+        en vez de mirar. %>
+    <div class="panel-note">
+      <p>
+        <strong>Esta caja llamará a:</strong>
+        <code><%= enUso || (aviso || "— sin destino: el panel no tiene dominio del bot y esta caja no tiene URL propia —") %></code>
+      </p>
+      <% if (tieneBots) { %>
+        <p>
+          Hay <%= tieneBots %> bot(s) dentro. Si cambias esta URL, no basta con
+          guardar: hay que <strong>reconfigurar los bots de la caja</strong> para
+          que la Evolution les apunte al sitio nuevo. Ese botón está en la
+          tarjeta de la caja, en <%= base %>/servidores.
+        </p>
+      <% } %>
+    </div>
+
     <%# El resultado de la prueba va ARRIBA y no debajo del formulario.
 
         Es lo que pasó: el botón de guardar está al final, la respuesta a
@@ -109,7 +128,31 @@
         <% if (errores.webhook_secret) { %><em class="panel-error"><%= errores.webhook_secret %></em><% } %>
       </label>
 
-      <label class="panel-field">
+      <label class="panel-field panel-field--ancho<%= errores.webhook_url ? ' has-error' : '' %>">
+        <span>URL del webhook</span>
+        <input type="url" name="webhook_url" value="<%= servidor.webhook_url || '' %>"
+               class="panel-input--url"
+               placeholder="<%= deducida || 'https://bot.tucormercio.com.ar/api/webhook' %>" />
+        <em class="panel-help">
+          <% if (servidor.webhook_url) { %>
+            Esta caja usa la de arriba y no la del dominio.
+          <% } else { %>
+            Vacío = se usa la del dominio:
+            <% if (deducida) { %>
+              <code><%= deducida %></code>
+            <% } else { %>
+              <strong>el panel no tiene dominio del bot todavía</strong>, así que
+              si lo dejas vacío esta caja se queda sin webhook.
+            <% } %>
+          <% } %>
+          <br />Es lo que le mandas a la Evolution, tal cual. Si el bot está en
+          otro sitio, pon aquí esa dirección: los bots de esta caja recibirán
+          los mensajes en ella.
+        </em>
+        <% if (errores.webhook_url) { %><em class="panel-error"><%= errores.webhook_url %></em><% } %>
+      </label>
+
+      <label class="panel-field panel-field--ancho">
         <span>Plan</span>
         <select name="plan">
           <option value="" <%= !servidor.plan ? 'selected' : '' %>>— Sin especificar —</option>

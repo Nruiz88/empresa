@@ -337,7 +337,7 @@
      ========================================================= */
   if (finePointer) {
     q('a[href^="/"]').forEach(function (link) {
-      if (link.classList.contains("btn") || link.closest(".footer-col, .nav, .footer-bottom, .theme-switch")) return;
+      if (link.classList.contains("btn") || link.closest(".footer-col, .nav, .footer-bottom")) return;
       link.addEventListener("mouseenter", function () {
         gsap.to(link, { x: 3, duration: 0.25, ease: "power2.out" });
       });

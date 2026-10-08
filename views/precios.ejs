@@ -9,8 +9,87 @@
       lead: "Publicamos nuestros precios porque creemos que mereces saberlo antes de escribirnos. El importe final se confirma tras una conversación de 30 minutos, sin compromiso."
     }) %>
 
-    <section class="section" style="padding-top: 1rem;">
+    <%# =========================================================
+         PLANES DE SHOPCITO — ARRIBA DE TODO, A PROPÓSITO
+
+         Va primero porque es lo único que se vende hoy. Los planes
+         del estudio digital que vienen después están en la página
+         porque el rebranding va por partes y `/precios` los usa
+         todavía el FAQ del blog y los excerpts de los artículos a
+         través de `content/precios.js`.
+
+         Borrarlos de aquí sin borrar aquello rompe las otras dos
+         cosas, así que se dejan marcados y se van con la segunda
+         parte del cambio de marca.
+         ========================================================= %>
+    <section class="section" id="planes-shopcito" style="padding-top: 1rem;">
       <div class="container">
+        <div class="section-head section-head--center reveal">
+          <span class="eyebrow">Planes de Shopcito</span>
+          <h2>El bot, el catálogo y los turnos, <span class="gradient-text">en un plan</span></h2>
+          <p>
+            Los tres son mensuales y sin permanencia. El precio te lo decimos cuando nos
+            escribís: todavía no hay cifra publicada.
+          </p>
+        </div>
+
+        <div class="price-grid">
+          <% shopcito.PLANES.forEach(function (p) { %>
+            <article class="price-card reveal<%= p.destacado ? " featured" : "" %>">
+              <% if (p.destacado) { %><span class="badge">Recomendado</span><% } %>
+              <h3><%= p.nombre %></h3>
+              <p class="plan-desc"><%= p.descripcion %></p>
+              <div class="price">
+                <span class="amount<%= p.precio ? '' : ' amount--consultar' %>"><%= precioDePlan(p) %></span>
+              </div>
+              <ul class="price-features">
+                <% p.incluye.forEach(function (i) { %><li><%= i %></li><% }); %>
+              </ul>
+              <p class="price-note"><%= p.nota %></p>
+              <a href="<%= p.cta.href %>" class="<%= p.cta.clase %> btn-block"><%= p.cta.texto %></a>
+            </article>
+          <% }); %>
+        </div>
+
+        <p style="text-align:center; color:var(--text-dim); font-size:var(--fs-xs); margin-top:1.5rem;">
+          Sin cargo de instalación. Sin permanencia: si lo das de baja, no hay nada que
+          cancelar. Sin comisiones por venta, ni de Mercado Pago ni nuestras.
+        </p>
+      </div>
+    </section>
+
+    <%# ─────────────────────────────────────────────────────────
+         ⚠️  DE AQUÍ PARA ABAJO: PLANES DEL ESTUDIO DIGITAL ANTIGUO
+
+         webs a medida y mantenimiento, con las cifras de la época en
+         euros. El negocio ya no los vende.
+
+         NO se borran en esta vuelta por dos razones que no son
+         de estilo:
+
+           1. `content/faq.js` y `content/posts.js` sacan sus
+              importes de estos mismos datos con `plan("esencial")`
+              y `precioDe()`. Borrar PROYECTOS rompe el FAQ entero
+              (llama a `precioDe(null)` y revienta al pintar).
+           2. `/servicios`, `/proyectos` y el hero de página los
+              enumeran.
+
+         Se borran juntos, con el resto del rebranding, y hay que
+         rehacer el FAQ y los excerpts en el mismo movimiento.
+
+         Y ojo con la moneda: estos importes son EUROS y
+         `MONEDA` sigue en "€". El sitio publica, a día de hoy,
+         precios en euros de un negocio que ya no existe. Ver la
+         advertencia de `MONEDA` en `content/precios.js`.
+         ───────────────────────────────────────────────────────── %>
+    <section class="section section--soft">
+      <div class="container">
+        <div class="section-head section-head--center reveal">
+          <span class="eyebrow">Planes antiguos</span>
+          <h2>Webs y proyectos a medida</h2>
+          <p>Del estudio digital anterior. No se contratan: quedan aquí mientras termina el cambio de marca.</p>
+        </div>
+
         <div class="price-grid">
             <%# Los mismos tres planes que la portada, desde los mismos datos.
 

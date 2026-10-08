@@ -1,0 +1,106 @@
+<%# =========================================================
+     Shopcito — Iconos de la portada
+     ------------------------------------------------------------
+     include('partials/icono-shop', { nombre: 'bot' })
+
+     ── POR QUÉ OTRO ARCHIVO Y NO REUSAR `icono.ejs` ──
+
+     Porque los nombres no coinciden y los dibujos tampoco:
+
+     · `icono.ejs` está pensado para las TARJETAS DE CIFRAS del
+       panel, donde cada icono acompaña a un número y tiene que
+       distinguirse a 40px en una fila de cuatro iguales. Son
+       formas cerradas y geométricas: un sobre, un candado, un
+       globo.
+     · Los de Shopcito son Icons de MARCA: un reloj, una
+       conversation, un carrito, un cuaderno. Representan
+       conceptos de negocio, y "un reloj" en la portada tiene
+       que leerse como "atendemos de noche", no como "vence
+       pronto".
+
+     Mezclarlos en una sola tabla acabaría con veinte iconos en
+     un archivo que se llama a sí mismo "iconos del panel", y
+     con nombres como `reloj` duplicados en dos sitios con
+     dibujos distintos. El que se nombre por el que se llame.
+
+     ── EL TRAZO ──
+
+     24x24, sin relleno, `currentColor`, grosor 2, sin uniones
+     redondeadas. Idéntico criterio al de `icono.ejs` para que
+     el drawer del panel y la web pública no parezcan de dos
+     sitios distintos.
+
+     `aria-hidden` en todos: el sentido va en el texto de al
+     lado, y un lector de pantalla no gana nada con un "icono
+     de reloj" antes de leer "contesta solo de noche".
+
+     El `viewBox` se declara una vez y el tamaño lo pone el
+     CSS, como en `icono.ejs`.
+     ========================================================= %>
+<% var _shop = {
+  /* ── Los tres de las promesas del hero ── */
+
+  /* Reloj: "contesta solo, de noche". Las agujas clavadas en las
+     diez y media son las de un local cerrado. */
+  reloj:
+    '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+
+  /* Turno: una agenda, con hojas marcadas. Un reloj sería el
+     icono del hero repetido aquí, y en la lista de pasos la
+     idea es "reservar", no "esperar". */
+  turno:
+    '<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="m9 15 2 2 4-4"/>',
+
+  /* Sin comisión: un cartel de prohibido sobre el símbolo de
+     peso. Un "%" tachado se lee más rápido y es más claro. */
+  sincomision:
+    '<circle cx="12" cy="12" r="9"/><path d="m5.6 5.6 12.8 12.8"/><path d="M15 9.5c0-1.4-1.3-2.2-3-2.2-1.6 0-2.7.7-2.9 1.8M9 14.5c.2 1.2 1.4 1.9 3.1 1.9 1.7 0 2.8-.7 3-1.8"/>',
+
+  /* ── Los tres del problema ── */
+
+  /* Consulta perdida: una burbuja con un reloj de arena, para
+     decir "el mensaje se quedó sin leer" sin escribirlo. */
+  perdida:
+    '<path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.2a8.4 8.4 0 0 1-.9-3.8 8.4 8.4 0 0 1 8.4-8.4h.6a8.4 8.4 0 0 1 8 8v.9z"/><path d="M12 8v4M12 15.5h.01"/>',
+
+  /* Cuaderno: el antes. Un block con líneas y una hoja suelta,
+     que es lo que el dueño reconoce de su propio mostrador. */
+  cuaderno:
+    '<path d="M5 3h11a2 2 0 0 1 2 2v16H7a2 2 0 0 1-2-2V3z"/><path d="M9 8h6M9 12h6M9 16h4"/><path d="M18 7h2v14a2 2 0 0 1-2 2"/>',
+
+  /* Fotos sueltas: dos hojas superpuestas con un botón, que es
+     como acaban los precios: imágenes tiradas en un chat. */
+  fotos:
+    '<rect x="7" y="3" width="14" height="14" rx="2"/><path d="m7 13 3.5-3.5 3 3L16 10l5 5"/><circle cx="11" cy="7.5" r="1.2"/><path d="M3 7v12a2 2 0 0 0 2 2h10"/>',
+
+  /* ── Los tres de la solución ── */
+
+  /* Bot: un chat con un engranaje. La burbuja es la de WhatsApp
+     de toda la web; lo que dice "automático" es el engranaje
+     adentro. Un robot entero sería más literal pero pesa
+     demasiado a 18px. */
+  bot:
+    '<path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.2a8.4 8.4 0 0 1-.9-3.8 8.4 8.4 0 0 1 8.4-8.4h.6a8.4 8.4 0 0 1 8 8v.9z"/><circle cx="9.5" cy="12" r="1.6"/><circle cx="14.5" cy="12" r="1.6"/><path d="M8 15.8a4.5 4.5 0 0 0 8 0"/>',
+
+  /* Mini shop: un carrito. No un storefront ni una bolsa: lo que
+     se vende acá son productos concretos y el carrito es lo que
+     el cliente ya conoce de la tienda de siempre. */
+  tienda:
+    '<circle cx="9" cy="20" r="1.6"/><circle cx="18" cy="20" r="1.6"/><path d="M2 3h2.2l2.5 12.4a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L21 7H5.5"/>',
+
+  /* Celular: un teléfono con un check, porque el paso no es
+     "recibir mensajes" sino "recibir la venta ya ordenada". */
+  celular:
+    '<rect x="6" y="2" width="12" height="20" rx="3"/><path d="M10.5 18.5h3"/><path d="m9.5 12 1.8 1.8 3.4-3.6"/>'
+};
+var _trazoShop = _shop[nombre];
+if (_trazoShop) { %>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+       stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
+       focusable="false"><%- _trazoShop %></svg>
+<% } else { %>
+  <%# Un nombre mal escrito no rompe la página: pinta el hueco
+      vacío y sigue. Es un fallo de desarrollo, no un
+      incidente, y pararse a avisar dejaría la pantalla a medio
+      hacer. Lo mismo que en `icono.ejs`. %>
+<% } %>

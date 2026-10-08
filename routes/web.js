@@ -30,7 +30,7 @@ const DATA_FILE = path.join(DATA_DIR, "consultas.jsonl");
 const router = express.Router();
 
 {
-  const { posts, projects, figures, faq, cases, precios } = content;
+  const { posts, projects, figures, faq, cases, precios, shopcito } = content;
 
   /* Atajo para páginas sin lógica propia */
   const page = (view, current, meta) => (req, res) => {
@@ -92,18 +92,33 @@ const router = express.Router();
     res.locals.precio = precios.importe;
     res.locals.simbolo = precios.simbolo;
     res.locals.precioDe = precios.precioDe;
+    /* El que sabe qué pintar cuando el plan no tiene cifra. Va en
+       `res.locals` y no en `render` de cada ruta por el mismo motivo
+       que los otros: la portada y /precios pintan planes, y que una
+       página nueva se acuerde de pasárselo a mano es la forma
+       segura de que una se quede sin él. */
+    res.locals.precioDePlan = precios.precioDePlan;
+
+    /* Los textos de la portada de Shopcito. */
+    res.locals.shopcito = shopcito;
     next();
   });
 
-  /* ---------- Home ---------- */
+  /* ---------- Home ----------
+     El título y la descripción van aquí y no en la vista: son lo
+     que lee el buscador, y la vista es lo que lee el visitante.
+
+     Se quitaron las palabras "diseño web", "web apps" y
+     "aplicaciones a medida" que decía antes. Con el título viejo,
+     un comercio que busca "bot de whatsapp" no encuentra nada y
+     una agencia que ya no existe nos encuentra a nosotros. */
   router.get("/", (req, res) => {
     res.locals.current = "inicio";
-    res.locals.structuredFaq = faq.home;
     res.render("index", {
-      title: "Nexo Studio — Diseño web, webs app y aplicaciones para empresas",
+      title: "Shopcito — El copiloto digital para tu comercio o emprendimiento",
       description:
-        "Diseñamos y desarrollamos webs, tiendas online, web apps y aplicaciones a medida para empresas y comercios. Ver proyectos, precios y servicios.",
-      posts: posts.slice(0, 3),
+        "Automatizá tus respuestas de WhatsApp, agendá turnos y vendé desde tu propio mini shop. " +
+        "Tu bot atiende las 24 horas y a vos te llega todo ordenado al celular. Sin comisiones ni letra chica.",
     });
   });
 

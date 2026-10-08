@@ -168,6 +168,15 @@ const tiene = (texto, aguja) => texto.includes(aguja);
       comprobar("enseña el nombre de la caja (" + caja.name + ")", tiene(texto, caja.name));
       comprobar("enseña la url (el equipo la necesita)", tiene(texto, caja.url));
 
+      /* A dónde llama la caja. Si no aparece, el bot de esa caja no
+         recibe nada y eso tiene que verse en la tarjeta, no solo en un
+         log: es la primera pregunta cuando alguien dice "no me
+         funcionan los mensajes". */
+      comprobar(
+        "enseña a qué URL llamará la caja",
+        tiene(texto, "/api/webhook")
+      );
+
       /* La comprobación de que no se escapa la clave va contra el VALOR
          real de la base, no contra la palabra "api_key". Con lo segundo
          saltaba siempre que hubiera un formulario de cambiar la clave
@@ -252,6 +261,15 @@ const tiene = (texto, aguja) => texto.includes(aguja);
       comprobar(
         "la edición tampoco enseña la clave ni el secreto",
         secretos.every((s) => !tiene(editando.texto, s))
+      );
+
+      /* El formulario tiene que decir a dónde va a llamar esa caja, sin
+         que nadie tenga que deducirlo. Es la pregunta que se hace
+         cuando un bot no contesta, y contestarla mirando el HTML es
+         más rápido que abrir la caja y preguntar. */
+      comprobar(
+        "el formulario dice a qué llamará la caja",
+        tiene(editando.texto, "Esta caja llamará a")
       );
     }
   }
