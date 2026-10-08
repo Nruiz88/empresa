@@ -80,10 +80,31 @@ const EVENTOS = [
         events: EVENTOS,
         headers: { "x-webhook-secret": srv.webhook_secret },
         base64: false,
-        /* Las tres formas del mismo campo. Ver la nota de arriba. */
-        byEvents: true,
-        webhook_by_events: true,
-        webhookByEvents: true,
+        /* ── `byEvents` EN FALSE, Y POR QUÉ ──
+     Este campo no significa "filtrar por eventos". Significa "generar
+     una URL distinta para cada evento", y la documentación lo dice
+     textual: al activarlo, se le AÑADE el nombre del evento al final de
+     la URL.
+
+     Con `true`, MESSAGES_UPSERT va a:
+         https://bot.shopcito.com.ar/api/webhook/messages-upsert
+
+     Y el bot escucha en:
+         https://bot.shopcito.com.ar/api/webhook
+
+     O sea, a una dirección que no existe. Evolution recibe un 404 y no
+     vuelve a intentarlo. Y un 404 de un webhook no deja rastro
+     ninguno: no hay error, no hay reintento y no hay log. Por eso
+     durante horas se estuvo buscando un problema que estaba escrito
+     en la documentación.
+
+     El comentario del código del bot decía que esto era obligatorio
+     para que la configuración por instancia se respetara. Es
+     justamente lo contrario: con `true` la URL cambia y con `false` se
+     llama a la que el bot escucha. */
+    byEvents: false,
+    webhook_by_events: false,
+    webhookByEvents: false,
       },
     };
 
@@ -125,9 +146,15 @@ const EVENTOS = [
     console.log("    base64:           " + w?.webhookBase64);
     console.log("    secreto:          " + (w?.headers?.["x-webhook-secret"] ? "puesto" : "FALTA"));
 
+    /* `byEvents` tiene que quedar en FALSE, y no en true.
+     La comprobación pedía `true` porque venía de leer mal el campo: si
+     queda en true, Evolution llama a `/api/webhook/messages-upsert` y el
+     bot no la escucha. Que se verifique lo contrario a lo que se
+     piensa es justamente lo que hace que un cambio así no vuelva a
+     colarse sin que nadie lo note. */
     const bien = w?.url === WEBHOOK && w?.enabled === true &&
       Array.isArray(w?.events) && w.events.includes("MESSAGES_UPSERT") &&
-      byEvents === true;
+      byEvents === false;
 
     console.log("    → " + (bien ? "✓ listo" : "× quedó incompleto"));
     console.log("");
