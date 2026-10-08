@@ -329,7 +329,13 @@ const router = express.Router();
      se nota, lo que toca es un contador guardado y refrescado al
      cambiar algo, no quitarlo. */
   router.use(async (req, res, next) => {
-    res.locals.contadores = { consultas: 0, vencidos: 0, servicios: 0, tickets: 0 };
+    res.locals.contadores = {
+      consultas: 0,
+      vencidos: 0,
+      servicios: 0,
+      tickets: 0,
+      botsSinConectar: 0,
+    };
 
     /* Solo si hay sesión de equipo: en el portal del cliente el
        lateral no se pinta, así que sería una consulta inútil en cada
@@ -339,7 +345,7 @@ const router = express.Router();
     try {
       const hoy = new Date().toISOString().slice(0, 10);
 
-      const [consultas, vencidos, servicios, tickets] = await Promise.all([
+      const [consultas, vencidos, servicios, tickets, botsSinConectar] = await Promise.all([
         db.from("leads").select("id", { count: "exact", head: true }).eq("estado", "nuevo"),
         db
           .from("cobros")
@@ -360,6 +366,23 @@ const router = express.Router();
           .from("soporte_tickets")
           .select("id", { count: "exact", head: true })
           .in("estado", ["abierto", "en_curso"]),
+
+        /* Bots sin número enlazado.
+
+           Es un `.neq` y no un filtro por estado: la columna `status` es
+           texto libre (migración 011), así que "sin conectar" es
+           cualquier cosa que no sea exactamente 'open'. Un `.not('status',
+           'eq', 'open')` que devolviera `null` no se contaría, y un bot
+           recién creado viene con 'close', que sí es justo lo que tiene
+           que contar.
+
+           Con `head: true` solo baja el número: no se descargan filas ni
+           se cruza con nada. Y va en el mismo Promise que los otros
+           cuatro, así que no añade un viaje de red a la carga. */
+        db
+          .from("bots")
+          .select("id", { count: "exact", head: true })
+          .neq("status", "open"),
       ]);
 
       res.locals.contadores = {
@@ -367,6 +390,7 @@ const router = express.Router();
         vencidos: vencidos.count || 0,
         servicios: servicios.count || 0,
         tickets: tickets.count || 0,
+        botsSinConectar: botsSinConectar.count || 0,
       };
     } catch (e) {
       /* A propósito sin log de error: es un contador de un menú, y una
@@ -818,6 +842,17 @@ const router = express.Router();
     router.use(BASE, require("./panel-consultas")(comunes));
     router.use(BASE, require("./panel-cobros")(comunes));
     router.use(BASE, require("./panel-accesos")(comunes));
+    /* Bots y cajas de Evolution.
+
+       Esta sección sustituye al admin que tenía el bot en D:\webs\wweb:
+       dar de alta instancias, dar de alta cajas y probar cajas. Se monta
+       después de los accesos porque un bot siempre cuelga de un cliente,
+       y en el menú las dos están contiguas.
+
+       El orden no importa para las rutas: sus prefijos (`/bots`,
+       `/servidores`) no coinciden con los de ningún otro router, así que
+       no hay dos que puedan reclamar la misma URL. */
+    router.use(BASE, require("./panel-bots")(comunes));
     /* La salud del sistema. Va después de los datos y antes del
        portal: es la pregunta "¿está todo bien?", y cuando algo no lo
        está el sitio donde se mira es aquí. */

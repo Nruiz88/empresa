@@ -24,9 +24,12 @@ Complementos, no sustitutos:
       (`SITE_URL`, `PANEL_URL`). Al arrancar en producción con el
       marcador, `server.js` y `panel.js` avisan por consola.
       ⚠️ `SITE_URL` no es solo para correos: de ahí se deducen los
-      subdominios de los servicios (`bot.<dominio>`). Si se queda en
-      `127.0.0.1`, el botón "Abrir" del portal lleva al localhost del
-      cliente y no da error visible. Ver COOLIFY.md.
+      subdominios de los servicios (`bot.<dominio>`) **y la dirección
+      del webhook** que el panel le da a cada Evolution
+      (`lib/bots.js`, `urlDeWebhook()`). Si se queda en `127.0.0.1`, el
+      botón "Abrir" del portal lleva al localhost del cliente, y el
+      webhook que se configura desde `/panel/bots` no llega a ninguna
+      parte. Ver COOLIFY.md.
       Mientras tanto, el plan es: web en `midominio.com`, panel en
       `panel.midominio.com`, bot en `bot.midominio.com`.
 - [ ] **HTTPS.** Todo es `127.0.0.1` sin TLS. La cookie `Secure` ya se
@@ -87,10 +90,26 @@ Complementos, no sustitutos:
       El destino se deduce del dominio (`bot.<tu-dominio>`), sin
       dominio inventado guardado en la base. Probado por HTTPS entre
       los dos subdominios: `npm run test:flujo`.
-      ⚠️ Falta **elegir proveedor de WhatsApp**, y eso bloquea el
-      resto. Lo de dentro son las rutas del bot real; las tablas
-      `bots_*` de la migración 011 ya existen con RLS cerrada, así que
-      la base no es el problema. Ver COOLIFY.md.
+      El proveedor es **Evolution API** y ya está funcionando con un
+      bot enlazado (`Boti 1`, Panadería La Espiga). Ver COOLIFY.md.
+- [x] **Gestión de bots y cajas desde el panel.** Hecho: `/panel/bots`
+      (alta de bot con reparto automático de caja, listado con el
+      cliente y su email, filtro y revisión del estado real del número) y
+      `/panel/servidores` (alta, edición, prueba, activar/desactivar y
+      cambio de clave de cada caja de Evolution).
+      Sustituye al admin que tenía el bot en `D:\webs\wweb`, borrado en
+      el commit 1843047 con `AdminInstanceManager`, `AdminServers` y
+      `AdminUserManager`.
+      Lo que NO se hizo a propósito: que el equipo pueda ver el QR,
+      reiniciar o desconectar el número de un cliente. Eso lo hace el
+      cliente desde su portal, y poder hacerlo en silencio es la forma
+      corta de que un cliente se despierte sin WhatsApp y sin aviso.
+      Reparto: la caja con más cupos libres (`evolution_servers.
+      max_instances`, migración 021). Requiere `webhook_secret` en la
+      caja (migración 021) y que coincida con `WEBHOOK_SECRET` del bot:
+      `npm run secreto:webhook` lo pone.
+      Tests: `npm run test:bots` (50 comprobaciones, sin tocar la caja
+      real) y `npm run probar:bots` (por HTTP, con la caja real).
 - [ ] **Caducar suscripciones.** Las que no tienen `termina_en` se
       renuevan solas para siempre. Hay que poner algo que cierre las no
       pagadas, o decidir que es manual.
@@ -99,6 +118,10 @@ Complementos, no sustitutos:
 - [ ] **Pantalla de historial.** `audit_log` se escribe desde
       `lib/auth.js` (`auditar()`) y no hay ninguna ruta ni vista que la
       lea. El índice ya existe.
+      Lo que sí está resuelto desde la sección de bots: las acciones de
+      bots y cajas (crear bot, moverlo de caja, crear/editar/probar
+      caja, rotar su clave) llaman a la misma `auditar()` que el resto,
+      así que el registro existe y solo falta poder consultarlo.
       `TODO` en `routes/panel.js`.
 
 ## Limpieza

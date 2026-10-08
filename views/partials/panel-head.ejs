@@ -67,7 +67,14 @@
      el histórico, no filtrar por una lista vacía.
 
      Un enlace por destino, sin anidar nada. %>
-<% var _c = (typeof contadores !== 'undefined' && contadores) ? contadores : { consultas: 0, vencidos: 0, servicios: 0, tickets: 0 }; %><% var _current = typeof current !== 'undefined' ? current : ''; %>
+<%# El objeto de contadores tiene la forma completa aquí, y no en los
+    tres sitios donde se usa. Antes `_c` nacía con cuatro claves y el
+    contador de bots se leía de `contadores.botsSinConectar` directamente,
+    de modo que si el middleware no lo rellenaba (portal del cliente,
+    errores, login) la vista leía `undefined > 0`, que es false y no
+    rompe... hasta que alguien lo cambiaba por una comparación. La lista
+    de claves se escribe una vez y el resto la toma de aquí. %>
+<% var _c = (typeof contadores !== 'undefined' && contadores) ? contadores : { consultas: 0, vencidos: 0, servicios: 0, tickets: 0, botsSinConectar: 0 }; %><% var _current = typeof current !== 'undefined' ? current : ''; %>
 
 <%# Con teclado se puede saltar el lateral. Sin esto, cada cambio de
     página son seis tabulaciones antes de llegar al contenido. %>
@@ -181,6 +188,35 @@
        <%= _current === 'catalogo' ? 'aria-current="page"' : '' %>>
       <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5.5 10 2.5l7 3v9l-7 3-7-3v-9Z"/><path d="M3 5.5 10 8.5l7-3M10 8.5v9"/></svg>
       Catálogo
+    </a>
+
+    <%# Bots y sus cajas.
+
+        Van en "Gestión" y no en "Equipo" porque son trabajo que se hace
+        para un cliente concreto, como los servicios: un bot es un módulo
+        más, con la diferencia de que además hay una caja de Evolution
+        detrás.
+
+        Y van juntos porque se necesitan el uno al otro en el mismo rato:
+        no se da de alta un bot sin mirar dónde cabe, ni se toca una caja
+        sin saber qué bots tiene dentro. Separados en dos sitios del menú
+        obligaría a cambiar de pantalla para una sola tarea. %>
+    <a href="<%= base %>/bots" class="panel-menu-item<%= _current === 'bots' ? ' is-active' : '' %>"
+       <%= _current === 'bots' ? 'aria-current="page"' : '' %>>
+      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5h14v10H7l-4 3V5z"/></svg>
+      Bots
+      <%# El contador son los que NO están en línea. Es la cifra que
+          además avisa de que hay algo que atender, que es lo mismo que
+          hacen "Consultas" y "Soporte". %>
+      <% if (_c.botsSinConectar > 0) { %>
+        <span class="panel-badge panel-badge--vencido"
+              title="<%= contadores.botsSinConectar %> bot(s) sin conectar"><%= _c.botsSinConectar > 99 ? "99+" : _c.botsSinConectar %></span>
+      <% } %>
+    </a>
+    <a href="<%= base %>/servidores" class="panel-menu-item panel-menu-item--hijillo<%= _current === 'servidores' ? ' is-active' : '' %>"
+       <%= _current === 'servidores' ? 'aria-current="page"' : '' %>>
+      <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="4" width="14" height="5" rx="1"/><path d="M5 12.5h10M7 15.5h6"/></svg>
+      Cajas de bots
     </a>
 
     <p class="panel-menu-titulo">Equipo</p>

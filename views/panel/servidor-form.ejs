@@ -1,0 +1,174 @@
+<%#
+  Alta y edición de una caja de Evolution.
+
+  En el alta, la caja se PRUEBA antes de guardarse. En la edición solo si
+  cambian la dirección o la clave: los bots que ya viven ahí no se tocan al
+  renombrarla, y una prueba en cada guardado sería esperar al servidor sin
+  motivo.
+
+  Variables: servidor, errores, modo, mensaje, estadoPrueba
+%>
+<%- include('../partials/panel-head', { title, site, base, current }) %>
+
+<div class="panel-page panel-page--form">
+  <div class="panel-page-head">
+    <div>
+      <span class="panel-kicker">WhatsApp</span>
+      <h1><%= modo === 'nuevo' ? 'Nueva caja de Evolution' : 'Editar caja' %></h1>
+    </div>
+    <a href="<%= base %>/servidores" class="panel-btn panel-btn--ghost">← Volver</a>
+  </div>
+
+  <% if (mensaje) { %>
+    <div class="<%= mensaje.tipo === 'ok' ? 'panel-alert panel-alert--ok' : 'panel-alert' %>">
+      <%= mensaje.texto %>
+    </div>
+  <% } %>
+
+  <form method="post" action="<%= base %>/servidores<%= modo === 'editar' ? '/' + servidor.id + '/editar' : '/nuevo' %>"
+        class="panel-form-card">
+    <input type="hidden" name="_csrf" value="<%= csrf %>" />
+
+    <% if (errores.general) { %>
+      <div class="panel-alert"><%= errores.general %></div>
+    <% } %>
+
+    <%# El aviso va arriba, con el mismo criterio que el resultado de la
+        prueba: es lo que hay que atender antes de seguir. %>
+    <% if (aviso) { %>
+      <div class="panel-note"><%= aviso %></div>
+    <% } %>
+
+    <%# El resultado de la prueba va ARRIBA y no debajo del formulario.
+
+        Es lo que pasó: el botón de guardar está al final, la respuesta a
+        la prueba está arriba del todo. Cuando la caja no responde, lo que
+        hay que ver es por qué, y si está debajo del botón la pantalla
+        queda con el motivo fuera de vista justo cuando se necesita. %>
+    <% if (estadoPrueba && !estadoPrueba.ok) { %>
+      <div class="panel-alert">
+        <strong>La caja no respondió.</strong> <%= estadoPrueba.mensaje %>
+        <br />No se ha guardado nada.
+        <% if (modo === 'nuevo' && servidor.url) { %>
+          Revisa la dirección y la clave. Si es que la caja está apagada y
+          la quieres dejar preparada, marca la casilla de abajo.
+        <% } %>
+      </div>
+    <% } %>
+
+    <div class="panel-form-grid">
+      <label class="panel-field panel-field--ancho<%= errores.name ? ' has-error' : '' %>">
+        <span>Nombre *</span>
+        <input type="text" name="name" value="<%= servidor.name || '' %>" required
+               placeholder="Ej. Evolution principal" maxlength="80" />
+        <em class="panel-help">Cómo lo reconocerá el equipo. Pon algo que diga de qué es.</em>
+        <% if (errores.name) { %><em class="panel-error"><%= errores.name %></em><% } %>
+      </label>
+
+      <label class="panel-field panel-field--ancho<%= errores.url ? ' has-error' : '' %>">
+        <span>Dirección de la Evolution *</span>
+        <input type="url" name="url" value="<%= servidor.url || '' %>" required
+               class="panel-input--url" placeholder="https://evolution-api.midominio.com" />
+        <em class="panel-help">La base, sin rutas. El bot añade lo que haga falta (/api/webhook, /instance/...).</em>
+        <% if (errores.url) { %><em class="panel-error"><%= errores.url %></em><% } %>
+      </label>
+
+      <label class="panel-field<%= errores.api_key ? ' has-error' : '' %>">
+        <span>Clave <%= modo === 'editar' ? '' : '*' %></span>
+        <input type="text" name="api_key" value="<%= servidor.api_key || '' %>"
+               placeholder="<%= modo === 'editar' ? 'déjalo vacío para no cambiarla' : 'la clave de la Evolution' %>"
+               autocomplete="off" />
+        <em class="panel-help">
+          <% if (modo === 'editar') { %>
+            No se muestra la que hay. Si la rotas, cambia la clave desde la
+            pantalla de cajas: esa comprobación sí es obligatoria.
+          <% } else { %>
+            La que usa la Evolution para autorizar. Con ella se puede
+            manejar cualquier número de esta caja.
+          <% } %>
+        </em>
+        <% if (errores.api_key) { %><em class="panel-error"><%= errores.api_key %></em><% } %>
+      </label>
+
+      <label class="panel-field<%= errores.webhook_secret ? ' has-error' : '' %>">
+        <span>Secreto del webhook<%= modo === 'editar' && servidor.tieneSecreto ? '' : '' %></span>
+        <input type="text" name="webhook_secret" value=""
+               placeholder="<%= servidor.tieneSecreto ? 'déjalo vacío para no cambiarlo' : 'el mismo valor que WEBHOOK_SECRET en el bot' %>"
+               autocomplete="off" />
+        <em class="panel-help">
+          <% if (servidor.tieneSecreto) { %>
+            Esta caja ya tiene uno. Escribir aquí lo cambia.
+          <% } else { %>
+            Es el valor que la Evolution manda en <code>x-webhook-secret</code> y
+            que el bot comprueba en cada mensaje. <strong>Tiene que ser el mismo
+            que <code>WEBHOOK_SECRET</code> del servicio del bot</strong>: si no
+            coinciden, la Evolution acepta los mensajes y el bot los rechaza sin
+            dar ningún error.
+          <% } %>
+        </em>
+        <% if (errores.webhook_secret) { %><em class="panel-error"><%= errores.webhook_secret %></em><% } %>
+      </label>
+
+      <label class="panel-field">
+        <span>Plan</span>
+        <select name="plan">
+          <option value="" <%= !servidor.plan ? 'selected' : '' %>>— Sin especificar —</option>
+          <option value="subscription" <%= servidor.plan === 'subscription' ? 'selected' : '' %>>Suscripción (paga)</option>
+          <option value="free" <%= servidor.plan === 'free' ? 'selected' : '' %>>Gratis</option>
+        </select>
+        <em class="panel-help">Aguanta más números una caja de pago que una gratis.</em>
+      </label>
+
+      <label class="panel-field<%= errores.max_instances ? ' has-error' : '' %>">
+        <span>Números que caben *</span>
+        <input type="number" name="max_instances" value="<%= servidor.max_instances || 10 %>"
+               min="1" max="500" step="1" class="panel-input--numero" required />
+        <em class="panel-help">
+          El tope de esta caja. Es lo que decide a dónde va cada bot nuevo:
+          se usa la que tenga más sitios libres.
+        </em>
+        <% if (errores.max_instances) { %><em class="panel-error"><%= errores.max_instances %></em><% } %>
+      </label>
+
+      <label class="panel-field panel-field--ancho">
+        <span>Notas internas</span>
+        <textarea name="notas" rows="2"><%= servidor.notas || '' %></textarea>
+        <em class="panel-help">
+          Con qué cuenta está creada, quién paga la factura, cuándo caduca
+          la prueba. El cliente no ve esto.
+        </em>
+      </label>
+    </div>
+
+    <label class="panel-field">
+      <span>Guardar aunque la caja no responda</span>
+      <input type="checkbox" name="forzar" value="1" />
+      <em class="panel-help">
+        Para dejar una caja preparada antes de levantarla. Sin marcar esto,
+        una caja que no responde no se guarda: una clave mal escrita se
+        aceptaría y el error aparecería cuando un cliente perdiera su
+        número.
+      </em>
+    </label>
+
+    <div class="panel-note">
+      <p>
+        <strong>Qué se hace al guardar una caja nueva:</strong>
+      </p>
+      <p>
+        Se prueba la dirección con la clave. Si responde, la caja queda dada
+        de alta y disponible para el reparto de bots. No se crea ningún
+        número aquí: eso pasa al dar de alta un bot para un cliente.
+      </p>
+    </div>
+
+    <div class="panel-form-actions">
+      <button type="submit" class="panel-btn panel-btn--primary">
+        <%= modo === 'nuevo' ? 'Probar y guardar' : 'Guardar cambios' %>
+      </button>
+      <a href="<%= base %>/servidores" class="panel-btn panel-btn--ghost">Cancelar</a>
+    </div>
+  </form>
+</div>
+
+<%- include('../partials/panel-foot', { site }) %>

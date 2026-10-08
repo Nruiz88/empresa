@@ -4960,3 +4960,51 @@ body.cmd-abierto {
   width: 0.85rem;
   height: 0.85rem;
 }
+
+/* =========================================================
+   BOTS Y CAJAS DE EVOLUTION
+   ---------------------------------------------------------
+   Los chips del estado de un número de WhatsApp.
+
+   Se nombran `bot-*` y no `salud-*` a propósito. `salud-*` ya lo usan
+   los microservicios (verde / rojo / ámbar) y `estado-*` los servicios.
+   Un bot tiene cuatro estados y uno de ellos (`close`, "sin conectar")
+   NO es un fallo: es el estado normal de un bot recién dado de alta, que
+   todavía no ha escaneado el QR. Pintarlo en rojo sería mentir, y con la
+   tabla entera en rojo nadie distinguiría "está mal" de "todavía no lo
+   ha conectado".
+
+   Por eso el rojo se reserva para lo que sí requiere intervención: un
+   servidor que no responde.
+   ========================================================= */
+.panel-chip--bot-open {
+  color: var(--success);
+  border-color: var(--success-border);
+  background: var(--success-bg);
+}
+
+.panel-chip--bot-close {
+  color: var(--text-muted);
+  border-color: var(--border-strong);
+  background: var(--raise);
+}
+
+/* Conectando y esperando QR comparten color a propósito: los dos son
+   "está en ello" y no necesitan distinguirse. El texto ya los
+   distingue. */
+.panel-chip--bot-espera {
+  color: var(--warning);
+  border-color: color-mix(in srgb, var(--warning) 40%, transparent);
+  background: color-mix(in srgb, var(--warning) 12%, transparent);
+}
+
+/* ---------- La entrada de menú que cuelga de otra ----------
+
+   "Cajas de bots" es hijo de "Bots" en el menú: se usa con el mismo bot
+   abierto delante. El sangrado va en `padding-inline-start` y no en un
+   margen, para que el hover siga siendo un rectángulo y no un rectángulo
+   con un hueco al lado. */
+.panel-menu-item--hijillo {
+  padding-inline-start: 1.75rem;
+  font-size: 0.82rem;
+}

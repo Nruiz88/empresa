@@ -1,0 +1,160 @@
+<%#
+  Alta de un bot.
+
+  El reparto de caja es automático (lib/bots.js) y se puede forzar. El
+  selector sale con la propuesta marcada como primera opción, que es lo
+  que evita tener que contar a mano cuántas caben en cada caja.
+
+  Variables: clientes, conBot, cajas, propuesta, sinSitio, bot, errores,
+             modo, mensaje, nota, errorCarga
+%>
+<%- include('../partials/panel-head', { title, site, base, current }) %>
+
+<div class="panel-page panel-page--form">
+  <div class="panel-page-head">
+    <div>
+      <span class="panel-kicker">WhatsApp</span>
+      <h1>Nuevo bot</h1>
+    </div>
+    <a href="<%= base %>/bots" class="panel-btn panel-btn--ghost">← Volver</a>
+  </div>
+
+  <% if (mensaje) { %>
+    <div class="<%= mensaje.tipo === 'ok' ? 'panel-alert panel-alert--ok' : 'panel-alert' %>">
+      <%= mensaje.texto %>
+    </div>
+  <% } %>
+  <% if (nota) { %><div class="panel-note"><%= nota %></div><% } %>
+  <% if (errorCarga) { %><div class="panel-alert"><%= errorCarga %></div><% } %>
+
+  <% if (!clientes.length) { %>
+    <%# Aquí no se ofrece "crear cliente". El bot se da de alta para
+        alguien que ya existe en el panel: sin empresa no hay con qué
+        filtrar por RLS, y el cliente no vería nada. Antes esto se
+        descubría al final, cuando el bot ya estaba creado. %>
+    <div class="panel-empty">
+      <% if (conBot && conBot.length) { %>
+        <h2>Todos los clientes tienen bot</h2>
+        <p>
+          Un cliente, un bot: es lo que sostiene que dos números no acaben
+          compartiendo mensajes. Si un cliente necesita un segundo número,
+          hay que decidirlo antes de tocar el índice que lo impide
+          (ver la migración 015).
+        </p>
+        <a href="<%= base %>/bots" class="panel-btn panel-btn--ghost">Ver los bots</a>
+      <% } else { %>
+        <h2>No hay clientes a los que colgarlo</h2>
+        <p>Primero crea un cliente. Un bot siempre pertenece a alguien.</p>
+        <a href="<%= base %>/clientes/nuevo" class="panel-btn panel-btn--primary">Nuevo cliente</a>
+      <% } %>
+    </div>
+  <% } else if (sinSitio) { %>
+    <%# El caso "no hay donde meterlo". Se dice ANTES del formulario y
+        con la salida a comprar espacio, no con un error de validación
+        debajo de un botón: el equipo no puede hacer nada con este
+        formulario, y es mejor decirlo arriba. %>
+    <div class="panel-alert"><%= sinSitio %></div>
+    <div class="panel-page-acciones">
+      <a href="<%= base %>/servidores" class="panel-btn panel-btn--primary">Ver las cajas</a>
+      <a href="<%= base %>/servidores/nuevo" class="panel-btn panel-btn--ghost">Dar de alta otra caja</a>
+      <a href="<%= base %>/bots" class="panel-btn panel-btn--ghost">← Volver</a>
+    </div>
+  <% } else { %>
+
+  <form method="post" action="<%= base %>/bots/nuevo" class="panel-form-card">
+    <input type="hidden" name="_csrf" value="<%= csrf %>" />
+
+    <% if (errores.general) { %>
+      <div class="panel-alert"><%= errores.general %></div>
+    <% } %>
+
+    <div class="panel-form-grid">
+      <label class="panel-field panel-field--ancho<%= errores.client_id ? ' has-error' : '' %>">
+        <span>Cliente *</span>
+        <select name="client_id" required>
+          <option value="">— elige cliente —</option>
+          <% clientes.forEach(function (c) { %>
+            <option value="<%= c.id %>" <%= bot.client_id === c.id ? 'selected' : '' %>>
+              <%= c.empresa || c.nombre %><%= c.email ? ' · ' + c.email : '' %>
+            </option>
+          <% }); %>
+        </select>
+        <em class="panel-help">Solo aparecen los que todavía no tienen bot.</em>
+        <% if (errores.client_id) { %><em class="panel-error"><%= errores.client_id %></em><% } %>
+      </label>
+
+      <label class="panel-field panel-field--ancho<%= errores.name ? ' has-error' : '' %>">
+        <span>Nombre del bot *</span>
+        <input type="text" name="name" value="<%= bot.name || '' %>" required
+               placeholder="Ej. Bot de Panadería La Espiga" maxlength="80" />
+        <em class="panel-help">Como lo verá el equipo en esta pantalla.</em>
+        <% if (errores.name) { %><em class="panel-error"><%= errores.name %></em><% } %>
+      </label>
+
+      <label class="panel-field<%= errores.slug ? ' has-error' : '' %>">
+        <span>Dirección de reservas</span>
+        <input type="text" name="slug" value="<%= bot.slug || '' %>"
+               placeholder="panaderia-la-espiga" maxlength="41" />
+        <em class="panel-help">
+          Se arma con el nombre si lo dejas vacío. Es la URL pública:
+          solo minúsculas, números y guiones.
+        </em>
+        <% if (errores.slug) { %><em class="panel-error"><%= errores.slug %></em><% } %>
+      </label>
+
+      <label class="panel-field<%= errores.server_id ? ' has-error' : '' %>">
+        <span>Caja de Evolution</span>
+        <select name="server_id">
+          <%# La primera opción es "la que recommendamos". Va marcada
+              como elegida por defecto, no como texto: quien quiere otra
+              la elige, y quien no, acepta la que tiene más sitio. Es el
+              reparto automático pero sin quitar la decisión. %>
+          <% cajas.forEach(function (c) { %>
+            <option value="<%= c.id %>"
+                    <%= (!bot.server_id && propuesta && propuesta.id === c.id) ||
+                       bot.server_id === c.id ? 'selected' : '' %>
+                    <%= c.activo ? '' : 'disabled' %>>
+              <%= c.name %> — <%= c.activo ? (c.libres + ' libre' + (c.libres === 1 ? '' : 's') + ' de ' + c.max_instances) : 'desactivada' %>
+            </option>
+          <% }); %>
+        </select>
+        <em class="panel-help">
+          <% if (propuesta) { %>
+            Se usa por defecto <strong><%= propuesta.name %></strong>, que es la que tiene
+            más sitios libres.
+          <% } else { %>
+            Sin opciones marcadas: se usa la que tenga más sitios libres.
+          <% } %>
+        </em>
+        <% if (errores.server_id) { %><em class="panel-error"><%= errores.server_id %></em><% } %>
+      </label>
+
+      <label class="panel-field panel-field--ancho">
+        <span>Saludo de bienvenida</span>
+        <input type="text" name="welcome_message" value="<%= bot.welcome_message || '' %>"
+               maxlength="300" placeholder="Opcional: lo primero que contesta" />
+        <em class="panel-help">Se puede cambiar luego desde el bot del cliente.</em>
+      </label>
+    </div>
+
+    <%# Lo que va a pasar al guardar, escrito antes de que pase.
+
+        Las llamadas a la caja (crear el número y enganchar el webhook) son
+        lentas y pueden fallar. Decirlo evita el "ha tardado mucho" y, sobre
+        todo, el "creo que se ha quedado colgado" cuando lo que está
+        pasando es que una caja tarda diez segundos. %>
+    <div class="panel-note">
+      Al guardar se crean el número y el webhook en la caja elegida. Puede
+      tardar unos segundos. El cliente después entra en su portal y conecta
+      su WhatsApp con un código QR: esa parte la hace él, no este panel.
+    </div>
+
+    <div class="panel-form-actions">
+      <button type="submit" class="panel-btn panel-btn--primary">Crear bot</button>
+      <a href="<%= base %>/bots" class="panel-btn panel-btn--ghost">Cancelar</a>
+    </div>
+  </form>
+  <% } %>
+</div>
+
+<%- include('../partials/panel-foot', { site }) %>

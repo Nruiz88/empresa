@@ -1,0 +1,248 @@
+<%#
+  Bots: quién tiene cuál y dónde vive su número.
+
+  Esta pantalla reemplaza al admin que tenía el bot (D:\webs\wweb), que
+  se borró cuando el bot pasó a entrar por ticket del panel.
+
+  Variables: bots, cajas, q, estado, counts, mensaje, nota, errorCarga
+%>
+<%- include('../partials/panel-head', { title, site, base, current }) %>
+
+<div class="panel-page">
+  <% if (mensaje) { %>
+    <div class="<%= mensaje.tipo === 'ok' ? 'panel-alert panel-alert--ok' : 'panel-alert' %>">
+      <%= mensaje.texto %>
+    </div>
+  <% } %>
+
+  <%# La nota va aparte del mensaje y en otro tono. No es un error: la
+      acción se hizo igual. Mezclarlas haría que un aviso sobre un
+      webhook reenganchado se leyera como si el alta hubiera fallado. %>
+  <% if (nota) { %>
+    <div class="panel-note"><%= nota %></div>
+  <% } %>
+
+  <% if (errorCarga) { %>
+    <div class="panel-alert"><%= errorCarga %></div>
+  <% } %>
+
+  <div class="panel-page-head">
+    <div>
+      <span class="panel-kicker">WhatsApp</span>
+      <h1>Bots</h1>
+      <p class="panel-count">
+        <%= counts.total %> bot<%= counts.total === 1 ? '' : 's' %> ·
+        <%= counts.conectados %> en línea<% if (counts.sinConectar) { %> · <%= counts.sinConectar %> sin conectar<% } %>
+      </p>
+    </div>
+    <a href="<%= base %>/bots/nuevo" class="panel-btn panel-btn--primary">Nuevo bot</a>
+  </div>
+
+  <%# Los contadores. El de "sin conectar" va en rojo y es un enlace con
+      el filtro puesto, no un número suelto: informa de un problema al
+      que se puede ir a atender, que es distinto de un dato. %>
+  <div class="panel-stats">
+    <a class="panel-stat" href="<%= base %>/bots">
+      <strong><%= counts.total %></strong>
+      <span>Bots dados de alta</span>
+    </a>
+    <a class="panel-stat<%= counts.sinConectar ? ' panel-stat--alerta' : ' panel-stat--ok' %>"
+       href="<%= base %>/bots<%= counts.sinConectar ? '?estado=sin-conectar' : '' %>">
+      <strong><%= counts.sinConectar %></strong>
+      <span>Sin conectar</span>
+    </a>
+    <%# Los sitios libres. Va antes que el número de cajas porque es lo
+        que se pregunta antes de dar de alta un bot: "¿cabe?". %>
+    <a class="panel-stat<%= counts.libres ? ' panel-stat--info' : ' panel-stat--alerta' %>"
+       href="<%= base %>/servidores">
+      <strong><%= counts.libres %></strong>
+      <span>Sitios libres</span>
+    </a>
+    <a class="panel-stat" href="<%= base %>/servidores">
+      <strong><%= counts.cajas %></strong>
+      <span>Cajas activas</span>
+    </a>
+  </div>
+
+  <% if (!counts.libres && counts.total) { %>
+    <div class="panel-note">
+      No queda sitio en ninguna caja. Antes de dar de alta otro bot hay que
+      <a href="<%= base %>/servidores">subir el cupo de una caja</a> o
+      <a href="<%= base %>/servidores/nuevo">dar de alta otra</a>.
+    </div>
+  <% } %>
+
+  <!-- Filtros -->
+  <form class="panel-filters" method="get" action="<%= base %>/bots">
+    <input type="search" name="q" value="<%= q %>" class="panel-search"
+           placeholder="Buscar por bot, empresa o email…" />
+    <button type="submit" class="panel-btn panel-btn--ghost panel-btn--xs">Buscar</button>
+    <% if (estado) { %>
+      <a href="<%= base %>/bots<%= q ? '?q=' + encodeURIComponent(q) : '' %>"
+         class="panel-btn panel-btn--ghost panel-btn--xs">Quitar filtro</a>
+    <% } %>
+    <% if (q || estado) { %><a href="<%= base %>/bots" class="panel-btn panel-btn--ghost panel-btn--xs">Ver todos</a><% } %>
+  </form>
+
+  <% if (!bots.length) { %>
+    <div class="panel-empty">
+      <% if (q || estado) { %>
+        <h2>Nada con ese filtro</h2>
+        <p>Prueba con otro término, o quita el filtro.</p>
+        <a href="<%= base %>/bots" class="panel-btn panel-btn--ghost">Ver todos</a>
+      <% } else { %>
+        <h2>Todavía no hay bots</h2>
+        <p>
+          <% if (!counts.cajas) { %>
+            Empieza por <a href="<%= base %>/servidores/nuevo">dar de alta una caja de Evolution</a>:
+            es donde van a vivir los números.
+          <% } else { %>
+            El bot se da de alta a un cliente, y el reparto decide en qué caja
+            queda su número.
+          <% } %>
+        </p>
+        <% if (counts.cajas) { %>
+          <a href="<%= base %>/bots/nuevo" class="panel-btn panel-btn--primary">Nuevo bot</a>
+        <% } else { %>
+          <a href="<%= base %>/servidores/nuevo" class="panel-btn panel-btn--primary">Nuevo servidor</a>
+        <% } %>
+      <% } %>
+    </div>
+  <% } else { %>
+
+    <div class="panel-table-wrap">
+      <table class="panel-table">
+        <thead>
+          <tr>
+            <th>Bot</th>
+            <th>Cliente</th>
+            <th>Caja</th>
+            <th>Estado</th>
+            <th class="panel-th-actions"><span class="sr-only">Acciones</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% bots.forEach(function (b) { %>
+            <%# La fila se tiñe solo cuando el número NO está en línea. Con
+                veinte bots, el que hay que mirar es el que no funciona, y
+                si los veinte se ven igual hay que leer la columna de
+                estado uno a uno. Es el mismo criterio que la fila de
+                cobros vencidos. %>
+            <tr<%= b.estadoCrudo === 'open' ? '' : ' class="panel-tr--error"' %>>
+              <td data-label="Bot" data-principal>
+                <span class="panel-cell-main"><%= b.nombre %></span>
+                <%# El nombre de la instancia se enseña en pequeño y en
+                    mono. Es el dato que aparece en el log cuando un
+                    cliente dice que su bot no contesta, así que buscarlo
+                    no debería obligar a abrir la caja. %>
+                <span class="panel-cell-sub"><%= b.instancia %></span>
+                <%# El slug sin dominio. La URL de reservas la compone el
+                    bot, que está en otro subdominio, y montar aquí el
+                    dominio completo sería escribir un dominio que
+                    puede cambiar. Con el slug se busca igual de rápido. %>
+                <% if (b.slug) { %>
+                  <span class="panel-cell-sub">agendar/<%= b.slug %></span>
+                <% } %>
+              </td>
+
+              <td data-label="Cliente">
+                <a href="<%= base %>/clientes/<%= b.clienteId %>" class="panel-stretch"><%= b.cliente %></a>
+                <% if (b.clienteEmail) { %>
+                  <span class="panel-cell-sub"><%= b.clienteEmail %></span>
+                <% } %>
+              </td>
+
+              <td data-label="Caja">
+                <a href="<%= base %>/servidores#<%= b.cajaId %>"><%= b.caja %></a>
+              </td>
+
+              <td data-label="Estado">
+                <span class="panel-chip <%= b.estado.chip %>"><%= b.estado.texto %></span>
+                <%# Cuándo se preguntó a la caja. Sin esta fecha, un
+                    estado viejo se lee como si fuera de ahora, y es la
+                    forma de diagnosticar mal: "el bot está abierto" puede
+                    llevar una semana sin comprobarse. %>
+                <% if (b.comprobadoEn) { %>
+                  <span class="panel-cell-sub">
+                    comprobado el <%= new Date(b.comprobadoEn).toLocaleDateString('es-ES') %>
+                  </span>
+                <% } else { %>
+                  <span class="panel-cell-sub">sin comprobar</span>
+                <% } %>
+              </td>
+
+              <td class="panel-th-actions">
+                <%# Dos acciones y no más.
+                      · Revisar: pregunta a la caja. No cambia nada.
+                      · Mover: solo si no está en línea. %>
+                <form method="post" action="<%= base %>/bots/<%= b.id %>/revisar">
+                  <input type="hidden" name="_csrf" value="<%= csrf %>" />
+                  <button type="submit" class="panel-btn panel-btn--ghost panel-btn--xs">Revisar</button>
+                </form>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+
+    <%# El cambio de caja es un formulario aparte, debajo de la tabla, y
+        no un botón por fila. Ponerlo por fila obligaría a meter un
+        <select> en cada una y un desplegable de cajas que se repite
+        veinte veces es ruido: se cambia de caja en un momento concreto,
+        no de seguido. %>
+    <% if (bots.some(function (b) { return b.estadoCrudo !== 'open'; })) { %>
+      <h2 class="panel-card-titulo" style="margin-top:2.2rem">Mover un bot a otra caja</h2>
+      <p class="panel-cell-sub" style="margin:0.3rem 0 1rem">
+        Solo para bots que no están en línea. Al moverlo se crea su número
+        en la caja nueva, así que el cliente tendrá que volver a conectar
+        el WhatsApp.
+      </p>
+
+      <div class="panel-table-wrap">
+        <table class="panel-table">
+          <thead>
+            <tr>
+              <th>Bot</th>
+              <th>Va a</th>
+              <th class="panel-th-actions"><span class="sr-only">Mover</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% bots.filter(function (b) { return b.estadoCrudo !== 'open'; }).forEach(function (b) { %>
+              <tr>
+                <td data-principal>
+                  <span class="panel-cell-main"><%= b.nombre %></span>
+                  <span class="panel-cell-sub"><%= b.cliente %> · ahora en <%= b.caja %></span>
+                </td>
+                <td data-label="Va a">
+                  <form method="post" action="<%= base %>/bots/<%= b.id %>/servidor" class="panel-serv-form">
+                    <input type="hidden" name="_csrf" value="<%= csrf %>" />
+                    <select name="server_id" class="panel-select panel-select-mini">
+                      <% cajas.filter(function (c) { return c.activo; }).forEach(function (c) { %>
+                        <option value="<%= c.id %>" <%= c.id === b.cajaId ? 'selected' : '' %> <%= c.libres ? '' : 'disabled' %>>
+                          <%= c.name %> — <%= c.libres %> libre<%= c.libres === 1 ? '' : 's' %> de <%= c.max_instances %>
+                        </option>
+                      <% }); %>
+                    </select>
+                    <button type="submit" class="panel-btn panel-btn--ghost panel-btn--xs"
+                            data-confirmar="Se creará una copia del número en la caja nueva y el cliente tendrá que volver a conectar el WhatsApp. ¿Seguir?">
+                      Mover
+                    </button>
+                  </form>
+                </td>
+                <td class="panel-th-actions">
+                  <a href="<%= base %>/clientes/<%= b.clienteId %>" class="panel-btn panel-btn--ghost panel-btn--xs">
+                    Ficha
+                  </a>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  <% } %>
+</div>
+
+<%- include('../partials/panel-foot', { site }) %>

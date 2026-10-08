@@ -176,9 +176,37 @@ let botB = null;
      falla aunque el test de arriba pase. */
   const { data: botA_visto } = await comoA.from("bots").select("*").eq("id", botA.id).maybeSingle();
   const columnas = Object.keys(botA_visto || {});
+
+  /* El patrón va con palabra entera a propósito, y antes no lo llevaba.
+
+     Con `/key|clave|token|secret/i` basta con que la columna contenga esas
+     letras en cualquier sitio para que salte, y `booking_keyword` (la
+     palabra que abre la agenda, migración 020) contiene "key" dentro de
+     "keyword". El test llevaba un rato dando un falso positivo por una
+     columna que no es un secreto, y eso es peor que no comprobar nada:
+     entrena a ignorar el aviso que sí importaría.
+
+     Ahora la palabra tiene que ser COMPLETA: `api_key`, `webhook_secret`,
+     `access_token`, `clave`... y "keyword" no entra, porque "key" no es
+     una palabra dentro de él. */
+  const pareceSecreto = (columna) =>
+    /(^|_)(api_?key|key|clave|secret|token|password|passwd|pin)(_|$)/i.test(columna);
+
   comprobar(
     "la tabla bots no tiene ninguna columna de clave",
-    !columnas.some((c) => /key|clave|token|secret/i.test(c))
+    !columnas.some(pareceSecreto)
+  );
+
+  /* La comprobación de que el patrón no se ha vuelto demasiado blando.
+
+     `booking_keyword` es la palabra que abre la agenda (migración 020). No
+     es un secreto, y su nombre empieza por "booking_" y contiene "key",
+     así que es el caso que hizo fallar este test con el patrón viejo.
+     Si algún día esta comprobación falla, significa que `pareceSecreto`
+     se ha relajado tanto que ya no distingue nada. */
+  comprobar(
+    "una columna con 'key' dentro del nombre no se confunde con una clave",
+    !pareceSecreto("booking_keyword") && pareceSecreto("api_key") && pareceSecreto("webhook_secret")
   );
 
   /* ---------- Ver su bot y no el otro ---------- */

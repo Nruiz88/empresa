@@ -194,8 +194,11 @@ Esto **no** está listo para producción. Lo que falta:
 - [ ] **HTTPS.** Todo va por `127.0.0.1` sin TLS. La cookie `Secure`
       ya se activa sola con `NODE_ENV=production`.
 - [ ] **Borrar los datos `[demo]`** con `npm run seed:limpiar`.
-- [ ] **Conectar el bot de verdad.** `bot.js` tiene `/mi-bot` como
-      ruta de ejemplo.
+- [ ] **Conectar el bot de verdad.** El motor vive en `D:\webs\wweb`
+      y ya funciona con un cliente enlazado. Aquí, `bot.js` sigue con
+      `/mi-bot` como ruta de ejemplo. La gestión sí está hecha:
+      `/panel/bots` (alta con reparto de caja) y `/panel/servidores`
+      (cajas de Evolution: alta, prueba, cupos y clave).
 - [ ] **Correo.** No hay SMTP: las contraseñas se dan en mano.
 
 ---

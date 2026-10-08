@@ -1,0 +1,208 @@
+<%#
+  Cajas de Evolution: dónde viven los números y cuánto cabe en cada una.
+
+  Variables: cajas, counts, mensaje, nota, instanciasProbadas, errorCarga
+%>
+<%- include('../partials/panel-head', { title, site, base, current }) %>
+
+<div class="panel-page">
+  <% if (mensaje) { %>
+    <div class="<%= mensaje.tipo === 'ok' ? 'panel-alert panel-alert--ok' : 'panel-alert' %>">
+      <%= mensaje.texto %>
+    </div>
+  <% } %>
+  <% if (nota) { %><div class="panel-note"><%= nota %></div><% } %>
+  <% if (errorCarga) { %><div class="panel-alert"><%= errorCarga %></div><% } %>
+
+  <div class="panel-page-head">
+    <div>
+      <span class="panel-kicker">WhatsApp</span>
+      <h1>Servidores de bots</h1>
+      <p class="panel-count">
+        <%= counts.total %> caja<%= counts.total === 1 ? '' : 's' %><% if (counts.inactivas) { %>,
+        <%= counts.inactivas %> desactivada<%= counts.inactivas === 1 ? '' : 's' %><% } %>
+      </p>
+    </div>
+    <a href="<%= base %>/servidores/nuevo" class="panel-btn panel-btn--primary">Nueva caja</a>
+  </div>
+
+  <%# Los sitios libres van primero porque son lo que se pregunta antes de
+      prometerle un bot a un cliente. El resto son contexto. %>
+  <div class="panel-stats">
+    <a class="panel-stat<%= counts.libres ? ' panel-stat--info' : ' panel-stat--alerta' %>"
+       href="<%= base %>/servidores">
+      <strong><%= counts.libres %></strong>
+      <span>Sitios libres</span>
+    </a>
+    <a class="panel-stat" href="<%= base %>/servidores">
+      <strong><%= counts.ocupados %></strong>
+      <span>Números puestos</span>
+    </a>
+    <a class="panel-stat" href="<%= base %>/servidores">
+      <strong><%= counts.slots %></strong>
+      <span>Capacidad total</span>
+    </a>
+    <a class="panel-stat" href="<%= base %>/bots">
+      <strong><%= counts.total %></strong>
+      <span>Cajas</span>
+    </a>
+  </div>
+
+  <% if (!counts.total) { %>
+    <div class="panel-empty">
+      <h2>No hay ninguna caja</h2>
+      <p>
+        Una caja es una Evolution API: el sitio donde de verdad vive cada
+        número de WhatsApp. Sin caja no hay bots, y sin bots no hay nada
+        que repartir.
+      </p>
+      <a href="<%= base %>/servidores/nuevo" class="panel-btn panel-btn--primary">Nueva caja</a>
+    </div>
+  <% } %>
+
+  <%# Una tarjeta por caja, no una tabla. Las cajas son pocas (una por
+      servidor de Evolution) y cada una tiene que enseñar su url, sus
+      notas y la lista de bots que tiene dentro: metido todo en filas de
+      tabla, la tabla acaba con celdas que son párrafos. %>
+  <% cajas.forEach(function (c) { %>
+    <div class="panel-card" id="<%= c.id %>" style="margin-bottom:1.1rem">
+      <div class="panel-card-head">
+        <div class="panel-card-head-texto">
+          <span class="panel-card-cintillo">
+            <% if (!c.activo) { %>Desactivada<% } else if (!c.libres) { %>Llena<% } else { %>En servicio<% } %>
+          </span>
+          <h2 class="panel-card-titulo"><%= c.name %></h2>
+        </div>
+        <div class="panel-cell-sub" style="text-align:end">
+          <span class="panel-th-num"><%= c.bots %> / <%= c.max_instances %></span> números
+        </div>
+      </div>
+
+      <div class="panel-card-cuerpo">
+        <%# La barra de cupos. El color lo pone el propio fullness:
+            verde con sitio, ámbar al límite, rojo llena. Con `--meter-color`
+            en línea y no en tres clases, el valor único donde cambia es el
+            número, que es lo que hay que leer. %>
+        <span class="panel-meter" style="margin-bottom:0.9rem">
+          <span class="panel-meter-relleno"
+                style="width:<%= c.max_instances ? Math.min(100, Math.round((c.bots / c.max_instances) * 100)) : 0 %>%;
+                       --meter-color: <%= !c.activo
+                            ? 'var(--text-dim)'
+                            : c.libres === 0 ? 'var(--danger)'
+                            : c.libres <= 2 ? 'var(--warning)'
+                            : 'var(--success)' %>"></span>
+        </span>
+
+        <dl class="panel-dl">
+          <dt>Dirección</dt>
+          <dd class="panel-cell-mono"><%= c.url %></dd>
+
+          <%# El secreto del webhook. Va como dato y no como nota al pie porque
+            es lo que decide si esta caja puede tener bots funcionando:
+            sin él, todo lo que hay dentro está mudo. %>
+          <dt>Secreto del webhook</dt>
+          <dd>
+            <% if (c.tieneSecreto) { %>
+              <span class="panel-chip panel-chip--estado-activo">Puesto</span>
+            <% } else { %>
+              <span class="panel-chip panel-chip--cobro-pendiente">Falta</span>
+              <span class="panel-cell-sub">
+                Sin él, los bots de esta caja no contestarán: es el valor que
+                comprueba el bot en cada mensaje.
+              </span>
+            <% } %>
+          </dd>
+
+          <dt>Plan</dt>
+          <dd>
+            <% if (c.plan === 'subscription') { %>
+              <span class="panel-chip panel-chip--estado-activo">Suscripción</span>
+            <% } else if (c.plan === 'free') { %>
+              <span class="panel-chip panel-chip--cobro-pendiente">Gratis</span>
+            <% } else { %>
+              <span class="panel-chip panel-chip--mute">Sin decir</span>
+              <span class="panel-cell-sub">La cuota que aguanta depende del plan de esa Evolution.</span>
+            <% } %>
+          </dd>
+
+          <% if (c.notas) { %>
+            <dt>Notas internas</dt>
+            <dd><div class="panel-notes"><%= c.notas %></div></dd>
+          <% } %>
+
+          <dt>Números que tiene dentro</dt>
+          <dd>
+            <% if (!c.contenido.length) { %>
+              <span class="panel-cell-sub">Ninguno. Aquí no vive ningún bot.</span>
+            <% } else { %>
+              <ul class="panel-list">
+                <% c.contenido.forEach(function (b) { %>
+                  <li>
+                    <strong>
+                      <a href="<%= base %>/bots?q=<%= encodeURIComponent(b.empresa) %>"><%= b.nombre %></a>
+                    </strong>
+                    <span>
+                      <%= b.empresa %> · <span class="panel-chip <%= b.estado.chip %>"><%= b.estado.texto %></span>
+                    </span>
+                  </li>
+                <% }); %>
+              </ul>
+            <% } %>
+          </dd>
+        </dl>
+
+        <div class="panel-form-actions">
+          <%# Probar es la acción que más se usa, así que va la primera y
+              es la única con texto propio. Decir "Probar" y no "Comprobar
+              conexión": lo que se quiere saber es si la caja está viva. %>
+          <form method="post" action="<%= base %>/servidores/<%= c.id %>/probar">
+            <input type="hidden" name="_csrf" value="<%= csrf %>" />
+            <button type="submit" class="panel-btn panel-btn--primary panel-btn--xs">Probar</button>
+          </form>
+
+          <a href="<%= base %>/servidores/<%= c.id %>/editar" class="panel-btn panel-btn--ghost panel-btn--xs">Editar</a>
+
+          <%# Cambiar la clave va en un desplegable, no en un botón al
+              lado. Es una operación rara (una vez cada varios meses) y
+              con un campo de texto en la tarjeta, la caja muestra su
+              clave en media pantalla todo el rato. %>
+          <details class="panel-note-edit">
+            <summary class="panel-btn panel-btn--ghost panel-btn--xs">Cambiar clave</summary>
+            <form method="post" action="<%= base %>/servidores/<%= c.id %>/clave">
+              <input type="hidden" name="_csrf" value="<%= csrf %>" />
+              <input type="text" name="api_key" placeholder="La nueva clave de esta Evolution" required />
+              <button type="submit" class="panel-btn panel-btn--primary panel-btn--xs"
+                      data-confirmar="Se probará antes de guardar. Si la caja no la acepta, no se cambia nada. ¿Seguir?">
+                Guardar clave
+              </button>
+            </form>
+          </details>
+
+          <form method="post" action="<%= base %>/servidores/<%= c.id %>/activo">
+            <input type="hidden" name="_csrf" value="<%= csrf %>" />
+            <input type="hidden" name="activo" value="<%= c.activo ? '0' : '1' %>" />
+            <button type="submit" class="panel-btn panel-btn--ghost panel-btn--xs"
+                    <%= c.activo
+                        ? 'data-confirmar="Seguirá sirviendo a los ' + c.bots + ' bot(s) que ya tiene, pero no le asignará más. ¿Seguir?"'
+                        : '' %>>
+              <%= c.activo ? 'Desactivar' : 'Activar' %>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  <% }); %>
+
+  <div class="panel-note">
+    <p>
+      Las claves de las cajas no salen de aquí. La tabla que las guarda no
+      tiene reglas de RLS a propósito (migración 011), así que solo la
+      alcanza el servidor con la secret key, igual que las sesiones. En el
+      formulario de editar tampoco se enseñan, porque escribirlas de nuevo en
+      cada cambio es una forma de dejarlas a medias sin querer; para
+      rotarlas hay un botón aparte, que las prueba antes de guardarlas.
+    </p>
+  </div>
+</div>
+
+<%- include('../partials/panel-foot', { site }) %>
