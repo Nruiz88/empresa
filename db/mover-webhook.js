@@ -1,6 +1,6 @@
 /* Cambia la URL del webhook de una caja y reconfigura sus bots.
 
-   node db/mover-webhook.js https://bot.tucormercio.com.ar/api/webhook
+   node db/mover-webhook.js https://bot.shopcito.com.ar/api/webhook
 
    Hace tres cosas, en este orden y parando en la primera que falle:
 

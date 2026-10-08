@@ -14,9 +14,9 @@ Tres servicios independientes, un dominio, tres dominios:
 
 | Servicio | Dónde está el código | Dominio | Puerto interno |
 |---|---|---|---|
-| Web | este repo, `server.js` | `tucormercio.com.ar` | 3000 |
-| Panel | este repo, `server.js` (mismo proceso) | `panel.tucormercio.com.ar` | 3000 |
-| Bot | **`D:\webs\wweb`** (Next.js) | `bot.tucormercio.com.ar` | 3000 |
+| Web | este repo, `server.js` | `shopcito.com.ar` | 3000 |
+| Panel | este repo, `server.js` (mismo proceso) | `panel.shopcito.com.ar` | 3000 |
+| Bot | **`D:\webs\wweb`** (Next.js) | `bot.shopcito.com.ar` | 3000 |
 
 ### ⚠️ El bot NO es `bot.js` de este repo
 
@@ -27,7 +27,7 @@ respuestas automáticas, turnos, catálogo y el panel del cliente— está en
 su propio dominio.
 
 Por qué importa, y por qué es el fallo más caro de este despliegue: la
-Evolution manda los mensajes al webhook. Si `bot.tucormercio.com.ar`
+Evolution manda los mensajes al webhook. Si `bot.shopcito.com.ar`
 apunta a `bot.js`, cada mensaje recibe un **404**. El bot queda mudo
 **sin ningún error visible**: la Evolution devuelve 200 cuando le
 configuras el webhook, el panel da el alta por buena, y lo único que pasa
@@ -63,15 +63,15 @@ host-only y sus propias rutas.
 Esto no es una preferencia estética, es seguridad:
 
 La cookie de sesión es **host-only**. Con el panel en
-`panel.tucormercio.com.ar`, un XSS en la web pública (`tucormercio.com.ar`) no
+`panel.shopcito.com.ar`, un XSS en la web pública (`shopcito.com.ar`) no
 puede leer la cookie del panel. Si el panel viviera en
-`tucormercio.com.ar/panel`, sería el mismo host y esa protección desaparecería.
+`shopcito.com.ar/panel`, sería el mismo host y esa protección desaparecería.
 
 Lo mismo aplica al bot: su cookie es `nexo_bot`, distinta de
 `nexo_panel`, y cada una existe solo en su host.
 
 Consecuencia práctica: **si algún día añades un subdominio nuevo, no
-lo pongas con `Domain=.tucormercio.com.ar`**. Eso compartiría las cookies
+lo pongas con `Domain=.shopcito.com.ar`**. Eso compartiría las cookies
 entre todos los subdominios y se llevaría por delante justo la
 propiedad que justifica separarlos.
 
@@ -99,8 +99,8 @@ hay que declarar `HOST` en Coolify.** Si algún día se declara con
 
 ```env
 NODE_ENV=production
-SITE_URL=https://tucormercio.com.ar
-PANEL_URL=https://panel.tucormercio.com.ar
+SITE_URL=https://shopcito.com.ar
+PANEL_URL=https://panel.shopcito.com.ar
 PORT=3000
 
 DATABASE_URL=postgresql://...
@@ -145,7 +145,7 @@ EVOLUTION_API_KEY=<la de la caja>
 WEBHOOK_SECRET=<el mismo que la caja>
 
 # La URL pública de ESTE servicio: es la que va en el webhook.
-APP_URL=https://bot.tucormercio.com.ar
+APP_URL=https://bot.shopcito.com.ar
 ```
 
 `APP_URL` no es un detalle: es la dirección a la que la Evolution manda
@@ -272,8 +272,8 @@ de Coolify (`Resource` → `Shared Variable`), eso ya está resuelto.
 subdominios de los servicios:
 
 ```
-SITE_URL=https://tucormercio.com.ar
-   └─> bot.tucormercio.com.ar
+SITE_URL=https://shopcito.com.ar
+   └─> bot.shopcito.com.ar
 ```
 
 Si `SITE_URL` se queda en `http://127.0.0.1:3000`, el botón "Abrir"
@@ -294,11 +294,11 @@ dominio cuando el problema es la cookie.
 El flujo es de dos saltos, con un ticket firmado de por medio:
 
 ```
-1. panel.tucormercio.com.ar/panel/servicios/bot_whatsapp/entrar
+1. panel.shopcito.com.ar/panel/servicios/bot_whatsapp/entrar
    └─> el panel firma un ticket de 60 s con los datos del usuario
-   └─> redirige a bot.tucormercio.com.ar/entrar#ticket=...
+   └─> redirige a bot.shopcito.com.ar/entrar#ticket=...
 
-2. bot.tucormercio.com.ar/entrar  (el JS lee el # y hace POST)
+2. bot.shopcito.com.ar/entrar  (el JS lee el # y hace POST)
    └─> el bot verifica la firma
    └─> comprueba que el cliente tiene el módulo contratado
    └─> pone su propia cookie (nexo_bot)
@@ -321,15 +321,15 @@ Después del primer despliegue, en este orden:
 
 ```bash
 # 1. La web responde
-curl -sI https://tucormercio.com.ar | head -1
+curl -sI https://shopcito.com.ar | head -1
 # HTTP/2 200
 
 # 2. El panel redirige al login (no 404)
-curl -sI https://panel.tucormercio.com.ar/panel/login | head -1
+curl -sI https://panel.shopcito.com.ar/panel/login | head -1
 # HTTP/2 200
 
 # 3. El bot responde SU /entrar (no el 404 genérico)
-curl -s https://bot.tucormercio.com.ar/entrar | grep -q "Comprobando tu acceso"
+curl -s https://bot.shopcito.com.ar/entrar | grep -q "Comprobando tu acceso"
 # echo $?  -> 0
 ```
 
@@ -344,8 +344,8 @@ Con sesión de cliente real, en el navegador:
 1. Entrar al panel como cliente (no staff)
 2. `/panel/mis-servicios`
 3. Bot de WhatsApp → "Abrir"
-4. **Debería** redirigir a `bot.tucormercio.com.ar/entrar#ticket=...` y
-   devolver a `panel.tucormercio.com.ar/panel/mis-servicios`
+4. **Debería** redirigir a `bot.shopcito.com.ar/entrar#ticket=...` y
+   devolver a `panel.shopcito.com.ar/panel/mis-servicios`
 
 Si al volver aparece un 404, el problema es la URL de vuelta, no los
 permisos. `acceso-servicio.js` la construye con `urlDelPanel()`, que
