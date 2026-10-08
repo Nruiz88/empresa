@@ -14,6 +14,9 @@ const fs = require("fs");
 const path = require("path");
 
 const siteConfig = require("../lib/site");
+
+/* Los planes que se venden al público, y de dónde salen. */
+const planesLib = require("../lib/planes");
 const content = require("../lib/content");
 
 const site = siteConfig;
@@ -103,6 +106,23 @@ const router = express.Router();
 
     /* Los textos de la portada de Shopcito. */
     res.locals.shopcito = shopcito;
+    next();
+  });
+
+  /* Los planes para la web pública.
+
+     Se piden AQUÍ y no en la vista, porque una vista es síncrona: si
+     los pidiera ella, la primera vez que se renderizara no los tendría
+     y la portada saldría sin planes. Un fallo que solo aparece en
+     producción y solo la primera vez.
+
+     `planes()` nunca lanza: si la base falla devuelve el respaldo sin
+     precio y la web sigue en pie. Ver la cabecera de `lib/planes.js`. */
+  router.use(async function inyectaPlanes(req, res, next) {
+    const { planes, deRespaldo } = await planesLib.planes();
+    res.locals.planes = planes;
+    res.locals.precioDePlan = planesLib.precioDe;
+    res.locals.planesDeRespaldo = deRespaldo;
     next();
   });
 

@@ -205,6 +205,21 @@
       Catálogo
     </a>
 
+    <%# Los planes que se venden al público.
+
+        Va justo DESPUÉS del catálogo, y no por orden alfabético ni por
+        parecido: son las dos pantallas donde se cambian precios que ve
+        la gente, y tenerlas juntas evita que alguien las confunda.
+
+        La diferencia importa y está escrita en el rótulo: el catálogo
+        son los servicios que se AÑADEN a un cliente, y los planes son
+        el producto entero en tres niveles. %>
+    <a href="<%= base %>/planes" class="panel-menu-item<%= _current === 'planes' ? ' is-active' : '' %>"
+       <%= _current === 'planes' ? 'aria-current="page"' : '' %>>
+      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M2.5 6h15M2.5 10h15M2.5 14h9"/><circle cx="15.5" cy="14" r="2.5"/></svg>
+      Planes
+    </a>
+
     <%# Bots y sus cajas.
 
         Van en "Gestión" y no en "Equipo" porque son trabajo que se hace

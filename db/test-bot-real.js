@@ -10,8 +10,8 @@
    Un chat propio es el único sitio donde se puede hacer esta prueba sin
    molestar a nadie. */
 
-const PANEL = process.env.TEST_PANEL || "https://empresa.panel-niconqn.duckdns.org";
-const BOT = process.env.TEST_BOT || "https://bot.panel-niconqn.duckdns.org";
+const PANEL = process.env.TEST_PANEL || "https://panel.shopcito.com.ar";
+const BOT = process.env.TEST_BOT || "https://bot.shopcito.com.ar";
 
 (async () => {
   console.log("\n═══ El bot, de verdad ═══\n");
@@ -75,7 +75,32 @@ const BOT = process.env.TEST_BOT || "https://bot.panel-niconqn.duckdns.org";
     process.exit(1);
   }
 
-  /* ---- 2. Esperar a que el webhook lo recoja ---- */
+  /* ---- 2. Esperar a que el webhook lo recoja ----
+
+     Se mira `bots_webhook_logs`, que es donde el bot anota CADA
+     llamada al webhook. Antes se miraba `bots_response_logs`, y esa
+     tabla la escribe el camino de Evolution: por eso esta prueba
+     decía que el bot no respondía cuando llevaba rato
+     respondiendo.
+
+     Y OJO con lo que esta prueba puede y no puede demostrar:
+
+       · puede    — que el webhook recibe, valida la firma, encuentra
+                    el bot y responde;
+       · NO puede — que Evolution mande el webhook.
+
+     Y lo segundo es justo lo que se viene a probar. Porque el
+     mensaje sale DE la instancia HACIA su propio número, y Evolution
+     filtra los propios a propósito: si los soltara, el bot se
+     respondería en bucle sin parar.
+
+     Con un solo número no se puede probar el circuito entero. Hace
+     falta un segundo número que le escriba al de la instancia, y eso
+     ya es una decisión de negocio: otro número y otro WhatsApp.
+
+     Para lo que SÍ se puede demostrar sin eso, está
+     `db/test-webhook-bot.js`, que manda la llamada firmada a mano y
+     comprueba las cuatro etapas del circuito del bot. */
   console.log("\n── 2. ¿Lo recoge el webhook? ──\n");
   console.log("  esperando hasta 45 s a que el bot responda...");
 
@@ -90,17 +115,15 @@ const BOT = process.env.TEST_BOT || "https://bot.panel-niconqn.duckdns.org";
        respuestas, que es lo que escribe el bot al procesar. */
     const { data: logs } = await db.rpc("ejecutar_sql", {
       consulta:
-        "select l.message, l.created_at, r.keyword, r.response_text " +
-        "from bots_response_logs l " +
-        "join bots_responses r on r.id = l.response_id " +
-        "order by l.created_at desc limit 3",
+        "select created_at, status, error from bots_webhook_logs " +
+        "order by created_at desc limit 5",
       args: [],
     });
 
     const reciente = (logs || []).filter((l) => new Date(l.created_at) > new Date(Date.now() - 60000));
     if (reciente.length) {
       contesto = reciente[0];
-      console.log(`\n  → contestado a los ${i * 3} s`);
+      console.log(`\n  → el webhook registró la llamada a los ${i * 3} s  (status=${contesto.status})`);
       break;
     }
     if (i % 3 === 0) console.log(`  ${i * 3} s, todavía nada`);
@@ -116,8 +139,20 @@ const BOT = process.env.TEST_BOT || "https://bot.panel-niconqn.duckdns.org";
     process.exit(1);
   }
 
-  console.log("  ✓ el webhook recibió el mensaje");
-  console.log("    lo que escribió: " + (contesto.message || "").slice(0, 80));
+  console.log("  ✓ el webhook registró la llamada");
+  console.log("    status: " + (contesto.status || "?") +
+    (contesto.error ? "  error: " + String(contesto.error).slice(0, 120) : ""));
+
+  console.log("");
+  console.log("  ── Lo que esto NO demuestra ──");
+  console.log("  Que Evolution mande el webhook. El mensaje salió de la");
+  console.log("  propia instancia hacia su propio número, y Evolution filtra");
+  console.log("  los mensajes propios a propósito: si los soltara, el bot se");
+  console.log("  respondería en bucle.");
+  console.log("");
+  console.log("  Para cerrar eso hace falta un SEGUNDO número que le escriba al");
+  console.log("  de la instancia. Para el circuito del bot, sin segundo número:");
+  console.log("    node db/test-webhook-bot.js" + "\n");
   console.log("    regla que casó: " + (contesto.keyword || "(ninguna)"));
   console.log("    su respuesta:    " + (contesto.response_text || "").slice(0, 80));
 

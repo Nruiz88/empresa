@@ -1,0 +1,308 @@
+<%- include('../partials/panel-head') %>
+
+<%# =========================================================
+     Shopcito — Los planes, de los que se vende al público
+
+     Copia de `catalogo-admin.ejs` a propósito: las dos pantallas
+     hacen lo mismo (editar filas de un catálogo) y una pantalla que
+     funciona es mejor que una nueva que casi funciona.
+
+     Lo que cambia es la forma, porque los planes no son módulos:
+
+       · el precio puede quedar VACÍO, y vacío es «A consultar». No
+         es un campo obligatorio que se avisa, es un estado legítimo.
+       · hay una lista de líneas (qué incluye), en vez de un módulo
+         suelto.
+       · no hay una columna de clientes, porque un plan no se
+         «añade» a un cliente: se contrata entero.
+     ========================================================= %>
+
+<div class="panel-page">
+  <div class="panel-page-head">
+    <div>
+      <span class="panel-kicker">Lo que vendes al público</span>
+      <h1>Planes</h1>
+      <p class="panel-page-lead">
+        Los tres planes de Shopcito y sus precios. Esto es lo que sale en la
+        portada y en <code>/precios</code>, en este mismo orden.
+      </p>
+    </div>
+
+    <div class="panel-page-acciones">
+      <a href="/panel/catalogo" class="panel-btn panel-btn--ghost">Catálogo de productos</a>
+      <button type="submit" form="form-planes" class="panel-btn panel-btn--primary" <%= !planes.length ? "disabled" : "" %>>
+        Guardar cambios
+      </button>
+    </div>
+  </div>
+
+  <% if (typeof aviso !== 'undefined' && aviso) { %>
+    <div class="panel-alert <%= errores && Object.keys(errores).length ? '' : 'panel-alert--ok' %>" role="status">
+      <%= aviso %>
+    </div>
+  <% } %>
+
+  <% if (errores && errores.general) { %>
+    <div class="panel-alert panel-alert--error" role="alert"><%= errores.general %></div>
+  <% } %>
+
+  <!-- El precio vacío.
+       Va antes de la tabla y en grande, y no en un desplegable, porque
+       es la duda de cualquiera que llegue aquí: la primera vez que
+       alguien abra esta pantalla va a mirar el precio, va a ver un
+       campo vacío y va a pensar que falta un dato.
+
+       No falta. Es lo que hay hasta que haya una cifra, y un 0 no es
+       lo mismo: un 0 publicaría que el bot es gratis. -->
+  <div class="panel-note">
+    <strong>El precio puede quedar vacío.</strong>
+    Vacío significa <em>«A consultar»</em>, que es lo que se publica
+    mientras no haya cifra confirmada. Si pones <code>0</code>, la web
+    dirá que el producto es gratis —y eso es peor que no decir nada, porque
+    el que lo lee se queda con la impresión de que le mentimos—.
+    Al cambiar un precio aquí se ve en la web pública en un par de
+    segundos, sin desplegar nada.
+  </div>
+
+  <% if (!planes.length) { %>
+    <div class="panel-empty">
+      <h3>No hay planes</h3>
+      <p>
+        Se cargan desde la base de datos. Si no aparece nada, falta aplicar
+        la migración <code>023_planes.sql</code>.
+      </p>
+    </div>
+  <% } else { %>
+
+    <form id="form-planes" method="post" action="<%= base %>/planes">
+      <input type="hidden" name="_csrf" value="<%= csrf %>" />
+
+      <%# Un solo formulario para toda la tabla, como en el catálogo:
+          el botón de guardar está en la cabecera y envuelve todo. Con
+          un formulario por fila habría tres botones compitiendo y
+          habría que acertar cuál es el del plan que se está editando. %>
+      <div class="panel-table-wrap">
+        <table class="panel-table panel-cat-tabla">
+          <thead>
+            <tr>
+              <th>Plan</th>
+              <th>Precio</th>
+              <th>Moneda</th>
+              <th>Periodo</th>
+              <th class="panel-th-num">Orden</th>
+              <th class="panel-th-num">Destacado</th>
+              <th class="panel-th-num">Visible</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% planes.forEach(function (p) { %>
+              <% var filaErr = (errores && errores[p.id]) || {}; %>
+              <tr class="<%= Object.keys(filaErr).length ? 'panel-tr--error' : '' %>">
+
+                <%# ── El plan ── %>
+                <td data-label="Plan" class="panel-cat-nombre">
+                  <label class="sr-only" for="nombre_<%= p.id %>">Nombre del plan <%= p.id %></label>
+                  <input type="text"
+                         id="nombre_<%= p.id %>"
+                         name="<%= campo(p.id, 'nombre') %>"
+                         value="<%= p.nombre %>"
+                         class="<%= filaErr.nombre ? 'panel-input--error' : '' %>" />
+
+                  <% if (filaErr.nombre) { %>
+                    <small class="panel-cell-error"><%= filaErr.nombre %></small>
+                  <% } %>
+
+                  <label class="sr-only" for="descripcion_<%= p.id %>">Descripción del plan <%= p.id %></label>
+                  <input type="text"
+                         id="descripcion_<%= p.id %>"
+                         name="<%= campo(p.id, 'descripcion') %>"
+                         value="<%= p.descripcion || '' %>"
+                         placeholder="Descripción"
+                         title="<%= p.descripcion || '' %>" />
+
+                  <label class="sr-only" for="nota_<%= p.id %>">Nota del plan <%= p.id %></label>
+                  <input type="text"
+                         id="nota_<%= p.id %>"
+                         name="<%= campo(p.id, 'nota') %>"
+                         value="<%= p.nota || '' %>"
+                         placeholder="Nota al pie de la tarjeta"
+                         title="<%= p.nota || '' %>" />
+
+                  <%# ── El botón ──
+                       Texto y destino. La clase NO se edita: sale de
+                       «destacado», para que el botón y la tarjeta no
+                       puedan quedar de colores distintos. %>
+                  <label class="sr-only" for="cta_texto_<%= p.id %>">Texto del botón de <%= p.nombre %></label>
+                  <input type="text"
+                         id="cta_texto_<%= p.id %>"
+                         name="<%= campo(p.id, 'cta_texto') %>"
+                         value="<%= p.cta_texto || '' %>"
+                         placeholder="Texto del botón"
+                         title="<%= p.cta_texto || '' %>" />
+
+                  <label class="sr-only" for="cta_href_<%= p.id %>">Destino del botón de <%= p.nombre %></label>
+                  <input type="text"
+                         id="cta_href_<%= p.id %>"
+                         name="<%= campo(p.id, 'cta_href') %>"
+                         value="<%= p.cta_href || '' %>"
+                         placeholder="/contacto"
+                         title="<%= p.cta_href || '' %>" />
+
+                  <% if (filaErr.cta_href) { %>
+                    <small class="panel-cell-error"><%= filaErr.cta_href %></small>
+                  <% } %>
+
+                  <span class="panel-cat-id"><%= p.id %></span>
+
+                  <% if (filaErr.general) { %>
+                    <small class="panel-cell-error"><%= filaErr.general %></small>
+                  <% } %>
+                </td>
+
+                <%# ── El precio ──
+                     `inputmode="decimal"` para que en el móvil salga el
+                     teclado de números, y `type="text"` en vez de
+                     `type="number"`: con number el navegador lo pasa a
+                     otro y en algunos sistemas el separador decimal es
+                     punto, lo que con precios en pesos convierte un
+                     "25.000" en 25. Con texto y validación en el
+                     servidor no hay sorpresas. %>
+                <td data-label="Precio" class="panel-cat-precio">
+                  <label class="sr-only" for="precio_<%= p.id %>">Precio de <%= p.nombre %></label>
+                  <input type="text"
+                         inputmode="decimal"
+                         id="precio_<%= p.id %>"
+                         name="<%= campo(p.id, 'precio') %>"
+                         value="<%= p.precio === null || p.precio === undefined ? '' : p.precio %>"
+                         placeholder="A consultar"
+                         autocomplete="off"
+                         class="panel-input--numero <%= filaErr.precio ? 'panel-input--error' : '' %>" />
+
+                  <% if (p.precio === null || p.precio === undefined) { %>
+                    <small class="panel-cell-note">Vacío = se publica «A consultar»</small>
+                  <% } %>
+
+                  <% if (filaErr.precio) { %>
+                    <small class="panel-cell-error"><%= filaErr.precio %></small>
+                  <% } %>
+                </td>
+
+                <td data-label="Moneda">
+                  <label class="sr-only" for="moneda_<%= p.id %>">Moneda de <%= p.nombre %></label>
+                  <select id="moneda_<%= p.id %>"
+                          name="<%= campo(p.id, 'moneda') %>"
+                          class="panel-select-mini <%= filaErr.moneda ? 'panel-input--error' : '' %>">
+                    <% monedas.forEach(function (mo) { %>
+                      <option value="<%= mo.valor %>" title="<%= mo.titulo %>" <%= p.moneda === mo.valor ? 'selected' : '' %>><%= mo.label %></option>
+                    <% }); %>
+                  </select>
+
+                  <% if (filaErr.moneda) { %>
+                    <small class="panel-cell-error"><%= filaErr.moneda %></small>
+                  <% } %>
+                </td>
+
+                <td data-label="Periodo">
+                  <label class="sr-only" for="periodo_<%= p.id %>">Periodo de <%= p.nombre %></label>
+                  <select id="periodo_<%= p.id %>"
+                          name="<%= campo(p.id, 'periodo') %>"
+                          class="panel-select-mini">
+                    <% periodos.forEach(function (pe) { %>
+                      <option value="<%= pe.valor %>" <%= p.periodo === pe.valor ? 'selected' : '' %>><%= pe.label %></option>
+                    <% }); %>
+                  </select>
+                </td>
+
+                <td data-label="Orden" class="panel-th-num">
+                  <label class="sr-only" for="orden_<%= p.id %>">Orden de <%= p.nombre %></label>
+                  <input type="text"
+                         inputmode="numeric"
+                         id="orden_<%= p.id %>"
+                         name="<%= campo(p.id, 'orden') %>"
+                         value="<%= p.orden %>"
+                         class="panel-input--numero panel-input--corto <%= filaErr.orden ? 'panel-input--error' : '' %>" />
+
+                  <% if (filaErr.orden) { %>
+                    <small class="panel-cell-error"><%= filaErr.orden %></small>
+                  <% } %>
+                </td>
+
+                <%# ── Las dos casillas ──
+                     Una casilla sin marcar NO LLEGA en el cuerpo del
+                     POST. Y el código solo guarda un campo si viene, así
+                     que una casilla desmarcada no se podría volver a
+                     marcar nunca.
+
+                     El apaño es un campo oculto con el MISMO nombre y
+                     valor "0" antes de la casilla: si está marcada
+                     llegan los dos ("0" y "1") y gana el último; si no,
+                     llega solo el "0".
+
+                     Es el patrón de siempre, pero aquí importa
+                     doblemente: una casilla que acepta el clic y no
+                     guarda nada es un fallo que no se ve ni se
+                     denuncia. %>
+                <td data-label="Destacado" class="panel-th-num">
+                  <input type="hidden" name="<%= campo(p.id, 'destacado') %>" value="0" />
+                  <label class="panel-check" for="destacado_<%= p.id %>">
+                    <input type="checkbox"
+                           id="destacado_<%= p.id %>"
+                           name="<%= campo(p.id, 'destacado') %>"
+                           value="1"
+                           <%= p.destacado ? 'checked' : '' %> />
+                    <span class="sr-only">Marcar <%= p.nombre %> como destacado</span>
+                  </label>
+                </td>
+
+                <td data-label="Visible" class="panel-th-num">
+                  <input type="hidden" name="<%= campo(p.id, 'activo') %>" value="0" />
+                  <label class="panel-check" for="activo_<%= p.id %>">
+                    <input type="checkbox"
+                           id="activo_<%= p.id %>"
+                           name="<%= campo(p.id, 'activo') %>"
+                           value="1"
+                           <%= p.activo ? 'checked' : '' %> />
+                    <span class="sr-only">Mostrar <%= p.nombre %> en la web</span>
+                  </label>
+                </td>
+              </tr>
+
+              <%# ── Qué incluye, en fila aparte ──
+                   No cabe en la celda del plan: son cuatro líneas y la
+                   tabla ya tiene siete columnas. Y meter un textarea
+                   dentro de una celda con tres inputs al lado se ve
+                   como un error de maquetación.
+
+                   Una fila propia con colspan, que es donde un
+                   formulario se lee bien: el plan arriba, lo que
+                   incluye abajo. %>
+              <tr class="panel-tr-detalle">
+                <td colspan="7">
+                  <label class="panel-label" for="incluye_<%= p.id %>">
+                    Qué incluye «<%= p.nombre %>» — una línea por punto
+                  </label>
+                  <textarea id="incluye_<%= p.id %>"
+                            name="<%= campo(p.id, 'incluye') %>"
+                            rows="<%= Math.max(3, (p.incluye || []).length) %>"
+                            class="panel-textarea <%= filaErr.incluye ? 'panel-input--error' : '' %>"><%= (p.incluye || []).join('\n') %></textarea>
+
+                  <% if (filaErr.incluye) { %>
+                    <small class="panel-cell-error"><%= filaErr.incluye %></small>
+                  <% } %>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </form>
+
+    <p class="panel-foot-note">
+      Lo que se escribe aquí sustituye a <code>content/shopcito.js</code>. Ese
+      fichero ya no tiene precios: solo queda como respaldo por si algún día la
+      base no responde, y sale sin cifra.
+    </p>
+  <% } %>
+</div>
+
+<%- include('../partials/panel-foot') %>
