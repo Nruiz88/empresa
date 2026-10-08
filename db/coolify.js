@@ -341,7 +341,18 @@ try {
   } else if (args[0] === "redesplegar") {
     if (!args[1]) throw new Error("falta el uuid");
     const app = await api("/applications/" + args[1]);
-    const r = await api("/applications/" + args[1] + "/restart", { method: "GET" });
+    /* POST, no GET.
+
+       Con GET la API responde 4xx con un mensaje que parece un fallo
+       cualquiera ("This endpoint has changed to a POST request"), y lo
+       peligroso es que el script lo cuenta como redespliegado: la
+       aplicación se queda con el código viejo y todo parece bien. */
+    const r = await api("/applications/" + args[1] + "/restart", { method: "POST" });
+    const ok = r && !/changed to a POST|cannot GET|Method Not Allowed/i.test(String(r.message || r));
+    if (!ok) {
+      console.log("\n  x la API no acepto el redespliegue: " + JSON.stringify(r).slice(0, 160) + "\n");
+      process.exit(1);
+    }
     console.log("\n  ✓ " + (app.name || args[1]) + ": " + (r && r.message ? r.message : "redesplegado") + "\n");
   } else {
     console.log(
