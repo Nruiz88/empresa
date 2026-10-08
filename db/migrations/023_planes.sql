@@ -81,8 +81,25 @@ comment on column plans.precio is
 --
 -- Se siembran SIN precio a propósito: no hay cifra confirmada, y
 -- sembrarla con un número inventado es exactamente el problema que
--- causes esta tabla (publicar una cifra falsa en la pantalla donde el
+-- causa esta tabla (publicar una cifra falsa en la pantalla donde el
 -- cliente decide). Cuando haya cifra, se pone desde el panel.
+--
+-- ── `on conflict do nothing`, Y POR QUÉ ──
+--
+-- El `create table` de arriba es `if not exists`, pero este `insert` no
+-- lo era. Y esa diferencia importa: si alguien repite la 023 en una base
+-- donde la tabla ya existe, el `create` se salta sin decir nada y el
+-- `insert` revienta con «duplicate key value violates unique
+-- constraint plans_pkey».
+--
+-- Es decir, una migración que se puede empezar y no terminar. El
+-- `create` ya está, la fila no, y la 024 y la 025 de después fallan
+-- porque dependen de esta tabla. Un despliegue a medias.
+--
+-- Con `do nothing`, repetir la 023 no hace nada y no rompe nada. Lo que
+-- ya hay se respeta: si alguien puso un precio, esta migración no lo
+-- pisa. Que es lo correcto —el precio se cambia desde el panel, no
+-- desde una migración.
 
 insert into plans (id, nombre, descripcion, precio, moneda, periodo, incluye, nota, destacado, orden)
 values
