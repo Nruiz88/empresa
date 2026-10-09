@@ -23,6 +23,9 @@ const { spawn } = require("child_process");
 const path = require("path");
 require("../lib/env").load();
 
+/* El usuario de staff se busca por ROL, no por correo. */
+const { staff } = require("../lib/staff");
+
 const PUERTO_PANEL = 3101;
 const PUERTO_BOT = 3201;
 
@@ -37,8 +40,42 @@ const MARCA = "-test-acceso-servicio-";
    test no es un sitio para credenciales reales, y en un entorno
    compartido esto no funcionaría. Para producción, un usuario de
    servicio propio. */
-const STAFF_EMAIL = process.env.TEST_STAFF_EMAIL || "admin@nexostudio.es";
-const STAFF_PASSWORD = process.env.TEST_STAFF_PASSWORD || "PanelPrueba2026";
+/* ─────────────────────────────────────────────────────────
+   LAS CREDENCIALES DEL STAFF
+
+   El correo sale de la base, por ROL, y se resuelve dentro de una
+   función: un `await` en el nivel de módulo no vale en CommonJS y el
+   archivo ni siquiera carga.
+
+   La contraseña NO sale de la base —Supabase no la deja leer— y no
+   tiene relleno. Antes había un `|| "PanelPrueba2026"` que era una
+   contraseña de verdad escrita en el repositorio, y funcionaba con el
+   admin viejo, así que nadie la miró nunca.
+
+   ── POR QUÉ NO SE ESCRIBE EN EL FICHERO ──
+
+   Porque un fichero versionado es público para quien clone el
+   repositorio, y una contraseña de relleno que funciona es una
+   contraseña de verdad. Va en el entorno, que es lo único que no se
+   guarda en el historial de git.
+   ───────────────────────────────────────────────────────── */
+
+async function credencialesDelStaff() {
+  const email = process.env.TEST_STAFF_EMAIL || (await staff()).email;
+  const password = process.env.TEST_STAFF_PASSWORD;
+
+  if (!password) {
+    console.error("\n  x falta la contraseña del staff (TEST_STAFF_PASSWORD).");
+    console.error("    Esta prueba entra al panel de verdad, así que necesita");
+    console.error("    una cuenta real. No hay contraseña de relleno:");
+    console.error("");
+    console.error("      TEST_STAFF_PASSWORD=... npm run test:acceso");
+    console.error("");
+    process.exit(1);
+  }
+
+  return { email, password };
+}
 
 let ok = 0;
 let fallos = 0;
@@ -641,9 +678,10 @@ async function irAlBot(cookie) {
   /* Se firma un ticket de staff con un token real suyo. El token es
      necesario porque viaja dentro del ticket y es lo que el bot
      usará para reconstruir la sesión con RLS. */
+  const credenciales = await credencialesDelStaff();
   const staffAuth = await supabase.getAdmin().auth.signInWithPassword({
-    email: STAFF_EMAIL,
-    password: STAFF_PASSWORD,
+    email: credenciales.email,
+    password: credenciales.password,
   });
   comprobar("el usuario de equipo puede autenticarse", Boolean(staffAuth.data && staffAuth.data.session));
 

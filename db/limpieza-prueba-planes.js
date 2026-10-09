@@ -3,11 +3,17 @@
 require("../lib/env").load();
 
 const db = require("../lib/supabase").getAdmin();
-
-const USUARIO = "prueba-planes@shopcito.com.ar";
+const { staffOParar } = require("../lib/staff");
 
 (async () => {
   console.log("\n═══ Limpieza ═══\n");
+
+  /* Se resuelve DENTRO, no arriba del todo.
+
+     Un `await` en el nivel de módulo no vale en CommonJS: el archivo
+     ni siquiera carga. Por eso va aquí, que ya estamos dentro de una
+     función async. */
+  const USUARIO = (await staffOParar()).email;
 
   /* El borrado va por el cliente admin, no por el RPC `ejecutar_sql`.
      Ese RPC solo acepta SELECT, a propósito: es lo que impide que un

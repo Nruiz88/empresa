@@ -5,6 +5,7 @@ const path = require("path");
 const env = require("../lib/env");
 env.load();
 const supabase = require("../lib/supabase");
+const { staff, staffOParar } = require("../lib/staff");
 const db = supabase.getAdmin();
 const crypto = require("crypto");
 
@@ -25,7 +26,7 @@ const COMPROBAR = [
 
 (async () => {
   const { data: usuarios } = await supabase.getAdmin().auth.admin.listUsers({ perPage: 200 });
-  const staff = usuarios.users.find((u) => u.email === "admin@nexostudio.es");
+  const staff = await staffOParar();
   const cliente = usuarios.users.find((u) => u.email === "cliente@ejemplo.com");
 
   const token = crypto.randomBytes(24).toString("hex");

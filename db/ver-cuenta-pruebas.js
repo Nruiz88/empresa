@@ -1,6 +1,7 @@
 require("../lib/env").load();
 
 const db = require("../lib/supabase").getAdmin();
+const { staff, staffOParar } = require("../lib/staff");
 
 /* ¿Existe la cuenta de pruebas del panel?
 
@@ -23,10 +24,13 @@ const db = require("../lib/supabase").getAdmin();
    es la que hace falta.
    ───────────────────────────────────────────────────────────── */
 
-const CORREO = process.env.TEST_EMAIL || "prueba-apps@shopcito.com.ar";
-
 (async () => {
   console.log("\n═══ Cuenta de pruebas ═══\n");
+
+  /* Se resuelve DENTRO del async. Un `await` en el nivel de módulo no
+     vale en CommonJS: el archivo ni siquiera carga. */
+  const CORREO = process.env.TEST_EMAIL || (await staffOParar()).email;
+
   console.log("  buscando: " + CORREO + "\n");
 
   /* ─────────────────────────────────────────────────────────

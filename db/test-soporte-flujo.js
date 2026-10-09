@@ -24,8 +24,23 @@ const BOT = (process.env.TEST_BOT || "http://127.0.0.1:3200").replace(/\/+$/, ""
 const API_ENTRAR = process.env.TEST_API_ENTRAR || BOT + "/api/entrar";
 const MODULO = process.env.TEST_MODULO || "bot_whatsapp";
 
-const EMAIL = process.env.TEST_EMAIL || "admin@nexostudio.es";
-const PASSWORD = process.env.TEST_PASSWORD || "PanelPrueba2026";
+/* Las credenciales vienen del entorno y no hay relleno. Antes había
+   un `|| "PanelPrueba2026"`: una contraseña escrita en el
+   repositorio que funcionaba con el admin viejo, y por eso nadie la
+   miró. Si faltan, esta prueba para y lo dice. */
+const EMAIL = process.env.TEST_EMAIL;
+const PASSWORD = process.env.TEST_PASSWORD;
+
+if (!EMAIL || !PASSWORD) {
+  console.error("\n  x faltan TEST_EMAIL y TEST_PASSWORD.");
+  console.error("    Esta prueba entra al panel de verdad, así que necesita");
+  console.error("    una cuenta real. Sin relleno:");
+  console.error("");
+  console.error("      TEST_EMAIL=tu@correo TEST_PASSWORD=... npm run test:soporte:flujo");
+  console.error("");
+  process.exit(1);
+}
+
 const MOTIVO = "prueba: el cliente dice que no le llegan los mensajes";
 
 let ok = 0, fallos = 0;

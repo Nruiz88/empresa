@@ -1,5 +1,6 @@
 require("../lib/env").load();
 const supabase = require("../lib/supabase");
+const { staff, staffOParar } = require("../lib/staff");
 const db = supabase.getAdmin();
 const crypto = require("crypto");
 const BASE = "http://127.0.0.1:3000";
@@ -23,7 +24,7 @@ const MANCHAS = ["[object Object]", "undefined", "NaN", "null", "&lt;%"];
 
 (async () => {
   const { data: usuarios } = await supabase.getAdmin().auth.admin.listUsers({ perPage: 200 });
-  const staffId = (usuarios.users.find((u) => u.email === "admin@nexostudio.es") || {}).id;
+  const staffId = (await staff()).id;
   const token = crypto.randomBytes(24).toString("hex");
   await db.from("sessions").insert({
     token_hash: hash(token), user_id: staffId, rol: "staff",

@@ -25,9 +25,32 @@
 const PANEL = (process.env.TEST_PANEL || "http://127.0.0.1:3000").replace(/\/+$/, "");
 const BOT = (process.env.TEST_BOT || "http://127.0.0.1:3200").replace(/\/+$/, "");
 
-const EMAIL = process.env.TEST_EMAIL || "admin@nexostudio.es";
-const PASSWORD = process.env.TEST_PASSWORD || "PanelPrueba2026";
 const MODULO = process.env.TEST_MODULO || "bot_whatsapp";
+
+/* ─────────────────────────────────────────────────────────
+   LAS CREDENCIALES VIENEN DEL ENTORNO, Y SI FALTAN SE PARA
+
+   Antes había un `|| "admin@nexostudio.es"` y un
+   `|| "PanelPrueba2026"`: una contraseña de verdad escrita en el
+   repositorio, de relleno, que funcionaba con el admin viejo y por
+   eso nadie la miró.
+
+   Ahora no hay relleno. Si faltan, el script dice qué poner y para,
+   en vez de intentar entrar con un `undefined` y fallar tres
+   mensajes más abajo.
+   ───────────────────────────────────────────────────────── */
+const EMAIL = process.env.TEST_EMAIL;
+const PASSWORD = process.env.TEST_PASSWORD;
+
+if (!EMAIL || !PASSWORD) {
+  console.error("\n  x faltan TEST_EMAIL y TEST_PASSWORD.");
+  console.error("    Esta prueba entra al panel de verdad, así que necesita");
+  console.error("    una cuenta real. Sin relleno:");
+  console.error("");
+  console.error("      TEST_EMAIL=tu@correo TEST_PASSWORD=... npm run test:flujo");
+  console.error("");
+  process.exit(1);
+}
 
 /* 'staff' vuelve al panel del equipo; 'client' vuelve a su portal.
    No es un detalle: es la diferencia entre el camino que se salta la

@@ -3,6 +3,7 @@
 const env = require("../lib/env");
 env.load();
 const supabase = require("../lib/supabase");
+const { staff, staffOParar } = require("../lib/staff");
 const db = supabase.getAdmin();
 const crypto = require("crypto");
 
@@ -50,7 +51,7 @@ function motivo(texto) {
   const { data: usuarios } = await supabase.getAdmin().auth.admin.listUsers({ perPage: 200 });
   const idDe = (mail) => (usuarios.users.find((u) => u.email === mail) || {}).id;
 
-  const staffId = idDe("admin@nexostudio.es");
+  const staffId = (await staff()).id;
   const clientId = idDe("cliente@ejemplo.com");
   if (!staffId) throw new Error("no se encuentra el usuario staff");
 

@@ -16,6 +16,7 @@ const path = require("path");
 const env = require("../lib/env");
 env.load();
 const supabase = require("../lib/supabase");
+const { staff, staffOParar } = require("../lib/staff");
 const db = supabase.getAdmin();
 const crypto = require("crypto");
 
@@ -27,7 +28,7 @@ const SALIDA = process.argv[3] || "panel";
 
 (async () => {
   const { data: usuarios } = await supabase.getAdmin().auth.admin.listUsers({ perPage: 200 });
-  const staff = usuarios.users.find((u) => u.email === "admin@nexostudio.es");
+  const staff = await staffOParar();
   if (!staff) throw new Error("no hay usuario de staff");
 
   /* Un access_token REAL del usuario. Sin esto, la sesión no puede

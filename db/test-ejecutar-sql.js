@@ -116,18 +116,77 @@ const seccion = (t) => console.log("\n── " + t + " " + "─".repeat(Math.max
   seccion("solo service_role");
   {
     /* Un usuario autenticado no debe poder llamarla ni aunque tenga
-       una sesión válida: la función es del servidor. */
-    const { data: link } = await db.auth.admin.generateLink({
-      type: "magiclink",
-      email: "cliente@ejemplo.com",
-    });
-    const { data: ses } = await supabase.getPublico().auth.verifyOtp({
-      token_hash: link.properties.hashed_token,
-      type: "magiclink",
-    });
-    const comoCliente = supabase.getClientForToken(ses.session.access_token);
-    const r = await comoCliente.rpc("ejecutar_sql", { consulta: "select 1 as n" });
-    comprobar("un cliente NO puede llamarla", Boolean(r.error));
+       una sesión válida: la función es del servidor.
+
+       ── POR QUÉ SE CREA LA CUENTA AQUÍ ──
+
+       La primera versión usaba `cliente@ejemplo.com`, una cuenta
+       sembrada a mano. Ese día el test pasaba. El día que la cuenta se
+       borró, `generateLink` siguió dando éxito —acepta un correo que
+       no existe— y el fallo apareció tres líneas más abajo, como un
+       `Cannot read properties of null`. Un test que depende de que
+       alguien haya dejado una cuenta puesta es un test que deja de
+       probar sin avisar.
+
+       Ahora crea la cuenta, prueba y la borra. Lo que hay que probar
+       es «un usuario autenticado que no es service_role», y para eso
+       no hace falta que sea un cliente real de un negocio real.
+
+       ── Y SI LA CUENTA NO SE PUEDE BORRAR ──
+
+       Se avisa al final, con el correo, para poder buscarla. Dejar una
+       cuenta de prueba colgada porque el `finally` falló es peor que
+       el fallo original. */
+    const CORREO = "prueba-rls@shopcito.invalid";
+    const PASSWORD = "Rls-" + require("crypto").randomBytes(12).toString("hex");
+
+    let id = null;
+
+    try {
+      const { data: creado, error: eCrear } = await db.auth.admin.createUser({
+        email: CORREO,
+        password: PASSWORD,
+        email_confirm: true,
+      });
+
+      if (eCrear) {
+        comprobar("se puede crear una cuenta de prueba", false);
+        console.log("      " + eCrear.message);
+      } else {
+        id = creado.user.id;
+        comprobar("se puede crear una cuenta de prueba", true);
+
+        /* Con perfil de cliente, que es lo que se quiere comprobar:
+           que el RLS lo para aunque tenga sesión. */
+        await db.from("profiles").insert({
+          id,
+          rol: "client",
+          nombre: "Prueba RLS",
+        });
+
+        const { data: ses, error: eSes } = await supabase
+          .getPublico()
+          .auth.signInWithPassword({ email: CORREO, password: PASSWORD });
+
+        comprobar("esa cuenta inicia sesión", Boolean(ses && ses.session));
+
+        if (ses && ses.session) {
+          const comoCliente = supabase.getClientForToken(ses.session.access_token);
+          const r = await comoCliente.rpc("ejecutar_sql", { consulta: "select 1 as n" });
+          comprobar("un cliente NO puede llamarla", Boolean(r.error));
+        }
+      }
+    } finally {
+      if (id) {
+        await db.from("profiles").delete().eq("id", id);
+        const { error: eB } = await db.auth.admin.deleteUser(id);
+
+        if (eB) {
+          console.log("\n  ⚠ no se pudo borrar la cuenta de prueba: " + CORREO);
+          console.log("    " + eB.message);
+        }
+      }
+    }
   }
 
   console.log("\n" + "─".repeat(50));
