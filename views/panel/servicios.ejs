@@ -14,7 +14,40 @@
       <h1>Servicios</h1>
       <p class="panel-count"><%= total %> en total<%= tipo || estado || q ? ' con filtro' : '' %></p>
     </div>
-    <a href="<%= base %>/servicios/nuevo" class="panel-btn panel-btn--primary">Nuevo servicio</a>
+    <%# ─────────────────────────────────────────────────────
+        LOS DOS BOTONES
+
+        «Nuevo servicio» da a mantenimiento, proyecto y presupuesto.
+
+        «Asignar una aplicación» da el bot, el inventario y los
+        planes, que son otra cosa: acceso a un microservicio, con su
+        precio y su vencimiento.
+
+        El alta de aplicación ya existía y funcionaba. Lo que faltaba
+        era un camino hasta ella: se va a Servicios —«le doy algo a
+        este cliente»— y el formulario no tiene dónde elegir una
+        aplicación, y la pantalla que sí la tiene no aparece por
+        ningún lado.
+
+        No faltaba la función. Estaba en un sitio al que no se llega.
+
+        ── POR QUÉ NO EN EL MISMO FORMULARIO ──
+
+        Porque un mantenimiento se cobra por horas de trabajo y un
+        plan por suscripción. Meter las dos cosas en un solo
+        formulario es un desplegable con todas las opciones juntas, y
+        un desplegable largo es justo lo que hace que nadie encuentre
+        lo que buscaba.
+
+        Con dos botones, quien está delante dice cuál de los dos es el
+        suyo, y entra en un formulario con tres opciones.
+        ───────────────────────────────────────────────────── %>
+    <div class="panel-page-acciones">
+      <a href="<%= base %>/servicios/nuevo" class="panel-btn panel-btn--ghost">Nuevo servicio</a>
+      <a href="<%= base %>/aplicaciones/nuevo" class="panel-btn panel-btn--primary">
+        Asignar una aplicación
+      </a>
+    </div>
   </div>
 
   <form class="panel-filters" method="get" action="<%= base %>/servicios">
@@ -48,7 +81,40 @@
         <a href="<%= base %>/servicios" class="panel-btn panel-btn--ghost">Ver todos</a>
       <% } else { %>
         <p>Colga el primero a un cliente para verlo aparecer aquí.</p>
-        <a href="<%= base %>/servicios/nuevo" class="panel-btn panel-btn--primary">Nuevo servicio</a>
+        <%# ─────────────────────────────────────────────────────
+        LOS DOS BOTONES
+
+        «Nuevo servicio» da a mantenimiento, proyecto y presupuesto.
+
+        «Asignar una aplicación» da el bot, el inventario y los
+        planes, que son otra cosa: acceso a un microservicio, con su
+        precio y su vencimiento.
+
+        El alta de aplicación ya existía y funcionaba. Lo que faltaba
+        era un camino hasta ella: se va a Servicios —«le doy algo a
+        este cliente»— y el formulario no tiene dónde elegir una
+        aplicación, y la pantalla que sí la tiene no aparece por
+        ningún lado.
+
+        No faltaba la función. Estaba en un sitio al que no se llega.
+
+        ── POR QUÉ NO EN EL MISMO FORMULARIO ──
+
+        Porque un mantenimiento se cobra por horas de trabajo y un
+        plan por suscripción. Meter las dos cosas en un solo
+        formulario es un desplegable con todas las opciones juntas, y
+        un desplegable largo es justo lo que hace que nadie encuentre
+        lo que buscaba.
+
+        Con dos botones, quien está delante dice cuál de los dos es el
+        suyo, y entra en un formulario con tres opciones.
+        ───────────────────────────────────────────────────── %>
+    <div class="panel-page-acciones">
+      <a href="<%= base %>/servicios/nuevo" class="panel-btn panel-btn--ghost">Nuevo servicio</a>
+      <a href="<%= base %>/aplicaciones/nuevo" class="panel-btn panel-btn--primary">
+        Asignar una aplicación
+      </a>
+    </div>
       <% } %>
     </div>
   <% } else { %>

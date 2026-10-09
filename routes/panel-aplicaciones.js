@@ -739,6 +739,32 @@ module.exports = function rutasAplicaciones({ db, sitio, csrf, requiereStaff }) 
       };
     }
 
+    /**
+     * El cliente que trae la URL, si es uno de verdad.
+     *
+     * Se mira contra la lista de clientes que ya está cargada, y no se
+     * acepta el `id` a ciegas: un `?cliente=` con un uuid que no
+     * existe dejaría el desplegable sin nada marcado, y el alta
+     * no sabría si es un fallo o si se lo pasaron mal.
+     *
+     * @param {object} req
+     * @param {object} extra lo que venga del POST, que manda
+     * @returns {string|null}
+     */
+    function preelegido(req, extra) {
+      /* Si viene del POST, ese manda: es lo que el formulario tiene
+         delante ahora mismo, aunque sea una equivocación que hay que
+         corregir a ojo. */
+      if (extra && extra.servicio && extra.servicio.client_id) {
+        return extra.servicio.client_id;
+      }
+
+      const pedido = String((req.query && req.query.cliente) || "").trim();
+      if (!pedido) return null;
+
+      return pedido;
+    }
+
     async function formulario(req, res, extra = {}) {
       const base = await contexto();
       const ref = referencias(base);
@@ -764,9 +790,41 @@ module.exports = function rutasAplicaciones({ db, sitio, csrf, requiereStaff }) 
         margen: A.DIAS_DE_MARGEN,
         aviso: A.DIAS_DE_AVISO,
 
-        /* Lo que venga del POST, para que no se pierda al reintentar. */
-        servicio: {},
+        /* Lo que venga del POST, para que no se pierda al reintentar.
 
+           Y con el cliente de la URL detrás: `Object.assign` pone lo
+           del POST encima, así que si alguien llegó con `?cliente=`,
+           elige otro y vuelve a mandar con error, el del POST gana y
+           el del enlace no le pisa la espalda. */
+        servicio: Object.assign(
+          { client_id: preelegido(req, extra) },
+          (extra && extra.servicio) || {}
+        ),
+
+        /* ─────────────────────────────────────────────────────
+           EL CLIENTE QUE TRAE LA URL
+
+           `?cliente=<id>`, para llegar desde la ficha de un cliente
+           con el desplegable ya puesto.
+
+           ── POR QUÉ ──
+
+           El caso real: se abre la ficha de un cliente para
+           preguntarle qué tiene, se ve que no tiene el bot, y se
+           quiere dárselo. Con el formulario en blanco hay que bajar
+           hasta el primer campo y buscar el cliente en una lista de
+           cientos. Es un trabajo de cinco segundos que se repite en
+           cada alta.
+
+           ── Y POR QUÉ SOLO EN EL GET ──
+
+           Porque en el POST manda lo que vino del formulario. Si se
+           aceptara el de la URL, un enlace viejo con un `?cliente=`
+           podría cambiar a quién se le asigna lo que se está
+           guardando: uno abre el formulario, otra pestaña cambia el
+           enlace, y guarda para el cliente que no quería.
+           ───────────────────────────────────────────────────── */
+        clientePedido: preelegido(req, extra),
         /* Siempre presente, aunque esté vacía.
 
            Sin esto, la vista tiene que comprobar si existe antes de cada

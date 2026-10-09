@@ -26,7 +26,10 @@
     <div class="panel-head-actions">
       <a href="<%= base %>/clientes" class="panel-btn panel-btn--ghost">← Volver</a>
       <a href="<%= base %>/clientes/<%= cliente.id %>/editar" class="panel-btn panel-btn--ghost">Editar</a>
-      <a href="<%= base %>/servicios/nuevo?cliente=<%= cliente.id %>" class="panel-btn panel-btn--primary">Nuevo servicio</a>
+      <a href="<%= base %>/servicios/nuevo?cliente=<%= cliente.id %>" class="panel-btn panel-btn--ghost">Nuevo servicio</a>
+      <a href="<%= base %>/aplicaciones/nuevo?cliente=<%= cliente.id %>" class="panel-btn panel-btn--primary">
+        Asignar una aplicación
+      </a>
     </div>
   </div>
 
@@ -75,7 +78,10 @@
         <% if (!servicios.length) { %>
           <div class="panel-empty panel-empty--sm">
             <p>Este cliente aún no tiene ningún servicio.</p>
-            <a href="<%= base %>/servicios/nuevo?cliente=<%= cliente.id %>" class="panel-btn panel-btn--primary">Añadir el primero</a>
+            <a href="<%= base %>/servicios/nuevo?cliente=<%= cliente.id %>" class="panel-btn panel-btn--ghost">Añadir un servicio</a>
+            <a href="<%= base %>/aplicaciones/nuevo?cliente=<%= cliente.id %>" class="panel-btn panel-btn--primary">
+              Asignar una aplicación
+            </a>
           </div>
         <% } else { %>
           <ul class="panel-serv-list">
