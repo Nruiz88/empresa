@@ -1,0 +1,88 @@
+/* Aplicaciones: falta el CSS del selector de casillas.
+   ─────────────────────────────────────────────────────────────
+   Sin esto las casillas se ven como casillas sueltas, alineadas en
+   vertical, y no se lee de un vistazo qué da cada plan.
+
+   La idea es que se lean como una fila de interruptores: la lista
+   completa en una línea, y el plan da acceso a lo que está encendido.
+
+   ── LAS INACTIVAS ──
+   Van atenuadas pero NO desaparecen. Un microservicio que no se está
+   vendiendo puede seguir marcado en un plan viejo, y si no se ve, nadie
+   lo nota hasta que un cliente pregunta por algo que no existe.
+   ───────────────────────────────────────────────────────────── */
+
+.plan-apps {
+  margin: 0 0 var(--p-4);
+  padding: 0;
+  border: 0;
+}
+
+.plan-apps legend {
+  padding: 0;
+  margin-bottom: var(--p-2);
+}
+
+.plan-apps-lista {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--p-2);
+}
+
+/* La etiqueta, no el input: así se hace clic en toda la caja y no
+   justo en el cuadradito. Es la diferencia entre marcar tres planes y
+   marcar tres veces. */
+.plan-app {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.6rem;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: border-color var(--mov-1) var(--ease-out),
+              background var(--mov-1) var(--ease-out);
+}
+
+.plan-app:hover {
+  border-color: var(--border-strong);
+}
+
+.plan-app.is-on {
+  background: var(--success-bg);
+  border-color: var(--success-border);
+}
+
+.plan-app input {
+  accent-color: var(--brand);
+  margin: 0;
+  cursor: pointer;
+}
+
+.plan-app-nombre {
+  font-size: var(--fs-sm);
+}
+
+/* Atenuada, no oculta. Ver la nota de la cabecera. */
+.plan-app--inactiva {
+  opacity: 0.55;
+}
+
+.plan-app--inactiva.is-on {
+  opacity: 1;
+  border-style: dashed;
+  border-color: var(--warning-border);
+  background: var(--warning-bg);
+}
+
+.plan-app-nota {
+  font-size: var(--fs-xs);
+  color: var(--text-dim);
+}
+
+/* Un plan sin nada marcado se dice en voz alta, no solo se nota por
+   que no hay nada encendido. Un vacío no se ve: no hay nada que ver. */
+.plan-app-vacia {
+  color: var(--warning-text);
+}

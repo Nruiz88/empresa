@@ -62,7 +62,46 @@ module.exports = function rutasPlanes({ db, sitio, csrf, requiereStaff }) {
     "activo",
     "cta_texto",
     "cta_href",
+    /* El array de aplicaciones. Va fuera de EDITABLES porque no es una
+       columna: es una lista que llega como varios campos con el mismo
+       nombre, y se junta aparte. */
   ];
+
+  /* ─────────────────────────────────────────────────────────────
+     LAS APLICACIONES DE UN PLAN
+
+     No va en `EDITABLES` porque no es una columna sino una lista, y
+     porque llega en varios campos con el mismo nombre: el campo oculto
+     que acompaña a cada casilla.
+
+     El nombre es el mismo en todos, con prefijo de plan, que es lo que
+     hace `campo()`. Y hay que juntarlos ANTES de guardar: si se
+     guardara el array tal cual, en la base quedaría un único valor, que
+     es la casilla que vino última.
+
+     ── POR QUÉ SE VALIDA CONTRA LOS QUE EXISTEN ──
+
+     Porque `aplicaciones` es una lista de texto. Sin comprobarlo,
+     alguien que escriba a mano puede dejar una clave que no está dada de
+     alta, y esa clave queda dando acceso a algo que no existe. Después
+     nadie sabe por qué el plan da acceso a tres cosas cuando hay dos.
+
+     La vista avisa de las que no se reconocen, para que se puedan
+     limpiar, y el servidor no las acepta.
+     ───────────────────────────────────────────────────────────── */
+
+  async function leerMicroservicios() {
+    const { data, error } = await db
+      .from("microservicios")
+      .select("modulo,nombre,activo")
+      .order("nombre", { ascending: true });
+
+    if (error) {
+      console.error("[planes] no se pudieron leer los microservicios: " + error.message);
+      return [];
+    }
+    return data || [];
+  }
 
   const PERIODOS = [
     { valor: "mes", label: "Cada mes" },
@@ -85,7 +124,25 @@ module.exports = function rutasPlanes({ db, sitio, csrf, requiereStaff }) {
     return { planes: data || [], error: null };
   }
 
-  const vista = (req, res, datos = {}) =>
+  /* ─────────────────────────────────────────────────────────────
+     La vista necesita la lista de microservicios para dibujar las
+     casillas.
+
+     No se lee dentro de `vista` porque eso haría una consulta por cada
+     render, incluido el POST. Y una pantalla que va a la base dos veces
+     para enseñar la misma lista es una pantalla que un día se queda
+     mostrando datos viejos mientras los nuevos no llegan.
+     ───────────────────────────────────────────────────────────── */
+  let microserviciosCache = null;
+
+  async function microservicios() {
+    if (!microserviciosCache) {
+      microserviciosCache = await leerMicroservicios();
+    }
+    return microserviciosCache;
+  }
+
+  const vista = async (req, res, datos = {}) =>
     res.render("panel/planes", {
       title: "Planes",
       site: sitio,
@@ -95,6 +152,7 @@ module.exports = function rutasPlanes({ db, sitio, csrf, requiereStaff }) {
       csrf: req.sesion.csrf_token,
       monedas: MONEDAS,
       periodos: PERIODOS,
+      microservicios: await microservicios(),
       campo,
       errores: {},
       ...datos,
@@ -126,9 +184,52 @@ module.exports = function rutasPlanes({ db, sitio, csrf, requiereStaff }) {
     const problemas = {};
     const cambiosPorPlan = new Map();
 
+    /* Se lee UNA vez, antes del bucle. Está en las claves admitidas de
+       todas las casillas, y releerla por cada plan es una ida a la base
+       por cada fila de la tabla. */
+    /* Del caché, no de la base: la vista va a leerla justo después para
+       pintar las casillas, y leerla dos veces es una consulta de más
+       por cada guardado. */
+    const listaMicroservicios = await microservicios();
+    const clavesValidas = new Set(listaMicroservicios.map((m) => m.modulo));
+
     for (const p of planes) {
       const cambios = {};
       const erroresFila = {};
+
+      /* ── Las aplicaciones ──
+         Se juntan antes que nada lo demás, porque vienen en varios
+         campos y hay que decidir una sola vez qué se guarda.
+
+         El campo oculto trae un "" cuando no hay ninguna marcada. Ese
+         "" no es una aplicación: es lo que pone el `<input type="hidden">`
+         para que una casilla desmarcada llegue. Se filtra. */
+      const nombreApps = campo(p.id, "aplicaciones");
+
+      if (nombreApps in cuerpo) {
+        const bruto = cuerpo[nombreApps];
+        const lista = Array.isArray(bruto) ? bruto : [bruto];
+
+        const limpias = lista
+          .map((x) => String(x).trim())
+          .filter((x) => x !== "");
+
+        const repetidas = [...new Set(limpias.filter((x, i) => limpias.indexOf(x) !== i))];
+        const desconocidas = [...new Set(limpias.filter((x) => !clavesValidas.has(x)))];
+
+        if (desconocidas.length) {
+          erroresFila.aplicaciones =
+            "Hay aplicaciones que no existen: " + desconocidas.join(", ") + ".";
+        } else if (repetidas.length) {
+          /* Repetidas no rompen nada —el array se puede guardar con
+             duplicados y `jsonb` los muestra igual—, pero son datos
+             sucios que después alguien tiene que limpiar. */
+          erroresFila.aplicaciones =
+            "La misma aplicación está marcada dos veces: " + repetidas.join(", ") + ".";
+        } else {
+          cambios.aplicaciones = limpias;
+        }
+      }
 
       for (const nombre of EDITABLES) {
         /* Si el formulario no trae el campo, no se toca esa columna.

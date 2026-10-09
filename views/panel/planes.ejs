@@ -278,6 +278,95 @@
                    incluye abajo. %>
               <tr class="panel-tr-detalle">
                 <td colspan="7">
+                  <%# ── QUÉ APLICACIONES DA ESTE PLAN ──
+                       Esto y el textarea de arriba son la misma cosa
+                       escrita de dos maneras, y por eso van juntos.
+
+                       El textarea es para lo que se LEE en la web: los
+                       puntos de venta que escribe el equipo.
+
+                       Las casillas son para lo que se EJECUTA: a qué
+                       microservicios da acceso real este plan.
+
+                       Y la diferencia importa porque pueden
+                       contradecirse. Un plan puede decir «bot de WhatsApp»
+                       en el texto y no marcar el bot en la casilla: el
+                       visitante lee que lo tiene y no lo tiene. O al
+                       revés, y el cliente compra algo que no esperaba.
+
+                       Por eso las casillas van con lo que se marca
+                       siempre a la vista, para comparar de un vistazo.
+
+                       ── LAS CASILLAS OCULTAS ──
+
+                       Igual que en destacado y visible: una casilla sin
+                       marcar NO LLEGA en el POST. Sin el campo oculto con
+                       el mismo nombre y valor "0", no se podría
+                       desmarcar nunca —se volvería a marcar sola la
+                       próxima vez que se abre la pantalla. %>
+
+                  <fieldset class="plan-apps">
+                    <legend class="panel-label">
+                      A qué aplicaciones da acceso «<%= p.nombre %>»
+                    </legend>
+
+                    <% if (!microservicios || !microservicios.length) { %>
+                      <p class="panel-help">
+                        No hay microservicios dados de alta. Sin aplicaciones
+                        para marcar, este plan no da acceso a nada.
+                      </p>
+                    <% } else { %>
+
+                      <% const marcadas = new Set(p.aplicaciones || []); %>
+                      <% const marcadasDesconocidas = [...marcadas]
+                           .filter(c => !(microservicios.find(m => m.modulo === c))); %>
+
+                      <div class="plan-apps-lista">
+                        <% microservicios.forEach(function (m) { %>
+                          <input type="hidden"
+                                 name="<%= campo(p.id, 'aplicaciones') %>"
+                                 value="" />
+
+                          <label class="plan-app<%= marcadas.has(m.modulo) ? ' is-on' : '' %><%= m.activo ? '' : ' plan-app--inactiva' %>">
+                            <input type="checkbox"
+                                   name="<%= campo(p.id, 'aplicaciones') %>"
+                                   value="<%= m.modulo %>"
+                                   <%= marcadas.has(m.modulo) ? 'checked' : '' %> />
+                            <span class="plan-app-nombre"><%= m.nombre %></span>
+                            <% if (!m.activo) { %>
+                              <span class="plan-app-nota">no se está vendiendo</span>
+                            <% } %>
+                          </label>
+                        <% }); %>
+                      </div>
+
+                      <% if (marcadasDesconocidas.length) { %>
+                        <p class="panel-cell-error">
+                          Este plan tiene marcadas aplicaciones que ya no
+                          existen: <%= marcadasDesconocidas.join(', ') %>.
+                          Si no las limpiás, quedan granting a algo que no
+                          está dado de alta.
+                        </p>
+                      <% } %>
+
+                      <p class="panel-help">
+                        <% if (!marcadas.size) { %>
+                          <strong class="plan-app-vacia">Este plan no da acceso a
+                          ninguna aplicación.</strong> Todavía no podés venderlo:
+                          se publica como algo que incluye cosas que el cliente
+                          no va a poder usar.
+                        <% } else { %>
+                          Da acceso a <%= marcadas.size %>
+                          <%= marcadas.size === 1 ? 'aplicación' : 'aplicaciones' %>.
+                        <% } %>
+                      </p>
+
+                      <% if (filaErr.aplicaciones) { %>
+                        <small class="panel-cell-error"><%= filaErr.aplicaciones %></small>
+                      <% } %>
+                    <% } %>
+                  </fieldset>
+
                   <label class="panel-label" for="incluye_<%= p.id %>">
                     Qué incluye «<%= p.nombre %>» — una línea por punto
                   </label>
