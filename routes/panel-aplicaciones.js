@@ -33,7 +33,7 @@
 
 const express = require("express");
 const { validar, vacioANull } = require("../lib/validate");
-const { MONEDAS } = require("../lib/monedas");
+const { MONEDAS, esMonedaConocida } = require("../lib/monedas");
 const A = require("../lib/aplicaciones");
 
 const POR_PAGINA = 25;
@@ -70,6 +70,28 @@ const ESQUEMA = {
   termina_en: ["fecha"],
   notas: [["texto", { max: 2000 }]],
 };
+
+/* ─────────────────────────────────────────────────────────
+   EL CATÁLOGO: QUÉ ES CADA APLICACIÓN Y A QUÉ PRECIO
+
+   Los campos que esta pantalla puede cambiar, y solo estos.
+
+   Una lista y no "cualquier columna": si mañana alguien mete un
+   `update(cuerpo)` por comodidad, se puede editar el `modulo` —que es
+   la clave con la que los servicios guardan a qué aplicación
+   pertenecen— y la fila se queda huérfana. La clave NO se edita.
+
+   Los periodos, con el vocabulario de `microservicios.periodo`, que no
+   es el de `services.periodicidad`. La traducción la hace
+   `lib/aplicaciones.js`, en un solo sitio. */
+const EDITABLES_CATALOGO = ["nombre", "descripcion", "precio", "moneda", "periodo", "activo"];
+
+const PERIODOS_CATALOGO = [
+  { valor: "mes", label: "Cada mes" },
+  { valor: "trimestre", label: "Cada tres meses" },
+  { valor: "anio", label: "Cada año" },
+  { valor: "unica", label: "Una sola vez" },
+];
 
 /* Los filtros de la barra. Cada uno es un valor de `lib/aplicaciones`,
    no un estado de `services`. */
@@ -248,6 +270,390 @@ module.exports = function rutasAplicaciones({ db, sitio, csrf, requiereStaff }) 
         /* Se pasan a la vista para que no tenga que saber los números. */
         margen: A.DIAS_DE_MARGEN,
         aviso: A.DIAS_DE_AVISO,
+      });
+    });
+
+    /* ═══════════════════════════════════════════════════════════
+       EL CATÁLOGO DE APLICACIONES
+
+       Qué es cada aplicación, a qué precio se vende y en qué planes
+       está incluida.
+
+       ── POR QUÉ ESTA PANTALLA NO EXISTÍA Y HACÍA FALTA ──
+
+       Porque `microservicios.precio` no se podía tocar desde el panel.
+       `/panel/catalogo` edita `modules`, que es el catálogo del estudio
+       viejo y no tiene nada que ver: los precios de los que se venden
+       estaban fuera del panel, y se cambiaban con una sesión de base
+       de datos.
+
+       Y como no había forma de verlos, no se cambiaban. Los tres
+       planes siguen a «a consultar» y las aplicaciones no tienen
+       importe, que es exactamente lo que pasa cuando el precio no se
+       puede cambiar a mano.
+
+       ── POR QUÉ ESTÁ SEPARADA DE LA CARTERA ──
+
+       La cartera responde «quién tiene qué y hasta cuándo». Esta
+       responde «qué vendemos y a cuánto». Son dos preguntas que se
+       hacen en momentos distintos y por gente distinta: una al día,
+       para llamar a alguien; otra al decidir qué se ofrece.
+
+       Meterlas en una pantalla obligaría a pasar por la cartera para
+       cambiar un precio, y el catálogo quedaría enterrado bajo datos
+       de clientes.
+       ───────────────────────────────────────────────────────── */
+
+    /** El nombre del campo en el formulario para un módulo y un campo */
+    const campoCatalogo = (modulo, nombre) => nombre + "_" + modulo;
+
+    /**
+     * El catálogo, con lo que hay que saber ANTES de cambiar un precio.
+     *
+     * · cuántos clientes lo tienen ahora mismo, y a qué precio lo
+     *   tienen CONTRATADO —que no es el del catálogo—;
+     * · en qué planes está incluida, y si alguno la vende por su cuenta.
+     *
+     * Sin el número de clientes, un precio se sube sin saber si detrás
+     * hay veinte personas pagando otra cosa. Con él, la pantalla puede
+     * decirlo antes de guardar.
+     *
+     * @returns {Promise<{apps: Array, planes: Array}>}
+     */
+    async function leerCatalogo() {
+      const [apps, servicios, planes] = await Promise.all([
+        db
+          .from("microservicios")
+          .select("modulo,nombre,descripcion,precio,moneda,periodo,activo")
+          .order("nombre", { ascending: true }),
+
+        /* Sólo las de tipo aplicación. Un plan no cuenta: sus
+           aplicaciones se muestran en su propia fila. */
+        db
+          .from("services")
+          .select("microservicio_clave,importe,moneda,termina_en")
+          .eq("kind", "aplicacion"),
+
+        db.from("plans").select("id,nombre,aplicaciones").order("orden", { ascending: true }),
+      ]);
+
+      if (apps.error) {
+        console.error("[catalogo de aplicaciones] " + apps.error.message);
+        return {
+          apps: [],
+          planes: [],
+          error: "No se pudo leer el catálogo: " + apps.error.message,
+        };
+      }
+
+      /* ─────────────────────────────────────────────────────
+         LO QUE HAY DETRÁS DE CADA APLICACIÓN
+
+         Se cuenta sobre `services`, no sobre `clients`. La pregunta
+         es «cuántas veces se ha vendido esto», y un cliente puede
+         tenerlo dos veces.
+
+         Y se separa lo que está VIGENTE de lo que no, porque no es lo
+         mismo: veinte clientes activos detrás de un precio es una
+         subida fácil; veinte, de los cuales dieciocho vencieron hace
+         un año, es otra cosa.
+         ───────────────────────────────────────────────────── */
+      const hoy = new Date();
+      const porClave = new Map();
+
+      for (const s of servicios.data || []) {
+        const clave = s.microservicio_clave;
+        if (!clave) continue;
+
+        if (!porClave.has(clave)) {
+          porClave.set(clave, { total: 0, vigentes: 0, importes: new Map() });
+        }
+
+        const fila = porClave.get(clave);
+        fila.total++;
+
+        const vencida =
+          s.termina_en && new Date(s.termina_en).getTime() < hoy.getTime();
+        if (!vencida) fila.vigentes++;
+
+        /* Los importes distintos que se contrataron. Es lo que dice si
+           la subida afecta a alguien: si todo el mundo tiene lo
+           mismo, se les puede ofrecer lo mismo; si hay tres precios,
+           hay que mirar uno por uno. */
+        const claveImporte =
+          s.importe === null || s.importe === undefined
+            ? "sin"
+            : String(s.importe);
+        fila.importes.set(claveImporte, (fila.importes.get(claveImporte) || 0) + 1);
+      }
+
+      /* En qué planes está cada una. */
+      const porPlan = new Map();
+      for (const p of planes.data || []) {
+        for (const clave of Array.isArray(p.aplicaciones) ? p.aplicaciones : []) {
+          if (!porPlan.has(clave)) porPlan.set(clave, []);
+          porPlan.get(clave).push(p.nombre);
+        }
+      }
+
+      return {
+        planes: planes.data || [],
+        error: null,
+        apps: (apps.data || []).map((m) => {
+          const uso = porClave.get(m.modulo);
+
+          return Object.assign({}, m, {
+            clientes: uso ? uso.total : 0,
+            clientesVigentes: uso ? uso.vigentes : 0,
+
+            /* Los precios que hay detrás, de más a menos repetidos. */
+            importesContratados: uso
+              ? [...uso.importes.entries()]
+                  .sort((a, b) => b[1] - a[1])
+                  .map(([importe, n]) => ({ importe, n }))
+              : [],
+
+            /* Si se está vendiendo con el precio vacío, hay gente
+               detrás. Es la pregunta que hace falta para no subir un
+               precio que nunca se cobró. */
+            sinPrecioContratado: uso
+              ? uso.importes.get("sin") || 0
+              : 0,
+
+            enPlanes: porPlan.get(m.modulo) || [],
+          });
+        }),
+      };
+    }
+
+    const vistaCatalogo = (req, res, datos = {}) =>
+      res.render("panel/aplicacion-catalogo", {
+        title: "Catálogo de aplicaciones",
+        site: sitio,
+        base: "/panel",
+        /* Un valor aparte de `aplicaciones`, y no el mismo.
+
+           El menú marca el apartado con una clase y al hijo con otra,
+           y usa el mismo nombre para los dos: marcaría los dos
+           iluminados a la vez, y no se sabría en cuál de las dos
+           pantallas se está. */
+        current: "aplicaciones-catalogo",
+        noindex: true,
+        csrf: req.sesion.csrf_token,
+        monedas: MONEDAS,
+        periodos: PERIODOS_CATALOGO,
+        campo: campoCatalogo,
+        errores: {},
+        ...datos,
+      });
+
+    /* ---------- Ver ---------- */
+    router.get("/aplicaciones/catalogo", requiereStaff, async (req, res) => {
+      const { apps, error } = await leerCatalogo();
+      vistaCatalogo(req, res, { apps, errores: error ? { general: error } : {} });
+    });
+
+    /* ---------- Guardar ---------- */
+    router.post("/aplicaciones/catalogo", requiereStaff, async (req, res) => {
+      const cuerpo = req.body || {};
+
+      /* Qué hay en la base, no qué dice el formulario.
+
+         El POST no recorre lo que le llegue: pregunta a la base qué
+         aplicaciones hay y lee ese campo de cada una. Recorrer el POST
+         sería un agujero —cualquiera podría mandar
+         `precio_inventario=0` para tocar algo que no existe— y además
+         permitiría editar el `modulo`, que es la clave con la que los
+         servicios guardan a qué aplicación pertenecen. */
+      const { apps, error: errorLectura } = await leerCatalogo();
+
+      if (errorLectura) {
+        return vistaCatalogo(req, res, { apps, errores: { general: errorLectura } });
+      }
+
+      const cambios = {};
+      const errores = {};
+      let tocados = 0;
+
+      for (const app of apps) {
+        const mod = app.modulo;
+        let fallo = null;
+
+        /* Se construye el cuerpo con SOLO lo que se puede cambiar. Un
+           objeto con `{...cuerpo}` traería el `modulo` del POST, que
+           es justo lo que no debe poder editarse. */
+        const limpio = {};
+
+        /* ---- nombre ---- */
+        const nombre = String(cuerpo[campoCatalogo(mod, "nombre")] || "").trim();
+        if (!nombre) {
+          fallo = fallo || "El nombre no puede quedar vacío.";
+        } else if (nombre.length > 120) {
+          fallo = fallo || "El nombre es demasiado largo.";
+        } else {
+          limpio.nombre = nombre;
+        }
+
+        /* ---- descripción ----
+           Cadena vacía, y NUNCA null.
+
+           `microservicios.descripcion` es NOT NULL, y con `null` el
+           `update` entero se rechaza. Lo que se pierde no es solo la
+           descripción: con el fallo, tampoco se guardan el precio ni
+           el estado, que estaban bien. Es decir: no poder borrar el
+           texto de una descripción rompía la pantalla entera.
+
+           Vacío es un valor legítimo aquí: una aplicación sin
+           descripción es una aplicación a la que todavía no se le
+           escribió qué hace. */
+        const descripcion = String(
+          cuerpo[campoCatalogo(mod, "descripcion")] || ""
+        ).trim();
+        limpio.descripcion = descripcion;
+
+        /* ---- precio ----
+           Vacío es una respuesta válida: «a consultar». No es un
+           error, y por eso no se rechaza: se guarda como está.
+
+           El separador de miles se quita antes de convertir. Escribir
+           «45.000» en Argentina es lo natural, y `Number("45.000")` da
+           NaN. */
+        const precioCrudo = String(cuerpo[campoCatalogo(mod, "precio")] || "").trim();
+        let precio = null;
+
+        if (precioCrudo) {
+          const limpioNum = precioCrudo.replace(/\./g, "").replace(",", ".");
+          const n = Number(limpioNum);
+
+          if (!isFinite(n) || n < 0) {
+            fallo = fallo || "El precio tiene que ser un número, o vacío para «a consultar».";
+          } else {
+            precio = n;
+          }
+        }
+        limpio.precio = precio;
+
+        /* ---- moneda ----
+           `esMonedaConocida` de `lib/monedas`, no una lista propia. La
+           lista de monedas vive en un solo sitio a propósito: si aquí
+           se comprobara contra una copia, el día que se añada una
+           moneda el formulario la ofrecería y el servidor la
+           rechazaría. */
+        const moneda = String(cuerpo[campoCatalogo(mod, "moneda")] || "").trim();
+        if (moneda && !esMonedaConocida(moneda)) {
+          fallo = fallo || "Esa moneda no existe.";
+        } else {
+          /* NOT NULL: vacío es "", no null. */
+          limpio.moneda = moneda;
+        }
+
+        /* ---- periodo ----
+           Se manda SIEMPRE, aunque no haya periodo. Un `checkbox`
+           desmarcado no llega, pero un `select` llega vacío, y el
+           vacío es un valor válido: el que significa «sin periodo». */
+        const periodo = String(cuerpo[campoCatalogo(mod, "periodo")] || "").trim();
+        if (periodo && !PERIODOS_CATALOGO.some((p) => p.valor === periodo)) {
+          fallo = fallo || "Ese periodo no existe.";
+        } else {
+          /* NOT NULL también. El desplegable tiene «Sin periodo», que
+             es "", y no null: null no lo admite. */
+          limpio.periodo = periodo;
+        }
+
+        /* ---- activo ----
+           El patrón de toda la casa: un campo oculto con "0" delante,
+           para que el desmarcado llegue de verdad. Sin él, quitar la
+           marca no se puede guardar. */
+        limpio.activo = String(cuerpo[campoCatalogo(mod, "activo")] || "") === "1";
+
+        /* ¿Ha cambiado algo? Se compara campo a campo y no se manda un
+           update por fila sin motivo. Un update que no cambia nada
+           dispara triggers y ensucia la auditoría. */
+        const cambio = {};
+        for (const campo of EDITABLES_CATALOGO) {
+          const antes = app[campo] === undefined ? null : app[campo];
+          const ahora = limpio[campo];
+          const sonDistintos =
+            (antes === null || antes === undefined ? null : String(antes)) !==
+            String(ahora === undefined ? null : ahora);
+          if (sonDistintos) cambio[campo] = ahora;
+        }
+
+        if (fallo) {
+          errores[app.nombre] = fallo;
+          continue;
+        }
+
+        if (Object.keys(cambio).length) {
+          cambios[mod] = cambio;
+        }
+      }
+
+      /* ─────────────────────────────────────────────────────
+         EL PRECIO ES LO ÚNICO QUE AVISA
+
+         Se escribe lo guardado, con el nombre y a quién afecta.
+         No «2 campos cambiados»: eso obliga a ir a mirar, y lo que
+         se hizo mal —si se hizo algo— es el precio.
+
+         Y se dice que a los que ya lo tienen no les cambia. Es la
+         pregunta que sale al ver un número que se puede cambiar por
+         primera vez, y la respuesta es siempre la misma: no.
+         ───────────────────────────────────────────────────── */
+      let aviso = null;
+
+      if (Object.keys(errores).length) {
+        aviso = "No se guardó nada. Hay campos con errores.";
+      } else if (tocados > 0) {
+        const cambiosDePrecio = cualCambiaPrecio(cambios, apps);
+        aviso =
+          "Guardado" +
+          (cambiosDePrecio.length
+            ? ": cambió el precio de " + cambiosDePrecio.length +
+              (cambiosDePrecio.length === 1 ? " aplicación." : " aplicaciones.") +
+              " Lo que ya estaba contratado conserva su precio."
+            : ".");
+      }
+
+      /* ─────────────────────────────────────────────────────
+         GUARDAR UNA POR UNA, NO TODAS JUNTAS
+
+         Un `update` con veinte filas en un solo `upsert` es todo o
+         nada: si una falla, no se guarda ninguna, y el error no dice
+         cuál. Yendo una por una se sabe exactamente qué se grabó, y un
+         fallo en una no tira abajo las otras diecinueve.
+         ───────────────────────────────────────────────────── */
+      for (const mod of Object.keys(cambios)) {
+        const { error } = await db
+          .from("microservicios")
+          .update(cambios[mod])
+          .eq("modulo", mod);
+
+        if (error) {
+          console.error("[catalogo de aplicaciones] " + mod + ": " + error.message);
+          errores[mod] = "No se pudo guardar: " + error.message;
+          continue;
+        }
+        tocados++;
+      }
+
+      /* Los errores que aparecen al guardar van por módulo, y la vista
+         los pinta por nombre. */
+      const erroresPorNombre = {};
+      for (const mod of Object.keys(errores)) {
+        const app = apps.find((a) => a.modulo === mod);
+        erroresPorNombre[app ? app.nombre : mod] = errores[mod];
+      }
+
+      /* Se relee para pintar lo que hay, no lo que se mandó: si un
+         guardado falló, la pantalla tiene que mostrarlo. */
+      const fresco = await leerCatalogo();
+
+      return vistaCatalogo(req, res, {
+        apps: fresco.apps,
+        error: fresco.error,
+        errores: erroresPorNombre,
+        aviso,
       });
     });
 
@@ -590,3 +996,26 @@ module.exports = function rutasAplicaciones({ db, sitio, csrf, requiereStaff }) 
 
 module.exports.FILTROS = FILTROS;
 module.exports.todosLosServicios = todosLosServicios;
+
+/**
+ * De los cambios pendientes, cuáles tocan el precio.
+ *
+ * Existe para una cosa: el aviso que se devuelve después del guardado.
+ * «Guardado: cambió el precio de 2 aplicaciones» dice algo que hay que
+ * ir a mirar; «Guardado.» no dice nada.
+ *
+ * El precio es el único campo de esta pantalla que es caro de cambiar
+ * mal, porque es el único que se ve desde fuera y el único detrás del
+ * cual hay un número con gente detrás.
+ *
+ * @param {Object<string, object>} cambios por módulo
+ * @param {Array} apps el catálogo, para poder poner el nombre
+ * @returns {string[]} los nombres de las aplicaciones cuyo precio cambia
+ */
+function cualCambiaPrecio(cambios, apps) {
+  const porModulo = Object.fromEntries((apps || []).map((a) => [a.modulo, a.nombre]));
+
+  return Object.keys(cambios || {})
+    .filter((mod) => Object.prototype.hasOwnProperty.call(cambios[mod], "precio"))
+    .map((mod) => porModulo[mod] || mod);
+}

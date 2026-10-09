@@ -167,6 +167,23 @@
       <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="3" width="6" height="6" rx="1.5"/><rect x="11" y="3" width="6" height="6" rx="1.5"/><rect x="3" y="11" width="6" height="6" rx="1.5"/><rect x="11" y="11" width="6" height="6" rx="1.5"/></svg>
       Aplicaciones
     </a>
+
+    <%# El catálogo, como hijo y no como un apartado más.
+
+        Va debajo de Aplicaciones y no junto a «Catálogo», que edita
+        `modules` —el catálogo del estudio viejo— porque este es lo que
+        se vende de verdad: las microservicios sueltas. Lo que está
+        debajo de un apartado es una variante suya; lo que está al
+        lado es otra cosa.
+
+        Y de este se sale a la cartera y a los planes con dos botones.
+        Las tres pantallas se pisan entre sí: una aplicación tiene un
+        precio, está en unos planes y la tiene alguien. %>
+    <a href="<%= base %>/aplicaciones/catalogo" class="panel-menu-item panel-menu-item--hijillo<%= _current === 'aplicaciones-catalogo' ? ' is-active' : '' %>"
+       <%= _current === 'aplicaciones-catalogo' ? 'aria-current="page"' : '' %>>
+      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5.5 10 2.5l7 3v9l-7 3-7-3v-9Z"/><path d="M3 5.5 10 8.5l7-3M10 8.5v9"/></svg>
+      Catálogo de aplicaciones
+    </a>
     <a href="<%= base %>/servicios<%= _c.servicios > 0 ? "?estado=pausado" : "" %>" class="panel-menu-item<%= _current === 'servicios' ? ' is-active' : '' %>"
        <%= _current === 'servicios' ? 'aria-current="page"' : '' %>>
       <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v6l4 2"/><circle cx="10" cy="10" r="7"/></svg>

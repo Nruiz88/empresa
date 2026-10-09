@@ -1,0 +1,261 @@
+<%- include('../partials/panel-head') %>
+
+<%# =========================================================
+     Shopcito — El catálogo de aplicaciones
+
+     Misma forma que `planes.ejs` y que `catalogo-admin.ejs`: una tabla
+     con un solo formulario y un botón de guardar arriba. Las tres
+     pantallas editan filas de un catálogo, y una pantalla que
+     funciona es mejor que una nueva que casi funciona.
+
+     Lo que aporta esta es la columna que en las otras dos no hace
+     falta: cuánta gente tiene esto y a qué precio lotiene.
+
+     Sin ese número, un precio se cambia sin saber si detrás hay veinte
+     personas pagando otra cosa. Con él, la pantalla puede decirlo
+     antes de guardar en vez de después.
+     ========================================================= %>
+
+<div class="panel-page">
+  <div class="panel-page-head">
+    <div>
+      <span class="panel-kicker">Lo que vendes por separado</span>
+      <h1>Catálogo de aplicaciones</h1>
+      <p class="panel-page-lead">
+        Cada aplicación microservicio por separado: qué es, a qué precio se
+        vende y en qué planes está incluida. Esto es de lo que se vive una
+        suscripción suelta, sin plan.
+      </p>
+    </div>
+
+    <div class="panel-page-acciones">
+      <a href="<%= base %>/planes" class="panel-btn panel-btn--ghost">Planes</a>
+      <a href="<%= base %>/aplicaciones" class="panel-btn panel-btn--ghost">Cartera</a>
+      <button type="submit" form="form-catalogo" class="panel-btn panel-btn--primario"
+              <%= !apps.length ? "disabled" : "" %>>
+        Guardar cambios
+      </button>
+    </div>
+  </div>
+
+  <% if (typeof aviso !== 'undefined' && aviso) { %>
+    <div class="panel-alert <%= errores && Object.keys(errores).length ? 'panel-alert--error' : 'panel-alert--ok' %>" role="status">
+      <%= aviso %>
+    </div>
+  <% } %>
+
+  <% if (errores && errores.general) { %>
+    <div class="panel-alert panel-alert--error" role="alert"><%= errores.general %></div>
+  <% } %>
+
+  <!-- Lo que hay que saber antes de tocar un precio. Va arriba y en
+       grande porque es la duda de cualquiera que llegue aquí: la
+       primera vez que alguien abre esta pantalla va a mirar el
+       precio, va a ver un campo vacío y va a pensar que falta un dato.
+
+       No falta: vacío es «A consultar». Y un 0 publicaría que la
+       aplicación es gratis, que es peor que no decir nada. -->
+  <div class="panel-note">
+    <strong>El precio puede quedar vacío.</strong>
+    Vacío significa <em>«A consultar»</em>, que es lo que se publica
+    mientras no haya cifra. Si pones <code>0</code>, se publica que la
+    aplicación es gratis.
+
+    <strong>Subir un precio no cambia lo que ya está contratado.</strong>
+    El importe se graba en el servicio cuando se da de alta, y a partir
+    de ahí es ese número. El catálogo dice lo que se cobra a quien
+    contrate <em>ahora</em>: por eso la columna «clientes» importa.
+  </div>
+
+  <% if (!apps.length) { %>
+    <div class="panel-empty">
+      <h3>No hay aplicaciones</h3>
+      <p>
+        Se cargan desde la base de datos. Si no aparece nada, falta
+        aplicar las migraciones de microservicios.
+      </p>
+    </div>
+  <% } else { %>
+
+    <form id="form-catalogo" method="post" action="<%= base %>/aplicaciones/catalogo">
+      <input type="hidden" name="_csrf" value="<%= csrf %>" />
+
+      <div class="panel-table-wrap">
+        <table class="panel-table panel-cat-tabla">
+          <thead>
+            <tr>
+              <th>Aplicación</th>
+              <th>Precio</th>
+              <th>Moneda</th>
+              <th>Periodo</th>
+              <th class="panel-th-num">Clientes</th>
+              <th class="panel-th-num">En planes</th>
+              <th class="panel-th-num">Se vende</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% apps.forEach(function (a) { %>
+              <% var filaErr = (errores && errores[a.nombre]) || ''; %>
+
+              <%# Una fila que se da de baja no se pincha como un error:
+                   está bien, es una decisión. El error de guardado sí
+                   marca la fila, porque ese sí es un fallo. %>
+              <tr class="<%= filaErr ? 'panel-tr--error' : (a.activo ? '' : 'panel-tr--apagada') %>">
+
+                <%# ── La aplicación ──
+                     La clave no se edita y sale a la vista como texto
+                     plano. No es un campo: es con lo que los servicios
+                     guardan a qué aplicación pertenecen, y editarla
+                     dejaría filas apuntando a algo que ya no existe. %>
+                <td data-label="Aplicación" class="panel-cat-nombre">
+                  <label class="sr-only" for="nombre_<%= a.modulo %>">Nombre de <%= a.modulo %></label>
+                  <input type="text"
+                         id="nombre_<%= a.modulo %>"
+                         name="<%= campo(a.modulo, 'nombre') %>"
+                         value="<%= a.nombre %>"
+                         class="<%= filaErr ? 'panel-input--error' : '' %>" />
+
+                  <label class="sr-only" for="descripcion_<%= a.modulo %>">Descripción de <%= a.modulo %></label>
+                  <input type="text"
+                         id="descripcion_<%= a.modulo %>"
+                         name="<%= campo(a.modulo, 'descripcion') %>"
+                         value="<%= a.descripcion || '' %>"
+                         placeholder="Qué hace"
+                         title="<%= a.descripcion || '' %>" />
+
+                  <span class="panel-cat-id"><%= a.modulo %></span>
+
+                  <% if (filaErr) { %>
+                    <small class="panel-cell-error"><%= filaErr %></small>
+                  <% } %>
+                </td>
+
+                <%# ── El precio ──
+                     `inputmode="decimal"` para que en el celular salga el
+                     teclado de números, y `type="text"` en vez de
+                     `type="number"`: con number el navegador lo pasa a
+                     otro y en algunos sistemas el separador decimal es
+                     punto, lo que con precios en pesos convierte un
+                     "25.000" en 25. Con texto y validación en el
+                     servidor no hay sorpresas. %>
+                <td data-label="Precio" class="panel-cat-precio">
+                  <label class="sr-only" for="precio_<%= a.modulo %>">Precio de <%= a.nombre %></label>
+                  <input type="text"
+                         inputmode="decimal"
+                         id="precio_<%= a.modulo %>"
+                         name="<%= campo(a.modulo, 'precio') %>"
+                         value="<%= a.precio === null || a.precio === undefined ? '' : a.precio %>"
+                         placeholder="A consultar"
+                         autocomplete="off"
+                         class="panel-input--numero" />
+
+                  <% if (a.precio === null || a.precio === undefined) { %>
+                    <small class="panel-cell-note">Vacío = se publica «A consultar»</small>
+                  <% } %>
+                </td>
+
+                <td data-label="Moneda">
+                  <label class="sr-only" for="moneda_<%= a.modulo %>">Moneda de <%= a.nombre %></label>
+                  <select id="moneda_<%= a.modulo %>"
+                          name="<%= campo(a.modulo, 'moneda') %>"
+                          class="panel-select-mini">
+                    <% monedas.forEach(function (mo) { %>
+                      <option value="<%= mo.valor %>" title="<%= mo.titulo %>"
+                              <%= a.moneda === mo.valor ? 'selected' : '' %>><%= mo.label %></option>
+                    <% }); %>
+                  </select>
+                </td>
+
+                <td data-label="Periodo">
+                  <label class="sr-only" for="periodo_<%= a.modulo %>">Periodo de <%= a.nombre %></label>
+                  <select id="periodo_<%= a.modulo %>"
+                          name="<%= campo(a.modulo, 'periodo') %>"
+                          class="panel-select-mini">
+                    <% periodos.forEach(function (pe) { %>
+                      <option value="<%= pe.valor %>"
+                              <%= (a.periodo || 'mes') === pe.valor ? 'selected' : '' %>><%= pe.label %></option>
+                    <% }); %>
+                  </select>
+                </td>
+
+                <%# ── Los clientes que ya la tienen ──
+                     El número que sale al mirar un precio. Y el desglose
+                     de lo que tienen CONTRATADO, que no es este precio:
+                     es el que se grabó al darlos de alta.
+
+                     Con veinte clientes detrás, el precio se cambia
+                     sabiendo a cuántos les afecta y por cuánto. %>
+                <td data-label="Clientes" class="panel-th-num">
+                  <% if (!a.clientes) { %>
+                    <span class="panel-cat-clientes--cero">—</span>
+                  <% } else { %>
+                    <span class="panel-cat-clientes"><%= a.clientes %></span>
+
+                    <% if (a.clientesVigentes < a.clientes) { %>
+                      <small class="panel-cell-note">
+                        <%= a.clientesVigentes %> vigente<%= a.clientesVigentes === 1 ? '' : 's' %>
+                      </small>
+                    <% } %>
+
+                    <%# Los precios que hay detrás, si no son todos el
+                        mismo. Si son todos iguales, no hace falta
+                        decirlo: se lee el de arriba. %>
+                    <% if (a.importesContratados.length > 1) { %>
+                      <small class="panel-cell-note">
+                        <% a.importesContratados.forEach(function (ic, i) { %><%= i ? ' · ' : '' %><%= ic.importe === 'sin' ? 'sin precio' : ic.importe %> (<%= ic.n %>)<% }); %>
+                      </small>
+                    <% } else if (a.sinPrecioContratado) { %>
+                      <small class="panel-cell-note panel-cell-note--aviso">
+                        <%= a.sinPrecioContratado %> sin precio
+                      </small>
+                    <% } %>
+                  <% } %>
+                </td>
+
+                <%# ── En qué planes ──
+                     Aquí no se marca: los planes se arman en su propia
+                     pantalla, y esta solo lo enseña. Dos pantallas que
+                     editan lo mismo se contradicen; una que lo edita y
+                     otra que lo muestra, no. %>
+                <td data-label="En planes" class="panel-th-num">
+                  <% if (!a.enPlanes.length) { %>
+                    <span class="panel-cat-clientes--cero">—</span>
+                  <% } else { %>
+                    <span class="panel-cat-clientes"><%= a.enPlanes.length %></span>
+                    <small class="panel-cell-note" title="<%= a.enPlanes.join(', ') %>">
+                      <%= a.enPlanes.join(', ') %>
+                    </small>
+                  <% } %>
+                </td>
+
+                <%# ── Se vende ──
+                     El patrón de toda la casa: un campo oculto con "0"
+                     delante, para que el desmarcado llegue de verdad.
+                     Sin él, quitar la marca no se puede guardar. %>
+                <td data-label="Se vende" class="panel-th-num">
+                  <input type="hidden" name="<%= campo(a.modulo, 'activo') %>" value="0" />
+                  <label class="panel-check" for="activo_<%= a.modulo %>">
+                    <input type="checkbox"
+                           id="activo_<%= a.modulo %>"
+                           name="<%= campo(a.modulo, 'activo') %>"
+                           value="1"
+                           <%= a.activo ? 'checked' : '' %> />
+                    <span class="sr-only">Vender <%= a.nombre %></span>
+                  </label>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </form>
+
+    <p class="panel-help">
+      Desactivar una aplicación no la borra: deja de aparecer en el alta
+      y sigue funcionando para quien ya la tiene. Borrarla dejaría a sus
+      servicios apuntando a algo que ya no existe.
+    </p>
+  <% } %>
+</div>
+
+<%- include('../partials/panel-foot') %>

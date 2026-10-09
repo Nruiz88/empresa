@@ -60,6 +60,7 @@ const PAGINAS = (idCliente) => [
      etiqueta. */
   "/panel/aplicaciones",
   "/panel/aplicaciones/nuevo",
+  "/panel/aplicaciones/catalogo",
   "/panel/planes",
 
   /* Estas tres se miran porque se reestructuraron enteras al unificar

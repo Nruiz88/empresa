@@ -2746,6 +2746,61 @@ a.panel-stat--ambar:hover {
   font-weight: 400;
 }
 
+/* ─────────────────────────────────────────────────────────────
+   EL RÓTULO PEQUEÑO DE UNA CELDA
+
+   Lo que va debajo de un campo para decir algo que el campo no puede:
+   «vacío = A consultar», «3 vigentes», «quedan sin precio».
+
+   ── POR QUÉ ESTA DEFINICIÓN TARDÓ ──
+
+   Porque `panel-cell-note` se usaba en `planes.ejs` sin existir en el
+   CSS. Una clase que no existe no da error: da un `<small>` con el
+   estilo del navegador, que se ve más grande de lo que debía y sin el
+   tono apagado que pedía el contexto.
+
+   Se define ahora porque el catálogo de aplicaciones la necesita seis
+   veces, y esa es la diferencia entre una nota al pie de un campo y un
+   texto que compite con el campo.
+   ───────────────────────────────────────────────────────────── */
+.panel-cell-note {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: var(--fs-xs);
+  line-height: 1.4;
+  color: var(--text-dim);
+}
+
+/* La variante que avisa. Es un aviso, no una nota: hay gente detrás que
+   no tiene un importe, y eso no se puede leer igual que «3 vigentes». */
+.panel-cell-note--aviso {
+  color: var(--warning-text);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   UNA FILA QUE NO SE VENDE
+
+   Atenuada, no tachada ni gris de error.
+
+   ── POR QUÉ SE PINTA ──
+
+   Porque «no se vende» y «no existe» tienen que verse distinto. Una
+   fila apagada sigue ahí, con su precio y sus clientes, y la lista de
+   clientes la sigue contando. Una tachada parece borrada, y quien la
+   vea puede creer que hay que recuperarla de algún sitio.
+
+   El precio, además, se puede seguir editando. Desactivar una
+   aplicación no la retira: deja de aparecer en el alta y sigue
+   funcionando para quien ya la tiene.
+   ───────────────────────────────────────────────────────────── */
+.panel-table tbody tr.panel-tr--apagada > td {
+  opacity: 0.55;
+}
+
+.panel-table tbody tr.panel-tr--apagada:hover > td {
+  opacity: 1;
+}
+
 /* ---------- El pie ---------- */
 
 .panel-cat-pie {
