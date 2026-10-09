@@ -51,7 +51,37 @@ const site = siteConfig;
 const router = express.Router();
 
 const CSRF_PRE = "nexo_csrf";
-const MIN_ESPACIO_HORAS = 32;
+
+/* ─────────────────────────────────────────────────────────────
+   LA LONGITUD MÍNIMA DE LA CONTRASEÑA
+
+   Antes esta constante se llamaba `MIN_ESPACIO_HORAS` y valía 32.
+   El nombre venía de otro archivo, donde sí significaba horas de
+   apertura; aquí no tenía nada que ver con horarios, y su único uso
+   en todo el repositorio era este: el mínimo de caracteres de la
+   contraseña del alta de cliente.
+
+   El efecto era que el registro pedía 32 caracteres. No es mucho ni
+   poco, es absurdo: nadie va a escribir 32 caracteres para una tienda
+   de barrio, y el formulario se le queda a medio hacer.
+
+   ── POR QUÉ 8 Y NO MÁS ──
+
+   Porque el que la escribe es una persona, no un programa. Una regla
+   que la gente no cumple no protege nada: solo hace que la gente vaya
+   a un papel.
+
+   Con 8 como suelo, quien quiera más fuerte pone más. Y el cambio de
+   contraseña desde el panel sigue pidiendo 10, que es donde el que la
+   elige es alguien del equipo.
+
+   ── Y POR QUÉ NO SE PONE EN EL `.env` ──
+
+   Porque no es una decisión de quien despliega: es parte del producto
+   y tiene que ser la misma en todas partes. Lo que sí cambia por
+   entorno es el dominio y los secretos, no el formulario.
+   ───────────────────────────────────────────────────────────── */
+const MIN_PASSWORD = 8;
 
 const emailValido = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
 
@@ -80,6 +110,11 @@ function vista(res, vista_, datos, status = 200) {
     year: new Date().getFullYear(),
     current: "cuenta",
     noindex: true,
+
+    /* El mínimo de la contraseña va a la vista desde aquí, para que el
+       texto y la validación no puedan separarse. */
+    minPassword: MIN_PASSWORD,
+
     ...datos,
   });
 }
@@ -161,8 +196,8 @@ router.post("/cuenta/crear", async (req, res) => {
   if (empresa.length > 160) errores.empresa = "Ese nombre de empresa es demasiado largo.";
 
   if (!password) errores.password = "Elige una contraseña.";
-  else if (password.length < MIN_ESPACIO_HORAS) {
-    errores.password = "Mínimo " + MIN_ESPACIO_HORAS + " caracteres.";
+  else if (password.length < MIN_PASSWORD) {
+    errores.password = "Mínimo " + MIN_PASSWORD + " caracteres.";
   } else if (password.length > 200) {
     /* Un campo de 200 caracteres es lo que manda el navegador, pero
        poner el tope en el servidor evita que alguien envíe lo que

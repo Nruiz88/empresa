@@ -100,7 +100,19 @@
             </div>
 
             <div class="field full">
-              <p class="form-note">Mínimo 32 caracteres. Cualquier cosa que se te ocurra.</p>
+              <%# El número sale del servidor, no está escrito acá.
+
+                  Estaba como «Mínimo 32 caracteres» en el texto y como
+                  `MIN_ESPACIO_HORAS = 32` en la ruta. Dos sitios con el
+                  mismo número, y cuando uno baja a 8 el otro sigue
+                  diciendo 32: el formulario acepta una contraseña de ocho
+                  y al lado pone que pide treinta y dos.
+
+                  Que venga de la misma constante que usa la validación
+                  es lo único que evita que se separen. %>
+              <p class="form-note">
+                Mínimo <%= minPassword %> caracteres. Cualquier cosa que se te ocurra.
+              </p>
             </div>
 
             <div class="field full<%= errores.acepta ? ' has-error' : '' %>">
