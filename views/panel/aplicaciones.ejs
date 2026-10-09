@@ -1,0 +1,196 @@
+<%- include('partials/panel-head', { title: title }) %>
+
+<div class="panel-page">
+
+  <!-- ============ ENCABEZADO ============ -->
+  <header class="panel-head">
+    <div>
+      <h1>Aplicaciones</h1>
+      <p class="panel-sub">
+        Quién tiene qué microservicio, hasta cuándo, y qué se le factura.
+      </p>
+    </div>
+
+    <div class="panel-head-acciones">
+      <% if (resumen.urgente > 0) { %>
+        <a class="panel-btn panel-btn--aviso" href="<%= base %>/aplicaciones?estado=urgente">
+          <%= resumen.urgente %>
+          <%= resumen.urgente === 1 ? "requiere atención" : "requieren atención" %>
+        </a>
+      <% } %>
+      <a class="panel-btn panel-btn--ghost" href="<%= base %>/servicios">Ver servicios</a>
+    </div>
+  </header>
+
+  <%# ── EL RESUMEN ──
+      Va arriba y SIEMPRE sobre el total, no sobre lo que haya después
+      de filtrar. La pregunta al entrar es «cuántos hay», y si el
+      filtro puesto fuera "vencidas", el resumen tiene que seguir
+      diciendo cuántas hay en total. Por eso viene calculado antes de
+      filtrar, en la ruta. %>
+  <section class="panel-resumen-aplicaciones">
+    <a class="panel-resumen-tarjeta<%= filtro === '' ? ' is-activo' : '' %>"
+       href="<%= base %>/aplicaciones">
+      <span class="panel-resumen-num"><%= resumen.total %></span>
+      <span class="panel-resumen-txt">en total</span>
+    </a>
+
+    <a class="panel-resumen-tarjeta<%= filtro === 'activo' ? ' is-activo' : '' %> panel-tarjeta--ok"
+       href="<%= base %>/aplicaciones?estado=activo">
+      <span class="panel-resumen-num"><%= resumen.activo %></span>
+      <span class="panel-resumen-txt">activas</span>
+    </a>
+
+    <a class="panel-resumen-tarjeta<%= filtro === 'por_vencer' ? ' is-activo' : '' %> panel-tarjeta--aviso"
+       href="<%= base %>/aplicaciones?estado=por_vencer">
+      <span class="panel-resumen-num"><%= resumen.por_vencer %></span>
+      <span class="panel-resumen-txt">por vencer</span>
+    </a>
+
+    <a class="panel-resumen-tarjeta<%= filtro === 'en_margen' ? ' is-activo' : '' %> panel-tarjeta--aviso"
+       href="<%= base %>/aplicaciones?estado=en_margen">
+      <span class="panel-resumen-num"><%= resumen.en_margen %></span>
+      <span class="panel-resumen-txt">en margen</span>
+    </a>
+
+    <a class="panel-resumen-tarjeta<%= filtro === 'vencido' ? ' is-activo' : '' %> panel-tarjeta--peligro"
+       href="<%= base %>/aplicaciones?estado=vencido">
+      <span class="panel-resumen-num"><%= resumen.vencido %></span>
+      <span class="panel-resumen-txt">vencidas</span>
+    </a>
+  </section>
+
+  <%# ── LA LISTA ──
+      Ordenada por urgencia, no por fecha de alta. Si alguien entra al
+      panel para trabajar, lo que busca es lo que hay que hacer hoy. %>
+  <section class="panel-tabla-wrap">
+    <table class="panel-tabla">
+      <thead>
+        <tr>
+          <th>Cliente</th>
+          <th>Qué tiene</th>
+          <th>Desde</th>
+          <th>Vence</th>
+          <th class="panel-th-num">Se factura</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <% if (!filas.length) { %>
+          <tr>
+            <td colspan="6" class="panel-vacio">
+              <% if (q || filtro) { %>
+                Nada con ese filtro.
+                <a href="<%= base %>/aplicaciones">Ver todas</a>.
+              <% } else { %>
+                Todavía no hay aplicaciones ni planes asignados.
+                <a href="<%= base %>/servicios/nuevo">Dar de alta un servicio</a>.
+              <% } %>
+            </td>
+          </tr>
+        <% } %>
+
+        <% filas.forEach(function (s) { %>
+          <tr class="<%= s.estado.tono === 'peligro' ? 'panel-tr--peligro' : '' %>">
+            <td data-label="Cliente">
+              <a href="<%= base %>/clientes/<%= s.client_id %>"><%= s.cliente %></a>
+            </td>
+
+            <td data-label="Qué tiene">
+              <% if (s.aplicaciones.length) { %>
+                <% s.aplicaciones.forEach(function (a) { %>
+                  <span class="app-chip"><%= a.nombre %></span>
+                <% }); %>
+              <% } else { %>
+                <%# Un servicio de los tipos viejos —un mantenimiento, un
+                    proyecto— no tiene aplicaciones. No es un error: son
+                    de otra época. Se muestra el título para que la fila
+                    no parezca rota. %>
+                <span class="app-chip app-chip--vacio"><%= s.titulo || s.estado.clave %></span>
+              <% } %>
+
+              <% if (s.precio.origen === 'plan') { %>
+                <span class="app-nota">plan <%= s.precio.detalle %></span>
+              <% } else if (s.precio.origen === 'aplicacion') { %>
+                <span class="app-nota">contratada suelta</span>
+              <% } %>
+            </td>
+
+            <td data-label="Desde"><%= s.inicia_en || "—" %></td>
+            <td data-label="Vence"><%= s.termina_en || "—" %></td>
+
+            <td data-label="Se factura" class="panel-th-num">
+              <% if (s.precio.importe === null) { %>
+                <span class="panel-valor-vacio">a consultar</span>
+              <% } else { %>
+                <%= new Intl.NumberFormat("es-AR").format(s.precio.importe) %>
+                <span class="app-moneda"><%= s.precio.moneda %></span>
+              <% } %>
+            </td>
+
+            <td data-label="Estado">
+              <%# El tono lo pone `lib/aplicaciones`, no la vista. Para
+                  que el mismo estado se vea igual acá, en la ficha del
+                  cliente y en las alertas. %>
+              <span class="app-estado app-estado--<%= s.estado.tono %>">
+                <%= s.estado.etiqueta %>
+              </span>
+
+              <% if (s.estado.clave === 'en_margen') { %>
+                <%# Se dice EN LA TARJETA, porque el margen es un
+                    beneficio que se pierde y hay que notar que se está
+                    usando. %>
+                <small class="app-aviso-margin">
+                  Después de <%= margen %> días sin pago se apaga solo.
+                </small>
+              <% } %>
+            </td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </section>
+
+  <%# ── SIN NADA, UNA EXPLICACIÓN ──
+      La lista vacía no dice por qué. Y "no hay nada" con un plan sin
+      aplicaciones es un problema distinto de "no hay nada porque
+      todavía no asignaste". %>
+  <% if (resumen.total === 0) { %>
+    <div class="panel-callout">
+      <p><strong>No hay nada asignado todavía.</strong></p>
+      <p>
+        Las aplicaciones se dan de alta desde
+        <a href="<%= base %>/servicios/nuevo">Servicios</a>, eligiendo
+        un tipo <em>aplicación</em> para una sola, o <em>plan</em> para
+        varias de una vez.
+      </p>
+      <p>
+        Ojo: un plan sin aplicaciones marcadas no da acceso a nada, así
+        que conviene revisar <a href="<%= base %>/planes">qué incluye
+        cada plan</a> antes de venderlo.
+      </p>
+    </div>
+  <% } %>
+
+  <%# ── PAGINACIÓN ── %>
+  <% if (paginas > 1) { %>
+    <nav class="panel-paginacion">
+      <% if (pagina > 1) { %>
+        <a href="?estado=<%= encodeURIComponent(filtro) %>&q=<%= encodeURIComponent(q) %>&pagina=<%= pagina - 1 %>">Anterior</a>
+      <% } %>
+      <span>Página <%= pagina %> de <%= paginas %></span>
+      <% if (pagina < paginas) { %>
+        <a href="?estado=<%= encodeURIComponent(filtro) %>&q=<%= encodeURIComponent(q) %>&pagina=<%= pagina + 1 %>">Siguiente</a>
+      <% } %>
+    </nav>
+  <% } %>
+
+  <p class="panel-nota-pie">
+    Se avisa <%= aviso %> días antes de que venza. Después quedan
+    <%= margen %> días de margen antes de que se apague.
+  </p>
+
+</div>
+
+<%- include('partials/panel-foot') %>

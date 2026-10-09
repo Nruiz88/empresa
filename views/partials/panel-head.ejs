@@ -28,6 +28,7 @@
       igual de cuidado que el sitio. %>
   <link rel="stylesheet" href="/css/styles.css" />
   <link rel="stylesheet" href="/css/panel.css" />
+<link rel="stylesheet" href="/css/aplicaciones.css" />
   <!-- El portal del cliente tiene hoja propia: es otro producto con
        otro usuario (poco frecuente, poco experto) y otra jerarquía.
        Va DESPUÉS de panel.css a propósito: aquí va lo del portal, y
@@ -148,6 +149,21 @@
        <%= _current === 'clientes' ? 'aria-current="page"' : '' %>>
       <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8" cy="7" r="3"/><path d="M2.5 16c0-3 2.5-4.5 5.5-4.5s5.5 1.5 5.5 4.5M14 5.5a2.5 2.5 0 1 1 0 5"/></svg>
       Clientes
+    </a>
+    <%# Va ANTES de Servicios, no después.
+
+    Porque Servicios es la ficha de UN cliente —qué tiene— y esta es la
+    cartera entera. Si al abrir el panel hay algo vencido, lo primero que
+    tiene que estar a la vista es lo vencido, no la ficha.
+
+    Y sin contador a propósito: el de Servicios cuenta los PAUSADOS, que
+    es otra cosa. Poner acá un número sin decir qué cuenta sería un número
+    que no dice si hay que hacer algo hoy. El resumen de la pantalla ya
+    dice cuántos requieren atención. %>
+    <a href="<%= base %>/aplicaciones" class="panel-menu-item<%= _current === 'aplicaciones' ? ' is-active' : '' %>"
+       <%= _current === 'aplicaciones' ? 'aria-current="page"' : '' %>>
+      <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="3" width="6" height="6" rx="1.5"/><rect x="11" y="3" width="6" height="6" rx="1.5"/><rect x="3" y="11" width="6" height="6" rx="1.5"/><rect x="11" y="11" width="6" height="6" rx="1.5"/></svg>
+      Aplicaciones
     </a>
     <a href="<%= base %>/servicios<%= _c.servicios > 0 ? "?estado=pausado" : "" %>" class="panel-menu-item<%= _current === 'servicios' ? ' is-active' : '' %>"
        <%= _current === 'servicios' ? 'aria-current="page"' : '' %>>

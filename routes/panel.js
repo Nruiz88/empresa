@@ -839,6 +839,14 @@ const router = express.Router();
     router.use(BASE, require("./panel-clientes")(comunes));
     router.use(BASE, require("./panel-catalogo")(comunes));
   router.use(BASE, require("./panel-planes")(comunes));
+
+    /* Aplicaciones: quién tiene qué microservicio y hasta cuándo.
+       Va DESPUÉS de servicios a propósito: servicios es la ficha de
+       "qué tiene este cliente", y esta es la cartera entera. Si se
+       abre el panel y hay algo vencido, lo primero que tiene que verse
+       es lo vencido. */
+    router.use(BASE, require("./panel-aplicaciones")(comunes));
+
     router.use(BASE, require("./panel-servicios")(comunes));
     router.use(BASE, require("./panel-consultas")(comunes));
     router.use(BASE, require("./panel-cobros")(comunes));
