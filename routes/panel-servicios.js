@@ -148,8 +148,18 @@ module.exports = function rutasServicios({ db, sitio, csrf, requiereStaff }) {
 
   router.post("/servicios/nuevo", requiereStaff, async (req, res) => {
     const { errores, datos } = validar(req.body, ESQUEMA);
-    const cruce = validar({ fin: datos.termina_en, inicio: datos.inicia_en }, {
-      fin: [(v) => require("../lib/validate").reglas.rangoFechas(v, datos.inicia_en)],
+    /* La regla se llama por su NOMBRE, con la fecha de inicio de opción.
+
+       Antes era una flecha, `fin: [(v) => reglas.rangoFechas(v, inicio)]`,
+       y eso reventaba con «TypeError: .for is not iterable»: `validar`
+       destructura cada elemento de la lista en [regla, opciones], y una
+       función no se puede desarmar en dos partes.
+
+       El efecto era que este POST se quedaba colgado sin responder.
+       `/panel/servicios/nuevo` estaba roto desde hacía tiempo: la
+       pantalla cargaba y el botón no hacía nada. */
+    const cruce = validar({ fin: datos.termina_en }, {
+      fin: [["rangoFechas", datos.inicia_en]],
     });
     if (cruce.errores.fin) errores.termina_en = cruce.errores.fin;
 

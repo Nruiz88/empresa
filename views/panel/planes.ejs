@@ -386,7 +386,17 @@
       </div>
     </form>
 
-    <p class="panel-foot-note">
+    <%# `panel-help`, no una clase inventada.
+
+        La primera vez era `panel-foot-note`, que no existe en ningún
+        CSS. No daba error: un `<p>` sin clases se ve perfectamente. Lo
+        que pasaba es que salía pegado al formulario, porque el reset
+        pone los márgenes a cero y la clase que debía separarlo no
+        estaba.
+
+        Una clase que no existe es un estilo que no se aplica, y eso no
+        se ve mirando el HTML: se ve mirando el hueco entre bloques. %>
+    <p class="panel-help">
       Lo que se escribe aquí sustituye a <code>content/shopcito.js</code>. Ese
       fichero ya no tiene precios: solo queda como respaldo por si algún día la
       base no responde, y sale sin cifra.

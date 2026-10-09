@@ -41,6 +41,14 @@ const auth = require("../lib/auth");
 const planesLib = require("../lib/planes");
 const { MONEDAS } = require("../lib/monedas");
 
+/* Los días de margen y de aviso.
+
+   Van desde `lib/aplicaciones` y no escritos aquí a propósito: el
+   número aparece en tres sitios —esta pantalla, el formulario de alta
+   y la lista— y si está en tres lugares, un día dos dicen 15 y el
+   tercero dice 20, y nadie sabe cuál es el bueno. */
+const A = require("../lib/aplicaciones");
+
 module.exports = function rutasPlanes({ db, sitio, csrf, requiereStaff }) {
   const router = express.Router();
 
@@ -153,6 +161,8 @@ module.exports = function rutasPlanes({ db, sitio, csrf, requiereStaff }) {
       monedas: MONEDAS,
       periodos: PERIODOS,
       microservicios: await microservicios(),
+      margen: A.DIAS_DE_MARGEN,
+      aviso: A.DIAS_DE_AVISO,
       campo,
       errores: {},
       ...datos,
@@ -161,7 +171,29 @@ module.exports = function rutasPlanes({ db, sitio, csrf, requiereStaff }) {
   /* ============================ Ver ============================ */
   router.get("/planes", requiereStaff, async (req, res) => {
     const { planes, error } = await leerPlanes();
-    vista(req, res, { planes, errores: error ? { general: error } : {} });
+
+    /* ─────────────────────────────────────────────────────────
+       CON `await`, Y POR QUÉ
+
+       `vista` es `async` porque espera a `microservicios()`. Sin
+       `await`, la ruta devuelve el control, Express da por atendimento
+       el request y no se queda pendiente de nada más.
+
+       Y si la vista revienta —una variable que falta, una fecha
+       inválida— el error sale dentro de una promesa que nadie mira.
+       La ruta termina «bien», la respuesta no se manda nunca, y el
+       navegador se queda esperando hasta que expire su propio tiempo.
+
+       Eso es lo que pasaba acá: `/panel/planes` tardaba un minuto y
+       pico en contestar y después no contestaba nada. El error real
+       —«A is not defined»— salía por la consola del servidor, y lo
+       que se veía desde fuera era una pantalla que carga y carga.
+
+       Con `await`, el error sube a la ruta, que en Express 4 tampoco
+       lo captura, pero al menos queda registrado como el mismo fallo
+       que es y no como un timeout.
+       ───────────────────────────────────────────────────────── */
+    await vista(req, res, { planes, errores: error ? { general: error } : {} });
   });
 
   /* ============================ Guardar ============================ */
@@ -477,7 +509,10 @@ module.exports = function rutasPlanes({ db, sitio, csrf, requiereStaff }) {
     const { planes: frescos } = await leerPlanes();
     const guardados = cambiosPorPlan.size - Object.keys(errores).length;
 
-    vista(req, res, {
+    /* El `await` que faltava, aquí también. Es la última línea de la
+       ruta: sin él, el POST responde con un 302 o con nada, y un fallo
+       al pintar se traduce en una espera infinita. */
+    await vista(req, res, {
       planes: frescos,
       errores,
       aviso:

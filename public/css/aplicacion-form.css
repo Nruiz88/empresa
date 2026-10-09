@@ -1,0 +1,133 @@
+/* ─────────────────────────────────────────────────────────────
+   El formulario de alta
+
+   Las opciones son etiquetas grandes con un botón de radio adentro, no
+   un desplegable. Motivo concreto: la pregunta es «qué le doy» y hay que
+   poder COMPARAR. En un desplegable hay que abrirlos de a uno, y no se
+   pueden leer dos a la vez.
+
+   Y cada una dice qué da y cuánto vale. Con un desplegable vacío, el que
+   lo llena tiene que acordarse de los precios de memoria, o abrirlos en
+   otra pestaña, o escribirlos mal.
+   ───────────────────────────────────────────────────────────── */
+
+.app-opciones {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr));
+  gap: var(--p-4);
+  margin-block: var(--p-4);
+}
+
+.app-opciones-grupo {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.app-opciones-grupo legend {
+  padding: 0 0 var(--p-2);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+}
+
+.app-opciones-grupo[hidden] {
+  display: none;
+}
+
+.app-opcion {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.15rem 0.55rem;
+  align-items: start;
+  padding: var(--p-3);
+  margin-bottom: var(--p-2);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: border-color var(--mov-1) var(--ease-out),
+              background var(--mov-1) var(--ease-out);
+}
+
+.app-opcion:hover {
+  border-color: var(--border-strong);
+}
+
+/* Cuando el radio está marcado, se marca la etiqueta entera. Con
+   `input:checked + *` solo se pinta el texto y no se ve qué opción es,
+   que es justo lo que hay que ver. */
+.app-opcion:has(input:checked) {
+  border-color: var(--brand);
+  background: color-mix(in srgb, var(--brand) 8%, var(--surface));
+}
+
+.app-opcion input[type="radio"] {
+  accent-color: var(--brand);
+  margin-top: 0.2rem;
+  cursor: pointer;
+}
+
+.app-opcion:has(input:disabled) {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.app-opcion-nombre {
+  font-weight: 600;
+}
+
+.app-opcion-precio,
+.app-opcion-nota {
+  grid-column: 2;
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+
+/* Dos avisos distintos y con dos tonos, porque significan cosas
+   distintas:
+
+   · «sin precio»   se puede dar de alta igual. Es una venta a
+                    confirmar.
+   · «no da acceso» NO se puede dar de alta. Es una venta que no se
+                    puede cumplir.
+
+   Con el mismo tono, alguien podría leer el segundo como el primero y
+   vender un plan que no entrega nada. */
+.app-opcion-nota--vacia {
+  color: var(--warning-text);
+}
+
+.app-opcion-nota--peligro {
+  color: var(--danger);
+}
+
+.app-opcion--vacia {
+  border-color: color-mix(in srgb, var(--danger) 35%, var(--border));
+}
+
+/* El precio que se va a guardar, ya elegido. Va antes del botón de
+   guardar a propósito: se lee, y si está mal se corrige todavía. */
+.app-preciofija {
+  padding: var(--p-3) var(--p-4);
+  margin-block: var(--p-4);
+  background: var(--surface);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.app-preciofija strong {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.panel-campo-doble {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: var(--p-4);
+}

@@ -1,4 +1,4 @@
-<%- include('partials/panel-head', { title: title }) %>
+<%- include('../partials/panel-head', { title: title }) %>
 
 <div class="panel-page">
 
@@ -19,8 +19,45 @@
         </a>
       <% } %>
       <a class="panel-btn panel-btn--ghost" href="<%= base %>/servicios">Ver servicios</a>
+
+      <!-- El botón de dar de alta va PRIMERO, a la derecha.
+           Es la acción que se viene a hacer a esta pantalla; el resto
+           son filtros. Un filtro que compite en posición con «dar de
+           alta» hace que la pantalla parezca un listado y no un punto
+           de entrada. -->
+      <a class="panel-btn panel-btn--primario" href="<%= base %>/aplicaciones/nuevo">
+        Dar de alta
+      </a>
     </div>
   </header>
+
+  <%# ─────────────────────────────────────────────────────
+      LA CONFIRMACIÓN DEL ALTA
+
+      Sale con el nombre de lo que se acaba de dar de alta y con el
+      cliente, porque un «guardado» a secas no dice qué se guardó. Y va
+      arriba de la lista, no abajo: si queda debajo de 25 filas, quien
+      acaba de guardar tiene que buscarla.
+
+      Se menciona el precio solo si lo hay. Una aplicación sin precio
+      queda guardada igual —es una venta a confirmar—, pero decir
+      «sin precio» acá evita que alguien lo lea como el resultado
+      esperado y no como lo que falta definir.
+      ───────────────────────────────────────────────────── %>
+  <% if (alta) { %>
+    <div class="panel-alert panel-alert--ok">
+      <strong>Dada de alta.</strong>
+      <%= alta.titulo %>
+      <% if (alta.cliente) { %> a <%= alta.cliente %><% } %>.
+      <% if (alta.termina_en) { %>
+        Vence el <%= new Date(alta.termina_en).toLocaleDateString('es-AR') %>.
+      <% } %>
+      <% if (!alta.precio || alta.precio.importe === null || alta.precio.importe === undefined) { %>
+        <strong>Sin precio:</strong> todavía no tiene importe en el
+        catálogo. Cargalo en Planes antes de facturarla.
+      <% } %>
+    </div>
+  <% } %>
 
   <%# ── EL RESUMEN ──
       Va arriba y SIEMPRE sobre el total, no sobre lo que haya después
@@ -193,4 +230,4 @@
 
 </div>
 
-<%- include('partials/panel-foot') %>
+<%- include('../partials/panel-foot') %>

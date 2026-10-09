@@ -4780,6 +4780,43 @@ body.cmd-abierto {
   margin-bottom: 0;
 }
 
+/* ─────────────────────────────────────────────────────────
+   LOS FORMULARIOS TAMBIÉN SON BLOQUES DE LA PÁGINA
+
+   La regla de arriba necesita `[class]`, y casi ningún `<form>` del
+   panel tiene clase. Lo normal es que no se note, porque un formulario
+   suele ser el último bloque y el último no lleva margen.
+
+   Se nota justo en `planes.ejs`, donde después del formulario hay una
+   nota al pie: el formulario se quedaba sin margen y la nota se
+   pegaba a la tabla. El verificador de CSS lo marcó como hueco cero.
+
+   ── POR QUÉ NO SE LE PONE CLASE A CADA FORMULARIO ──
+
+   Porque son treinta y un formularios y la clase habría que ponerla en
+   treinta y un sitios. Se olvida en uno —que es exactamente lo que pasó
+   con `panel-foot-note`, una clase inventada que no existe en ningún
+   CSS y por eso no separaba nada— y el problema vuelve sin que nadie
+   lo note.
+
+   Y poner la clase no sirve igual: `.panel-form` es `display: grid`,
+   así que añadírsela al formulario de planes cambiaría el layout de
+   las tarjetas. El ritmo no debería depender de una clase que además
+   maqueta.
+
+   ── Y POR QUÉ NO AFECTA A LAS DEMÁS PÁGINAS ──
+
+   Porque `:last-child` deja el margen a cero, igual que hace la regla
+   de arriba. Un formulario que es lo último se sigue viendo igual.
+   ───────────────────────────────────────────────────────── */
+.panel-page > form {
+  margin-bottom: var(--panel-gap-xl);
+}
+
+.panel-page > form:last-child {
+  margin-bottom: 0;
+}
+
 /* =========================================================
    EL BLOQUE DE REPARTO
    =========================================================

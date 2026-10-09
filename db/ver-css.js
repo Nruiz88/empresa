@@ -46,6 +46,22 @@ const PAGINAS = (idCliente) => [
   "/panel/clientes/nuevo",
   "/panel/servicios/nuevo",
   "/panel/cobros/generar",
+
+  /* Estas tres se miran porque son las pantallas nuevas de acceso.
+
+     Van aparte de las de arriba porque son las que tienen que aguantar
+     el caso raro: la lista puede estar VACÍA —no hay ninguna
+     aplicación dada de alta todavía— y una pantalla que solo se ve con
+     datos se desarma justo cuando no hay nada que mirar.
+
+     El formulario es el caso contrário: se miran las dos listas, la de
+     aplicaciones y la de planes, y los planes sin precio y sin
+     aplicaciones marcadas, que son los textos que más estiran una
+     etiqueta. */
+  "/panel/aplicaciones",
+  "/panel/aplicaciones/nuevo",
+  "/panel/planes",
+
   /* Estas tres se miran porque se reestructuraron enteras al unificar
      las cajas: la ficha pasó de `panel-box` a `panel-card` y su
      rejilla pasó de 6/4 a 8/4. Si algo se hubiera quedado sin fondo ni

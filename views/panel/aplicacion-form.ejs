@@ -1,0 +1,332 @@
+<%- include('../partials/panel-head') %>
+
+<div class="panel-page panel-page--ancha">
+
+  <header class="panel-head">
+    <div>
+      <h1>Dar de alta una aplicación</h1>
+      <p class="panel-sub">
+        Le das acceso a un microservicio suelto, o a un plan que ya trae
+        varias de una vez.
+      </p>
+    </div>
+    <div class="panel-head-acciones">
+      <a class="panel-btn panel-btn--ghost" href="<%= base %>/aplicaciones">Volver</a>
+    </div>
+  </header>
+
+  <% if (errores && errores.general) { %>
+    <div class="panel-alert panel-alert--error"><%= errores.general %></div>
+  <% } %>
+
+  <form method="post" class="panel-form" novalidate>
+    <input type="hidden" name="_csrf" value="<%= csrf %>" />
+
+    <!-- ============ A QUIÉN ============ -->
+    <section class="panel-bloque">
+      <h2 class="panel-bloque-titulo">A quién</h2>
+
+      <label class="panel-field">
+        <span>Cliente *</span>
+        <select name="client_id" required
+                class="<%= errores.client_id ? 'panel-input--error' : '' %>">
+          <option value="">Elegí un cliente…</option>
+          <% clientes.forEach(function (c) { %>
+            <option value="<%= c.id %>"
+              <%= String(servicio.client_id || '') === c.id ? 'selected' : '' %>>
+              <%= c.empresa || c.nombre %>
+            </option>
+          <% }); %>
+        </select>
+        <% if (errores.client_id) { %>
+          <em class="panel-error"><%= errores.client_id %></em>
+        <% } %>
+        <% if (!clientes.length) { %>
+          <em class="panel-error">
+            No hay clientes dados de alta. Crealo primero en Clientes.
+          </em>
+        <% } %>
+      </label>
+    </section>
+
+    <!-- ============ QUÉ ============ -->
+    <section class="panel-bloque">
+      <h2 class="panel-bloque-titulo">Qué le das</h2>
+
+      <%# Un desplegable, no dos formularios.
+          La elección de «una o varias» es el dato del alta, no una
+          pantalla distinta: el que lo está haciendo todavía no sabe
+          qué va a elegir, y tiene que mirar las dos listas para ver
+          cuál le sirve. %>
+      <label class="panel-field">
+        <span>Tipo *</span>
+        <select name="tipo" id="tipo" required
+                class="<%= errores.tipo ? 'panel-input--error' : '' %>">
+          <option value="">Elegí…</option>
+          <option value="aplicacion" <%= servicio.tipo === 'aplicacion' ? 'selected' : '' %>>
+            Una aplicación suelta
+          </option>
+          <option value="plan" <%= servicio.tipo === 'plan' ? 'selected' : '' %>>
+            Un plan (varias de una vez)
+          </option>
+        </select>
+
+        <%# El error de este campo SÍ se muestra. La primera versión lo
+            calculaba en el servidor y no lo pintaba acá: el formulario
+            volvía a aparecer sin decir qué faltaba, y una pantalla que
+            rechaza algo sin explicar parece una pantalla rota. %>
+        <% if (errores.tipo) { %>
+          <em class="panel-error"><%= errores.tipo %></em>
+        <% } %>
+      </label>
+
+      <!-- Las dos listas, siempre a la vista. -->
+      <div class="app-opciones">
+        <!-- Una aplicación -->
+        <fieldset class="app-opciones-grupo" data-para="aplicacion"
+                  <%= servicio.tipo && servicio.tipo !== 'aplicacion' ? 'hidden' : '' %>>
+          <legend>Una aplicación suelta</legend>
+
+          <% if (!apps.length) { %>
+            <p class="panel-error">
+              No hay aplicaciones para vender sueltas. Mirá
+              <a href="<%= base %>/planes">Planes</a>.
+            </p>
+          <% } %>
+
+          <% apps.forEach(function (a) { %>
+            <label class="app-opcion">
+              <input type="radio" name="microservicio_clave" value="<%= a.modulo %>"
+                     data-precio="<%= a.precio === null ? '' : a.precio %>"
+                     data-moneda="<%= a.moneda %>"
+                     data-periodo="<%= a.periodo %>"
+                     <%= String(servicio.microservicio_clave || '') === a.modulo ? 'checked' : '' %> />
+              <span class="app-opcion-nombre"><%= a.nombre %></span>
+
+              <% if (a.sinPrecio) { %>
+                <span class="app-opcion-nota app-opcion-nota--vacia">
+                  sin precio — hay que ponerlo en el catálogo
+                </span>
+              <% } else { %>
+                <span class="app-opcion-precio">
+                  <%= new Intl.NumberFormat('es-AR').format(a.precio) %>
+                  <%= a.moneda %> / <%= a.periodo %>
+                </span>
+              <% } %>
+            </label>
+          <% }); %>
+
+          <% if (errores.microservicio_clave) { %>
+            <small class="panel-cell-error"><%= errores.microservicio_clave %></small>
+          <% } %>
+        </fieldset>
+
+        <!-- Un plan -->
+        <fieldset class="app-opciones-grupo" data-para="plan"
+                  <%= servicio.tipo && servicio.tipo !== 'plan' ? 'hidden' : '' %>>
+          <legend>Un plan</legend>
+
+          <% planes.forEach(function (p) { %>
+            <label class="app-opcion<%= p.sinAplicaciones ? ' app-opcion--vacia' : '' %>">
+              <input type="radio" name="plan_id" value="<%= p.id %>"
+                     data-precio="<%= p.precio === null ? '' : p.precio %>"
+                     data-moneda="<%= p.moneda %>"
+                     data-periodo="<%= p.periodo %>"
+                     <%= String(servicio.plan_id || '') === p.id ? 'checked' : '' %>
+                     <%= p.sinAplicaciones ? 'disabled' : '' %> />
+              <span class="app-opcion-nombre"><%= p.nombre %></span>
+
+              <%# Las dos cosas que impiden venderlo, dichas antes. %>
+              <% if (p.sinAplicaciones) { %>
+                <span class="app-opcion-nota app-opcion-nota--peligro">
+                  no tiene aplicaciones marcadas — no da acceso a nada
+                </span>
+              <% } else if (p.sinPrecio) { %>
+                <span class="app-opcion-nota app-opcion-nota--vacia">
+                  da <%= p.aplicaciones.length %>
+                  <%= p.aplicaciones.length === 1 ? 'aplicación' : 'aplicaciones' %>
+                  · sin precio
+                </span>
+              <% } else { %>
+                <span class="app-opcion-precio">
+                  <%= new Intl.NumberFormat('es-AR').format(p.precio) %>
+                  <%= p.moneda %> / <%= p.periodo %>
+                </span>
+                <span class="app-opcion-nota">
+                  da <%= p.aplicaciones.length %>
+                  <%= p.aplicaciones.length === 1 ? 'aplicación' : 'aplicaciones' %>:
+                  <%= p.aplicaciones.map(function (a) { return a.nombre; }).join(', ') %>
+                </span>
+              <% } %>
+
+              <% if (p.inactivo) { %>
+                <span class="app-opcion-nota app-opcion-nota--peligro">
+                  plan oculto en la web
+                </span>
+              <% } %>
+            </label>
+          <% }); %>
+
+          <% if (errores.plan_id) { %>
+            <small class="panel-cell-error"><%= errores.plan_id %></small>
+          <% } %>
+        </fieldset>
+      </div>
+
+      <%# Lo que se va a guardar, y por qué.
+          El precio NO es un campo del formulario. Sale de la fila que
+          se acaba de elegir.
+
+          Un importe escrito a mano en el momento del alta es un importe
+          que nadie vuelve a mirar: cuando suba el precio, estos
+          servicios se quedan con el viejo, y el negocio cobra menos de
+          lo que cree. Por eso va grabado y no editable acá. %>
+      <p class="app-preciofija">
+        Se va a guardar a
+        <strong id="precio-texto">—</strong>.
+        <%# Y la razón de que no sea un campo. %>
+        Sale de la ficha, no se escribe: si el precio sube, estos
+        servicios conservan el que tenían, que es lo que se contracted.
+      </p>
+    </section>
+
+    <!-- ============ HASTA CUÁNDO ============ -->
+    <section class="panel-bloque">
+      <h2 class="panel-bloque-titulo">Hasta cuándo</h2>
+
+      <div class="panel-campo-doble">
+        <label class="panel-field">
+          <span>Empieza</span>
+          <input type="date" name="inicia_en" value="<%= servicio.inicia_en || '' %>" />
+          <em class="panel-help">Vacío = hoy.</em>
+        </label>
+
+        <label class="panel-field">
+          <span>Vence</span>
+          <input type="date" name="termina_en" value="<%= servicio.termina_en || '' %>"
+                 class="<%= errores.termina_en ? 'panel-input--error' : '' %>" />
+          <% if (errores.termina_en) { %>
+            <em class="panel-error"><%= errores.termina_en %></em>
+          <% } %>
+        </label>
+      </div>
+
+      <%# El margen va dicho acá, no en letra chica abajo.
+          Alguien que está pongiéndole fecha de vencimiento a algo tiene
+          que saber que pasarla no lo apaga hoy, sino en quince días. Y
+          tiene que saberlo antes, no discovering it. %>
+      <p class="panel-help">
+        Después de la fecha de vencimiento queda <strong><%= margen %></strong>
+        días de margen antes de que deba apagarse. Avisamos
+        <strong><%= aviso %></strong> días antes.
+      </p>
+
+      <label class="panel-field">
+        <span>Estado *</span>
+        <select name="estado" required
+                class="<%= errores.estado ? 'panel-input--error' : '' %>">
+          <% estados.forEach(function (e) { %>
+            <option value="<%= e.valor %>"
+              <%= (servicio.estado || 'activo') === e.valor ? 'selected' : '' %>>
+              <%= e.label %>
+            </option>
+          <% }); %>
+        </select>
+        <em class="panel-help">
+          El estado comercial no es lo mismo que la vencimiento. «Activo»
+          con la fecha pasada sigue siendo una suscripción vencida.
+        </em>
+      </label>
+    </section>
+
+    <!-- ============ NOTAS ============ -->
+    <section class="panel-bloque">
+      <h2 class="panel-bloque-titulo">Notas</h2>
+      <label class="panel-field">
+        <span class="sr-only">Notas internas</span>
+        <textarea name="notas" rows="3"
+                  placeholder="Cómo paga, de quién es el número, lo que haga falta"><%= servicio.notas || '' %></textarea>
+      </label>
+    </section>
+
+    <div class="panel-form-acciones">
+      <a class="panel-btn panel-btn--ghost" href="<%= base %>/aplicaciones">Cancelar</a>
+      <button type="submit" class="panel-btn panel-btn--primario"
+              <%= !clientes.length ? 'disabled' : '' %>>
+        Dar de alta
+      </button>
+    </div>
+  </form>
+</div>
+
+<%# ─────────────────────────────────────────────────────────
+   El precio se muestra al elegir, y no hay campo para escribirlo.
+
+   Con un input en blanco hasta que se elige, es fácil guardar sin
+   mirar. Con el texto ya puesto, se ve qué se está cobrando ANTES de
+   darle al botón, que es cuando todavía se puede mirar.
+
+   ── POR QUÉ SE USA `textContent` Y NO innerHTML ──
+
+   El nombre de la aplicación viene de la base. Con `innerHTML` un
+   nombre con una etiqueta dentro ejecutaría esa etiqueta en el panel
+   de quien está administrando. Es un nombre que escribe el equipo, no
+   un visitante, pero el criterio es el mismo en los dos casos.
+   ───────────────────────────────────────────────────────── %>
+<script>
+(function () {
+  var tipo = document.getElementById("tipo");
+  var grupos = document.querySelectorAll(".app-opciones-grupo");
+  var textoPrecio = document.getElementById("precio-texto");
+
+  /* Mostrar el grupo que corresponde, y ocultar el otro.
+     No se oculta el que no es porque sí: se deja montado para que al
+     volver atrás no haya que recargar. */
+  function ajustarGrupos() {
+    grupos.forEach(function (g) {
+      var quiere = g.getAttribute("data-para") === tipo.value;
+      g.hidden = !quiere;
+    });
+  }
+
+  function pintarPrecio() {
+    var elegido = document.querySelector(
+      'input[name="microservicio_clave"]:checked, input[name="plan_id"]:checked'
+    );
+    /* Solo el que pertenece al grupo visible. */
+    if (!elegido || elegido.closest(".app-opciones-grupo").hidden) {
+      textoPrecio.textContent = "—";
+      return;
+    }
+    var precio = elegido.getAttribute("data-precio");
+    if (!precio) {
+      textoPrecio.textContent = "un precio a confirmar";
+      return;
+    }
+    var n = new Intl.NumberFormat("es-AR").format(Number(precio));
+    textoPrecio.textContent = n + " " + elegido.getAttribute("data-moneda") +
+      " por " + elegido.getAttribute("data-periodo");
+  }
+
+  tipo.addEventListener("change", function () { ajustarGrupos(); pintarPrecio(); });
+
+  /* El cambio de tipo deselecciona lo del grupo que se oculta, para que
+     no se pueda guardar una aplicación con un plan elegido en el otro
+     grupo sin querer. Es el caso que el CHECK de la base rechaza, y
+     mejor que se note acá. */
+  document.querySelectorAll(".app-opciones-grupo").forEach(function (g) {
+    g.addEventListener("change", function () {
+      grupos.forEach(function (otro) {
+        if (otro === g) return;
+        otro.querySelectorAll("input[type=radio]").forEach(function (r) { r.checked = false; });
+      });
+      pintarPrecio();
+    });
+  });
+
+  ajustarGrupos();
+  pintarPrecio();
+})();
+</script>
+
+<%- include('../partials/panel-foot') %>
