@@ -32,7 +32,8 @@ const db = require("../lib/supabase").getAdmin();
     console.log("    Un error que no se mira se lee igual que una lista vacía,");
     console.log("    y aquí la lista vacía significa «no hay bots», que es");
     console.log("    justo lo contrario de lo cierto.\n");
-  } else {
+    process.exit(1);
+  }
 
   console.log("\n═══ Los nombres de instancia ═══\n");
 

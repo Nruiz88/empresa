@@ -1,0 +1,77 @@
+-- =====================================================================
+-- Shopcito — El token de instancia no se lee desde el navegador (027)
+-- =====================================================================
+--
+-- QUÉ PASA
+--
+-- La 026 puso `bots.instance_token`: el token de Evolution de cada
+-- instancia, para que el bot no use la clave global del servidor.
+--
+-- El test de aislamiento lo detectó:
+--
+--     ✗ la tabla bots no tiene ninguna columna de clave
+--
+-- Y tenía razón. `bots` tiene una política que dice:
+--
+--     create policy "leer su bot" on bots for select to authenticated
+--       using (puede_ver_bot(id));
+--
+-- O sea: un cliente que inició sesión puede leer su fila. Toda la fila,
+-- incluido el token.
+--
+-- ── POR QUÉ ESO ES GRAVE ──
+--
+-- El token de una instancia sirve para hablar con Evolution de ESA
+-- instancia: leer sus conversaciones, mandar mensajes en su nombre,
+-- cambiarle el webhook.
+--
+-- Con el token en la mano, un cliente puede manejar su bot por su cuenta,
+-- saltándose el panel. Y si el panel va a ser el único camino, deja de
+-- serlo.
+--
+-- Y hay algo peor que con la clave del servidor: ese token no caduca. La
+-- clave global por lo menos se puede rotar. Un token filtrado —en un log,
+-- en una captura, en un backup— sirve para siempre, y no hay forma de
+-- saber que se filtró.
+--
+-- ── EL ARREGLO ──
+--
+-- Permiso a NIVEL DE COLUMNA, no de tabla.
+--
+-- Postgres permite conceder el SELECT por columnas sueltas. Se quita el
+-- permiso solo de esa una, y el cliente sigue leyendo su bot entero
+-- menos ese campo. Que es exactamente lo que hace falta: el token no
+-- tiene por qué ir en la fila que el cliente lee.
+--
+-- ── POR QUÉ NO MOVER EL TOKEN A OTRA TABLA ──
+--
+-- Porque `evolution_servers` es justamente la tabla sin RLS donde vive la
+-- clave del servidor, y el servicio sí la lee. Podría ir ahí. Pero
+-- entonces el token se separa de la fila que dice a qué instancia
+-- pertenece, y el bot necesita las dos juntas en una sola consulta.
+--
+-- Con dos consultas y una unión es lo mismo de frágil que antes, y con
+-- una tabla más que mantener.
+--
+-- ── POR QUÉ NO SE TOCA EL RLS ──
+--
+-- Porque el RLS está bien: el cliente tiene que poder leer su bot para
+-- configurarlo. Lo que no tiene que poder es leer su credencial. Eso es
+-- problema de columnas, no de filas.
+--
+-- ── EL SERVICE KEY SIGUE FUNCIONANDO ──
+--
+-- La service key se salta los permisos, que es lo que hace. El webhook
+-- lee la fila entera, incluido el token. Por eso el bot sigue
+-- funcionando después de esto.
+-- =====================================================================
+
+-- El permiso de columna se quita SOLO al rol que usa el navegador.
+-- Para `anon` ya no hacía falta: sin sesión no ve filas de `bots`.
+
+revoke select (instance_token) on bots from authenticated;
+
+-- Y se deja escrito, para que quien lea esto no lo_deshaga creyendo que
+-- sobra: es la única barrera entre un cliente y el token de su instancia.
+comment on column bots.instance_token is
+  'Token de ESTA instancia en Evolution. Con NULL se usa la clave global del servidor. Solo el service key puede leerlo: está REVOCADO el SELECT a authenticated a propósito, porque con el token un cliente puede leer los chats de su WhatsApp y mandar mensajes en su nombre.';
