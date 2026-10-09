@@ -1,0 +1,527 @@
+=== CSS a revisar ===
+
+Generado por db/auditar-css.js. Es una lista de trabajo, no un
+informe: se va tachando conforme se resuelve.
+
+------------------------------------------------------------
+CLASES DEFINIDAS Y NO USADAS   (54)
+------------------------------------------------------------
+
+Ninguna se monta a trozos. Las que sí, van aparte mas abajo:
+no aparecen escritas en el codigo porque las construye el
+JavaScript, y borrarlas rompe algo sin avisar.
+
+    .blog-strip
+        styles.css:2151
+    .blog-strip-copy
+        styles.css:2158  |  styles.css:2163
+    .blog-strip-cta
+        styles.css:2220  |  styles.css:2230
+    .blog-strip-list
+        styles.css:2170  |  styles.css:2178  |  styles.css:2191  |  styles.css:2197  |  styles.css:2201  |  styles.css:2213  |  styles.css:2241  |  styles.css:2245
+    .compare
+        styles.css:935  |  styles.css:943  |  styles.css:949  |  styles.css:955  |  styles.css:960  |  styles.css:964  |  styles.css:969
+    .compare-wrap
+        styles.css:928
+    .down
+        styles.css:3856
+    .is-featured
+        styles.css:3108
+    .lenis-smooth
+        styles.css:3403
+    .lenis-stopped
+        styles.css:3407
+    .marquee
+        styles.css:1760
+    .marquee-track
+        styles.css:1753  |  styles.css:1760  |  styles.css:1764  |  styles.css:1773
+    .mock-chip
+        styles.css:3808
+    .mock-head
+        styles.css:3788  |  styles.css:3795
+    .mock-kicker
+        styles.css:3801
+    .mock-logo
+        styles.css:3762
+    .mock-main
+        styles.css:3782
+    .mock-nav
+        styles.css:3770  |  styles.css:3777  |  styles.css:4172
+    .mock-plan
+        styles.css:3097  |  styles.css:3108  |  styles.css:3118  |  styles.css:3320
+    .mock-plan-meta
+        styles.css:3124
+    .mock-plan-name
+        styles.css:3113
+    .mock-side
+        styles.css:3752
+    .muted
+        styles.css:918  |  styles.css:922
+    .orbit--1
+        styles.css:3994
+    .orbit--2
+        styles.css:4004  |  styles.css:4137
+    .panel-bloque-head
+        panel.css:702
+    .panel-box--peligro
+        panel.css:1246
+    .panel-caduco-acciones
+        panel.css:1045
+    .panel-card-cuerpo--sin-padding
+        panel.css:3532
+    .panel-error-page
+        panel.css:1817  |  panel.css:1823  |  panel.css:1829
+    .panel-requiere-dinero
+        panel.css:1917
+    .panel-segmented
+        panel.css:3715  |  panel.css:3730  |  panel.css:3735
+    .panel-serv-accion
+        panel.css:1928
+    .panel-serv-motivo
+        panel.css:1906
+    .panel-serv-tags
+        panel.css:1878
+    .panel-tendencia
+        panel.css:3686  |  panel.css:3695  |  panel.css:3962
+    .panel-tendencia--igual
+        panel.css:3702
+    .panel-tendencia--sube
+        panel.css:3700
+    .panel-theme
+        panel.css:291
+    .panel-timeline
+        panel.css:3742  |  panel.css:3748  |  panel.css:3753  |  panel.css:3757  |  panel.css:3769  |  panel.css:3779  |  panel.css:3783  |  panel.css:3789
+    .portal-field
+        portal.css:642
+    .portal-field-label
+        portal.css:586
+    .portal-form-grid
+        portal.css:580  |  portal.css:675
+    .portal-nav--simple
+        portal.css:747
+    .portal-page
+        portal.css:648
+    .portal-serv-paga
+        portal.css:1016
+    .precio-mensual
+        styles.css:4579  |  styles.css:4583
+    .process-num
+        styles.css:2129
+    .process-strip
+        styles.css:2102  |  styles.css:2112  |  styles.css:2117  |  styles.css:2139  |  styles.css:2144
+    .stars
+        styles.css:3649  |  styles.css:3655
+    .thumb-1
+        styles.css:685
+    .thumb-3
+        styles.css:687
+    .thumb-5
+        styles.css:689
+    .yes
+        styles.css:964
+
+    borrables: 54
+
+------------------------------------------------------------
+SELECTORES REPETIDOS   (141)
+------------------------------------------------------------
+
+El ultimo gana. Antes de borrar uno hay que mirar si el ultimo
+declara TODO lo que declara el que se borra; si no, lo que falte
+hay que copiarlo, no borrarlo.
+
+    :root   (x2)
+        panel.css:2531  |  3233
+    :root   (x2)
+        styles.css:3  |  4591
+    .aurora   (x2)
+        styles.css:3450  |  4074
+    .auto-grid   (x2)
+        styles.css:2527  |  2652
+    .blog-card   (x2)
+        styles.css:1933  |  3362
+    .blog-strip-cta   (x2)
+        styles.css:2220  |  2230
+    .blog-strip-list a   (x2)
+        styles.css:2178  |  2241
+    .blog-strip-list em   (x2)
+        styles.css:2213  |  2245
+    .brand-mark   (x2)
+        styles.css:4784  |  4803
+    .case-facts dl   (x2)
+        styles.css:2794  |  2858
+    .cmd-capa   (x2)
+        panel.css:2696  |  2716
+    .cmd-item   (x2)
+        panel.css:2804  |  3289
+    .cmd-item.es-marcada   (x2)
+        panel.css:2817  |  2821
+    .cmd-pie   (x2)
+        panel.css:2862  |  2958
+    .cta-band h2   (x2)
+        styles.css:1110  |  3393
+    .duelo   (x2)
+        styles.css:5055  |  5208
+    .eyebrow-pill   (x2)
+        styles.css:3534  |  4159
+    .field textarea   (x2)
+        styles.css:1352  |  1362
+    .float-card   (x2)
+        styles.css:3907  |  4070
+    .float-card span:not(.float-icon)   (x2)
+        styles.css:3979  |  4194
+    .float-card--a   (x3)
+        styles.css:3925  |  4128  |  4182
+    .float-card--b   (x3)
+        styles.css:3930  |  4132  |  4188
+    .float-icon   (x2)
+        styles.css:3946  |  4198
+    .footer-col a   (x2)
+        styles.css:1492  |  1703
+    .footer-col ul   (x2)
+        styles.css:1487  |  1699
+    .footer-grid   (x3)
+        styles.css:1464  |  1575  |  1693
+    .hero   (x2)
+        styles.css:444  |  3413
+    .hero-copy   (x3)
+        styles.css:3529  |  4087  |  4095
+    .hero-copy .hero-note   (x2)
+        styles.css:3660  |  4107
+    .hero-copy .lead   (x3)
+        styles.css:3610  |  4101  |  4154
+    .hero-grid   (x2)
+        styles.css:456  |  3432
+    .hero-proof   (x3)
+        styles.css:3632  |  4111  |  4123
+    .hero-showcase   (x4)
+        styles.css:3665  |  4115  |  4164  |  4221
+    .hero-title .line   (x2)
+        styles.css:3577  |  4091
+    .mock-body   (x2)
+        styles.css:3747  |  4168
+    .mock-chart span   (x2)
+        styles.css:3870  |  4225
+    .mock-kpi strong   (x2)
+        styles.css:3839  |  4177
+    .mock-nav   (x2)
+        styles.css:3770  |  4172
+    .mock-page   (x2)
+        styles.css:2996  |  3316
+    .mock-plan   (x2)
+        styles.css:3097  |  3320
+    .mock-reader   (x2)
+        styles.css:3009  |  3225
+    .mock-window   (x2)
+        styles.css:3688  |  4066
+    .nav   (x2)
+        styles.css:343  |  1626
+    .nav a   (x2)
+        styles.css:349  |  1648
+    .nav a.mobile-cta   (x2)
+        styles.css:368  |  1654
+    .nav-toggle   (x2)
+        styles.css:393  |  1618
+    .nav-toggle span::after   (x2)
+        styles.css:406  |  427
+    .orbit--2   (x2)
+        styles.css:4004  |  4137
+    .page-hero--premium .page-hero-bg .aurora   (x2)
+        styles.css:2902  |  2906
+    .page-hero--premium .page-hero-copy   (x2)
+        styles.css:2928  |  3300
+    .page-hero-showcase   (x2)
+        styles.css:2984  |  3304
+    .page-hero-title .line   (x2)
+        styles.css:2940  |  3296
+    .panel-acceso   (x2)
+        panel.css:1175  |  2029
+    .panel-acceso-side   (x2)
+        panel.css:1216  |  2035
+    .panel-body   (x2)
+        panel.css:20  |  2297
+    .panel-burger   (x2)
+        panel.css:363  |  2014
+    .panel-buscar   (x2)
+        panel.css:2884  |  2953
+    .panel-cat-url   (x2)
+        panel.css:2370  |  2485
+    .panel-doble li span   (x2)
+        panel.css:1307  |  1320
+    .panel-empty   (x2)
+        panel.css:1604  |  2230
+    .panel-filters   (x2)
+        panel.css:1507  |  2219
+    .panel-form-grid   (x2)
+        panel.css:1351  |  2023
+    .panel-hacer-pista   (x2)
+        panel.css:3428  |  3473
+    .panel-hacer-texto   (x2)
+        panel.css:3411  |  3468
+    .panel-lead-actions   (x2)
+        panel.css:1131  |  2043
+    .panel-login-foot a   (x2)
+        panel.css:1784  |  1804
+    .panel-menu-item   (x2)
+        panel.css:139  |  2689
+    .panel-note-edit textarea   (x2)
+        panel.css:1162  |  1378
+    .panel-page   (x2)
+        panel.css:390  |  2292
+    .panel-page-head   (x2)
+        panel.css:404  |  2203
+    .panel-rapido .panel-menu-rapido   (x3)
+        panel.css:4036  |  4128  |  4149
+    .panel-rapido .panel-menu-rapido a   (x2)
+        panel.css:4057  |  4154
+    .panel-rapido summary   (x3)
+        panel.css:4011  |  4124  |  4145
+    .panel-scrim   (x2)
+        panel.css:1985  |  4102
+    .panel-search   (x2)
+        panel.css:1515  |  3278
+    .panel-select   (x2)
+        panel.css:1439  |  2225
+    .panel-select-mini   (x2)
+        panel.css:1419  |  1449
+    .panel-shell   (x3)
+        panel.css:258  |  2018  |  2288
+    .panel-stat   (x2)
+        panel.css:580  |  3569
+    .panel-stat span   (x2)
+        panel.css:610  |  3645
+    .panel-stat strong   (x3)
+        panel.css:599  |  2214  |  3630
+    .panel-stat--alerta   (x2)
+        panel.css:621  |  3656
+    .panel-stat--ambar strong   (x2)
+        panel.css:636  |  3662
+    .panel-stats--cobros   (x2)
+        panel.css:576  |  2210
+    .panel-table tbody td   (x2)
+        panel.css:730  |  2096
+    .panel-table tbody td.panel-th-actions   (x2)
+        panel.css:771  |  2153
+    .panel-table tbody tr:hover   (x2)
+        panel.css:818  |  2092
+    .panel-table td.panel-th-num   (x2)
+        panel.css:2502  |  2507
+    .panel-table thead th   (x3)
+        panel.css:2065  |  2629  |  3312
+    .panel-tendencia svg   (x2)
+        panel.css:3695  |  3962
+    .panel-th-email   (x2)
+        panel.css:848  |  2170
+    .panel-topbar   (x2)
+        panel.css:272  |  2199
+    .panel-topbar-acciones   (x2)
+        panel.css:3995  |  4120
+    .paso-num   (x2)
+        styles.css:5092  |  5172
+    .pasos-list   (x2)
+        styles.css:5075  |  5147
+    .portal-app-estado::before   (x2)
+        portal.css:219  |  228
+    .portal-app:hover   (x2)
+        portal.css:170  |  759
+    .portal-cab-accion .panel-btn   (x2)
+        portal.css:51  |  683
+    .portal-cat   (x2)
+        portal.css:409  |  766
+    .portal-cat-activo   (x2)
+        portal.css:532  |  930
+    .portal-cat-cab   (x2)
+        portal.css:418  |  779
+    .portal-cat-desc   (x2)
+        portal.css:449  |  822
+    .portal-cat-flag   (x2)
+        portal.css:519  |  937
+    .portal-cat-icono   (x2)
+        portal.css:425  |  789
+    .portal-cat-nombre   (x2)
+        portal.css:437  |  805
+    .portal-cat-partes   (x2)
+        portal.css:456  |  852
+    .portal-cat-partes li   (x2)
+        portal.css:468  |  861
+    .portal-cat-partes li::before   (x2)
+        portal.css:474  |  872
+    .portal-cat-periodo   (x2)
+        portal.css:443  |  811
+    .portal-cat-pie   (x2)
+        portal.css:481  |  884
+    .portal-cat-precio span   (x3)
+        portal.css:503  |  904  |  967
+    .portal-cat-precio strong   (x2)
+        portal.css:498  |  896
+    .portal-cat-sub   (x2)
+        portal.css:539  |  949
+    .portal-cat-sub--alerta   (x2)
+        portal.css:544  |  954
+    .portal-form-grid   (x2)
+        portal.css:580  |  675
+    .portal-serv   (x2)
+        portal.css:292  |  976
+    .portal-serv--activo   (x2)
+        portal.css:309  |  1026
+    .portal-serv--bloqueado   (x2)
+        portal.css:314  |  1024
+    .portal-serv-accion   (x2)
+        portal.css:367  |  667
+    .portal-serv-accion .panel-btn   (x3)
+        portal.css:671  |  1049  |  1053
+    .portal-serv-precio   (x3)
+        portal.css:345  |  662  |  1043
+    .price-card.featured   (x2)
+        styles.css:836  |  1713
+    .project-thumb .thumb-art   (x2)
+        styles.css:669  |  1788
+    .project-thumb::before   (x2)
+        styles.css:1614  |  1792
+    .prose ol   (x2)
+        styles.css:2016  |  2035
+    .scroll-hint   (x2)
+        styles.css:4020  |  4141
+    .service-block   (x2)
+        styles.css:1175  |  1580
+    .site-header.is-compact   (x2)
+        styles.css:306  |  311
+    .stats   (x2)
+        styles.css:512  |  1584
+    .tech-checks   (x2)
+        styles.css:2321  |  2441
+    .ticket-estado-cambiar form   (x2)
+        panel.css:3196  |  3226
+    .ticket-msg-cuando   (x2)
+        panel.css:3096  |  3216
+    .ticket-responder-pie   (x2)
+        panel.css:3116  |  3221
+    .wa-bubble .wa-time   (x2)
+        styles.css:4982  |  4989
+    .wa-card   (x2)
+        styles.css:4994  |  5222
+    .wa-chat   (x2)
+        styles.css:4442  |  4567
+    .wa-demo   (x2)
+        styles.css:4391  |  4562
+    *::after   (x2)
+        styles.css:107  |  1876
+    #whatsapp .wa-cta .btn-primary   (x2)
+        styles.css:4756  |  4770
+    #whatsapp .wa-cta .btn-primary:focus-visible   (x2)
+        styles.css:4764  |  4776
+    body   (x2)
+        styles.css:120  |  1610
+
+------------------------------------------------------------
+CLASES MONTADAS A TROZOS   (50)
+------------------------------------------------------------
+
+NO se pueden borrar aunque no aparezcan escritas: el
+JavaScript las construye con un interpolado. Un caso real:
+
+    class="app-estado app-estado--<%= s.estado.tono %>"
+
+En el codigo no esta escrito, y sin las tres sigue:
+saliendo la etiqueta, pero sin color.
+
+    .app-estado--aviso
+        aplicaciones.css:110
+    .app-estado--neutro
+        aplicaciones.css:122
+    .app-estado--ok
+        aplicaciones.css:104
+    .app-estado--peligro
+        aplicaciones.css:116
+    .avatar-1
+        styles.css:1085
+    .avatar-3
+        styles.css:1087
+    .float-card--b
+        styles.css:3930  |  styles.css:4132  |  styles.css:4188
+    .float-icon--ok
+        styles.css:3966
+    .hero-inner
+        styles.css:466  |  styles.css:1733  |  styles.css:1737  |  styles.css:1739  |  styles.css:1741
+    .hero-proof-text
+        styles.css:3639  |  styles.css:3645
+    .panel-caduco--tranquilo
+        panel.css:1014
+    .panel-caduco--urgente
+        panel.css:1012
+    .panel-chip--acceso-activo
+        panel.css:1885
+    .panel-chip--acceso-inactivo
+        panel.css:1937
+    .panel-chip--acceso-oferta
+        panel.css:1887
+    .panel-chip--activo
+        portal.css:383
+    .panel-chip--bot-close
+        panel.css:3974
+    .panel-chip--bot-espera
+        panel.css:3981
+    .panel-chip--bot-open
+        panel.css:3968
+    .panel-chip--cobro-anulado
+        panel.css:903
+    .panel-chip--cobro-pagado
+        panel.css:901
+    .panel-chip--estado-finalizado
+        panel.css:891
+    .panel-chip--lead-descartado
+        panel.css:898
+    .panel-chip--lead-nuevo
+        panel.css:894
+    .panel-chip--lead-presupuestado
+        panel.css:896
+    .panel-chip--oferta
+        portal.css:385
+    .panel-chip--presupuesto
+        panel.css:884  |  portal.css:389
+    .panel-chip--salud-ambar
+        panel.css:1893
+    .panel-chip--salud-verde
+        panel.css:1891
+    .panel-dist-trozo--en_curso
+        panel.css:3894
+    .panel-dist-trozo--finalizado
+        panel.css:3906
+    .panel-dist-trozo--moneda0
+        panel.css:3915
+    .panel-dist-trozo--moneda2
+        panel.css:3917
+    .panel-dist-trozo--pendiente
+        panel.css:3900
+    .panel-hacer-item--ambar
+        panel.css:3405
+    .panel-hacer-item--cian
+        panel.css:3399
+    .panel-hacer-item--rojo
+        panel.css:3393
+    .panel-note--portal
+        panel.css:1671  |  panel.css:1675
+    .panel-serv--activo
+        panel.css:1873
+    .panel-serv--bloqueado
+        panel.css:1913
+    .panel-serv--oferta
+        panel.css:1875
+    .portal-app-estado--activo
+        portal.css:237
+    .portal-app-estado--alerta
+        portal.css:239
+    .portal-serv--activo
+        portal.css:309  |  portal.css:1026
+    .portal-serv--bloqueado
+        portal.css:314  |  portal.css:1024
+    .portal-serv--oferta
+        portal.css:311
+    .ticket-estado--abierto
+        panel.css:2985
+    .ticket-estado--en_curso
+        panel.css:2991
+    .ticket-estado--resuelto
+        panel.css:2997
+    .wa-msg--user
+        styles.css:4481  |  styles.css:4694

@@ -1,32 +1,7 @@
-/* =========================================================
-   Nexo Studio — Sistema de diseño
-   Tokens + componentes + utilidades + responsive
-   ========================================================= */
+ 
 
 :root {
-  /* ─────────────────────────────────────────────────────────
-     LOS COLORES — UN SOLO TEMA, EL OSCURO
-
-     El fondo es azul noche (#0F172A), que es el color que la paleta
-     reserva para tipografía, encabezados y paneles, y el verde
-     #10B981 es la acción.
-
-     Todos los valores de texto están MEDIDOS contra el fondo
-     (#0F172A) y contra la superficie (#1B2942), porque el texto no
-     siempre va sobre el fondo: las tarjetas van sobre la superficie,
-     y un gris que pasa sobre una cosa puede fallar sobre la otra.
-
-       --text        #f1f5f9   16,30:1 sobre el fondo
-       --text-muted  #a8b3cc    8,49:1   6,92:1 sobre la superficie
-       --text-dim    #8b9ab5    6,28:1   5,12:1
-       --accent      #34d399    9,29:1   7,57:1
-       --accent-2    #fbbf24   10,69:1
-       --brand       #10b981    7,04:1
-
-     El mínimo de WCAG AA es 4,5:1 para texto normal y 3:1 para texto
-     grande. El precio de los planes va en --brand y es de 46 px: da
-     7,04:1, con holgura.
-     ───────────────────────────────────────────────────────── */
+   
   --bg: #0f172a;
   --bg-soft: #131f38;
   --surface: #1b2942;
@@ -37,19 +12,16 @@
   --text-muted: #a8b3cc;
   --text-dim: #8b9ab5;
 
-  /* El verde de la marca, para el botón principal y el precio. */
+   
   --brand: #10b981;
   --brand-deep: #059669;
 
-  /* Texto e iconos que van sobre el fondo: el verde un paso más
-     claro, que sobre azul noche se ve y sobre blanco no. */
+   
   --accent: #34d399;
   --accent-2: #fbbf24;
   --accent-grad: linear-gradient(120deg, #10b981 0%, #34d399 100%);
 
-  /* Texto sobre el verde del botón.
-     El blanco sobre #10b981 da 2,54:1, así que no: azul noche, que da
-     7,04:1. */
+   
   --brand-ink: #0f172a;
   --on-accent: #0f172a;
   --icon-color: #6ee7b7;
@@ -59,30 +31,14 @@
   --success-bg: rgba(52, 211, 153, 0.12);
   --success-border: rgba(52, 211, 153, 0.4);
 
-  /* ── Aviso: ni bien ni mal ──
-     El tercer estado. Rojo y verde no cubren "esto no esta roto,
-     pero se va a romper": un modulo a la venta sin url detras, una
-     migracion sin aplicar, un despliegue viejo. Sin el, todo lo que
-     no este bien tiene que pintarse de rojo, y un panel donde todo
-     es rojo deja de ensenar nada.
-
-     Ambar apagado a proposito: si el estado intermedio llama mas la
-     atencion que el roto, se deja de mirar el rojo. */
+   
   --warning: #fbbf24;
   --warning-text: #fde68a;
   --warning-bg: rgba(251, 191, 36, 0.12);
   --warning-border: rgba(251, 191, 36, 0.4);
   --danger: #f87171;
 
-  /* ── Dos estados más que el panel necesitaba ──
-   *
-   * El panel usaba dos colores escritos a mano, sin token. Un literal
-   * no cambia con el tema y rompía el contraste en los otros.
-   *
-   * `--info` NO puede ser verde: el panel pinta con él los chips de
-   * salud de cada caja de Evolution, donde el verde significa
-   * "funciona". Con los dos en la misma familia, un bot caído y uno
-   * sano se parecen. */
+   
   --info: #60a5fa;
   --urgent: #fb923c;
 
@@ -92,8 +48,7 @@
   --header-bg-solid: rgba(15, 23, 42, 0.95);
   --menu-bg: #131f38;
 
-  /* Degradados de fondo. Muy bajos a propósito: esto va detrás de
-     texto y un verde fuerte detrás de un titular lo vuelve ilegible. */
+   
   --hero-glow: radial-gradient(
     ellipse at center,
     rgba(16, 185, 129, 0.26) 0%,
@@ -113,30 +68,11 @@
   --cta-border: rgba(16, 185, 129, 0.45);
   --thumb-overlay: linear-gradient(180deg, transparent 40%, rgba(15, 23, 42, 0.55) 100%);
 
-  /* Tipografía */
+   
   --font-display: "Outfit", "Plus Jakarta Sans", "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-body: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
 
-  /* ── La monoespaciada ──
-     El sistema no tenía ninguna, y eso se notaba justo donde más
-     importa: en las cifras.
-
-     Sin ella, una columna de importes usa la fuente de texto, donde
-     los números no ocupan el mismo ancho. "1.500" y "250" miden
-     distinto, así que las cifras quedan descentradas y comparar dos
-     precios de un vistazo es trabajo de cabeza.
-
-     Con monoespaciada los dígitos ocupan lo mismo, la columna se
-     alinea sola y el ojo baja por ella sin leer. Además es la señal
-     de "esto es un dato técnico" que distingue un panel de
-     herramienta de una web de marketing, que es lo que se buscaba.
-
-     JetBrains Mono y no la del sistema porque en Windows la
-     monoespaciada por defecto (Consolas) es más ancha y menos
-     cuidada. Con la del sistema, el diseño depende de una fuente que
-     cambia según el ordenador, que es la forma más fácil de que un
-     panel se vea distinto en cada casa. La de reserva va igual, para
-     el caso de que el CDN no cargue. */
+   
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
   --fs-hero: clamp(2.4rem, 6vw, 4.2rem);
@@ -147,7 +83,7 @@
   --fs-sm: 0.9rem;
   --fs-xs: 0.8rem;
 
-  /* Espaciado y layout */
+   
   --radius: 16px;
   --radius-sm: 10px;
   --radius-lg: 26px;
@@ -157,19 +93,15 @@
 
   --shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
 
-  /* La sombra de tarjeta. --shadow es la profunda, para el menu y
-     la paleta, donde el elemento esta despegado. Esta es la suave,
-     pegada al lienzo, que en tema oscuro se apoya mas en el borde
-     que en la sombra: por eso el radio es pequeño. */
+   
   --shadow-soft: 0 10px 30px -12px rgba(0, 0, 0, 0.35);
-  /* Alto suficiente para que la marca, la nav, el conmutador y el CTA
-     respiren sin quedar apretados */
+   
   --header-h: 78px;
-  /* Alto al hacer scroll (--header-h menos el margen de seguridad) */
+   
   --header-h-compact: 64px;
 }
 
-/* ---------- Reset ---------- */
+ 
 *,
 *::before,
 *::after {
@@ -240,7 +172,7 @@ h4 {
   background: color-mix(in srgb, var(--accent) 40%, transparent);
 }
 
-/* ---------- Layout ---------- */
+ 
 .container {
   width: min(100% - 2.5rem, var(--container));
   margin-inline: auto;
@@ -276,16 +208,7 @@ h4 {
   font-size: 1.05rem;
 }
 
-/* El verde claro del tema, no el verde de marca.
-
-   Sobre azul noche el verde de marca (#10B981) se ve bien como texto
-   grande, pero en 12,8 px y en mayúsculas conviene ir al token de
-   acento (#34d399): 9,29:1 sobre el fondo y 7,57:1 sobre la
-   superficie. Con el verde oscuro de antes —que se eligió para leerse
-   sobre blanco— la etiqueta quedaba a poco más de 2:1 y desaparecía.
-
-   El fondo y el borde leen del MISMO color: si solo cambiara el texto,
-   la etiqueta saldría con letras verdes sobre un lavado de otro. */
+ 
 .eyebrow {
   display: inline-block;
   font-size: var(--fs-xs);
@@ -307,7 +230,7 @@ h4 {
   color: transparent;
 }
 
-/* ---------- Botones ---------- */
+ 
 .btn {
   display: inline-flex;
   align-items: center;
@@ -354,7 +277,7 @@ h4 {
   font-size: 1rem;
 }
 
-/* Variante compacta: para la cabecera, donde el alto está muy limitado */
+ 
 .btn-sm {
   padding: 0.55rem 1.05rem;
   font-size: var(--fs-xs);
@@ -365,7 +288,7 @@ h4 {
   width: 100%;
 }
 
-/* ---------- Header ---------- */
+ 
 .site-header {
   position: fixed;
   inset: 0 0 auto 0;
@@ -374,16 +297,12 @@ h4 {
   background: var(--header-bg);
   backdrop-filter: blur(14px);
   border-bottom: 1px solid transparent;
-  /* La altura también se transiciona: el header se encoge al bajar
-     y vuelve a su tamaño al subir. Antes el encogido se hacía con
-     padding-block dentro de una altura fija, lo que además de
-     desbordar no devolvía el header a su medida original. */
+   
   transition: border-color 0.25s ease, background 0.25s ease, height 0.28s ease,
     box-shadow 0.28s ease;
 }
 
-/* Encogido: se aplica y se retira con la clase .is-compact, que
-   main.js gestiona de forma simétrica al bajar y al subir. */
+ 
 .site-header.is-compact {
   height: var(--header-h-compact);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22);
@@ -456,7 +375,7 @@ h4 {
   gap: 0.75rem;
 }
 
-/* Conmutador de temas */
+ 
 
 
 
@@ -521,7 +440,7 @@ h4 {
   transform: translateX(-50%) translateY(-6px) rotate(-45deg);
 }
 
-/* ---------- Hero ---------- */
+ 
 .hero {
   padding-top: calc(var(--header-h) + clamp(3rem, 8vw, 6rem));
   padding-bottom: clamp(3rem, 7vw, 5.5rem);
@@ -529,7 +448,7 @@ h4 {
   overflow: hidden;
 }
 
-/* El hero usa ahora .hero-bg (aurora + rejilla), no el halo antiguo */
+ 
 .hero::before {
   display: none;
 }
@@ -589,7 +508,7 @@ h4 {
   box-shadow: 0 0 10px var(--success);
 }
 
-/* Stats */
+ 
 .stats {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -623,7 +542,7 @@ h4 {
   letter-spacing: 0.08em;
 }
 
-/* ---------- Logos / marcas ---------- */
+ 
 .logos {
   display: flex;
   flex-wrap: wrap;
@@ -645,7 +564,7 @@ h4 {
   color: var(--text-muted);
 }
 
-/* ---------- Cards ---------- */
+ 
 .grid {
   display: grid;
   gap: var(--gap);
@@ -723,7 +642,7 @@ h4 {
   flex-shrink: 0;
 }
 
-/* ---------- Proyectos ---------- */
+ 
 .project-card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -762,13 +681,6 @@ h4 {
   inset: 0;
   background: var(--thumb-overlay);
 }
-
-.thumb-1 { background: linear-gradient(135deg, #047857, #0ea5e9 55%, #0b7285); }
-.thumb-2 { background: linear-gradient(135deg, #059669, #34d399 50%, #84cc16); }
-.thumb-3 { background: linear-gradient(135deg, #0f766e, #0e7490 55%, #1d4ed8); }
-.thumb-4 { background: linear-gradient(135deg, #d97706, #f59e0b 55%, #fbbf24); }
-.thumb-5 { background: linear-gradient(135deg, #065f46, #047857 50%, #0f172a); }
-.thumb-6 { background: linear-gradient(135deg, #0e7490, #14b8a6 50%, #4d7c0f); }
 
 .project-body {
   padding: 1.4rem 1.5rem 1.6rem;
@@ -814,7 +726,7 @@ h4 {
   padding-top: 0.85rem;
 }
 
-/* Filtros */
+ 
 .filters {
   display: flex;
   flex-wrap: wrap;
@@ -849,7 +761,7 @@ h4 {
   display: none;
 }
 
-/* ---------- Proceso ---------- */
+ 
 .steps {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -890,7 +802,7 @@ h4 {
   font-size: var(--fs-sm);
 }
 
-/* ---------- Precios ---------- */
+ 
 .price-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -994,23 +906,11 @@ h4 {
   color: var(--success);
   font-weight: 700;
   flex-shrink: 0;
-}
-
-.price-features li.muted {
+}ed {
   opacity: 0.45;
-}
-
-.price-features li.muted::before {
+}re {
   content: "—";
   color: var(--text-dim);
-}
-
-/* Tabla comparativa */
-.compare-wrap {
-  overflow-x: auto;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--surface);
 }
 
 table.compare {
@@ -1051,7 +951,7 @@ table.compare .no {
   color: var(--text-dim);
 }
 
-/* ---------- FAQ / acordeón ---------- */
+ 
 .accordion {
   display: grid;
   gap: 0.8rem;
@@ -1113,7 +1013,7 @@ table.compare .no {
   font-size: var(--fs-sm);
 }
 
-/* ---------- Testimonios ---------- */
+ 
 .quote {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -1177,7 +1077,7 @@ table.compare .no {
   color: var(--text-dim);
 }
 
-/* ---------- CTA final ---------- */
+ 
 .cta-band {
   position: relative;
   background: var(--cta-bg);
@@ -1206,7 +1106,7 @@ table.compare .no {
   flex-wrap: wrap;
 }
 
-/* ---------- Page hero (páginas internas) ---------- */
+ 
 .page-hero {
   padding-top: calc(var(--header-h) + clamp(2.5rem, 6vw, 4.5rem));
   padding-bottom: clamp(2rem, 5vw, 3.5rem);
@@ -1252,7 +1152,7 @@ table.compare .no {
   color: var(--accent-2);
 }
 
-/* ---------- Detalle de servicios ---------- */
+ 
 .service-block {
   position: relative;
   isolation: isolate;
@@ -1265,11 +1165,7 @@ table.compare .no {
   padding: clamp(1.6rem, 4vw, 2.6rem);
   margin-bottom: var(--sp-5, 1.5rem);
 
-  /* Tarjeta, no separacion. Antes solo llevaba un borde abajo, que
-     hacia de cada bloque un parrafo con un rayon debajo. Con borde
-     completo, sombra y radio, cada bloque es una pieza y la pagina
-     se lee como una lista de seis cosas, no como un texto largo
-     con titulos. */
+   
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg, 16px);
@@ -1280,18 +1176,7 @@ table.compare .no {
   margin-bottom: 0;
 }
 
-/* ── El lavado de color ──
-
-   Un radial desde la esquina de arriba a la izquierda, en el color
-   del bloque, al 14%. Es deliberadamente tan bajo que no se lee
-   como "este bloque es violeta": se lee como que la luz cae mas
-   fuerte por ahi. Subirlo a 25% lo convierte en una mancha y hay
-   que subirlo mas para igualar el degradado entero, que es donde
-   el texto deja de leerse bien.
-
-   Va en un pseudoelemento con z-index -1 y el padre con isolation,
-   para que quede DETRAS del texto y no encima, y para que no se
-   salga por el radio: overflow hidden lo recorta. */
+ 
 .service-block::before {
   content: "";
   position: absolute;
@@ -1304,22 +1189,7 @@ table.compare .no {
   );
 }
 
-/* ── El numero del bloque ──
-
-   Arriba a la izquierda, al lado de la etiqueta, y en el color
-   del bloque. No va detras de nada: es la cifra del bloque, leida
-   de izquierda a derecha junto al titulo.
-
-   Estuvo primero como marca de agua gigante en la esquina de la
-   derecha y no funcionaba, porque ahi vive la caja de que incluye
-   y el numero quedaba partido por su borde. Un elemento que se ve
-   cortado no se lee como decoracion: se lee como roto.
-
-   El tamano es 2.1rem y no mas, porque es un indice y no un
-   titular: tiene que resaltar el bloque sin competir con el h2,
-   que va a 1.8rem. Y con tabular-nums, porque si no el 01 y el 02
-   ocupan anchuras distintas y la columna de titulos baila al
-   bajar por la pagina. */
+ 
 .service-cab {
   display: flex;
   align-items: baseline;
@@ -1337,17 +1207,14 @@ table.compare .no {
   color: color-mix(in srgb, var(--tinte) 82%, var(--text));
 }
 
-/* La etiqueta se queda en apagada: al lado de una cifra de color,
-   si la etiqueta tambien va en color hay dos cosas compitiendo y
-   la etiqueta, que es la que dice de que va el bloque, pierde. */
+ 
 .service-cab .eyebrow {
   font-size: var(--fs-xs);
   letter-spacing: 0.12em;
   color: var(--text-dim);
 }
 
-/* El tinte de cada uno. Los seis primeros colores de .thumb-1 a
-   .thumb-6, que son los degradados que ya usa /proyectos. */
+ 
 .servicio-1 { --tinte: #047857; }
 .servicio-2 { --tinte: #0e7490; }
 .servicio-3 { --tinte: #0f766e; }
@@ -1355,21 +1222,14 @@ table.compare .no {
 .servicio-5 { --tinte: #0f172a; }
 .servicio-6 { --tinte: #0d9488; }
 
-/* ── Lo que va DENTRO ──
-
-   El cintillo pasa a ser el numero grande del bloque, en vez de
-   repetir "01 · Web" en un tamano pequeno arriba. Se queda el
-   texto y se le quita la cifra, porque la cifra ya esta gigante en
-   la esquina y repetirla es ruido. */
+ 
 .service-block .eyebrow {
   font-size: var(--fs-xs);
   letter-spacing: 0.12em;
   color: color-mix(in srgb, var(--tinte) 75%, var(--text-muted));
 }
 
-/* La caja de "que incluye" deja de estar pegada al borde del bloque
-   y coge relieve: es el contenido util y tiene que leerse antes que
-   el parrafo de al lado. */
+ 
 .service-block .deliverables {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -1428,7 +1288,7 @@ table.compare .no {
   margin-bottom: 1rem;
 }
 
-/* ---------- Formulario ---------- */
+ 
 .contact-layout {
   display: grid;
   grid-template-columns: 1.15fr 0.85fr;
@@ -1574,7 +1434,7 @@ table.compare .no {
   color: var(--accent-2);
 }
 
-/* ---------- Footer ---------- */
+ 
 .site-footer {
   background: var(--bg-soft);
   border-top: 1px solid var(--border);
@@ -1631,13 +1491,7 @@ table.compare .no {
   color: var(--text-dim);
 }
 
-/* Acceso al panel.
-   Vive en el pie y no en la navegación principal a propósito:
-   no es un argumento de venta, ocupa sitio donde el visitante
-   decide si nos contrata, y la cabecera ya va justa de espacio.
-
-   Ocultarlo no es seguridad: /panel/login es adivinable igual.
-   Lo que protege de verdad es la sesión + las políticas RLS. */
+ 
 .footer-login {
   color: var(--accent-2);
   font-weight: 600;
@@ -1678,30 +1532,8 @@ table.compare .no {
   height: 18px;
 }
 
-/* ---------- Reveal animation ---------- */
-/* ─────────────────────────────────────────────────────────
-   LA ANIMACIÓN DE ENTRADA, Y POR QUÉ DEPENDE DE QUE HAYA JS
-
-   El estado inicial (invisible, desplazado 24 px) está detrás de
-   `.js`, que el <head> añade con una línea de script.
-
-   Sin esa condición, todo bloque con `.reveal` empieza en
-   `opacity: 0` y solo se ve cuando JavaScript le añade
-   `.is-visible`. Medido en el navegador: con JS aparecen los 7
-   bloques de la portada al hacer scroll; SIN JS, los 7 se quedan
-   invisibles.
-
-   Eso no es una animación que no se anima: es la página entera menos
-   el hero en blanco para quien tenga JavaScript desactivado. Y en la
-   portada ese texto es el producto —el problema, la solución y los
-   tres planes—, no un adorno.
-
-   `.reveal.is-visible` va después a propósito. `.js .reveal` y
-   `.reveal.is-visible` valen lo mismo (dos clases), así que gana la
-   que viene después: con las dos clases presentes, gana la que
-   muestra. Si se invirtieran, añadir `js` dejaría la página
-   invisible para siempre.
-   ───────────────────────────────────────────────────────── */
+ 
+ 
 .js .reveal {
   opacity: 0;
   transform: translateY(24px);
@@ -1713,7 +1545,7 @@ table.compare .no {
   transform: none;
 }
 
-/* ---------- Responsive ---------- */
+ 
 @media (max-width: 960px) {
   .grid-3,
   .price-grid,
@@ -1809,17 +1641,7 @@ table.compare .no {
     font-weight: 600;
   }
 
-  /* Acceso y alta, dentro del desplegable.
-
-     En escritorio viven en la barra, arriba a la derecha. En móvil la
-     barra se queda con el tema y el botón de presupuesto, así que
-     si no se meten aquí no aparecen en ninguna parte: la única forma
-     de llegar a la cuenta sería escribir la URL.
-
-     "Acceder" va arriba del todo del menú, antes que las secciones.
-     Quien vuelve a entrar a mirar una factura no está buscando
-     "Servicios": está buscando su cuenta. Puesto abajo, con cinco
-     secciones de websites por delante, cuesta más de lo que cuesta. */
+   
   .nav a.mobile-only-nav {
     display: block;
   }
@@ -1832,8 +1654,7 @@ table.compare .no {
     font-weight: 600;
   }
 
-  /* En la barra de escritorio sobran estas dos: aquí ya están en el
-     desplegable, y si no se ocultan se verían dos veces. */
+   
   .header-acceso,
   .header-alta {
     display: none;
@@ -1855,26 +1676,7 @@ table.compare .no {
     gap: 2rem;
   }
 
-  /* ── Los enlaces del pie, filas táctiles ──
-
-     Medidos con `db/auditar-responsive.mjs`, cada enlace de las
-     columnas tenía 17px de alto: es el alto de una línea de texto, y
-     con el dedo eso no se acierta por mucho que el enlace mida 154px
-     de ancho.
-
-     Y no es un detalle de gusto: `db/auditar-maquetacion.mjs` ya
-     audita el panel contra un mínimo de 44x44, que es el mismo que
-     usan las guías táctiles. La regla tiene que valer en las dos
-     mitades del producto.
-
-     El aire lo pasa a dar el propio enlace, así que se cierra el
-     hueco de la lista: con las dos cosas, cinco enlaces sumaban 258px
-     de pie en un móvil.
-
-     NO se toca `.footer-bottom`, que son enlaces dentro de una frase
-     separados por «·»: ahí el mínimo no aplica —la propia norma
-     exceptúa el enlace en línea— y darles 44px rompería la frase en
-     cinco renglones. */
+   
   .footer-col ul {
     gap: 0;
   }
@@ -1894,11 +1696,9 @@ table.compare .no {
   }
 }
 
-/* =========================================================
-   Mejoras inspiradas en Clay, STRV y Netguru
-   ========================================================= */
+ 
 
-/* --- Entrada escalonada del hero (tipo Clay/STRV) --- */
+ 
 @keyframes fadeUp {
   from {
     opacity: 0;
@@ -1910,7 +1710,7 @@ table.compare .no {
   }
 }
 
-/* La entrada escalonada ahora la gestiona .hero-title por líneas (ver bloque Hero premium) */
+ 
 .hero-inner > * {
   animation: none;
 }
@@ -1921,51 +1721,13 @@ table.compare .no {
 .hero-inner > *:nth-child(4) { animation-delay: 0.35s; }
 .hero-inner > *:nth-child(5) { animation-delay: 0.45s; }
 
-/* --- Marquee de servicios (movimiento continuo tipo agencia) --- */
-.marquee {
-  overflow: hidden;
-  border-block: 1px solid var(--border);
-  padding-block: 1.05rem;
-  background: var(--bg-soft);
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
-  mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
-}
-
-.marquee-track {
-  display: flex;
-  width: max-content;
-  gap: 2.75rem;
-  animation: marquee 34s linear infinite;
-}
-
-.marquee:hover .marquee-track {
-  animation-play-state: paused;
-}
-
-.marquee-track span {
-  font-family: var(--font-display);
-  font-size: 1.02rem;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  color: var(--text-dim);
-  white-space: nowrap;
-}
-
-.marquee-track span::after {
-  content: "◆";
-  margin-left: 2.75rem;
-  font-size: 0.6rem;
-  color: var(--accent);
-  vertical-align: middle;
-}
-
 @keyframes marquee {
   to {
     transform: translateX(-50%);
   }
 }
 
-/* --- Hover de proyectos: zoom + "Ver caso" (tipo Clay) --- */
+ 
 .project-thumb .thumb-art {
   transition: transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.35s ease;
 }
@@ -2000,7 +1762,7 @@ table.compare .no {
   opacity: 0.35;
 }
 
-/* --- Fila de confianza bajo los CTA (tipo Netguru/STRV) --- */
+ 
 .trust-row {
   display: flex;
   flex-wrap: wrap;
@@ -2023,12 +1785,12 @@ table.compare .no {
   font-weight: 700;
 }
 
-/* --- Barra CTA fija en móvil (CTA persistente tipo Netguru) --- */
+ 
 .sticky-cta {
   display: none;
 }
 
-/* --- Destacados de resultados junto al titular de proyectos --- */
+ 
 .result-pills {
   display: flex;
   flex-wrap: wrap;
@@ -2046,7 +1808,7 @@ table.compare .no {
   color: var(--success);
 }
 
-/* ---------- Motion ---------- */
+ 
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -2071,11 +1833,9 @@ table.compare .no {
   }
 }
 
-/* =========================================================
-   RGPD · Blog · Contenido editorial
-   ========================================================= */
+ 
 
-/* --- Casilla de consentimiento --- */
+ 
 .field input[type="checkbox"] {
   width: 18px;
   height: 18px;
@@ -2112,7 +1872,7 @@ table.compare .no {
   color: var(--danger);
 }
 
-/* --- Tarjetas de blog --- */
+ 
 .blog-card {
   display: flex;
   flex-direction: column;
@@ -2150,7 +1910,7 @@ table.compare .no {
   color: var(--accent);
 }
 
-/* --- Artículos --- */
+ 
 .post-header {
   max-width: 760px;
 }
@@ -2268,182 +2028,33 @@ table.compare .no {
   }
 }
 
-/* --- Error del servidor en el formulario --- */
+ 
 .form-success.form-error {
   background: color-mix(in srgb, var(--danger) 12%, transparent);
   border-color: color-mix(in srgb, var(--danger) 45%, transparent);
   color: color-mix(in srgb, var(--danger) 85%, var(--text));
 }
 
-/* =========================================================
-   HOME — bloques compactos (proceso y blog)
-   Se reducen para que la home no se alargue sin añadir valor.
-   ========================================================= */
+ 
 
 .section--slim {
   padding-block: clamp(2.5rem, 5vw, 4rem);
-}
-
-/* ---------- Proceso en una franja ---------- */
-.process-strip {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--gap);
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  counter-reset: none;
-}
-
-.process-strip li {
-  position: relative;
-  padding-top: 1.5rem;
-}
-
-.process-strip li::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent-2) 70%, transparent));
-  border-radius: 2px;
-  opacity: 0.75;
-}
-
-.process-num {
-  display: block;
-  font-family: var(--font-display);
-  font-size: var(--fs-xs);
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  color: var(--accent-2);
-  margin-bottom: 0.45rem;
-}
-
-.process-strip h3 {
-  font-size: 1.02rem;
-  margin-bottom: 0.3rem;
-}
-
-.process-strip p {
-  font-size: var(--fs-sm);
-  color: var(--text-muted);
-  margin: 0;
-}
-
-/* ---------- Blog en franja ---------- */
-.blog-strip {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr) auto;
-  gap: clamp(1.5rem, 3vw, 2.5rem);
-  align-items: center;
-}
-
-.blog-strip-copy h2 {
-  font-size: var(--fs-h2);
-  margin-bottom: 0.5rem;
-}
-
-.blog-strip-copy p {
-  font-size: var(--fs-sm);
-  color: var(--text-muted);
-  margin: 0;
-  max-width: 42ch;
-}
-
-.blog-strip-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: grid;
-  gap: 0.5rem;
-}
-
-.blog-strip-list a {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.7rem 0.9rem;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  background: var(--raise);
-  color: inherit;
-  transition: border-color 0.25s ease, background 0.25s ease, transform 0.25s ease;
-}
-
-.blog-strip-list a:hover {
-  border-color: color-mix(in srgb, var(--accent) 50%, transparent);
-  background: var(--raise-strong);
-  transform: translateX(3px);
-}
-
-.blog-strip-list .tag {
-  white-space: nowrap;
-}
-
-.blog-strip-list strong {
-  font-size: var(--fs-sm);
-  font-weight: 600;
-  line-height: 1.35;
-  /* 2 líneas como máximo con recorte limpio; nowrap cortaba demasiado */
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.blog-strip-list em {
-  font-style: normal;
-  font-size: var(--fs-xs);
-  color: var(--text-dim);
-  white-space: nowrap;
-}
-
-.blog-strip-cta {
+}ag {
   white-space: nowrap;
 }
 
 @media (max-width: 1024px) {
-  .blog-strip {
-    grid-template-columns: 1fr;
-    text-align: left;
-  }
-
-  .blog-strip-cta {
-    justify-self: start;
-  }
 }
 
 @media (max-width: 760px) {
-  .process-strip {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem var(--gap);
-  }
-
-  .blog-strip-list a {
-    grid-template-columns: auto minmax(0, 1fr);
-  }
-
-  .blog-strip-list em {
-    display: none;
-  }
 }
 
 @media (max-width: 480px) {
-  .process-strip {
-    grid-template-columns: 1fr;
-  }
 }
 
-/* =========================================================
-   BLOQUES NUEVOS — Tecnologías y encaje de cliente
-   ========================================================= */
+ 
 
-/* ---------- Tecnologías e integraciones ---------- */
+ 
 .tech-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -2485,7 +2096,7 @@ table.compare .no {
   white-space: nowrap;
 }
 
-/* Bloque de auditoría: es el gancho de captación */
+ 
 .tech-note {
   margin-top: 2rem;
   padding: clamp(1.4rem, 3vw, 2.2rem);
@@ -2530,7 +2141,7 @@ table.compare .no {
   font-weight: 700;
 }
 
-/* ---------- Encaje: sí / no ---------- */
+ 
 .fit-section {
   background: var(--bg-soft);
 }
@@ -2633,16 +2244,14 @@ table.compare .no {
   }
 }
 
-/* =========================================================
-   AUTOMATIZACIÓN E IA — sección propia (no es "diseño web")
-   ========================================================= */
+ 
 
 .automation-section {
   position: relative;
   overflow: clip;
 }
 
-/* ---------- Diagrama de flujo ---------- */
+ 
 .flow {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -2661,7 +2270,7 @@ table.compare .no {
   background: var(--surface);
 }
 
-/* Línea que conecta los pasos */
+ 
 .flow-step:not(:last-child)::after {
   content: "";
   position: absolute;
@@ -2713,7 +2322,7 @@ table.compare .no {
   line-height: 1.55;
 }
 
-/* ---------- Tarjetas de servicio ---------- */
+ 
 .auto-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -2751,7 +2360,7 @@ table.compare .no {
   height: 23px;
 }
 
-/* Distintivo para lo que aún no está disponible */
+ 
 .auto-flag {
   position: absolute;
   top: 1.2rem;
@@ -2828,13 +2437,13 @@ table.compare .no {
   margin: 0;
 }
 
-/* ---------- Responsive ---------- */
+ 
 @media (max-width: 960px) {
   .flow {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  /* Sin línea conectora cuando la rejilla se parte */
+   
   .flow-step::after {
     display: none !important;
   }
@@ -2850,9 +2459,7 @@ table.compare .no {
   }
 }
 
-/* =========================================================
-   CASO DE PROYECTO — /proyectos/<slug>
-   ========================================================= */
+ 
 
 .page-hero--case .case-tags {
   display: flex;
@@ -2863,7 +2470,7 @@ table.compare .no {
   margin: 0 0 1.4rem;
 }
 
-/* Captura del proyecto: reutiliza los degradados .thumb-N */
+ 
 .case-shot {
   aspect-ratio: 16 / 10;
   display: grid;
@@ -2879,7 +2486,7 @@ table.compare .no {
   text-shadow: 0 8px 30px rgba(0, 0, 0, 0.45);
 }
 
-/* ---------- Cifras ---------- */
+ 
 .case-metrics {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -2911,7 +2518,7 @@ table.compare .no {
   letter-spacing: 0.08em;
 }
 
-/* ---------- Reto / Solución / Resultado ---------- */
+ 
 .case-body {
   display: grid;
   gap: clamp(2rem, 4vw, 3rem);
@@ -2967,7 +2574,7 @@ table.compare .no {
   background: var(--accent-grad);
 }
 
-/* ---------- Ficha técnica ---------- */
+ 
 .case-facts {
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -3022,14 +2629,14 @@ table.compare .no {
   font-weight: 500;
 }
 
-/* ---------- Testimonio del caso ---------- */
+ 
 .quote--case {
   max-width: 760px;
   margin-inline: auto;
   text-align: left;
 }
 
-/* ---------- Tarjetas como enlace ---------- */
+ 
 .project-card--link {
   display: block;
   color: inherit;
@@ -3052,9 +2659,7 @@ table.compare .no {
   }
 }
 
-/* =========================================================
-   ENCABEZADO PREMIUM DE PÁGINAS INTERIORES
-   ========================================================= */
+ 
 
 .page-hero--premium {
   padding-top: calc(var(--header-h) + clamp(2.5rem, 6vw, 4.5rem));
@@ -3065,7 +2670,7 @@ table.compare .no {
   max-width: 100%;
 }
 
-/* Fondo: reutiliza la aurora y la rejilla del hero de la home */
+ 
 .page-hero-bg {
   position: absolute;
   inset: 0;
@@ -3101,7 +2706,7 @@ table.compare .no {
   opacity: 0.34;
 }
 
-/* Rejilla de dos columnas */
+ 
 .page-hero-layout {
   display: grid;
   grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
@@ -3109,13 +2714,12 @@ table.compare .no {
   align-items: center;
 }
 
-/* El .page-hero clásico impone max-width:780px a su .container.
-   Necesita la misma especificidad (dos clases) y ir después para ganar. */
+ 
 .page-hero--premium .page-hero-layout {
   max-width: var(--container);
 }
 
-/* Ambas columnas pueden encogerse: nada debe forzar ancho extra */
+ 
 .page-hero-layout > * {
   min-width: 0;
 }
@@ -3136,8 +2740,7 @@ table.compare .no {
   display: block;
   overflow: hidden;
   padding-bottom: 0.06em;
-  /* Sin nowrap: los titulares interiores son más largos que los de la home
-     y con nowrap se salían de la columna y quedaban cortados. */
+   
 }
 
 html:not(.has-gsap) .page-hero-title .line > span {
@@ -3176,7 +2779,7 @@ html:not(.has-gsap) .page-hero-title .line:nth-child(3) > span { animation-delay
   margin-top: 0;
 }
 
-/* Columna del mockup */
+ 
 .page-hero-showcase {
   position: relative;
   perspective: 1400px;
@@ -3194,7 +2797,7 @@ html:not(.has-gsap) .page-hero-showcase {
   min-height: 230px;
 }
 
-/* El contenido del mockup nunca debe ensanchar su columna */
+ 
 .mock-window,
 .mock-page,
 .mock-board,
@@ -3207,7 +2810,7 @@ html:not(.has-gsap) .page-hero-showcase {
   max-width: 100%;
 }
 
-/* ---------- Variante: servicios (tablero) ---------- */
+ 
 .mock-board {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -3252,7 +2855,7 @@ html:not(.has-gsap) .page-hero-showcase {
   color: var(--text);
 }
 
-/* ---------- Variante: proyectos (galería) ---------- */
+ 
 .mock-gallery {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -3284,46 +2887,13 @@ html:not(.has-gsap) .page-hero-showcase {
 .mock-tile.t5 { background: linear-gradient(135deg, #0f172a, #047857); }
   .mock-tile.t6 { background: linear-gradient(135deg, #10b981, #34d399); }
 
-/* ---------- Variante: precios (planes) ---------- */
+ 
 .mock-plans {
   display: grid;
   gap: 0.5rem;
 }
 
-.mock-plan {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  padding: 0.6rem 0.75rem;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  background: var(--raise);
-}
-
-.mock-plan.is-featured {
-  border-color: color-mix(in srgb, var(--accent) 50%, transparent);
-  background: color-mix(in srgb, var(--accent) 12%, transparent);
-}
-
-.mock-plan-name {
-  font-size: 0.78rem;
-  font-weight: 600;
-}
-
-.mock-plan strong {
-  font-family: var(--font-display);
-  font-size: 0.95rem;
-  white-space: nowrap;
-}
-
-.mock-plan-meta {
-  font-size: 0.66rem;
-  color: var(--text-dim);
-  white-space: nowrap;
-}
-
-/* ---------- Variante: contacto (agenda) ---------- */
+ 
 .mock-calendar {
   display: grid;
   gap: 0.7rem;
@@ -3380,7 +2950,7 @@ html:not(.has-gsap) .page-hero-showcase {
   color: var(--text);
 }
 
-/* ---------- Variante: blog (artículos) ---------- */
+ 
 .mock-articles {
   display: grid;
   gap: 0.5rem;
@@ -3417,13 +2987,13 @@ html:not(.has-gsap) .page-hero-showcase {
   white-space: nowrap;
 }
 
-/* ---------- Variante: artículo (lector) ---------- */
+ 
 .mock-reader {
   display: grid;
   gap: 0.5rem;
 }
 
-/* ---------- Artículos: encabezado con mockup ---------- */
+ 
 .page-hero--article .post-header {
   max-width: 100%;
 }
@@ -3437,7 +3007,7 @@ html:not(.has-gsap) .page-hero-showcase {
   color: var(--text-dim);
 }
 
-/* ---------- Legales: encabezado sin mockup ---------- */
+ 
 .page-hero--slim .lead {
   margin-bottom: 0;
 }
@@ -3446,7 +3016,7 @@ html:not(.has-gsap) .page-hero-showcase {
   margin-bottom: 1rem;
 }
 
-/* ---------- 404: encabezado centrado ---------- */
+ 
 .page-hero--centered .lead {
   margin-inline: auto;
 }
@@ -3482,7 +3052,7 @@ html:not(.has-gsap) .page-hero-showcase {
 .mock-line.w70 { width: 70%; }
 .mock-line.w45 { width: 45%; }
 
-/* ---------- Responsive ---------- */
+ 
 @media (max-width: 1024px) {
   .page-hero-layout {
     grid-template-columns: 1fr;
@@ -3512,25 +3082,18 @@ html:not(.has-gsap) .page-hero-showcase {
   .mock-page {
     padding: 0.85rem;
   }
-
-  .mock-plan {
-    flex-wrap: wrap;
-    gap: 0.25rem;
-  }
 }
 
-/* ---------- Respeta el movimiento reducido ---------- */
+ 
 @media (prefers-reduced-motion: reduce) {
   .page-hero-showcase {
     animation: none !important;
   }
 }
 
-/* =========================================================
-   Motion con GSAP / Lenis — elementos y estados
-   ========================================================= */
+ 
 
-/* --- Barra de progreso de lectura --- */
+ 
 .scroll-progress {
   position: fixed;
   top: 0;
@@ -3546,16 +3109,13 @@ html:not(.has-gsap) .page-hero-showcase {
   will-change: transform;
 }
 
-/* --- Tilt 3D: prepara la tarjeta y añade el brillo que sigue al puntero --- */
+ 
 .tilt-3d {
   transform-style: preserve-3d;
   will-change: transform;
 }
 
-/* Las tarjetas con tilt necesitan position para que el brillo se posicione.
-   SIN overflow:hidden a propósito: el badge "Más elegido" de .price-card
-   sobresale por arriba (top:-13px) y lo recortaba. El brillo ya se
-   redondea solo con border-radius:inherit, no necesita el recorte. */
+ 
 .project-card,
 .price-card,
 .quote,
@@ -3564,7 +3124,7 @@ html:not(.has-gsap) .page-hero-showcase {
   position: relative;
 }
 
-/* El brillo no debe capturar clics ni tapar el texto */
+ 
 .tilt-shine {
   position: absolute;
   inset: 0;
@@ -3585,13 +3145,9 @@ html:not(.has-gsap) .page-hero-showcase {
   opacity: 1;
 }
 
-/* --- Cabecera compacta ---
-   El encogido se hace ahora con la altura del propio header
-   (ver bloque "Header" más arriba) y no con padding-block sobre
-   .header-inner: dentro de una altura fija, el padding desbordaba
-   y el header no recuperaba su medida original al subir. */
+ 
 
-/* --- Split de titulares: evita el salto al aplicar la animación --- */
+ 
 .section-head h2,
 .page-hero h1,
 .post-header h1,
@@ -3599,7 +3155,7 @@ html:not(.has-gsap) .page-hero-showcase {
   will-change: transform, opacity;
 }
 
-/* --- Lenis: desactiva el scroll-behavior nativo para evitar conflictos --- */
+ 
 html.lenis,
 html.lenis body {
   height: auto;
@@ -3613,13 +3169,11 @@ html.lenis body {
   overflow: hidden;
 }
 
-/* =========================================================
-   HERO PREMIUM — fondo aurora, titular por líneas y mockup
-   ========================================================= */
+ 
 
 .hero {
   position: relative;
-  /* clip recorta el desbordamiento del mockup y las tarjetas flotantes */
+   
   overflow: clip;
   padding-top: calc(var(--header-h) + clamp(2.5rem, 6vw, 4.5rem));
   padding-bottom: clamp(3rem, 7vw, 6rem);
@@ -3627,7 +3181,7 @@ html.lenis body {
   max-width: 100%;
 }
 
-/* ---------- Fondo animado ---------- */
+ 
 .hero-bg {
   position: absolute;
   inset: 0;
@@ -3653,7 +3207,7 @@ html.lenis body {
   }
 }
 
-/* Manchas de color: degradado de malla con movimiento muy lento */
+ 
 .aurora {
   position: absolute;
   display: block;
@@ -3672,12 +3226,7 @@ html.lenis body {
   animation: drift1 22s ease-in-out infinite alternate;
 }
 
-/* El verde azulado, no el ambar.
-
-   Este halo es de 560 px en la esquina superior derecha: con el ambar
-   teñia media cabecera de arena y la pagina daba atardecer. El verde
-   azulado mantiene la profundidad que daba el ambar y sigue siendo de
-   la familia. */
+ 
 .aurora-2 {
   width: 560px;
   height: 560px;
@@ -3719,7 +3268,7 @@ html.lenis body {
   }
 }
 
-/* Grano sutil: evita el banding de los degradados */
+ 
 .hero-noise {
   position: absolute;
   inset: 0;
@@ -3728,10 +3277,10 @@ html.lenis body {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
 }
 
-/* ---------- Rejilla de dos columnas ---------- */
+ 
 .hero-layout {
   display: grid;
-  /* La columna de texto necesita más ancho para que el titular respete sus 3 líneas */
+   
   grid-template-columns: minmax(0, 1.18fr) minmax(0, 0.82fr);
   gap: clamp(2rem, 3.5vw, 2.75rem);
   align-items: center;
@@ -3742,7 +3291,7 @@ html.lenis body {
   max-width: 640px;
 }
 
-/* ---------- Etiqueta superior ---------- */
+ 
 .eyebrow-pill {
   display: inline-flex;
   align-items: center;
@@ -3778,7 +3327,7 @@ html.lenis body {
   }
 }
 
-/* ---------- Titular con revelado por líneas ---------- */
+ 
 .hero-title {
   font-size: clamp(2.05rem, 3.85vw, 3.15rem);
   line-height: 1.08;
@@ -3790,13 +3339,11 @@ html.lenis body {
   display: block;
   overflow: hidden;
   padding-bottom: 0.06em;
-  /* nowrap por línea: el titular respalda siempre 3 líneas, no 4 */
+   
   white-space: nowrap;
 }
 
-/* ---------- Titular con revelado por líneas ----------
-   Con GSAP cargado el revelado lo hace motion.js, así que la animación
-   CSS se desactiva para que ambas no compitan por el mismo transform. */
+ 
 html:not(.has-gsap) .hero-title .line > span {
   display: block;
   animation: lineUp 0.95s cubic-bezier(0.16, 0.84, 0.28, 1) both;
@@ -3831,7 +3378,7 @@ html:not(.has-gsap) .hero-title .line:nth-child(3) > span { animation-delay: 0.3
   font-weight: 600;
 }
 
-/* ---------- Botones con icono ---------- */
+ 
 .hero-actions .btn svg {
   width: 18px;
   height: 18px;
@@ -3842,7 +3389,7 @@ html:not(.has-gsap) .hero-title .line:nth-child(3) > span { animation-delay: 0.3
   transform: translateX(4px);
 }
 
-/* ---------- Prueba social ---------- */
+ 
 .hero-proof {
   display: flex;
   align-items: center;
@@ -3860,30 +3407,19 @@ html:not(.has-gsap) .hero-title .line:nth-child(3) > span { animation-delay: 0.3
   color: var(--text);
 }
 
-.stars {
-  display: inline-flex;
-  gap: 2px;
-  color: #fbbf24;
-}
-
-.stars svg {
-  width: 15px;
-  height: 15px;
-}
-
 .hero-copy .hero-note {
   margin: 0;
 }
 
-/* ---------- Mockup de producto ---------- */
+ 
 .hero-showcase {
   position: relative;
   perspective: 1400px;
-  /* Evita que el navegador recorte el 3D y las tarjetas que sobresalen */
+   
   overflow: visible;
 }
 
-/* El mockup, las barras y las órbitas entran con GSAP cuando está disponible */
+ 
 html:not(.has-gsap) .hero-showcase {
   animation: showcaseIn 1.1s cubic-bezier(0.16, 0.84, 0.28, 1) 0.42s both;
 }
@@ -3938,15 +3474,7 @@ html:not(.has-gsap) .hero-showcase {
   flex: 1;
   text-align: center;
   font-size: 0.72rem;
-  /* --text-muted y no --text-dim.
-
-     La barra de direcciones del mockup va sobre --surface-2, que es
-     más claro que el fondo de la página: ahí el gris apagado se queda
-     en 3,95:1 y no llega al mínimo de texto normal. Con el gris medio
-     llega a 6,9:1.
-
-     Y además es texto que se lee: es la dirección que el visitante está
-     "mirando" en el dibujo. */
+   
   color: var(--text-muted);
   background: var(--raise);
   border-radius: 6px;
@@ -3969,72 +3497,9 @@ html:not(.has-gsap) .hero-showcase {
 .mock-body {
   display: grid;
   grid-template-columns: 52px 1fr;
-}
-
-.mock-side {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.85rem;
-  padding: 0.9rem 0;
-  border-right: 1px solid var(--border);
-  background: var(--bg-soft);
-}
-
-.mock-logo {
-  width: 24px;
-  height: 24px;
-  border-radius: 7px;
-  background: var(--accent-grad);
-  margin-bottom: 0.4rem;
-}
-
-.mock-nav {
-  width: 22px;
-  height: 22px;
-  border-radius: 6px;
-  background: var(--raise-strong);
-}
-
-.mock-nav.is-active {
+}ve {
   background: color-mix(in srgb, var(--accent) 45%, transparent);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
-}
-
-.mock-main {
-  padding: 1rem 1.1rem 1.2rem;
-  display: grid;
-  gap: 0.9rem;
-}
-
-.mock-head {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.mock-head strong {
-  display: block;
-  font-family: var(--font-display);
-  font-size: 1.02rem;
-}
-
-.mock-kicker {
-  font-size: 0.66rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--text-dim);
-}
-
-.mock-chip {
-  font-size: 0.66rem;
-  color: var(--text-muted);
-  background: var(--raise);
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  padding: 0.24rem 0.6rem;
-  white-space: nowrap;
 }
 
 .mock-kpis {
@@ -4073,13 +3538,11 @@ html:not(.has-gsap) .hero-showcase {
 
 .mock-kpi .up {
   color: var(--success);
-}
-
-.mock-kpi .down {
+}wn {
   color: var(--danger);
 }
 
-/* Gráfico de barras: crece al entrar en pantalla */
+ 
 .mock-chart {
   display: flex;
   align-items: flex-end;
@@ -4098,7 +3561,7 @@ html:not(.has-gsap) .hero-showcase {
   transform-origin: bottom;
 }
 
-/* Con GSAP cargado el crecimiento lo hace motion.js */
+ 
 html:not(.has-gsap) .mock-chart span {
   animation: barGrow 0.9s cubic-bezier(0.16, 0.84, 0.28, 1) both;
 }
@@ -4125,7 +3588,7 @@ html:not(.has-gsap) .mock-chart span:nth-child(12) { animation-delay: 1.52s; }
   }
 }
 
-/* ---------- Tarjetas flotantes ---------- */
+ 
 .float-card {
   position: absolute;
   z-index: 3;
@@ -4138,12 +3601,12 @@ html:not(.has-gsap) .mock-chart span:nth-child(12) { animation-delay: 1.52s; }
   background: color-mix(in srgb, var(--surface) 88%, transparent);
   backdrop-filter: blur(16px);
   box-shadow: 0 22px 50px rgba(0, 0, 0, 0.45);
-  /* --float-shift lo escribe main.js con el paralaje del scroll */
+   
   animation: floaty 6s ease-in-out infinite;
   will-change: transform;
 }
 
-/* Las tarjetas sobresalen por las esquinas: no deben tapar los KPI ni el gráfico */
+ 
 .float-card--a {
   top: -1.4rem;
   left: -4.5rem;
@@ -4204,7 +3667,7 @@ html:not(.has-gsap) .mock-chart span:nth-child(12) { animation-delay: 1.52s; }
   white-space: nowrap;
 }
 
-/* ---------- Órbitas decorativas ---------- */
+ 
 .orbit {
   position: absolute;
   border-radius: 50%;
@@ -4213,32 +3676,13 @@ html:not(.has-gsap) .mock-chart span:nth-child(12) { animation-delay: 1.52s; }
   z-index: 0;
 }
 
-.orbit--1 {
-  width: 340px;
-  height: 340px;
-  top: -14%;
-  right: -12%;
-  border-style: dashed;
-  opacity: 0.55;
-  animation: spin 44s linear infinite;
-}
-
-.orbit--2 {
-  width: 220px;
-  height: 220px;
-  bottom: -12%;
-  left: -8%;
-  opacity: 0.4;
-  animation: spin 32s linear infinite reverse;
-}
-
 @keyframes spin {
   to {
     transform: rotate(360deg);
   }
 }
 
-/* ---------- Indicador de scroll ---------- */
+ 
 .scroll-hint {
   position: absolute;
   left: 50%;
@@ -4284,7 +3728,7 @@ html:not(.has-gsap) .mock-chart span:nth-child(12) { animation-delay: 1.52s; }
   }
 }
 
-/* ---------- Ajustes por tema ---------- */
+ 
 .mock-window {
   box-shadow: 0 30px 70px rgba(18, 20, 44, 0.16), 0 0 0 1px rgba(13, 16, 40, 0.05);
 }
@@ -4297,12 +3741,12 @@ html:not(.has-gsap) .mock-chart span:nth-child(12) { animation-delay: 1.52s; }
   opacity: 0.42;
 }
 
-/* ---------- Responsive del hero ---------- */
+ 
 @media (max-width: 1024px) {
   .hero-layout {
     grid-template-columns: 1fr;
     gap: 3rem;
-    /* Nada de lo que cuelga del mockup puede ensanchar la columna */
+     
     min-width: 0;
   }
 
@@ -4341,7 +3785,7 @@ html:not(.has-gsap) .mock-chart span:nth-child(12) { animation-delay: 1.52s; }
     min-width: 0;
   }
 
-  /* La prueba social no debe forzar ancho en pantallas estrechas */
+   
   .hero-proof {
     flex-wrap: wrap;
     justify-content: center;
@@ -4355,23 +3799,18 @@ html:not(.has-gsap) .mock-chart span:nth-child(12) { animation-delay: 1.52s; }
     right: -3%;
   }
 
-  .orbit--1,
-  .orbit--2 {
-    display: none;
-  }
-
   .scroll-hint {
     display: none;
   }
 }
 
 @media (max-width: 640px) {
-  /* En móvil el titular sí puede partirse: evita desbordes */
+   
   .hero-title .line {
     white-space: normal;
   }
 
-  /* Palabras largas (URLs, emails) no deben ensanchar la página */
+   
   .hero-copy,
   .hero-copy .lead {
     min-width: 0;
@@ -4391,16 +3830,11 @@ html:not(.has-gsap) .mock-chart span:nth-child(12) { animation-delay: 1.52s; }
     grid-template-columns: 40px 1fr;
   }
 
-  .mock-nav {
-    width: 18px;
-    height: 18px;
-  }
-
   .mock-kpi strong {
     font-size: 1rem;
   }
 
-  /* Las tarjetas flotantes se apilan y no tapan el mockup */
+   
   .float-card--a {
     top: -0.6rem;
     left: -0.4rem;
@@ -4423,7 +3857,7 @@ html:not(.has-gsap) .mock-chart span:nth-child(12) { animation-delay: 1.52s; }
   }
 }
 
-/* ---------- Respeta la preferencia de movimiento reducido ---------- */
+ 
 @media (prefers-reduced-motion: reduce) {
   .hero-grid,
   .aurora,
@@ -4450,22 +3884,9 @@ html:not(.has-gsap) .mock-chart span:nth-child(12) { animation-delay: 1.52s; }
   }
 }
 
-/* =========================================================
-   UTILIDADES
-   ========================================================= */
+ 
 
-/* Visible para el lector de pantalla, invisible en pantalla.
-
-   Se usa para lo que hace falta decir pero no ensucia la vista: el
-   "Acciones" de una cabecera de columna, o a qué cliente pertenece
-   un boton "Abrir" repetido 18 veces. Ese último caso importa mas de
-   lo que parece: dieciocho botones "Abrir" iguales no dicen a quien
-   abren, asi que un lector de pantalla oye dieciocho veces lo mismo
-   y no sabe cual es cual.
-
-   NO es `display: none`, que lo saca tambien del arbol de
-   accesibilidad: un lector de pantalla se lo saltaria. De ahi el
-   recorte a 1px en vez de ocultarlo. */
+ 
 .sr-only {
   position: absolute;
   width: 1px;
@@ -4478,20 +3899,7 @@ html:not(.has-gsap) .mock-chart span:nth-child(12) { animation-delay: 1.52s; }
   border: 0;
 }
 
-/* =========================================================
-   CUENTA DE CLIENTE
-   =========================================================
-   Las dos pantallas de /cuenta. Visten con la misma carta que el
-   resto del sitio —.form-card, .form-grid, .field, .error-msg— y no
-   con una propia: una cuenta que se parece a la web hace menos
-   ruido que una que parece de otro producto, y el camino de alta es
-   el mismo que el de pedir presupuesto.
-
-   El reparto es de dos columnas porque la columna izquierda vende en
-   cuatro líneas lo que va a pasar después de darle al botón. En
-   "entrar" no hace falta: no hay nada que contar, así que se queda
-   sola la tarjeta y no queda un hueco al lado con texto de relleno.
-*/
+ 
 
 .cuenta-grid {
   display: grid;
@@ -4522,10 +3930,7 @@ html:not(.has-gsap) .mock-chart span:nth-child(12) { animation-delay: 1.52s; }
   list-style: none;
 }
 
-/* Cada punto lleva su propio.tick en vez de un `li` con viñeta: la
-   viñeta del navegador se alinea a la primera línea del texto y,
-   con dos líneas, queda flotando sola arriba. Un pseudo:before
-   con `align-self` no tiene ese problema. */
+ 
 .cuenta-lista li {
   position: relative;
   padding-inline-start: 1.75rem;
@@ -4552,13 +3957,7 @@ html:not(.has-gsap) .mock-chart span:nth-child(12) { animation-delay: 1.52s; }
   text-align: center;
 }
 
-/* En una columna la tarjeta va arriba y la columna de texto debajo.
-
-   Al revés —texto primero, tarjeta después— obligaría a scrollar
-   para llegar al botón, y en un formulario de alta ese scroll es
-   exactamente el punto en el que la gente se va. Con la columna de
-   texto debajo, lo primero que se ve al llegar desde el menú es el
-   formulario. */
+ 
 @media (max-width: 860px) {
   .cuenta-grid {
     grid-template-columns: minmax(0, 1fr);
@@ -4574,17 +3973,7 @@ html:not(.has-gsap) .mock-chart span:nth-child(12) { animation-delay: 1.52s; }
   }
 }
 
-/* La trampa para robots.
-
-   `position: absolute` y no `display: none` a propósito. Con
-   `display: none` el navegador NO rellena el campo al enviar
-   formulario, y muchos bots lo buscan precisamente ahí para
-   saltarse la trampa. Lo que se quiere es que exista, sea invisible
-   y siga llegando vacío: si viene relleno, es un bot.
-
-   Y sin `left: -9999px` fuera de pantalla, porque un lector de
-   pantalla se lo saltaría y entonces el aviso al usuario real
-   sería "este campo es obligatorio" sin ver dónde. */
+ 
 .cuenta-trampa {
   position: absolute;
   left: -9999px;
@@ -4593,11 +3982,9 @@ html:not(.has-gsap) .mock-chart span:nth-child(12) { animation-delay: 1.52s; }
   overflow: hidden;
 }
 
-/* ---------- Acceso y alta en la barra ---------- */
+ 
 
-/* "Acceder" es texto plano, sin caja. Va justo al lado del botón
-   primario para que se lea como un sitio donde pinchar y no como un
-   botón más: quien ya es cliente no viene a pedir presupuesto. */
+ 
 .header-acceso {
   font-size: var(--fs-sm);
   font-weight: 500;
@@ -4614,26 +4001,12 @@ html:not(.has-gsap) .mock-chart span:nth-child(12) { animation-delay: 1.52s; }
   color: var(--text);
 }
 
-/* Los enlaces que en escritorio están en la barra y en móvil dentro
-   del menú desplegado. Por eso se llaman distinto a las dos veces: lo
-   que se ve en móvil no puede ser un enlace suelto del nav, que en
-   escritorio lo escondería. */
+ 
 .mobile-only-nav {
   display: none;
 }
 
-/* =========================================================
-   BOT DE WHATSAPP
-   =========================================================
-   Dos columnas: a la izquierda lo que hace, a la derecha el chat.
-
-   El reparto va 1fr/1fr y no 1,2/1 porque lo de la izquierda son
-   cuatro tarjetas con texto largo y lo de la derecha es un móvil
-   con poca altura de conversación. Intercambiarlos no cambia
-   mucho, pero con el chat a la izquierda se leen primero los
-   párrafos y la demo queda como una imagen al final; el chat
-   primero es lo que hace que alguien pulse.
-*/
+ 
 
 .wa-grid {
   display: grid;
@@ -4669,7 +4042,7 @@ html:not(.has-gsap) .mock-chart span:nth-child(12) { animation-delay: 1.52s; }
   color: var(--text-muted);
 }
 
-/* ---------- La demo ---------- */
+ 
 
 .wa-demo {
   padding: 1.5rem;
@@ -4690,15 +4063,7 @@ html:not(.has-gsap) .mock-chart span:nth-child(12) { animation-delay: 1.52s; }
   margin: 0;
 }
 
-/* El rótulo de "demostración".
-
-   Va al lado del título y no dentro del chat, a propósito: dentro se
-   lee como si fuera parte de la interfaz del producto —como un
-   elemento más de WhatsApp— y de ahí es donde no se cuela. Al lado
-   del título se lee como una aclaración de quien ha hecho la página.
-
-   Con borde, no con relleno: un fondo de color dentro del área del
-   chat parece una etiqueta del bot. */
+ 
 .wa-demo-chap {
   padding: 0.2rem 0.55rem;
   border: 1px solid color-mix(in srgb, var(--warning) 45%, transparent);
@@ -4728,7 +4093,7 @@ html:not(.has-gsap) .mock-chart span:nth-child(12) { animation-delay: 1.52s; }
   text-align: center;
 }
 
-/* ---------- La conversación ---------- */
+ 
 
 .wa-chat {
   display: flex;
@@ -4738,9 +4103,7 @@ html:not(.has-gsap) .mock-chart span:nth-child(12) { animation-delay: 1.52s; }
   padding: 1rem;
   overflow-y: auto;
   border-radius: 12px;
-  /* Un patrón muy tenue que se lee como el fondo con textura de
-     WhatsApp sin copiarlo. Es un degradado con líneas, no una
-     imagen: pesa cero. */
+   
   background:
     repeating-linear-gradient(
       0deg,
@@ -4753,9 +4116,7 @@ html:not(.has-gsap) .mock-chart span:nth-child(12) { animation-delay: 1.52s; }
   scrollbar-width: thin;
 }
 
-/* La burbuja del bot a la izquierda y la del usuario a la derecha, que
-   es como se lee una conversación de verdad y no como dos bloques
-   centrados que podrían ser las dos del bot. */
+ 
 .wa-msg {
   position: relative;
   max-width: 82%;
@@ -4780,8 +4141,7 @@ html:not(.has-gsap) .mock-chart span:nth-child(12) { animation-delay: 1.52s; }
   border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
 }
 
-/* La hora va dentro de la burbuja y en su propia línea, en pequeño y
-   atenuada. Fuera de la burbuja parece otra línea del chat. */
+ 
 .wa-hora {
   display: block;
   margin-top: 0.15rem;
@@ -4790,7 +4150,7 @@ html:not(.has-gsap) .mock-chart span:nth-child(12) { animation-delay: 1.52s; }
   text-align: right;
 }
 
-/* ---------- Los botones de ejemplo ---------- */
+ 
 
 .wa-chips {
   display: flex;
@@ -4839,7 +4199,7 @@ html:not(.has-gsap) .mock-chart span:nth-child(12) { animation-delay: 1.52s; }
   outline-offset: 1px;
 }
 
-/* ---------- El cierre ---------- */
+ 
 
 .wa-cta {
   display: flex;
@@ -4854,143 +4214,40 @@ html:not(.has-gsap) .mock-chart span:nth-child(12) { animation-delay: 1.52s; }
     grid-template-columns: minmax(0, 1fr);
   }
 
-  /* En una columna el chat va primero: es lo que hay que tocar para
-     entender el producto, y quien llega desde el botón de abajo
-     acaba de leer que se le contesta solo. */
+   
   .wa-demo {
     order: -1;
   }
 
-  /* Menos alto en móvil: 19rem con el resto de la sección empuja la
-     página hacia abajo y el chat queda por encima del todo. */
+   
   .wa-chat {
     height: 15rem;
   }
 }
 
-/* =========================================================
-   ENLACES ANCLA Y LA CABECERA FIJA
-   =========================================================
-   La cabecera es `position: sticky` y se queda arriba. Sin esto, al
-   saltar a una sección por ancla el título queda DETRÁS de la
-   cabecera: la sección aparece cortada justo por el texto que la
-   identifica, y parece que la página está rota.
-
-   No es un detalle de esta sección del bot: afecta a todos los
-   `id` de la web (#servicios, #proyectos, #precios, #whatsapp).
-   Por eso va aquí y no en la sección.
-
-   `scroll-margin-top` es lo que hay que usar, y no un margen: mueve
-   el punto de parada del scroll sin mover la caja del elemento, así
-   que el resto del diseño no se entera. */
+ 
 section[id],
 [id] {
   scroll-margin-top: calc(var(--header-h) + 1.5rem);
-}
-
-/* El precio de los planes de mantenimiento.
-
-   Antes cada uno llevaba `style="margin-top:1rem"` y
-   `style="font-size:1.8rem"` escritos en su línea. Al ser tres
-   bloques idénticos con tres estilos distintos, cambiar el tamaño
-   de la cifra era editar tres sitios y era fácil olvidar uno: un
-   plan salía más grande que los otros dos y no se veía por qué.
-
-   Con los planes viniendo de datos, el estilo va en una clase. El
-   `!important` está porque las reglas originales de `.price .amount`
-   usan selector de clase y gana la última en escribirse; sin esto, el
-   `font-size` inline seguiría mandando por orden de cascada. */
-.price.precio-mensual {
+}sual {
   margin-top: 1rem;
-}
-
-.price.precio-mensual .amount {
+}nt {
   font-size: 1.8rem !important;
 }
-/* =========================================================
-   WHATSAPP: QUE LA SECCION PAREZCA DE WHATSAPP
-   =========================================================
-   Esto estaba en violeta y cian, los colores de acento del
-   sitio. Y el acento del sitio no dice nada: la mitad de las
-   secciones de la portada son violeta y cian.
+ 
 
-   El bot de WhatsApp es de lo que se vive, segun el propio
-   partial, y la unica senal de que aqui hay un producto de
-   WhatsApp era la palabra "WhatsApp" escrita en un <span>.
-   Eso no se ve, se lee.
+ 
 
-   ── LA MARCA, LITERAL ──
-
-   Los tres verdes de WhatsApp, que son los de verdad:
-
-     #25D366  el verde de la marca
-     #128C7E  el teal
-     #075E54  el teal oscuro
-
-   ── POR QUE NO SE USA EL VERDE PARA ESCRIBIR ──
-
-   Porque #25D366 sobre blanco da 1.98: no se lee. Es un color
-   de relleno, no un color de tinta, y el error clasico de
-   ponerlo de fondo con texto blanco encima es justo eso.
-
-   La tinta la lleva #075E54, que sobre blanco da 7.67. Y en
-   fondo oscuro el orden se invierte del todo: #075E54 sobre el
-   fondo del sitio da 2.62, o sea invisible.
-
-   De ahi que la tinta sea una variable y no un color fijo.
-   Cada tema mide, se elige y se comprueba:
-
-     tema oscuro    #07070d   #25D366   10.13
-     tema colorido  #0a0416   #25D366   10.16
-     tema claro     #f7f8fc   #075E54    7.23
-
-   ── EL CHAT ──
-
-   WhatsApp tiene dos paletas oficiales, la clara y la oscura, y
-   esta usa la que toca en cada tema. No es una decision
-   estetica: con el tema oscuro y el chat en blanco seria un
-   recuadro blanco del tamano de un movil en mitad de una pagina
-   negra, y con el tema claro al reves.
-
-   Con las dos, lo que se ve es siempre un WhatsApp de verdad, y
-   la pagina no se rompe. Comprobado el texto en los tres temas:
-   el chat oscuro da 15.79 y el claro 13.99.
-   ========================================================= */
-
-/* ── Los tokens de la paleta de WhatsApp ──
-
-   Estaban encerrados en `#whatsapp`, y el hero los necesita
-   tambien: pinta un chat del mismo servicio. Con los tokens
-   dentro del id, tenerlos en los dos sitios obligaba a copiar
-   los ocho hex, que es la forma segura de que un dia cambien
-   uno y no el otro.
-
-   Aqui no hay selector. Las propiedades personalizadas se
-   heredan, asi que `#whatsapp` sigue recibirlas sin que se haya
-   tocado ni una de las reglas que las usa.
-
-   La marca se usa tal cual, sin retocar: si el dia que WhatsApp
-   cambia de verde hay que tocar cuatro lineas, es porque son
-   cuatro usos y no cuarenta. */
-
-/* ─────────────────────────────────────────────────────────
-   LA PALETA DEL CHAT DE WHATSAPP
-
-   La oscura, que es la real de los chats de WhatsApp: papel #0B141A,
-   burbuja #1F2C34 y la propia #005C4B.
-
-   El `--wa-ink` NO es el #25D366 de WhatsApp: el verde de la marca
-   (#10B981) da 7,04:1 sobre el papel y se lee; el de WhatsApp, no.
-   ───────────────────────────────────────────────────────── */
+ 
 :root {
   --wa-verde: #25d366;
   --wa-teal: #128c7e;
   --wa-oscuro: #075e54;
 
-  /* El verde que se pinta ENCIMA (etiquetas, botón). */
+   
   --wa-ink: var(--brand);
 
-  /* El chat, en la paleta oscura de WhatsApp. */
+   
   --wa-papel: #0b141a;
   --wa-burbuja: #1f2c34;
   --wa-propia: #005c4b;
@@ -4999,33 +4256,19 @@ section[id],
   --wa-linea: rgba(255, 255, 255, 0.08);
   --wa-muesca: rgba(255, 255, 255, 0.035);
 }
-/* ── El fondo de la seccion ──
-
-   Un lavado verde muy bajo. No para pintar la seccion de verde,
-   que seria shouting, sino para que se separe del resto de la
-   portada sin necesitar una linea que la recorte. Y con
-   color-mix, no con un color plano: en el tema claro sale un
-   verde casi gris y en el oscuro casi negro, que es lo que
-   corresponde en cada uno. */
+ 
 
 #whatsapp.section--soft {
   background: color-mix(in srgb, var(--wa-verde) 5%, var(--bg-soft));
 }
 
-/* ── El cintillo de arriba ──
-
-   El texto "WhatsApp" del encabezado. Pasa a la tinta de marca,
-   que en cada tema es el verde que se lee. Antes heredaba el
-   acento violeta del sitio, igual que cualquier otra seccion. */
+ 
 
 #whatsapp .eyebrow {
   color: var(--wa-ink);
 }
 
-/* Y el icono que va al lado. El logo de verdad, no un circulo
-   verde cualquiera: es lo que hace que alguien que no lee la
-   pagina diga "ah, esto es lo del WhatsApp" antes de llegar al
-   parrafo. Lo pone el partial. */
+ 
 #whatsapp .wa-logo {
   width: 1.05em;
   height: 1.05em;
@@ -5034,7 +4277,7 @@ section[id],
   fill: var(--wa-verde);
 }
 
-/* ── Los cuatro iconos de lo que hace ── */
+ 
 
 #whatsapp .wa-lado-card .icon {
   color: var(--wa-verde);
@@ -5046,11 +4289,7 @@ section[id],
   color: var(--wa-ink);
 }
 
-/* ── La ventana de la demo ──
-
-   El marco, no el contenido. Es la caja que hace que lo de
-   dentro se lea como una aplicacion y no como un bloque de
-   texto con margenes. */
+ 
 
 #whatsapp .wa-demo {
   background: var(--wa-papel);
@@ -5058,10 +4297,7 @@ section[id],
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
 }
 
-/* La cabecera va en el teal de marca, con el titulo en blanco:
-   7.67 de contraste. Es la franja que todo el mundo reconhece
-   de un vistazo, y es la que hace que esto se lea como
-   WhatsApp y no como un chat inventado. */
+ 
 
 #whatsapp .wa-demo-cabecera {
   margin: -1.5rem -1.5rem 1rem;
@@ -5074,23 +4310,13 @@ section[id],
   color: #ffffff;
 }
 
-/* El rotulo de "Demostracion" sigue en ambar y con borde, y no
-   se toca. El comentario que hay en el css original explica por
-   que: un relleno de color dentro del area del chat parece una
-   etiqueta del bot, y justo de ahi es de donde no se cuela que
-   esto sea una demo. Sobre el teal se lee peor que antes, y esa
-   es la parte que conviene que se lea peor. */
+ 
 #whatsapp .wa-demo-chap {
   border-color: rgba(255, 193, 7, 0.65);
   color: #ffd54f;
 }
 
-/* ── El papel del chat ──
-
-   La textura se mantiene: sigue siendo un degradado de lineas y
-   pesa cero, que es lo que se buscaba cuando se puso. Lo que
-   cambia es el tono, y ahora es el del papel real de WhatsApp en
-   vez de un gris neutro que no significaba nada. */
+ 
 
 #whatsapp .wa-chat {
   background:
@@ -5104,11 +4330,7 @@ section[id],
     var(--wa-papel);
 }
 
-/* ── Las burbujas ──
-   Los colores son los de WhatsApp, no aproximaciones: la del bot
-   blanca a la izquierda, la del usuario verde a la derecha. El
-   radio Bajito en una esquina es el detalle que las hace leer
-   como burbujas y no como parrafos con fondo. */
+ 
 
 #whatsapp .wa-msg {
   color: var(--wa-texto);
@@ -5125,17 +4347,13 @@ section[id],
   border: 1px solid transparent;
 }
 
-/* La hora va dentro de la burbuja, sobre su fondo, asi que el
-   tono tenue se mide contra el de la burbuja y no contra el del
-   papel. En oscuro da 4.69 y en claro 4.65. */
+ 
 
 #whatsapp .wa-hora {
   color: var(--wa-tenue);
 }
 
-/* ── Los botones de ejemplo ──
-   Las respuestas rapidas de WhatsApp: contorno verde, relleno
-   ninguno. Con relleno seria otro boton mas y se perderian. */
+ 
 
 #whatsapp .wa-chip {
   border-color: color-mix(in srgb, var(--wa-verde) 45%, transparent);
@@ -5149,12 +4367,7 @@ section[id],
   color: var(--wa-ink);
 }
 
-/* ── El compositor ──
-   El campo va en blanco con el texto de WhatsApp, porque es
-   literalmente el sitio donde se escribe, y el boton de enviar
-   en el teal oscuro con texto blanco: 7.67. Ponerlo en el verde
-   de la marca con texto blanco habria sido lo obvio y habria
-   sido ilegible. */
+ 
 
 #whatsapp .wa-enviar {
   padding-top: 0.7rem;
@@ -5175,17 +4388,7 @@ section[id],
   outline-color: var(--wa-verde);
 }
 
-/* El boton de ENVIAR, que es distinto del CTA de abajo y se
-   confundia con el. Este vivia dentro de la ventana de WhatsApp
-   y seguia siendo el degradado violeta-cian del sitio, que es
-   justo lo que Rompe la ilusion: un boton de enviar violeta en
-   un chat de WhatsApp.
-
-   Y aqui el color va al reves que en el CTA. Adentro del chat el
-   fondo ya es oscuro, en los dos temas, porque la paleta del
-   chat no depende del tema; entonces el texto oscuro sobre el
-   verde de marca se mediria contra un fondo que ya no es blanco.
-   Lo que se necesita es el verde sobre el oscuro, que da 7.21. */
+ 
 #whatsapp .wa-enviar .btn-primary {
   background: var(--wa-verde);
   background-image: none;
@@ -5199,12 +4402,7 @@ section[id],
   color: #0b2e1a;
 }
 
-/* ── Los botones de abajo ──
-   El principal deja el degradado violeta-cian del sitio y se
-   pone en el verde de marca, con texto casi negro: 7.46. El
-   secundario se queda en el tema, porque si los dos fueran
-   verdes no habria jerarquia y ademas "ver todos los servicios"
-   no es unbot de WhatsApp. */
+ 
 
 #whatsapp .wa-cta .btn-primary {
   background: var(--wa-verde);
@@ -5219,10 +4417,7 @@ section[id],
   color: #0b2e1a;
 }
 
-/* En el tema claro el boton verde sobre fondo casi blanco queda
-   justo por debajo del minimo de texto normal, asi que ahi se
-   oscurece. Sigue siendo el mismo verde de familia, y gana el
-   contraste. */
+ 
 #whatsapp .wa-cta .btn-primary {
   background: var(--wa-oscuro);
   color: #ffffff;
@@ -5234,54 +4429,14 @@ section[id],
   color: #ffffff;
 }
 
-/* =========================================================
-   Shopcito — La portada
-   ------------------------------------------------------------
-   Todo lo de esta sección está debajo de `.hero--shopcito` o de
-   un bloque propio, y NO usa los tokens de sección antigua.
+ 
 
-   ── POR QUÉ ESTA SECCIÓN VA AL FINAL Y NO EN SU SITIO ──
-
-   Porque el orden importa en CSS solo cuando hay Selectores del
-   mismo peso. Lo de aquí son clases nuevas que antes no existían,
-   así que da igual dónde se declaren.
-
-   Lo que NO se hace, en cambio, es reciclar las clases de la web
-   anterior (`.mock-window`, `.float-card`, `.orbit`) para la
-   conversación: son la maqueta de un panel de rendimiento, con sus
-   medidas pensadas para eso. Pintar un chat con ellas daría algo
-   que parece un panel con un chat dentro, que es justo el mensaje
-   equivocado: aquí no se vende un panel, se vende una conversación.
-
-   ── LOS COLORES DEL CHAT ──
-
-   Vienen de los tokens `--wa-*`, los mismos que usa la sección de
-   WhatsApp. Ver la cabecera de ese bloque.
-   ========================================================= */
-
-/* ─────────────────────────────────────────────────────────
-   EL LOGO EN LA CHAPA BLANCA
-   ─────────────────────────────────────────────────────────
-   El archivo es un JPEG con fondo casi blanco y el sitio tiene
-   tres temas: tal cual, sobre el oscuro sería un rectángulo
-   blanco en la barra de arriba.
-
-   La chapa lo convierte en parte del logotipo en vez de un
-   defecto. Es un PARCHE: en cuanto llegue el PNG con
-   transparencia o el SVG, esto sobra. */
+ 
 .brand-mark {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  /* El fondo del logo NO es blanco: medido sobre sus esquinas va de
-     #eff4ed a #f2f7f1, con #f0f5ee en el medio. Con la chapa en
-     #ffffff se ve un borde alrededor del logo, que es el unico
-     detalle que delata que el logo es un recorte pegado sobre otra
-     cosa.
-
-     Si se regenera el logo, hay que volver a medir este valor. El
-     generador de la imagen de Open Graph lleva el hash del logo con el
-     que se midio y avisa cuando ya no coincide. */
+   
   background: #f0f5ee;
   border-radius: 10px;
   padding: 4px 7px;
@@ -5295,32 +4450,17 @@ section[id],
   width: auto;
 }
 
-/* El logo mide 26px de alto y el nombre va en la tipografía del
-   sistema a 1.15rem, que se ve un poco más alto. Ese par de píxeles
-   de `translateY` es lo que hace que los dos se lean centrados en
-   vez de cruzados. */
+ 
 .brand-mark {
   transform: translateY(-1px);
 }
 
-/* ─────────────────────────────────────────────────────────
-   EL HERO
-   ─────────────────────────────────────────────────────────
-   La variante reutiliza la maqueta de dos columnas que ya había
-   (`.hero-layout`): texto a la izquierda, visual a la derecha. La
-   maqueta es buena y no era el problema.
-
-   Lo que cambia es el contenido y lo que se ve al entrar. */
+ 
 .hero--shopcito .hero-note {
   color: var(--text-muted);
 }
 
-/* ── Las tres promesas ──
-   Van en fila en escritorio y se apilan en móvil.
-
-   El hueco entre ellas es de 1px de línea, no un marco: son tres
-   datos de la misma familia y un borde alrededor de cada uno los
-   convierte en tres cajas que compiten con el botón de arriba. */
+ 
 .promise-row {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -5366,14 +4506,7 @@ section[id],
   color: var(--text);
 }
 
-/* ".promise-detalle" y no ".promise span".
-
-   El icono de la izquierda también es un <span> dentro de
-   ".promise", así que ".promise span" lo alcanzaba y, por tener más
-   especificidad que ".promise-icon", le ponía el color gris, el
-   display:block y un margen. El icono salía apagado.
-
-   Con clase propia, cada elemento se pinta lo que dice su nombre. */
+ 
 .promise-detalle {
   display: block;
   font-size: var(--fs-xs);
@@ -5382,15 +4515,7 @@ section[id],
   margin-top: 0.2rem;
 }
 
-/* ─────────────────────────────────────────────────────────
-   EL CHAT DEL HERO
-   ─────────────────────────────────────────────────────────
-   Una conversación de ejemplo, no una captura: no hay cliente real
-   que pueda mostrarse todavía.
-
-   Los colores son los de WhatsApp de verdad (`--wa-*`). Un chat con
-   los verdes de la marca se leería como "esto es un dibujo nuestro";
-   con los de WhatsApp se lee como "esto es lo que vas a ver". */
+ 
 .wa-window {
   width: 100%;
   max-width: 360px;
@@ -5402,7 +4527,7 @@ section[id],
   box-shadow: 0 30px 70px rgba(0, 0, 0, 0.35);
 }
 
-/* La cabecera del chat, con la barra de "escribiendo…" de fondo. */
+ 
 .wa-bar {
   display: flex;
   align-items: center;
@@ -5440,9 +4565,7 @@ section[id],
   margin-top: 0.1rem;
 }
 
-/* El "muesca" es el fondo con textura de punto que lleva WhatsApp
-   detrás de los mensajes. Se hace con un radial muy tenue; con la
-   imagen real pesa un poco más y aquí no vale la pena. */
+ 
 .wa-body {
   padding: 0.9rem 0.8rem 0.4rem;
   background-image: radial-gradient(var(--wa-muesca) 1px, transparent 1px);
@@ -5458,7 +4581,7 @@ section[id],
   color: var(--wa-tenue);
 }
 
-/* La hora va centrada arriba del todo, como en WhatsApp. */
+ 
 .wa-body > .wa-time {
   text-align: center;
   margin: 0 0 0.3rem;
@@ -5476,15 +4599,13 @@ section[id],
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.14);
 }
 
-/* La burbuja de la derecha es la PROPIA: verde, pegada al borde. */
+ 
 .wa-bubble.wa-out {
   align-self: flex-end;
   background: var(--wa-propia);
 }
 
-/* El rabito de la burbuja. Se hace con dos triángulos ya que con
-   `border-radius` solo se consigue media esquina: el rabito es
-   una punta y con dos radios no sale. */
+ 
 .wa-bubble::after {
   content: "";
   position: absolute;
@@ -5515,23 +4636,12 @@ section[id],
   margin-top: 0.15rem;
 }
 
-/* Un gris claro para las dos burbujas.
-
-   En el tema oscuro las dos burbujas son oscuras — la que recibe es
-   #1F2C34 y la que envía, verde #005C4B — así que el mismo gris claro
-   funciona en las dos: 6,9:1 sobre la primera y 5,5:1 sobre la segunda.
-
-   Con un gris medio se leía sobre la clara pero no sobre las oscuras.
-   Y con el gris del papel del chat (--wa-tenue), que es un gris medio,
-   sobre la burbuja verde daba 2,6:1. */
+ 
 .wa-bubble .wa-time {
   color: #d1d7db;
 }
 
-/* ── La tarjeta de producto ──
-   Es lo que el bot vende. Un chat con dos mensajes de texto y sin
-   nada más demuestra que "responde", pero no que hay una tienda, y
-   la tienda es la mitad de lo que se vende. */
+ 
 .wa-card {
   align-self: flex-end;
   max-width: 82%;
@@ -5550,9 +4660,7 @@ section[id],
   font-size: 0.62rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  /* El verde de marca, no el verde profundo de la cabecera del chat.
-     El profundo está pensado para texto blanco encima y aquí va al
-     revés: daba 1,87:1 sobre la burbuja. */
+   
   color: var(--wa-ink);
   font-weight: 600;
 }
@@ -5567,11 +4675,7 @@ section[id],
   color: var(--wa-tenue);
 }
 
-/* El texto del boton NO va en blanco.
-   Blanco sobre el verde de WhatsApp da 1,98:1, muy por debajo
-   del 4,5:1. Es lo que hace WhatsApp en su propia interfaz y es
-   una de esas decisiones que se copian sin medir. Con un verde
-   muy oscuro se lee a 6,25:1 y el boton sigue siendo verde. */
+ 
 .wa-card-btn {
   margin-top: 0.4rem;
   display: inline-flex;
@@ -5585,8 +4689,7 @@ section[id],
   font-weight: 600;
 }
 
-/* La barra de escribir. No hace nada: es parte del dibujo, no un
-   formulario. Va con `aria-hidden` en la vista. */
+ 
 .wa-input {
   display: flex;
   align-items: center;
@@ -5599,11 +4702,7 @@ section[id],
   font-size: 0.82rem;
 }
 
-/* ─────────────────────────────────────────────────────────
-   PROBLEMA VS. SOLUCIÓN
-   ─────────────────────────────────────────────────────────
-   Dos columnas. En móvil se apilan con el problema primero, y ese
-   orden no es casual: es el orden en que se leen las dos frases. */
+ 
 .duelo {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -5639,41 +4738,15 @@ section[id],
   align-items: flex-start;
 }
 
-/* ─────────────────────────────────────────────────────────
-   LA MARCA DE CADA PUNTO
-
-   La caja va CENTRADA en la primera línea del título, no apoyada en
-   su borde superior. Con la línea apoyada, una caja de 32 px sobre un
-   texto de 21,6 px de alto sobresale 4 px por arriba y cuelga 16 por
-   abajo: parece que el icono se cayó un poco.
-
-   ── POR QUÉ 32 Y NO 38 ──
-
-   Porque «EL PROBLEMA» y «LA SOLUCIÓN» son la misma lista en dos
-   columnas. Se miden y no cuadraban: la caja del problema medía 38×38
-   y la de la solución 32×32. Medida a 3× se nota que una columna pesa
-   más que la otra aunque las dos tengan el mismo texto.
-
-   ── POR QUÉ EL CÁLCULO ESTÁ AQUÍ Y NO A OJO ──
-
-   Porque depende de dos cosas que están en sitios distintos: el alto de
-   la línea, que viene del `line-height` del `<strong>`, y el tamaño de
-   la caja. Si una cambia y el margen no, el icono vuelve a colgarse sin
-   que nadie lo note.
-
-   Por eso `--paso-linea` se declara al lado, y el margen sale de restar
-   las dos mitades. No hay un píxel escrito a mano.
-   ───────────────────────────────────────────────────────── */
+ 
 .duelo-icon,
 .paso-num {
   --paso-alto: 32px;
 
-  /* El alto de UNA línea del título: 1rem de `--fs-body` por su
-     `line-height` de 1.35. Si ese `line-height` cambia, esto cambia
-     con él. */
+   
   --paso-linea: calc(var(--fs-body) * 1.35);
 
-  /* Centrado: la mitad de lo que la caja le pasa a la línea. */
+   
   margin-top: calc((var(--paso-linea) - var(--paso-alto)) / 2);
 }
 
@@ -5692,9 +4765,7 @@ section[id],
   height: 19px;
 }
 
-/* Los iconos del problema son de aviso y los de la solución no.
-   Es lo que hace que la columna se lea de un vistazo sin leer: un
-   ojo entrenado distingue "esto te duele" de "esto te pasa". */
+ 
 .duelo-col--mal .duelo-icon {
   background: var(--warning-bg);
   color: var(--warning-text);
@@ -5713,30 +4784,7 @@ section[id],
   line-height: 1.35;
 }
 
-/* ─────────────────────────────────────────────────────────
-   EL TEXTO DEBAJO DEL TÍTULO — Y SOLO ÉL
-
-   Antes era `.duelo-list span`, y eso cogía también a los dos
-   marcadores: `.duelo-icon` y `.paso-num` son `<span>`, y son hijos
-   DIRECTOS del `<li>`, no del `<div>` de dentro.
-
-   Consecuencia medida: los dos kenaían con `display: block`, con lo
-   cual `align-items: center` y `justify-content: center` no hacían
-   nada —en un bloque no existen—, y el dibujo se quedaba pegado a la
-   esquina superior izquierda: 0px de holgura arriba y a la izquierda,
-   13px a la derecha y abajo, en una caja de 32.
-
-   También les ponía `margin-top: 0.25rem`, que tapaba el margen de
-   centrado de la caja. Por eso el centrado no se veía ni después de
-   escribirlo.
-
-   ── POR QUÉ NO VALÍA CON SUBIR LA ESPECIFICIDAD ──
-
-   Porque elselector seguiría siendo demasiado ancho: cualquier `<span>`
-   que se meta mañana dentro del `<li>` vuelve a coger esto. Lo que se
-   acota es el LUGAR: el texto de debajo del título es el hijo del
-   `<div>`, y el marcador es el hijo del `<li>`. No se solapan.
-   ───────────────────────────────────────────────────────── */
+ 
 .duelo-list div > span,
 .pasos-list div > span {
   display: block;
@@ -5746,8 +4794,7 @@ section[id],
   margin-top: 0.25rem;
 }
 
-/* Los pasos van numerados con un círculo de marca, no con la lista
-   por defecto, y con una línea que los une. */
+ 
 .pasos-list {
   position: relative;
   gap: 1.35rem;
@@ -5760,17 +4807,12 @@ section[id],
   position: relative;
 }
 
-/* La línea vertical que une los tres pasos. Va en el `<ol>` y no en
-   cada `<li>` para que no haya que ocultarla en el último a mano y
-   se pueda añadir un paso sin acordarse. */
+ 
 .pasos-list::before {
   content: "";
   position: absolute;
 
-  /* La línea arranca DEBAJO del primer círculo, que ahora está
-     subido para quedar centrado en su línea de texto. Con el `top`
-     anterior, entre el borde del círculo y el principio de la línea
-     quedaba un hueco que se veía. */
+   
   left: 15px;
   top: calc(var(--paso-alto) - 4px);
   bottom: 18px;
@@ -5795,34 +4837,20 @@ section[id],
   z-index: 1;
 }
 
-/* ─────────────────────────────────────────────────────────
-   EL PRECIO "A CONSULTAR"
-   ─────────────────────────────────────────────────────────
-   Sale más grande que una cifra, pero no del tamaño de un titular:
-   si ocupa lo mismo que el precio de un plan, promete una cantidad
-   que no existe.
-
-   Y lleva el "a" en un tono atenuado para que se lea como una
-   ausencia y no como un dato. */
+ 
 .amount--consultar {
   font-size: clamp(1.5rem, 3vw, 2rem);
   color: var(--text-muted);
   letter-spacing: -0.01em;
 }
 
-/* Sin cifra, el "desde" y el símbolo sobrarían. El bloque entero se
-   apaga un poco para que la atención caiga en la lista de lo que
-   incluye, que es lo que el visitante puede leer. */
-/* Los precios CON cifra van en --accent (#059669, 3,77:1), no en
-   --brand (#10b981, 2,54:1). A 46 px es texto grande y solo
-   necesita 3:1, y 2,54 no llega. */
+ 
+ 
 .price-card .price:not(:has(.amount--consultar)) {
   color: var(--accent);
 }
 
-/* ─────────────────────────────────────────────────────────
-   RESPONSIVE
-   ───────────────────────────────────────────────────────── */
+ 
 @media (max-width: 980px) {
   .promise-row {
     grid-template-columns: 1fr;
@@ -5840,23 +4868,14 @@ section[id],
     margin: 0 auto;
   }
 
-  /* La maqueta del hero en una sola columna ya está tratada en
-     `styles.css`. Lo que hace falta aquí es que el chat no se
-     salga de lado: sin esto, a 360px de ancho la conversación
-     empuja el scroll horizontal. */
+   
   .wa-bubble,
   .wa-card {
     max-width: 88%;
   }
 }
 
-/* ─────────────────────────────────────────────────────────
-   PREFERENCIA DE MOVIMIENTO
-   ─────────────────────────────────────────────────────────
-   El tilt del visual (`data-tilt` lo mueve `motion.js`) y las
-   animaciones de entrada respectan esto ya en el resto del sitio.
-   Aquí solo se recuerda que este bloque hereda ese comportamiento,
-   por si alguien añade un `animation` nuevo debajo. */
+ 
 @media (prefers-reduced-motion: reduce) {
   .wa-window {
     transition: none;
