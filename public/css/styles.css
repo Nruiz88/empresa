@@ -5639,12 +5639,50 @@ section[id],
   align-items: flex-start;
 }
 
+/* ─────────────────────────────────────────────────────────
+   LA MARCA DE CADA PUNTO
+
+   La caja va CENTRADA en la primera línea del título, no apoyada en
+   su borde superior. Con la línea apoyada, una caja de 32 px sobre un
+   texto de 21,6 px de alto sobresale 4 px por arriba y cuelga 16 por
+   abajo: parece que el icono se cayó un poco.
+
+   ── POR QUÉ 32 Y NO 38 ──
+
+   Porque «EL PROBLEMA» y «LA SOLUCIÓN» son la misma lista en dos
+   columnas. Se miden y no cuadraban: la caja del problema medía 38×38
+   y la de la solución 32×32. Medida a 3× se nota que una columna pesa
+   más que la otra aunque las dos tengan el mismo texto.
+
+   ── POR QUÉ EL CÁLCULO ESTÁ AQUÍ Y NO A OJO ──
+
+   Porque depende de dos cosas que están en sitios distintos: el alto de
+   la línea, que viene del `line-height` del `<strong>`, y el tamaño de
+   la caja. Si una cambia y el margen no, el icono vuelve a colgarse sin
+   que nadie lo note.
+
+   Por eso `--paso-linea` se declara al lado, y el margen sale de restar
+   las dos mitades. No hay un píxel escrito a mano.
+   ───────────────────────────────────────────────────────── */
+.duelo-icon,
+.paso-num {
+  --paso-alto: 32px;
+
+  /* El alto de UNA línea del título: 1rem de `--fs-body` por su
+     `line-height` de 1.35. Si ese `line-height` cambia, esto cambia
+     con él. */
+  --paso-linea: calc(var(--fs-body) * 1.35);
+
+  /* Centrado: la mitad de lo que la caja le pasa a la línea. */
+  margin-top: calc((var(--paso-linea) - var(--paso-alto)) / 2);
+}
+
 .duelo-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 38px;
+  width: var(--paso-alto);
+  height: var(--paso-alto);
   flex-shrink: 0;
   border-radius: 10px;
 }
@@ -5675,8 +5713,32 @@ section[id],
   line-height: 1.35;
 }
 
-.duelo-list span,
-.pasos-list span {
+/* ─────────────────────────────────────────────────────────
+   EL TEXTO DEBAJO DEL TÍTULO — Y SOLO ÉL
+
+   Antes era `.duelo-list span`, y eso cogía también a los dos
+   marcadores: `.duelo-icon` y `.paso-num` son `<span>`, y son hijos
+   DIRECTOS del `<li>`, no del `<div>` de dentro.
+
+   Consecuencia medida: los dos kenaían con `display: block`, con lo
+   cual `align-items: center` y `justify-content: center` no hacían
+   nada —en un bloque no existen—, y el dibujo se quedaba pegado a la
+   esquina superior izquierda: 0px de holgura arriba y a la izquierda,
+   13px a la derecha y abajo, en una caja de 32.
+
+   También les ponía `margin-top: 0.25rem`, que tapaba el margen de
+   centrado de la caja. Por eso el centrado no se veía ni después de
+   escribirlo.
+
+   ── POR QUÉ NO VALÍA CON SUBIR LA ESPECIFICIDAD ──
+
+   Porque elselector seguiría siendo demasiado ancho: cualquier `<span>`
+   que se meta mañana dentro del `<li>` vuelve a coger esto. Lo que se
+   acota es el LUGAR: el texto de debajo del título es el hijo del
+   `<div>`, y el marcador es el hijo del `<li>`. No se solapan.
+   ───────────────────────────────────────────────────────── */
+.duelo-list div > span,
+.pasos-list div > span {
   display: block;
   font-size: var(--fs-sm);
   color: var(--text-muted);
@@ -5704,8 +5766,13 @@ section[id],
 .pasos-list::before {
   content: "";
   position: absolute;
+
+  /* La línea arranca DEBAJO del primer círculo, que ahora está
+     subido para quedar centrado en su línea de texto. Con el `top`
+     anterior, entre el borde del círculo y el principio de la línea
+     quedaba un hueco que se veía. */
   left: 15px;
-  top: 34px;
+  top: calc(var(--paso-alto) - 4px);
   bottom: 18px;
   width: 2px;
   background: var(--border);
@@ -5715,8 +5782,8 @@ section[id],
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: var(--paso-alto);
+  height: var(--paso-alto);
   flex-shrink: 0;
   border-radius: 50%;
   background: var(--featured-bg);

@@ -2481,6 +2481,43 @@ a.panel-stat--ambar:hover {
     text-align: end;
   }
 
+  /* ─────────────────────────────────────────────────────
+     LA CELDA DEL NOMBRE, APILADA
+
+     Todas las celdas pasan a ser flex con `justify-content:
+     space-between`, para poner la etiqueta a la izquierda y el dato a
+     la derecha. En la celda del nombre eso no funciona: hay DOS
+     inputs y el id, y los tres se pelean por el mismo ancho.
+
+     El id se quedaba con 2 píxeles y su texto se salía encima del de
+     al lado. No se veía mirando el HTML —una celda con dos campos es
+     lo normal— sino midiendo cuánto ocupa cada texto frente a su caja.
+
+     Aquí la celda se apila y vuelve a ser lo que es en el escritorio:
+     un campo encima de otro. La etiqueta se quita porque los dos
+     inputs ya se explican solos, que es el mismo criterio que lleva
+     `data-principal` en las demás tablas.
+
+     Afecta al catálogo de productos, al de aplicaciones y a los
+     planes: las tres tienen la misma celda de nombre.
+     ───────────────────────────────────────────────────── */
+  .panel-table tbody td.panel-cat-nombre {
+    display: block;
+  }
+
+  .panel-table tbody td.panel-cat-nombre::before {
+    content: none;
+  }
+
+  .panel-table tbody td.panel-cat-nombre > * {
+    width: 100%;
+    text-align: start;
+  }
+
+  .panel-table tbody td.panel-cat-nombre input + input {
+    margin-top: 0.35rem;
+  }
+
   /* La acción, al fondo de la tarjeta y a lo ancho. Es el dato que
      antes quedaba fuera de la pantalla. */
   .panel-table tbody td.panel-th-actions {
@@ -2773,6 +2810,13 @@ a.panel-stat--ambar:hover {
   font-family: var(--font-mono, ui-monospace, monospace);
   font-size: 0.68rem;
   color: var(--text-dim);
+
+  /* Que parta la línea antes de salirse de la caja.
+
+     Una clave larga —`notificacion_whatsapp`— no entra en un móvil, y
+     sin esto el texto se sale de su celda y queda encima del de al
+     lado. Partirlo es feo; salirse es ilegible. */
+  overflow-wrap: anywhere;
 }
 
 /* ---------- Errores ---------- */
