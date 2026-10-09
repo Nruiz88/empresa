@@ -65,6 +65,29 @@
     });
   }
 
+  /* ---------- 1 bis. El menú de «Nuevo» ----------
+     El `<details>` se abre y se cierra con HTML, y eso basta para
+     usarlo. Lo que HTML no sabe hacer es cerrarlo cuando se pulsa
+     FUERA, y un menú que se queda abierto tapando la pantalla
+     mientras se sigue trabajando es molesto de verdad.
+
+     Tres líneas: clic fuera, Escape y Escape también devuelve el
+     foco al botón, para no perderlo en el body. */
+  document.addEventListener("click", function (ev) {
+    document.querySelectorAll(".panel-rapido[open]").forEach(function (d) {
+      if (!d.contains(ev.target)) d.removeAttribute("open");
+    });
+  });
+
+  document.addEventListener("keydown", function (ev) {
+    if (ev.key !== "Escape") return;
+    const abierto = document.querySelector(".panel-rapido[open]");
+    if (!abierto) return;
+    abierto.removeAttribute("open");
+    const resumen = abierto.querySelector("summary");
+    if (resumen) resumen.focus();
+  });
+
   /* ---------- 2. Copiar al portapapeles ----------
      Se usa la API del navegador y no un input con el texto
      seleccionado: seleccionar para copiar obliga a pulsar Ctrl+C, y

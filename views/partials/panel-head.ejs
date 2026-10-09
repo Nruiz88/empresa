@@ -108,7 +108,16 @@
 <aside class="panel-side" id="panel-side">
   <div class="panel-side-brand">
     <a href="<%= base %>/" class="panel-brand">
-      <span class="panel-brand-mark">N</span>
+      <%# El logo de la casa, el mismo archivo y la misma chapa que la
+          cabecera de la web pública (`.brand-mark`, en styles.css).
+
+          Antes aquí había una «N» sobre un degradado inventado: el
+          panel parecía de otro producto que el sitio que se vende.
+          Con la chapa y la imagen reales, entrar al panel y entrar a
+          la web son la misma marca. %>
+      <span class="brand-mark">
+        <img src="/assets/shopcito-logo.jpg" alt="" width="240" height="170" decoding="async" />
+      </span>
       <span class="panel-brand-text">
         <strong>Shopcito</strong>
         <small>Panel de equipo</small>
@@ -126,7 +135,7 @@
     </a>
     <a href="<%= base %>/consultas<%= _c.consultas > 0 ? "?estado=nuevo" : "" %>" class="panel-menu-item<%= _current === 'consultas' ? ' is-active' : '' %>"
        <%= _current === 'consultas' ? 'aria-current="page"' : '' %>>
-      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h9"/></svg>
+      <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="2.5" y="4.5" width="15" height="11" rx="2"/><path d="m3.4 6.2 6.6 4.6 6.6-4.6"/></svg>
       Consultas
       <%# Contadores del lateral.
 
@@ -146,22 +155,79 @@
       <% } %>
     </a>
 
-    <p class="panel-menu-titulo">Gestión</p>
+    <%# Soporte: los avisos que dejan los clientes.
+
+         Está en "Hoy", con Consultas, y no al final de la gestión
+         como estaba. Los tres de este grupo son cola de entrada:
+         entra una consulta, entra un ticket, y los dos se contestan
+         el mismo rato. Meterlos en medio de Clientes y Cobros
+         obligaba a recorrer media lista para llegar a lo que hay
+         que contestar.
+
+         El orden dentro del grupo sigue siendo el de la cola:
+         primero lo que entra (consultas), después lo que se resuelve
+         (tickets).
+
+         El contador NO es de tickets sin abrir: es de tickets que no
+         están resueltos, porque un ticket en curso sigue siendo
+         trabajo pendiente aunque alguien lo haya cogido. Poner solo
+         los abiertos haría que el número cayera a cero en cuanto se
+         contestara, y ese es justo el ticket que todavía se está
+         resolviendo. %>
+    <a href="<%= base %>/tickets<%= _c.tickets > 0 ? "?estado=abierto" : "" %>" class="panel-menu-item<%= _current === 'tickets' ? ' is-active' : '' %>"
+       <%= _current === 'tickets' ? 'aria-current="page"' : '' %>>
+      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5h14v10H7l-4 3V5z"/></svg>
+      Soporte
+      <% if (_c.tickets > 0) { %>
+        <span class="panel-badge panel-badge--nuevo"
+              title="<%= contadores.tickets %> ticket<%= contadores.tickets === 1 ? "" : "s" %> sin resolver"><%= contadores.tickets > 99 ? "99+" : contadores.tickets %></span>
+      <% } %>
+    </a>
+
+    <p class="panel-menu-titulo">Clientes</p>
     <a href="<%= base %>/clientes" class="panel-menu-item<%= _current === 'clientes' ? ' is-active' : '' %>"
        <%= _current === 'clientes' ? 'aria-current="page"' : '' %>>
       <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8" cy="7" r="3"/><path d="M2.5 16c0-3 2.5-4.5 5.5-4.5s5.5 1.5 5.5 4.5M14 5.5a2.5 2.5 0 1 1 0 5"/></svg>
       Clientes
     </a>
-    <%# Va ANTES de Servicios, no después.
+    <a href="<%= base %>/servicios<%= _c.servicios > 0 ? "?estado=pausado" : "" %>" class="panel-menu-item<%= _current === 'servicios' ? ' is-active' : '' %>"
+       <%= _current === 'servicios' ? 'aria-current="page"' : '' %>>
+      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v6l4 2"/><circle cx="10" cy="10" r="7"/></svg>
+      Servicios
+      <% if (_c.servicios > 0) { %>
+        <span class="panel-badge panel-badge--pausa"
+              title="<%= contadores.servicios %> servicio<%= contadores.servicios === 1 ? "" : "s" %> pausado<%= contadores.servicios === 1 ? "" : "s" %>"><%= contadores.servicios > 99 ? "99+" : contadores.servicios %></span>
+      <% } %>
+    </a>
+    <a href="<%= base %>/cobros<%= _c.vencidos > 0 ? "?estado=vencido" : "" %>" class="panel-menu-item<%= _current === 'cobros' ? ' is-active' : '' %>"
+       <%= _current === 'cobros' ? 'aria-current="page"' : '' %>>
+      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v14M13 6.5H8.5a2 2 0 0 0 0 4h3a2 2 0 0 1 0 4H6.5"/></svg>
+      Cobros
+      <% if (_c.vencidos > 0) { %>
+        <span class="panel-badge panel-badge--vencido"
+              title="<%= contadores.vencidos %> cobro<%= contadores.vencidos === 1 ? "" : "s" %> fuera de plazo"><%= contadores.vencidos > 99 ? "99+" : contadores.vencidos %></span>
+      <% } %>
+    </a>
 
-    Porque Servicios es la ficha de UN cliente —qué tiene— y esta es la
-    cartera entera. Si al abrir el panel hay algo vencido, lo primero que
-    tiene que estar a la vista es lo vencido, no la ficha.
+    <p class="panel-menu-titulo">Producto</p>
+    <%# La cartera de lo que ya está instalado, y lo que se vende.
 
-    Y sin contador a propósito: el de Servicios cuenta los PAUSADOS, que
-    es otra cosa. Poner acá un número sin decir qué cuenta sería un número
-    que no dice si hay que hacer algo hoy. El resumen de la pantalla ya
-    dice cuántos requieren atención. %>
+        Las cuatro de este grupo son el mismo asunto mirado desde
+        cuatro sitios: qué tiene el cliente (Aplicaciones), qué se le
+        puede añadir (Catálogo de aplicaciones), a qué precio se
+        vende (Catálogo) y cómo se empaqueta (Planes).
+
+        Antes estas cuatro estaban repartidas entre medio de Clientes
+        y Servicios, con Catálogo y Planes separados por cinco
+        entradas de distancia: para cambiar un precio había que
+        recorrer media lista, que es exactamente el fallo que dejó
+        los precios sin poder cambiarse.
+
+        Y sin contador en Aplicaciones a propósito: el de Servicios
+        cuenta los PAUSADOS, que es otra cosa. Poner acá un número
+        sin decir qué cuenta sería un número que no dice si hay que
+        hacer algo hoy. El resumen de la pantalla ya dice cuántos
+        requieren atención. %>
     <a href="<%= base %>/aplicaciones" class="panel-menu-item<%= _current === 'aplicaciones' ? ' is-active' : '' %>"
        <%= _current === 'aplicaciones' ? 'aria-current="page"' : '' %>>
       <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="3" width="6" height="6" rx="1.5"/><rect x="11" y="3" width="6" height="6" rx="1.5"/><rect x="3" y="11" width="6" height="6" rx="1.5"/><rect x="11" y="11" width="6" height="6" rx="1.5"/></svg>
@@ -184,59 +250,22 @@
       <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5.5 10 2.5l7 3v9l-7 3-7-3v-9Z"/><path d="M3 5.5 10 8.5l7-3M10 8.5v9"/></svg>
       Catálogo de aplicaciones
     </a>
-    <a href="<%= base %>/servicios<%= _c.servicios > 0 ? "?estado=pausado" : "" %>" class="panel-menu-item<%= _current === 'servicios' ? ' is-active' : '' %>"
-       <%= _current === 'servicios' ? 'aria-current="page"' : '' %>>
-      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v6l4 2"/><circle cx="10" cy="10" r="7"/></svg>
-      Servicios
-      <% if (_c.servicios > 0) { %>
-        <span class="panel-badge panel-badge--pausa"
-              title="<%= contadores.servicios %> servicio<%= contadores.servicios === 1 ? "" : "s" %> pausado<%= contadores.servicios === 1 ? "" : "s" %>"><%= contadores.servicios > 99 ? "99+" : contadores.servicios %></span>
-      <% } %>
-    </a>
-    <a href="<%= base %>/cobros<%= _c.vencidos > 0 ? "?estado=vencido" : "" %>" class="panel-menu-item<%= _current === 'cobros' ? ' is-active' : '' %>"
-       <%= _current === 'cobros' ? 'aria-current="page"' : '' %>>
-      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v14M13 6.5H8.5a2 2 0 0 0 0 4h3a2 2 0 0 1 0 4H6.5"/></svg>
-      Cobros
-      <% if (_c.vencidos > 0) { %>
-        <span class="panel-badge panel-badge--vencido"
-              title="<%= contadores.vencidos %> cobro<%= contadores.vencidos === 1 ? "" : "s" %> fuera de plazo"><%= contadores.vencidos > 99 ? "99+" : contadores.vencidos %></span>
-      <% } %>
-    </a>
-
-    <%# Tickets: los avisos que dejan los clientes.
-
-         Va DESPUÉS de Cobros y no antes. El orden del menú es el
-         orden en que se trabaja un día: primero lo que entra
-         (consultas), luego lo que se factura (cobros), luego lo que
-         hay que contestar (tickets). Soporte va al final de gestión
-         porque se mira cuando ya se ha mirado lo demás.
-
-         El contador NO es de tickets sin abrir: es de tickets que no
-         están resueltos, porque un ticket en curso sigue siendo
-         trabajo pendiente aunque alguien lo haya cogido. Poner solo
-         los abiertos haría que el número cayera a cero en cuanto se
-         contestara, y ese es justo el ticket que todavía se está
-         resolviendo. %>
-    <a href="<%= base %>/tickets<%= _c.tickets > 0 ? "?estado=abierto" : "" %>" class="panel-menu-item<%= _current === 'tickets' ? ' is-active' : '' %>"
-       <%= _current === 'tickets' ? 'aria-current="page"' : '' %>>
-      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5h14v10H7l-4 3V5z"/></svg>
-      Soporte
-      <% if (_c.tickets > 0) { %>
-        <span class="panel-badge panel-badge--nuevo"
-              title="<%= contadores.tickets %> ticket<%= contadores.tickets === 1 ? "" : "s" %> sin resolver"><%= contadores.tickets > 99 ? "99+" : contadores.tickets %></span>
-      <% } %>
-    </a>
 
     <%# Catálogo: lo que se vende, con sus precios.
 
-        Va en Gestión y NO junto a Servicios, que es lo que cada
-        cliente tiene contratado. Son cosas distintas y confundirlas
-        fue justo lo que dejó los precios sin poder cambiarse: los
-        precios de los productos son de `modules`, y nadie lo pilló
-        porque no había ningún sitio donde se vieran. %>
+        Es el único de los cuatro con etiqueta de PRECIO, y por eso
+        el icono es una etiqueta y no el cubo de su hermano de arriba:
+        los dos juntos en el mismo grupo tenían el mismo icono y no
+        había forma de distinguirlos sin leerlos.
+
+        NO va junto a Servicios, que es lo que cada cliente tiene
+        contratado. Son cosas distintas y confundirlas fue justo lo
+        que dejó los precios sin poder cambiarse: los precios de los
+        productos son de `modules`, y nadie lo pilló porque no había
+        ningún sitio donde se vieran. %>
     <a href="<%= base %>/catalogo" class="panel-menu-item<%= _current === 'catalogo' ? ' is-active' : '' %>"
        <%= _current === 'catalogo' ? 'aria-current="page"' : '' %>>
-      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5.5 10 2.5l7 3v9l-7 3-7-3v-9Z"/><path d="M3 5.5 10 8.5l7-3M10 8.5v9"/></svg>
+      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M17.16 11.18l-5.98 5.98a1.67 1.67 0 0 1-2.36 0L1.67 10V1.67h6.66l7.16 7.16a1.67 1.67 0 0 1 0 2.36z"/><circle cx="5.8" cy="5.8" r="1.1"/></svg>
       Catálogo
     </a>
 
@@ -251,16 +280,17 @@
         el producto entero en tres niveles. %>
     <a href="<%= base %>/planes" class="panel-menu-item<%= _current === 'planes' ? ' is-active' : '' %>"
        <%= _current === 'planes' ? 'aria-current="page"' : '' %>>
-      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M2.5 6h15M2.5 10h15M2.5 14h9"/><circle cx="15.5" cy="14" r="2.5"/></svg>
+      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2.6 2.4 6.4 10 10.2l7.6-3.8z"/><path d="m2.4 13.6 7.6 3.8 7.6-3.8"/><path d="m2.4 10 7.6 3.8L17.6 10"/></svg>
       Planes
     </a>
 
+    <p class="panel-menu-titulo">Bots</p>
     <%# Bots y sus cajas.
 
-        Van en "Gestión" y no en "Equipo" porque son trabajo que se hace
-        para un cliente concreto, como los servicios: un bot es un módulo
-        más, con la diferencia de que además hay una caja de Evolution
-        detrás.
+        Van en su propio grupo y no en "Equipo" porque son trabajo que
+        se hace para un cliente concreto, como los servicios: un bot es
+        un módulo más, con la diferencia de que además hay una caja de
+        Evolution detrás.
 
         Y van juntos porque se necesitan el uno al otro en el mismo rato:
         no se da de alta un bot sin mirar dónde cabe, ni se toca una caja
@@ -268,7 +298,7 @@
         obligaría a cambiar de pantalla para una sola tarea. %>
     <a href="<%= base %>/bots" class="panel-menu-item<%= _current === 'bots' ? ' is-active' : '' %>"
        <%= _current === 'bots' ? 'aria-current="page"' : '' %>>
-      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5h14v10H7l-4 3V5z"/></svg>
+      <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="4" y="7" width="12" height="9" rx="2.5"/><path d="M10 7V4.6"/><circle cx="10" cy="3.4" r="1.2"/><circle cx="7.6" cy="11" r="1" fill="currentColor" stroke="none"/><circle cx="12.4" cy="11" r="1" fill="currentColor" stroke="none"/><path d="M1.8 10.6v2.4M18.2 10.6v2.4"/></svg>
       Bots
       <%# El contador son los que NO están en línea. Es la cifra que
           además avisa de que hay algo que atender, que es lo mismo que
@@ -287,7 +317,7 @@
     <p class="panel-menu-titulo">Equipo</p>
     <a href="<%= base %>/accesos" class="panel-menu-item<%= _current === 'accesos' ? ' is-active' : '' %>"
        <%= _current === 'accesos' ? 'aria-current="page"' : '' %>>
-      <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="6" r="3"/><path d="M4 17c0-3 2.7-5 6-5s6 2 6 5"/></svg>
+      <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="7.4" cy="12.6" r="4.2"/><path d="M10.4 9.6 17.4 2.6"/><path d="m14.4 5.6 2 2"/></svg>
       Accesos
     </a>
 
@@ -336,6 +366,61 @@
     </button>
     <span class="panel-topbar-titulo"><%= title %></span>
 
+    <%# ── DAR DE ALTA SIN RECORRER EL MENÚ ──
+
+        La barra superior de escritorio estaba vacía: el buscador la
+        única cosa que había, y pegado a la izquierda. Un hueco de
+        60px de alto en toda la pantalla sin servir para nada.
+
+        Aquí va lo único que falta cuando se entra a un panel: el
+        botón de crear. Las cuatro altas más usadas a un clic,
+        estando en CUALQUIER pantalla — entrar a Clientes para crear
+        un cliente son dos saltos de más.
+
+        Es `<details>` y no un menú con JavaScript: se abre y se
+        cierra con HTML, funciona con teclado y con lector de
+        pantalla (el `<summary>` es el botón), y el JS solo se
+        ocupa de cerrarlo al pulsar fuera, que es lo que el HTML no
+        sabe hacer.
+
+        El buscador lo inyecta panel-buscar.js AL FINAL de la barra,
+        así que aquí solo se pone el orden: la lupa queda a la
+        izquierda de este menú y el menú, el último. %>
+    <div class="panel-topbar-acciones">
+      <details class="panel-rapido" data-panel-rapido>
+        <%# La etiqueta va en `aria-label` además del texto visible:
+            en móvil el texto se oculta por CSS y sin esto el botón
+            se quedaría sin nombre para un lector de pantalla. %>
+        <summary class="panel-btn panel-btn--primary panel-rapido-abrir"
+                 aria-label="Nuevo" title="Nuevo">
+          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 4.5v11M4.5 10h11"/></svg>
+          <span>Nuevo</span>
+        </summary>
+        <div class="panel-menu-rapido">
+          <a href="<%= base %>/clientes/nuevo">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8" cy="7" r="3"/><path d="M2.5 16c0-3 2.5-4.5 5.5-4.5s5.5 1.5 5.5 4.5M14 5.5a2.5 2.5 0 1 1 0 5"/></svg>
+            Cliente
+          </a>
+          <a href="<%= base %>/servicios/nuevo">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v6l4 2"/><circle cx="10" cy="10" r="7"/></svg>
+            Servicio
+          </a>
+          <a href="<%= base %>/cobros/nuevo">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v14M13 6.5H8.5a2 2 0 0 0 0 4h3a2 2 0 0 1 0 4H6.5"/></svg>
+            Cobro
+          </a>
+          <a href="<%= base %>/aplicaciones/nuevo">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="3" width="6" height="6" rx="1.5"/><rect x="11" y="3" width="6" height="6" rx="1.5"/><rect x="3" y="11" width="6" height="6" rx="1.5"/><rect x="11" y="11" width="6" height="6" rx="1.5"/></svg>
+            Aplicación
+          </a>
+          <a href="<%= base %>/bots/nuevo">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="4" y="7" width="12" height="9" rx="2.5"/><path d="M10 7V4.6"/><circle cx="10" cy="3.4" r="1.2"/></svg>
+            Bot
+          </a>
+        </div>
+      </details>
+    </div>
+
     <%# Selector de tema.
 
         El panel estaba en oscuro SIEMPRE, y no por decisión: no tenía
@@ -370,7 +455,16 @@
   <% if (_nombre) { %>
   <header class="panel-topbar panel-topbar--simple">
     <a href="<%= base %>/" class="panel-brand">
-      <span class="panel-brand-mark">N</span>
+      <%# El logo de la casa, el mismo archivo y la misma chapa que la
+          cabecera de la web pública (`.brand-mark`, en styles.css).
+
+          Antes aquí había una «N» sobre un degradado inventado: el
+          panel parecía de otro producto que el sitio que se vende.
+          Con la chapa y la imagen reales, entrar al panel y entrar a
+          la web son la misma marca. %>
+      <span class="brand-mark">
+        <img src="/assets/shopcito-logo.jpg" alt="" width="240" height="170" decoding="async" />
+      </span>
       <span class="panel-brand-text">
         <strong>Shopcito</strong>
         <small><%= _rol === 'client' ? 'Portal de cliente' : 'Panel' %></small>

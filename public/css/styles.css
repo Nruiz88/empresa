@@ -1855,6 +1855,36 @@ table.compare .no {
     gap: 2rem;
   }
 
+  /* ── Los enlaces del pie, filas táctiles ──
+
+     Medidos con `db/auditar-responsive.mjs`, cada enlace de las
+     columnas tenía 17px de alto: es el alto de una línea de texto, y
+     con el dedo eso no se acierta por mucho que el enlace mida 154px
+     de ancho.
+
+     Y no es un detalle de gusto: `db/auditar-maquetacion.mjs` ya
+     audita el panel contra un mínimo de 44x44, que es el mismo que
+     usan las guías táctiles. La regla tiene que valer en las dos
+     mitades del producto.
+
+     El aire lo pasa a dar el propio enlace, así que se cierra el
+     hueco de la lista: con las dos cosas, cinco enlaces sumaban 258px
+     de pie en un móvil.
+
+     NO se toca `.footer-bottom`, que son enlaces dentro de una frase
+     separados por «·»: ahí el mínimo no aplica —la propia norma
+     exceptúa el enlace en línea— y darles 44px rompería la frase en
+     cinco renglones. */
+  .footer-col ul {
+    gap: 0;
+  }
+
+  .footer-col a {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+  }
+
   .hero-actions .btn {
     width: 100%;
   }

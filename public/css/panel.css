@@ -80,17 +80,35 @@ html[data-panel] {
     var(--bg);
 }
 
-/* Fallback si el CSS del sitio no cargara: el panel no puede
-   quedarse sin tipografía ni colores. */
-.panel-body {
-  --fs-xs: 0.75rem;
-  --fs-sm: 0.8125rem;
-  --fs-base: 0.9375rem;
-  --radius-sm: 8px;
-  --radius: 12px;
-  --radius-lg: 16px;
-  --accent-grad: linear-gradient(135deg, var(--accent), var(--accent-2));
-}
+/* ── LOS TOKENS SON LOS DE LA WEB, Y NO SE PISAN ──
+
+   Aquí había seis tokens «de reserva» —tamaños de letra y radios—
+   más un `--accent-grad` propio. El comentario decía que eran por si
+   el CSS del sitio no cargaba, pero el bloque no era condicional: al
+   vivir en `.panel-body`, que está siempre, GANABA SIEMPRE.
+
+   El resultado era que el panel no era la misma marca que la web:
+
+     token          web        panel (antes)
+     --fs-sm        0.9rem     0.8125rem
+     --fs-xs        0.8rem     0.75rem
+     --radius-sm    10px       8px
+     --radius       16px       12px
+     --radius-lg    26px       16px
+     --accent-grad  verde→verde (120deg)  verde→ÁMBAR (135deg)
+
+   El degradado era el más visible: el botón principal del panel era
+   verde→ámbar y el de la portada verde→verde, así que dos pantallas
+   de la misma casa no parecían de la misma casa.
+
+   Y como reserva no servía de nada: aquí no están `--bg`, `--text`
+   ni `--border`, así que sin styles.css el panel se quedaría sin
+   colores igual. Los tokens del sistema de diseño se consumen, no se
+   duplican: si cambia la marca, cambia en un solo sitio. */
+
+/* Y no se sustituye por otro bloque de tokens: lo que el panel sí
+   necesita —el ancho del lateral, el alto de la barra y su ritmo
+   vertical— ya vive en `html[data-panel]`, unas líneas más arriba. */
 
 /* =========================================================
    2. ESTRUCTURA
@@ -126,18 +144,21 @@ html[data-panel] {
   min-width: 0;
 }
 
-.panel-brand-mark {
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-  width: 32px;
-  height: 32px;
-  border-radius: 9px;
-  background: var(--accent-grad);
-  color: var(--on-accent);
-  font-family: var(--font-display, "Outfit", sans-serif);
-  font-weight: 700;
-  font-size: 1rem;
+/* El logo del panel NO tiene regla propia a propósito.
+
+   Usa la chapa de la web pública —`.brand-mark`, en styles.css— con
+   el mismo `shopcito-logo.jpg` y el mismo fondo `#f0f5ee`. Definir
+   aquí una segunda chapa sería tener dos logos que se van separando
+   en cuanto alguien toque uno: el panel y la web son la misma marca,
+   y el sitio donde se decide cómo se ve es uno solo.
+
+   Aquí vivía una «N» blanca sobre un degradado verde→ámbar que no
+   está en la paleta de la casa. Se veía como otro producto. */
+.brand-mark {
+  /* Solo el ajuste que necesita la barra del panel, que es más baja
+     que la cabecera de la web: el logo de 26px deja la chapa en
+     34px y entra de sobra en los 60px de la barra superior. */
+  align-self: center;
 }
 
 .panel-brand-text {
@@ -602,20 +623,51 @@ html[data-panel] {
   color: var(--text);
 }
 
+/* El botón principal, con el MISMO degradado y el mismo resplandor
+   que `.btn-primary` de la web pública.
+
+   Antes era el verde plano `--accent`. La diferencia no es de matiz:
+   el degradado verde de la marca es lo que hace que el botón de
+   «Guardar» del panel y el de «Empezar» de la portada se lean como el
+   mismo botón. El resplandor se reserva para el principal, que es lo
+   que lo separa del fantasma que suele ir al lado. */
 .panel-btn--primary {
-  background: var(--accent);
-  border-color: var(--accent);
+  background: var(--accent-grad);
+  border-color: transparent;
   color: var(--on-accent);
+  box-shadow: var(--btn-glow);
 }
 
 .panel-btn--primary:hover {
-  /* Se mezcla hacia `--text`, no hacia blanco fijo.
-   *
-   * En el tema oscuro `--text` es casi blanco, así que el hover se
-   * clarifica igual que antes. En el tema claro `--text` es oscuro y
-   * el hover se oscurece, que es lo que corresponde: con blanco fijo
-   * se aclaraba un botón que ya era claro, y el hover desaparecía. */
-  background: color-mix(in srgb, var(--accent) 85%, var(--text));
+  /* El degradado se repite a propósito.
+
+     `.panel-btn:hover` —que es más específico por el `:hover`— pinta
+     `--raise-strong`, y sin esta línea el botón principal perdía el
+     verde al pasar el ratón. En la web el principal no cambia de
+     color al pasar por encima: solo sube el resplandor. */
+  background: var(--accent-grad);
+  box-shadow: var(--btn-glow-strong);
+}
+
+/* El botón de aviso: «3 requieren atención».
+
+   Es el único que no invita a crear nada, avisa. Va en el color de
+   aviso y sólido, como el primario, porque es una llamada a la
+   acción y no un adorno: el borde solo lo dejaría al mismo nivel
+   que el botón fantasma que tiene al lado.
+
+   El texto va en `--on-accent` y no en blanco: sobre el ámbar, que
+   es claro, el blanco no llega al contraste mínimo y el número
+   —que es el dato que importa— se pierde. */
+.panel-btn--aviso {
+  background: var(--warning);
+  border-color: transparent;
+  color: var(--on-accent);
+  font-weight: 600;
+}
+
+.panel-btn--aviso:hover {
+  background: color-mix(in srgb, var(--warning) 85%, var(--text));
 }
 
 .panel-btn--ghost {
@@ -810,6 +862,22 @@ a.panel-stat--ambar:hover {
 
 .panel-bloque {
   margin-bottom: var(--panel-gap-xl);
+}
+
+/* El título de un bloque de formulario.
+
+   Faltaba: el alta de aplicaciones lo usaba desde el principio y no
+   había ninguna regla, así que «A quién» y «Qué le das» salían con el
+   tamaño de encabezado por defecto del navegador —más grandes que el
+   propio título de la página— y sin el aire de arriba. */
+.panel-bloque-titulo {
+  margin: 0 0 var(--panel-gap);
+  font-family: var(--font-display, "Outfit", sans-serif);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
 }
 
 .panel-bloque-head {
@@ -5111,4 +5179,210 @@ body.cmd-abierto {
 .panel-menu-item--hijillo {
   padding-inline-start: 1.75rem;
   font-size: 0.82rem;
+}
+
+/* ---------- El menú «Nuevo» de la barra superior ---------- */
+
+.panel-topbar-acciones {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+
+  /* Empujado al extremo derecho de la barra.
+
+     No es solo estética: el menú que cuelga de aquí se ancla a la
+     derecha del botón, y con el botón pegado a la izquierda el
+     desplegable se metía debajo del lateral fijo de 248px. A la
+     derecha crece hacia dentro y nunca choca. */
+  margin-inline-start: auto;
+}
+
+.panel-rapido {
+  position: relative;
+  display: inline-block;
+}
+
+/* Solo la mecánica del `<details>`.
+
+   La pinta la pone `.panel-btn--primary`, que ya está en el HTML del
+   `<summary>`. Repetir aquí fondo, borde y color no era solo
+   redundante: esta regla va después y gana, así que el botón de
+   «Nuevo» salía del color del fondo en vez del verde de la marca. */
+.panel-rapido summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+.panel-rapido summary:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.panel-rapido summary::-webkit-details-marker {
+  display: none;
+}
+
+.panel-rapido .panel-rapido-abrir svg {
+  flex: 0 0 auto;
+  width: 0.85rem;
+  height: 0.85rem;
+}
+
+/* Abierto: se marca con un anillo, no cambiando de color.
+
+   Si al abrirse perdiera el degradado, el botón parecería desactivado
+   justo mientras está en uso. El anillo dice «está abierto» sin
+   tocar el color de la marca. */
+.panel-rapido[open] .panel-rapido-abrir {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent), var(--btn-glow);
+}
+
+.panel-rapido .panel-menu-rapido {
+  position: absolute;
+  inset-block-start: calc(100% + 6px);
+
+  /* Anclado a la DERECHA del botón, no a su izquierda.
+
+     El botón vive en la barra superior, cerca del borde derecho, y
+     el menú mide 180px: anclado a la izquierda se salía de la
+     pantalla justo en el sitio donde más se usa, que es el móvil.
+     Anclado a la derecha crece hacia dentro y nunca desborda. */
+  inset-inline-end: 0;
+  inset-inline-start: auto;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+  min-width: 180px;
+  margin: 0;
+  padding: 0.3rem 0;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.14);
+  overflow: hidden;
+}
+
+.panel-rapido .panel-menu-rapido a {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.6rem;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.82rem;
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* Los iconos del menú, con el mismo trato que los del lateral.
+
+   Sin esto cada fila medía 124px de alto: un `<svg>` con `viewBox`
+   pero SIN `width`/`height` toma el tamaño de reserva del navegador
+   —unos 150px— y el enlace crecía con él. Un icono no se dimensiona
+   solo porque lo parezca: hay que decirle cuánto mide. */
+.panel-rapido .panel-menu-rapido a svg {
+  flex: 0 0 auto;
+  width: 1rem;
+  height: 1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.8;
+}
+
+.panel-rapido .panel-menu-rapido a:hover {
+  background: var(--raise);
+  color: var(--text);
+}
+
+.panel-rapido .panel-menu-rapido a:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: -3px;
+}
+
+.panel-rapido[open] .panel-menu-rapido {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* El cajón del lateral se cierra a la vez que entra el menú «Nuevo». */
+.panel-scrim {
+  display: none;
+}
+
+/* La lupa deja de empujar cuando comparte barra con el menú «Nuevo».
+
+   El buscador lleva `margin-inline-start: auto` para pegarse a la
+   derecha, y el grupo de acciones lo lleva ahora también. Dos `auto`
+   en la misma fila se reparten el hueco, así que en móvil el botón de
+   crear quedaba flotando en mitad de la barra en vez de junto a la
+   lupa. El que empuja es el grupo: el buscador solo acompaña.
+
+   Se acota con `:has()` y no se quita la regla del buscador porque en
+   el portal del cliente —barra `--simple`, sin grupo de acciones— el
+   buscador sí tiene que hacerlo. */
+.panel-topbar:has(.panel-topbar-acciones) .panel-buscar {
+  margin-inline-start: 0;
+}
+
+@media (max-width: 1000px) {
+  /* En el cajón, la barra tiene burger, título, «Nuevo» y la lupa:
+     el título es lo que sobra, así que se deja truncar en vez de
+     empujar los botones fuera. */
+  .panel-topbar-titulo {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+  }
+
+  .panel-topbar-acciones {
+    flex-wrap: nowrap;
+  }
+
+  .panel-rapido summary {
+    padding: 0.4rem 0.7rem;
+  }
+
+  .panel-rapido .panel-menu-rapido {
+    inset-block-start: calc(100% + 4px);
+    min-width: 200px;
+  }
+}
+
+@media (max-width: 560px) {
+  .panel-topbar-acciones {
+    justify-content: flex-end;
+    gap: 0.35rem;
+  }
+
+  /* Con el texto fuera, el botón queda en el icono «+» y cabe junto a
+     la lupa en un teléfono de 390px. La etiqueta sigue estando para
+     quien navega con lector de pantalla: el `<summary>` la lleva
+     puesta en `aria-label` (ver panel-head.ejs). */
+  .panel-rapido-abrir span {
+    display: none;
+  }
+
+  .panel-rapido summary {
+    padding: 0.4rem 0.5rem;
+  }
+
+  .panel-rapido .panel-menu-rapido {
+    min-width: 170px;
+    padding: 0.25rem 0;
+  }
+
+  .panel-rapido .panel-menu-rapido a {
+    padding: 0.45rem 0.5rem;
+    font-size: 0.78rem;
+  }
 }

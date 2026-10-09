@@ -3,15 +3,22 @@
 <div class="panel-page">
 
   <!-- ============ ENCABEZADO ============ -->
-  <header class="panel-head">
+  <!-- La misma cabecera que el resto del panel: cintillo, título,
+       entradilla y acciones a la derecha. Esta pantalla tenía su
+       propia clase —`.panel-head`— que NUNCA llegó a existir en el
+       CSS, así que las acciones salían pegadas a la izquierda y
+       debajo del título, y ni el cintillo ni la entradilla tenían
+       estilo. Con las clases de siempre se arregla sola. -->
+  <div class="panel-page-head">
     <div>
+      <span class="panel-kicker">Producto</span>
       <h1>Aplicaciones</h1>
-      <p class="panel-sub">
+      <p class="panel-page-lead">
         Quién tiene qué microservicio, hasta cuándo, y qué se le factura.
       </p>
     </div>
 
-    <div class="panel-head-acciones">
+    <div class="panel-page-acciones">
       <% if (resumen.urgente > 0) { %>
         <a class="panel-btn panel-btn--aviso" href="<%= base %>/aplicaciones?estado=urgente">
           <%= resumen.urgente %>
@@ -25,11 +32,11 @@
            son filtros. Un filtro que compite en posición con «dar de
            alta» hace que la pantalla parezca un listado y no un punto
            de entrada. -->
-      <a class="panel-btn panel-btn--primario" href="<%= base %>/aplicaciones/nuevo">
+      <a class="panel-btn panel-btn--primary" href="<%= base %>/aplicaciones/nuevo">
         Dar de alta
       </a>
     </div>
-  </header>
+  </div>
 
   <%# ─────────────────────────────────────────────────────
       LA CONFIRMACIÓN DEL ALTA
@@ -100,8 +107,16 @@
   <%# ── LA LISTA ──
       Ordenada por urgencia, no por fecha de alta. Si alguien entra al
       panel para trabajar, lo que busca es lo que hay que hacer hoy. %>
-  <section class="panel-tabla-wrap">
-    <table class="panel-tabla">
+  <%# Las clases son las MISMAS que en el resto de los listados.
+
+      Aquí ponía `panel-tabla` y `panel-tabla-wrap`, que no existen en
+      panel.css: la clase del sistema es `panel-table`. Una tabla con
+      un nombre que no está en la hoja no se pinta, así que esta era
+      la única pantalla del panel con la tabla sin estilo —y sin el
+      modo tarjeta en móvil, que es de `.panel-table` y de las
+      `data-label` que las celdas ya llevaban puestas. %>
+  <section class="panel-table-wrap">
+    <table class="panel-table">
       <thead>
         <tr>
           <th>Cliente</th>
@@ -116,7 +131,7 @@
       <tbody>
         <% if (!filas.length) { %>
           <tr>
-            <td colspan="6" class="panel-vacio">
+            <td colspan="6" class="panel-empty panel-empty--sm">
               <% if (q || filtro) { %>
                 Nada con ese filtro.
                 <a href="<%= base %>/aplicaciones">Ver todas</a>.
@@ -212,7 +227,7 @@
 
   <%# ── PAGINACIÓN ── %>
   <% if (paginas > 1) { %>
-    <nav class="panel-paginacion">
+    <nav class="panel-pager">
       <% if (pagina > 1) { %>
         <a href="?estado=<%= encodeURIComponent(filtro) %>&q=<%= encodeURIComponent(q) %>&pagina=<%= pagina - 1 %>">Anterior</a>
       <% } %>

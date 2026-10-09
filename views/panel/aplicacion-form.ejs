@@ -1,19 +1,28 @@
 <%- include('../partials/panel-head') %>
 
-<div class="panel-page panel-page--ancha">
+<%# Las clases del formulario son las de los otros formularios del
+    panel: `panel-page--form` (el ancho de una pantalla de alta) y
+    `panel-form-actions` (la barra de botones). Aquí ponía
+    `panel-page--ancha` y `panel-form-acciones`, que no existen en la
+    hoja, así que este alta se veía más ancha que las demás y los
+    botones de cancelar y guardar iban sueltos y sin la raya de
+    arriba. %>
+<div class="panel-page panel-page--form">
 
-  <header class="panel-head">
+  <!-- Misma cabecera que el resto del panel (ver aplicaciones.ejs). -->
+  <div class="panel-page-head">
     <div>
+      <span class="panel-kicker">Producto</span>
       <h1>Dar de alta una aplicación</h1>
-      <p class="panel-sub">
+      <p class="panel-page-lead">
         Le das acceso a un microservicio suelto, o a un plan que ya trae
         varias de una vez.
       </p>
     </div>
-    <div class="panel-head-acciones">
+    <div class="panel-page-acciones">
       <a class="panel-btn panel-btn--ghost" href="<%= base %>/aplicaciones">Volver</a>
     </div>
-  </header>
+  </div>
 
   <% if (errores && errores.general) { %>
     <div class="panel-alert panel-alert--error"><%= errores.general %></div>
@@ -249,9 +258,9 @@
       </label>
     </section>
 
-    <div class="panel-form-acciones">
+    <div class="panel-form-actions">
       <a class="panel-btn panel-btn--ghost" href="<%= base %>/aplicaciones">Cancelar</a>
-      <button type="submit" class="panel-btn panel-btn--primario"
+      <button type="submit" class="panel-btn panel-btn--primary"
               <%= !clientes.length ? 'disabled' : '' %>>
         Dar de alta
       </button>
