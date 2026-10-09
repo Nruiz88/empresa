@@ -1053,6 +1053,29 @@ a.panel-stat--ambar:hover {
   margin-top: 0.15rem;
   font-size: var(--fs-xs);
   color: var(--text-dim);
+
+  /* ─────────────────────────────────────────────────────
+     QUE NADA DE LO QUE HAY DENTRO SE SALGA
+
+     Esta caja lleva lo que va debajo del dato principal: un correo,
+     una instancia, un «agendar/lo-que-sea». En una celda normal
+     nada de eso es largo. En móvil la celda se apila y se queda con la
+     mitad del ancho de la tarjeta, y un correo de 130px en una caja de
+     113 se salía encima de la celda de al lado.
+
+     Medido: «cliente@ejemplo.com» pidiendo 130px en una caja de 113, a
+     390px de ancho.
+
+     `anywhere` y no `break-word`: `break-word` solo parte si la palabra
+     no cabe EN LA LINEA ENTERA, que aquí ya no cabe, y no impide que
+     el cálculo de la caja la ignore. `anywhere` sí lo hace, y es lo
+     que evita que el texto desborde de verdad.
+
+     La columna de correo de la tabla —`.panel-th-email`— sigue con
+     `ellipsis` y una línea, porque ahí el correo se recorta a
+     propósito: hay una columna entera para él.
+     ───────────────────────────────────────────────────── */
+  overflow-wrap: anywhere;
 }
 
 .panel-th-email {
@@ -3011,6 +3034,20 @@ a.panel-stat--ambar:hover {
 .panel-cell-mono {
   font-family: var(--font-mono, ui-monospace, monospace);
   font-variant-numeric: tabular-nums;
+
+  /* Que pueda partir.
+
+     Una URL en monoespaciada es lo peor que hay para que quepa: cada
+     carácter ocupa lo mismo y no hay ni un espacio en todo el
+     dominio. Medido en `/panel/servidores` a 390px: una dirección de
+     Evolution API pedía 337px en una caja de 308, y se salía 29px por
+     la derecha, encima de la columna de al lado.
+
+     `anywhere` y no `break-word` porque `break-word` no cambia el
+     cálculo del ancho mínimo: la caja seguiría diciendo que necesita
+     337 y el texto seguiría saliéndose.
+     ───────────────────────────────────────────────────── */
+  overflow-wrap: anywhere;
 }
 
 /* =========================================================
@@ -4641,6 +4678,18 @@ body.cmd-abierto {
   display: flex;
   align-items: center;
   gap: var(--p-4);
+
+  /* ─────────────────────────────────────────────────────
+     ESTA TARJETA ES UN CONTENEDOR
+
+     Para que la cifra de dentro pueda ajustarse a su ancho con `cqi`,
+     en vez de al ancho de la ventana con `vw`. La diferencia se ve
+     cuando hay rejillas de distintas anchuras en la misma pantalla:
+     con `vw` las dos tarjetas reciben el mismo tamaño y la estrecha se
+     queda sin sitio.
+     ───────────────────────────────────────────────────── */
+  container-type: inline-size;
+
   padding: var(--p-4) var(--p-5);
   background: var(--surface);
   border: 1px solid var(--border);
@@ -4657,6 +4706,49 @@ body.cmd-abierto {
   border-color: var(--border-strong);
   transform: translateY(-1px);
   box-shadow: var(--elev-card-fuerte);
+}
+
+/* ─────────────────────────────────────────────────────────
+   LA TARJETA QUE NO LLEVA ICONO, EN COLUMNA
+
+   `.panel-stat` es una fila: un icono a la izquierda y el texto en
+   `.panel-stat-cuerpo` a la derecha. Ese es el diseño del resumen, y
+   `index.ejs` es la única vista que lo usa.
+
+   Las OTRAS cuatro —cobros, bots, servidores y generar cobros— ponen
+   la cifra, la etiqueta y el pie directamente en la tarjeta, sin
+   envoltorio. Con la fila, esos tres se colocan uno al lado del otro:
+   220px de cifra + 53 de etiqueta + 95 de pie = 368 en una tarjeta de
+   358 a 390px de ancho, y el pie se salía 67px de la tarjeta, encima
+   de la de al lado.
+
+   ── POR QUÉ NO SE ARREGLA EN LAS CUATRO VISTAS ──
+
+   Porque el problema no está en las cuatro: está en la regla, que
+   espera un hijo que casi nadie tiene. Arreglar las vistas sería
+   cambiar cuatro ficheros para que se parezcan al quinto, y la
+   quinta vez que se escriba una tarjeta con cifra y etiqueta, el
+   problema vuelve sin que nadie lo vea.
+
+   ── Y POR QUÉ `:has()` Y NO UNA CLASE NUEVA ──
+
+   Porque la pregunta es «¿esta tarjeta tiene el envoltorio?», y eso lo
+   contesta el marcado, no el CSS. Con `:not(:has(...))` la tarjeta
+   que no lo tiene apila sola, y no hay que acordarse de marcar nada.
+   ───────────────────────────────────────────────────────── */
+.panel-stat:not(:has(.panel-stat-cuerpo)) {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+}
+
+/* Y el pie, a lo ancho entero de la tarjeta, que es lo que se espera
+   de un pie. Con la columna, ya no tiene al lado nada con lo que
+   pelearse, pero sigue haciendo falta que pueda partir: un importe
+   largo más un texto de recuento no caben en una línea. */
+.panel-stat:not(:has(.panel-stat-cuerpo)) .panel-stat-pie {
+  width: 100%;
+  overflow-wrap: anywhere;
 }
 
 .panel-stat-icono {
@@ -4688,12 +4780,48 @@ body.cmd-abierto {
 .panel-stat strong {
   display: block;
   font-family: var(--font-display, "Outfit", sans-serif);
-  font-size: 1.9rem;
+
+  /* ─────────────────────────────────────────────────────
+     LA CIFRA SE AJUSTA A LA TARJETA, NO A LA PANTALLA
+
+     A 1.9rem fijo, «15.917.863,00 €» necesita 220px. La rejilla de
+     cobros deja tarjetas de 195px (`minmax(195px, 1fr)`), o sea que a
+     partir de los 900px de ancho ya no cabía: la cifra se salía 42px
+     de la tarjeta en tablet, no solo en móvil.
+
+     Y con un `vw` tampoco se arregla: el problema no es la pantalla,
+     es cuánto ancho tiene ESTA tarjeta. La misma cifra se sale en una
+     tarjeta estrecha de una rejilla de cuatro columnas y cabe en una
+     ancha de dos, y las dos pueden estar en la misma pantalla.
+
+     ── POR QUÉ UNA CONSULTA DE CONTENEDOR ──
+
+     Porque el `font-size` se decide con el ancho de la tarjeta, que es
+     justo lo que mide `cqi`. Un `vw` decidiría con el ancho de la
+     ventana, que es una pista y no la medida.
+
+     ── EL NÚMERO ──
+
+     11cqi es el ancho del cuerpo de la cifra dividido entre el número
+     de caracteres, medido sobre el caso más largo que hay. El mínimo
+     de 1.1rem es por debajo de eso: más pequeño no se lee, y una cifra
+     ilegible en una tarjeta estrecha es mejor que una que se sale.
+
+     ── Y EL `anywhere` DE RESPALDO ──
+
+     Con el `clamp` no hace falta, y se deja a propósito: si algún día
+     un importe tiene dos cifras más —un saldo con centavos de una
+     compra por API—, prefiero que parta en dos líneas a que se salga de
+     la tarjeta. Partir un importe es feo; salirse del todo es peor.
+     ───────────────────────────────────────────────────── */
+  font-size: clamp(1.1rem, 11cqi, 1.9rem);
+
   font-weight: 700;
   line-height: 1.05;
   letter-spacing: -0.03em;
   font-variant-numeric: tabular-nums;
   color: var(--text);
+  overflow-wrap: anywhere;
 }
 
 .panel-stat span {
