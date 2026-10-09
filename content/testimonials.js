@@ -1,5 +1,5 @@
 /* =========================================================
-   Nexo Studio — Testimonios (fuente única de verdad)
+   Shopcito — Testimonios (fuente única de verdad)
    ------------------------------------------------------------
    ⚠️  DATOS DE EJEMPLO — NO SON REALES ⚠️
    Los testimonios, los nombres y los cargos son inventados.

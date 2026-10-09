@@ -1,5 +1,5 @@
 /* =========================================================
-   Nexo Studio — Preguntas frecuentes por página
+   Shopcito — Preguntas frecuentes por página
    ------------------------------------------------------------
    SeLxieren de un solo sitio. Las respuestas están escritas para
    Se guardan de un solo sitio. Las respuestas están escritas para

@@ -1,5 +1,5 @@
 /* =========================================================
-   Nexo Studio — Proyectos (fuente única de verdad)
+   Shopcito — Proyectos (fuente única de verdad)
    ------------------------------------------------------------
    ⚠️  DATOS DE EJEMPLO — NO SON REALES ⚠️
    Nombres, resultados y métricas son ficticios. Antes de
@@ -16,7 +16,7 @@
      name      {string}   Nombre del cliente o proyecto
      initials  {string}   Letras de la miniatura
      thumb     {number}   1-6, variante de color .thumb-N
-     category  {string}   web | ecommerce | app | movil
+     category  {string}   web | ecommerce | app | celular
                          (debe coincidir con el slug de `categorias`)
      tags      {string[]} Etiquetas visibles
      summary   {string}   Descripción de la tarjeta
@@ -99,7 +99,7 @@ module.exports = [
     name: "Finvia",
     initials: "FV",
     thumb: 5,
-    category: "movil",
+    category: "celular",
     tags: ["App a medida", "Fintech"],
     summary:
       "Aplicación de gestión de gastos con flujos de aprobación, categorías automáticas, tarjetas de equipo y exportación contable.",
@@ -113,13 +113,13 @@ module.exports = [
     name: "RutaVerde",
     initials: "RV",
     thumb: 6,
-    category: "movil",
+    category: "celular",
     tags: ["PWA", "Turismo"],
     summary:
       "App de reservas de experiencias de naturaleza con pagos, check-in sin conexión y avisos meteorológicos.",
     summaryShort:
       "App de reservas de experiencias de naturaleza con pagos y check-in sin conexión.",
-    result: "+35 % reservas móviles",
+    result: "+35 % reservas celular",
     year: 2024,
   },
   {
@@ -168,5 +168,5 @@ module.exports.categorias = [
   { slug: "web", label: "Webs" },
   { slug: "ecommerce", label: "Tiendas online" },
   { slug: "app", label: "Web apps" },
-  { slug: "movil", label: "Apps a medida" },
+  { slug: "celular", label: "Apps a medida" },
 ];

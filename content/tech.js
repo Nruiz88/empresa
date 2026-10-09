@@ -1,5 +1,5 @@
 ﻿/* =========================================================
-   Nexo Studio — Tecnologías e integraciones
+   Shopcito — Tecnologías e integraciones
    ------------------------------------------------------------
    ⚠️  IMPORTANTE: ESTA ES UNA DECLARACIÓN DE CAPACIDAD ⚠️
    Publicar "trabajamos con Stripe" o "Somos expertos en Shopify"

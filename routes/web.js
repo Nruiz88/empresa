@@ -189,24 +189,24 @@ const router = express.Router();
 
   /* ---------- Legales ---------- */
   router.get("/aviso-legal", page("aviso-legal", "", {
-    title: "Aviso legal — Nexo Studio",
+    title: "Aviso legal — Shopcito",
     description:
       "Aviso legal: titularidad del sitio web, condiciones de uso, propiedad intelectual y responsabilidad.",
   }));
 
   router.get("/privacidad", page("privacidad", "", {
-    title: "Política de privacidad — Nexo Studio",
+    title: "Política de privacidad — Shopcito",
     description: "Política de privacidad y tratamiento de datos personales conforme al RGPD y la LOPDGDD.",
   }));
 
   router.get("/cookies", page("cookies", "", {
-    title: "Política de cookies — Nexo Studio",
+    title: "Política de cookies — Shopcito",
     description:
       "Política de cookies: qué cookies utiliza este sitio web y cómo gestionarlas o retirar el consentimiento.",
   }));
 
   router.get("/condiciones", page("condiciones", "", {
-    title: "Condiciones de contratación — Nexo Studio",
+    title: "Condiciones de contratación — Shopcito",
     description:
       "Condiciones de contratación de proyectos web: presupuesto, pagos, plazos, garantía, propiedad del código y soporte.",
   }));
@@ -323,7 +323,7 @@ const router = express.Router();
   router.use((req, res) => {
     res.locals.noindex = true;
     res.status(404).render("404", {
-      title: "Página no encontrada — Nexo Studio",
+      title: "Página no encontrada — Shopcito",
       description: "La página que buscas no existe.",
       current: "",
     });

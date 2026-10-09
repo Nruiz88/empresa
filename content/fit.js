@@ -1,5 +1,5 @@
 ﻿/* =========================================================
-   Nexo Studio — Encaje del cliente ("¿es para mí?")
+   Shopcito — Encaje del cliente ("¿es para mí?")
    ------------------------------------------------------------
    Bloque de auto-cualificación. Sirve para que alguien se
    identifique rápido Y para que los que no encajan se autodetecten:

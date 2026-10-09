@@ -1,5 +1,5 @@
 ﻿/* =========================================================
-   Nexo Studio — Servicios de automatización e IA
+   Shopcito — Servicios de automatización e IA
    ------------------------------------------------------------
    ⚠️  ESTE BLOQUE ES EL MÁS PELIGROSO DE LA WEB ⚠️
 

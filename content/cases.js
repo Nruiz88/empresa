@@ -1,5 +1,5 @@
 ﻿/* =========================================================
-   Nexo Studio — Contenido de caso (para /proyectos/<slug>)
+   Shopcito — Contenido de caso (para /proyectos/<slug>)
    ------------------------------------------------------------
    ⚠️  DATOS DE EJEMPLO — NO SON REALES ⚠️
    El reto, la solución, el resultado y las cifras son
@@ -38,7 +38,7 @@ module.exports = {
     sector: "Alimentación · España",
     heroTitle: "De tienda de barrio a canal de medio pedido",
     heroLead: "Una tienda de alimentación con 1.200 referencias necesitaba vender online sin perder el reparto de siempre.",
-    challenge: "Recibían pedidos por teléfono y WhatsApp, pero la gestión era manual: hojillas, cobros sin seguimiento y ninguna visibilidad sobre qué producto se vendía de verdad. La web anterior cargaba en once segundos y perdía la mitad de las visitas en móvil.",
+    challenge: "Recibían pedidos por teléfono y WhatsApp, pero la gestión era manual: hojillas, cobros sin seguimiento y ninguna visibilidad sobre qué producto se vendía de verdad. La web anterior cargaba en once segundos y perdía la mitad de las visitas en celular.",
     solution: [
       "Catálogo de 1.200 referencias con búsqueda por categoría, marca y precio, pensado para usarse con el pulgar.",
       "Carrito y pago con tarjeta, Bizum y Apple Pay, con confirmación automática por correo y SMS.",
@@ -103,7 +103,7 @@ module.exports = {
     challenge: "La oficina de control se enteraba de dónde estaba cada camión por radio. Sin datos en vivo no se podía ni prometer una hora de llegada ni detectar pronto una avería.",
     solution: [
       "Tablero con la posición de cada vehículo actualizada en tiempo real, visible para la oficina y para el cliente.",
-      "Gestión de incidencias de conductor con foto y hora, desde el propio móvil.",
+      "Gestión de incidencias de conductor con foto y hora, desde el propio celular.",
       "Facturación automática por viaje, calculada según distancia y tipo de servicio.",
       "Roles y permisos diferenciados para administración, dirección y conductor.",
     ],
@@ -123,9 +123,9 @@ module.exports = {
 
   "bruma-cafe": {
     sector: "Hostelería · España",
-    heroTitle: "Carta escaneable y mesa reservada desde el móvil",
+    heroTitle: "Carta escaneable y mesa reservada desde el celular",
     heroLead: "Cuatro cafeterías con público jeune y suelto, pero sin sistema para pedir ni para fidelizar.",
-    challenge: "La carta estaba en un PDF que se descargaba mal en móvil, las mesas se reservaban por Instagram y no había forma de saber si un clientemvuelvenía o no.",
+    challenge: "La carta estaba en un PDF que se descargaba mal en celular, las mesas se reservaban por Instagram y no había forma de saber si un clientemvuelvenía o no.",
     solution: [
       "Carta digital accesible por QR en cada mesa y en la web, siempre actualizada sin reprintedir nada.",
       "Reserva de mesa online con confirmación automática y recordatorio por SMS.",
@@ -194,7 +194,7 @@ module.exports = {
       "El cliente recibe el aviso de cambio de tiempo sin preguntar.",
     ],
     metrics: [
-      { value: "+35 %", label: "reservas móviles" },
+      { value: "+35 %", label: "reservas celular" },
       { value: "12", label: "meses al año con actividad" },
       { value: "0", label: "reservas perdidas por falta de cobertura" },
     ],

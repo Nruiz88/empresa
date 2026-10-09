@@ -1,5 +1,5 @@
 /* =========================================================
-   Nexo Studio — Cifras y prueba social (fuente única)
+   Shopcito — Cifras y prueba social (fuente única)
    ------------------------------------------------------------
    ⚠️  DATOS DE EJEMPLO — NO SON REALES ⚠️
    Todas las cifras de la web salen de aquí. Antes de publicar,

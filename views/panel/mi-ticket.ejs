@@ -59,7 +59,7 @@
     %>
       <li id="m-<%= m.id %>" class="ticket-msg <%= delEquipo ? 'ticket-msg--staff' : 'ticket-msg--cliente' %>">
         <div class="ticket-msg-cab">
-          <span class="ticket-msg-quien"><%= delEquipo ? 'Equipo Nexo Studio' : 'Tú' %></span>
+          <span class="ticket-msg-quien"><%= delEquipo ? 'Equipo Shopcito' : 'Tú' %></span>
           <time class="ticket-msg-cuando" datetime="<%= m.creado_en %>">
             <%= new Date(m.creado_en).toLocaleString('es-ES', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) %>
           </time>

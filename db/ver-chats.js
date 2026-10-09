@@ -34,6 +34,35 @@ const BUSCADO = process.argv[2] || "2996733077";
     .limit(1)
     .single();
 
+  /* ───────────────────────────────────────────────────────────────
+     CON QUÉ CREDENCIAL SE HABLA CON LA CAJA
+     ───────────────────────────────────────────────────────────────
+
+     El token de la INSTANCIA, no la clave global del servidor.
+
+     Este script mira conversaciones. La clave global entra a todas las
+     instancias: con un solo cliente da igual, y con el segundo leería
+     los chats de un negocio que no es este. No por mala intención, sino
+     por usar la credencial que había a mano — que es exactamente como se
+     cruzan los datos sin que nadie lo decida.
+
+     Si el bot no tiene token, se para. Caer a la clave global sería el
+     fallo que se quiere evitar, y peor: parecería funcionar. */
+  const { data: paraElToken } = await db
+    .from("bots")
+    .select("name, instance_token")
+    .limit(1)
+    .single();
+
+  const tokenInstancia = (paraElToken?.instance_token || "").trim();
+
+  if (!tokenInstancia) {
+    console.log("\n  × este bot no tiene token de instancia.");
+    console.log("    Se para: seguir con la clave global leería las");
+    console.log("    conversaciones de todos los clientes de la caja.\n");
+    process.exit(1);
+  }
+
   const { data: bot } = await db.from("bots").select("instance_name").limit(1).single();
   const inst = encodeURIComponent(bot.instance_name);
 
@@ -42,7 +71,7 @@ const BUSCADO = process.argv[2] || "2996733077";
 
   const r = await fetch(srv.url + "/chat/findChats/" + inst, {
     method: "POST",
-    headers: { apikey: srv.api_key, "Content-Type": "application/json" },
+    headers: { apikey: tokenInstancia, "Content-Type": "application/json" },
     body: JSON.stringify({}),
     signal: AbortSignal.timeout(30000),
   });

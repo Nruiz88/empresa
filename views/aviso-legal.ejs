@@ -4,46 +4,46 @@
 <%- include('partials/legal-hero', {
       eyebrow: "Legal",
       title: "Aviso legal",
-      lead: "Información general exigida por la Ley 34/2002 de Servicios de la Sociedad de la Información y de Comercio Electrónico (LSSI-CE)."
+      lead: "Quiénes somos, qué prestamos y bajo qué normativa rigen estos datos."
     }) %>
 
 <section class="section" style="padding-top: 1rem;">
   <div class="container">
     <article class="prose">
       <div class="callout">
-        <p><strong>Última actualización:</strong> 1 de octubre de 2026. Este documento forma parte de nuestra <a href="/privacidad">política de privacidad</a>, de la <a href="/cookies">política de cookies</a> y de las <a href="/condiciones">condiciones de contratación</a>.</p>
+        <p><strong>Última actualización:</strong> 8 de octubre de 2026. Este documento forma parte de nuestra <a href="/privacidad">política de privacidad</a>, de la <a href="/cookies">política de cookies</a> y de las <a href="/condiciones">condiciones de contratación</a>.</p>
       </div>
 
       <h2>1. Datos del titular</h2>
       <ul>
-        <li><strong>Titular:</strong> <%= site.company %> (en adelante, «Nexo Studio»)</li>
-        <li><strong>NIF:</strong> <%= site.nif %></li>
-        <li><strong>Domicilio social:</strong> <%= site.address %></li>
-        <li><strong>Email de contacto:</strong> <a href="mailto:<%= site.email %>"><%= site.email %></a></li>
+        <li><strong>Razón social:</strong> <%= site.company %></li>
+        <li><strong>CUIT:</strong> <%= site.nif %></li>
+        <li><strong>Domicilio:</strong> <%= site.address %></li>
+        <li><strong>Email:</strong> <a href="mailto:<%= site.email %>"><%= site.email %></a></li>
         <li><strong>Teléfono:</strong> <a href="tel:<%= site.phoneHref %>"><%= site.phone %></a></li>
-        <li><strong>Actividad:</strong> diseño y desarrollo de sitios web, comercio electrónico, aplicaciones web y soluciones digitales para empresas.</li>
+        <li><strong>Actividad:</strong> prestación de servicios de atención automática para negocios por suscripción, incluyendo bots de WhatsApp, catálogos y sistemas de reservas.</li>
       </ul>
 
       <h2>2. Objeto y condiciones de uso</h2>
-      <p>El acceso a este sitio web atribuye la condición de usuario e implica la aceptación de las presentes condiciones. El usuario se compromete a hacer un uso diligente del sitio y a no emplearlo para actividades ilícitas, que dañen los derechos de terceros o que impidan su funcionamiento normal.</p>
-      <p>La información publicada tiene carácter meramente informativo y no constituye asesoramiento profesional vinculante. Los precios mostrados son precios de partida («desde») y la contratación se rige por las <a href="/condiciones">condiciones de contratación</a>.</p>
+      <p>El acceso a este sitio atribuye la condición de usuario e implica la aceptación de estas condiciones. El usuario se compromete a hacer un uso diligente y a no emplearlo para actividades ilícitas o que dañen los derechos de terceros.</p>
+      <p>La información publicada es orientativa y no constituye asesoramiento profesional vinculante. Los precios que se muestran son los de cada plan, y la contratación se rige por las <a href="/condiciones">condiciones de contratación</a>.</p>
 
       <h2>3. Propiedad intelectual e industrial</h2>
-      <p>Todos los contenidos del sitio —textos, fotografías, gráficos, imágenes, iconos, tipografías, software, nombres comerciales, marcas y diseños— son propiedad de Nexo Studio o de terceros que han autorizado su uso, y están protegidos por la normativa nacional e internacional de propiedad intelectual e industrial.</p>
-      <p>Queda prohibida la reproducción, distribución, comunicación pública o transformación de los contenidos sin autorización expresa y por escrito. La inclusión de enlaces a páginas de este sitio es siempre respetuosa con la legalidad vigente.</p>
+      <p>Todos los contenidos del sitio —textos, fotografías, gráficos, iconos, tipografías, software, nombres comerciales, marcas y diseños— son propiedad de <%= site.company %> o de terceros que han autorizado su uso, y están protegidos por la normativa nacional e internacional de propiedad intelectual e industrial.</p>
+      <p>Queda prohibida la reproducción, distribución, comunicación pública o transformación de los contenidos sin autorización expresa y por escrito. Los enlaces a páginas de terceros se ofrecen como referencia; no controlamos ni respondemos de sus contenidos.</p>
 
       <h2>4. Responsabilidad</h2>
       <ul>
-        <li>Nexo Studio no se responsabiliza de los daños derivados de interferencias, omisiones, interrupciones o virus informáticos que no sean atribuibles a su actuación.</li>
-        <li>No garantiza la disponibilidad ininterrumpida del sitio ni la ausencia total de errores, pese a adoptar las medidas razonables al efecto.</li>
-        <li>Los enlaces externos se ofrecen como referencia; Nexo Studio no controla ni responde de contenidos o políticas de terceros.</li>
+        <li>No respondemos por los daños derivados de interrupciones, virus o fallos de terceros que no sean atribuibles a nuestra actuación.</li>
+        <li>No garantizamos la disponibilidad ininterrumpida del sitio ni la ausencia total de errores, pese a adoptar las medidas razonables al efecto.</li>
+        <li>El servicio de mensajería se presta sobre una plataforma de terceros que puede modificar sus condiciones o dejar de estar disponible. Eso puede interrumpir el servicio sin previo aviso.</li>
       </ul>
 
       <h2>5. Protección de datos y cookies</h2>
-      <p>El tratamiento de los datos personales recabados a través de este sitio se describe en la <a href="/privacidad">política de privacidad</a>. El uso de cookies y tecnologías similares se explica en la <a href="/cookies">política de cookies</a>.</p>
+      <p>El tratamiento de los datos personales se describe en la <a href="/privacidad">política de privacidad</a> y se rige por la <strong>Ley 25.326 de Protección de Datos Personales</strong> y sus normas modificatorias. El uso de cookies se explica en la <a href="/cookies">política de cookies</a>.</p>
 
       <h2>6. Legislación aplicable</h2>
-      <p>Las presentes condiciones se rigen por la legislación argentina. Para cualquier controversia serán competentes los juzgados y tribunales del domicilio del usuario consumidor o, cuando actúe en calidad de empresa, los del domicilio del proveedor, salvo que la normativa aplicable disponga otra cosa.</p>
+      <p>Estas condiciones se rigen por la legislación de la República Argentina, y en particular por el Código Civil y Comercial de la Nación y la Ley 25.326. Para cualquier controversia son competentes los juzgados del domicilio del proveedor, o los del consumidor cuando este actúe como tal, conforme a la normativa vigente.</p>
     </article>
   </div>
 </section>
