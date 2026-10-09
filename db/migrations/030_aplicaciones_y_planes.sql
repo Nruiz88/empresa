@@ -104,16 +104,34 @@ comment on column services.plan_id is
 -- sin bloquear. Las viejas no tienen microservicio porque no son
 -- aplicaciones.
 
-alter table services
-  add constraint servicios_dicen_de_donde_vene
-  check (
-    -- los tipos viejos no dicen nada de dónde vienen
-    (kind in ('mantenimiento', 'proyecto', 'presupuesto'))
-    -- una aplicación viene de una aplicación, y solo de una
-    or (kind = 'aplicacion' and microservicio_clave is not null and plan_id is null)
-    -- un plan viene de un plan, y solo de un plan
-    or (kind = 'plan' and plan_id is not null and microservicio_clave is null)
-  ) not valid;
+-- En un DO porque Postgres no tiene `ADD CONSTRAINT IF NOT EXISTS`.
+--
+-- No es que quede elegante: es que `db/test-idempotencia.js` corre cada
+-- migración DOS veces y falla la segunda con
+--
+--     constraint "..." for relation "services" already exists
+--
+-- y una migración que no se puede correr dos veces es una migración que
+-- rompe un despliegue a medias. Peor: parece funcionar hasta que alguien
+-- la repite.
+do $$
+begin
+  if not exists (
+    select 1 from pg_constraint where conname = 'servicios_dicen_de_donde_vene'
+  ) then
+    alter table services
+      add constraint servicios_dicen_de_donde_vene
+      check (
+        -- los tipos viejos no dicen nada de dónde vienen
+        (kind in ('mantenimiento', 'proyecto', 'presupuesto'))
+        -- una aplicación viene de una aplicación, y solo de una
+        or (kind = 'aplicacion' and microservicio_clave is not null and plan_id is null)
+        -- un plan viene de un plan, y solo de un plan
+        or (kind = 'plan' and plan_id is not null and microservicio_clave is null)
+      ) not valid;
+  end if;
+end
+$$;
 
 -- ---------------------------------------------------------------------
 -- Que un plan de verdad dé acceso a algo
