@@ -17,7 +17,9 @@
       <h2>1. Datos del titular</h2>
       <ul>
         <li><strong>Razón social:</strong> <%= site.company %></li>
-        <li><strong>CUIT:</strong> <%= site.nif %></li>
+        <% if (site.cuit) { %>
+          <li><strong>CUIT:</strong> <%= site.cuit %></li>
+        <% } %>
         <li><strong>Domicilio:</strong> <%= site.address %></li>
         <li><strong>Email:</strong> <a href="mailto:<%= site.email %>"><%= site.email %></a></li>
         <li><strong>Teléfono:</strong> <a href="tel:<%= site.phoneHref %>"><%= site.phone %></a></li>

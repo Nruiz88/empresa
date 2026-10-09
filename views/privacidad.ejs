@@ -18,7 +18,9 @@
       <ul>
         <li><strong>Responsable:</strong> <%= site.company %>
       </li>
-      <li><strong>CUIT:</strong> <%= site.nif %>
+      <% if (site.cuit) { %>
+        <li><strong>CUIT:</strong> <%= site.cuit %></li>
+        <% } %>
       </li>
       <li><strong>Domicilio:</strong> <%= site.address %></li>
         <li><strong>Email:</strong> <a href="mailto:<%= site.email %>"><%= site.email %></a></li>

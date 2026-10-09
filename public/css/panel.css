@@ -3203,7 +3203,19 @@ a.panel-stat--ambar:hover {
   align-items: flex-start;
   justify-content: center;
   padding: clamp(3rem, 12vh, 8rem) 1rem 2rem;
-  background: color-mix(in srgb, #05050a 62%, transparent);
+  /* Fondo del menú en el celular.
+
+     Sale de `--bg`, que es de donde sale el de la home. Estaba como un
+     hexadecimal suelto —un negro azulado que no existe en la paleta— y
+     por eso el menú se veía de un negro distinto al header de la portada.
+
+     No es un detalle menor: es lo que tapa toda la pantalla en el celular.
+     Y un color suelto es de los que nadie revisa nunca, porque no rompe
+     nada y no se nota hasta que se compara con otra pantalla.
+
+     El `color-mix` con `transparent` es para que se vea el contenido de
+     detrás, que es lo que hace también la cabecera. */
+  background: color-mix(in srgb, var(--bg) 62%, transparent);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
   animation: cmd-aparece 0.14s ease-out;
