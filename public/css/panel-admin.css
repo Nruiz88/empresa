@@ -827,3 +827,66 @@
     padding: 0.9rem 1rem;
   }
 }
+
+/* =========================================================
+   14. ACCESO AL PANEL (LOGIN)
+   =========================================================
+   El login es la primera pantalla y la única que lleva
+   `panel-body--centrado` en vez de `panel-body--staff`: al no haber
+   rol todavía, no puede colgar del scope del equipo. Por eso esta
+   sección se engancha a `panel-body--centrado`, que solo existe aquí.
+
+   La pantalla ya centra con `place-items: center`; lo que se afina
+   es la tarjeta: radio, aire, un halo de marca en el fondo y los
+   campos con el mismo sistema que los del panel de dentro. Entrar
+   tiene que parecer entrar en el mismo sitio que se ve después. */
+
+.panel-body--centrado {
+  background:
+    radial-gradient(
+      70rem 50rem at 50% -18%,
+      color-mix(in srgb, var(--accent) 12%, transparent),
+      transparent 62%
+    ),
+    radial-gradient(
+      40rem 40rem at 105% 112%,
+      color-mix(in srgb, var(--accent-2) 6%, transparent),
+      transparent 60%
+    ),
+    var(--bg);
+}
+
+.panel-body--centrado .panel-login {
+  max-width: 400px;
+}
+
+.panel-body--centrado .panel-login-card {
+  gap: 1.15rem;
+  padding: 1.75rem;
+  background: color-mix(in srgb, var(--plano-1) 94%, transparent);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: var(--sombra-3);
+  backdrop-filter: blur(10px);
+}
+
+.panel-body--centrado .panel-login-brand {
+  padding-bottom: 1.1rem;
+}
+
+.panel-body--centrado .panel-login-titulo {
+  font-size: 1.55rem;
+  letter-spacing: -0.03em;
+}
+
+.panel-body--centrado .panel-login-sub {
+  color: var(--text-dim);
+}
+
+.panel-body--centrado .panel-barra {
+  border-radius: 10px;
+}
+
+.panel-body--centrado .panel-login-foot {
+  margin-top: 1.25rem;
+}

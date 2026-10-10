@@ -24,6 +24,10 @@
 <% modulosDelPanel.forEach(function (hoja) { %>
 <link rel="stylesheet" href="/css/<%= hoja %>" />
 <% }); %>
+  <%# La capa de acabado del equipo trae también el estilo del
+      acceso. Esta pantalla no lleva `panel-body--staff` (todavía no
+      hay rol), así que el enganche está en `panel-body--centrado`. %>
+  <link rel="stylesheet" href="/css/panel-admin.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700&display=swap" rel="stylesheet" />
