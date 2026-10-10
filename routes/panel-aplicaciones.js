@@ -269,7 +269,12 @@ module.exports = function rutasAplicaciones({ db, sitio, csrf, requiereStaff }) 
 
         /* Se pasan a la vista para que no tenga que saber los números. */
         margen: A.DIAS_DE_MARGEN,
-        aviso: A.DIAS_DE_AVISO,
+
+        /* `diasAviso` y no `aviso`, igual que en el catálogo de
+           planes. Con `aviso` la vista lo pintaba dentro de un
+           `panel-alert--ok` como si fuera un mensaje, y salía una
+           franja verde con el número de días suelto. */
+        diasAviso: A.DIAS_DE_AVISO,
       });
     });
 
@@ -784,11 +789,16 @@ module.exports = function rutasAplicaciones({ db, sitio, csrf, requiereStaff }) 
         clientes: base.clientes,
         inactivos: base.microserviciosInactivos,
 
-        /* El margen y el aviso. Van desde A para que la vista no tenga
-           los numeros escritos a mano: si se cambian en un sitio, que sea
-           en uno. */
+        /* El margen y los días de aviso. Van desde A para que la vista
+           no tenga los números escritos a mano: si se cambian en un
+           sitio, que sea en uno.
+
+           `diasAviso` y no `aviso`, que era un número de días con
+           nombre de mensaje. La vista lo pintaba en un
+           `panel-alert--ok` porque `if (aviso)` es verdadero con un
+           7, y salía una franja verde con un número suelto. */
         margen: A.DIAS_DE_MARGEN,
-        aviso: A.DIAS_DE_AVISO,
+        diasAviso: A.DIAS_DE_AVISO,
 
         /* Lo que venga del POST, para que no se pierda al reintentar.
 

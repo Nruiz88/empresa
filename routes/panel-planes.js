@@ -162,7 +162,27 @@ module.exports = function rutasPlanes({ db, sitio, csrf, requiereStaff }) {
       periodos: PERIODOS,
       microservicios: await microservicios(),
       margen: A.DIAS_DE_MARGEN,
-      aviso: A.DIAS_DE_AVISO,
+
+      /* ── POR QUÉ SE LLAMA `diasAviso` Y NO `aviso` ──
+
+         Se llamaba `aviso`, igual que el mensaje que se pinta arriba
+         cuando se guarda. Y no es un mensaje: es un número de días,
+         el margen queShopcito avisa antes de que un cobro venza.
+
+         Con ese nombre, la vista lo pintaba dentro de un
+         `panel-alert--ok` como si fuera un texto, y en pantalla
+         salía una franja verde con un «7» suelto y sin contexto.
+
+         ── POR QUÉ NO DIÓ ERROR ──
+
+         Porque en la vista la condición es `if (aviso)`: un 7 es
+         verdadero. No hacía falta que fuera texto para que se
+         pintara, solo para que no fuera cero.
+
+         El nombre es lo que evita que vuelva a pasar. Un dato de
+         negocio que se llama como un mensaje se acaba pintando como
+         un mensaje, tarde o temprano. */
+      diasAviso: A.DIAS_DE_AVISO,
       campo,
       errores: {},
       ...datos,
