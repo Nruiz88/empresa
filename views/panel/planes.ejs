@@ -1,30 +1,12 @@
 <%- include('../partials/panel-head') %>
 
-<%# =========================================================
-     Shopcito — Los planes, de los que se vende al público
-
-     Copia de `catalogo-admin.ejs` a propósito: las dos pantallas
-     hacen lo mismo (editar filas de un catálogo) y una pantalla que
-     funciona es mejor que una nueva que casi funciona.
-
-     Lo que cambia es la forma, porque los planes no son módulos:
-
-       · el precio puede quedar VACÍO, y vacío es «A consultar». No
-         es un campo obligatorio que se avisa, es un estado legítimo.
-       · hay una lista de líneas (qué incluye), en vez de un módulo
-         suelto.
-       · no hay una columna de clientes, porque un plan no se
-         «añade» a un cliente: se contrata entero.
-     ========================================================= %>
-
 <div class="panel-page">
   <div class="panel-page-head">
     <div>
       <span class="panel-kicker">Lo que vendes al público</span>
       <h1>Planes</h1>
       <p class="panel-page-lead">
-        Los tres planes de Shopcito y sus precios. Esto es lo que sale en la
-        portada y en <code>/precios</code>, en este mismo orden.
+        Administra los precios y las aplicaciones incluidas en cada plan.
       </p>
     </div>
 
@@ -36,11 +18,6 @@
     </div>
   </div>
 
-  <%# El mensaje de guardar, y solo ese. Antes esta caja también
-      recibía `aviso`, que en el servidor eran los DÍAS DE MARGEN:
-      un 7. Como la condición era `if (aviso)`, y un 7 es verdadero,
-      salía una franja verde con un «7» suelto. La variable ya se
-      llama `diasAviso` y se pinta donde toca. %>
   <% if (typeof aviso !== 'undefined' && aviso) { %>
     <div class="panel-alert panel-alert--ok" role="status">
       <%= aviso %>
@@ -51,40 +28,9 @@
     <div class="panel-alert panel-alert--error" role="alert"><%= errores.general %></div>
   <% } %>
 
-  <!-- EL PRECIO VACÍO
-
-     Esta nota estaba siempre abierta y ocupaba un tercio de la
-     pantalla, con los tres planes empujados más abajo de lo que
-     llegaba sin desplazarse.
-
-     El texto no se quita, porque la duda es real: la primera vez
-     que alguien abre esta pantalla mira el precio, ve un campo
-     vacío y piensa que falta un dato. No falta: es lo que hay hasta
-     que haya una cifra, y un 0 no es lo mismo, porque un 0
-     publicaría que el producto es gratis.
-
-     Pero es una duda que se tiene UNA vez. Después de saberlo no
-     hace falta volver a leerlo, y menos con tres planes de por medio
-     empujando la pantalla. Por eso va plegado, con la parte
-     importante en el resumen: que vacío es «A consultar». -->
-<details class="panel-detalle">
-  <summary class="panel-detalle-resumen">
-    <strong>El precio puede quedar vacío</strong>
-    <span class="panel-cell-sub">vacío = «A consultar» · un <code>0</code> publica «gratis»</span>
-  </summary>
-  <p class="panel-detalle-cuerpo">
-    Vacío significa <em>«A consultar»</em>, que es lo que se publica
-    mientras no haya cifra confirmada. Si pones <code>0</code>, la web
-    dirá que el producto es gratis, y eso es peor que no decir nada,
-    porque el que lo lee se queda con la impresión de que le mentimos.
-    Al cambiar un precio aquí se ve en la web pública en un par de
-    segundos, sin desplegar nada.
-    <% if (typeof diasAviso !== 'undefined' && diasAviso) { %>
-      Y a los <%= diasAviso %> días de vencer, al cliente se le avisa
-      por WhatsApp antes de que el cobro llegue a vencer.
-    <% } %>
+  <p class="panel-help">
+    Precio vacío = «A consultar»; <code>0</code> = gratis.
   </p>
-</details>
 
   <% if (!planes.length) { %>
     <div class="panel-empty">
@@ -99,57 +45,7 @@
     <form id="form-planes" method="post" action="<%= base %>/planes">
       <input type="hidden" name="_csrf" value="<%= csrf %>" />
 
-      <%# Un solo formulario para toda la tabla, como en el catálogo:
-          el botón de guardar está en la cabecera y envuelve todo. Con
-          un formulario por fila habría tres botones compitiendo y
-          habría que acertar cuál es el del plan que se está editando. %>
       <div class="panel-table-wrap">
-      <%# ─────────────────────────────────────────────────────────
-          POR QUÉ ESTO SON TARJETAS Y NO UNA TABLA
-
-          Antes cada plan era una fila, y en esa fila había:
-
-            seis campos de texto apilados en una celda
-            un campo de precio
-            dos desplegables
-            un campo de número
-            dos casillas
-            y una fila aparte con las aplicaciones
-
-          Siete columnas para siete filas, y la primera celda con
-          seis campos encimados. Eso no es una tabla: es un
-          formularioitis dentro de una tabla, y se lee fatal. El
-          nombre de un plan competía con su descripción, con su nota
-          y con el texto de su botón, y no había forma de saber
-          cuál era cuál sin leerlos todos.
-
-          ── LO QUE RESUELVE LA TARJETA ──
-
-          Un plan por tarjeta, con la información agrupada por lo que
-          significa y no por el tipo de dato:
-
-            la identidad   nombre, descripción y nota
-            el precio      grande, con la moneda y el periodo
-            el botón       qué sale y a dónde lleva
-            el alcance     a qué aplicaciones da acceso
-            la publicación  si se ve y si está destacado
-
-          ── POR QUÉ EL PRECIO SE SACA DE LA TABLA ──
-
-          Porque el precio es lo que hay que comparar entre planes.
-          En una tabla estaba en una columna entre cinco más, y
-          comparar dos precios obligaba a saltar de fila a fila. En
-          una tarjeta, cada precio está en su sitio y se comparan
-          los tres en vertical, que es como se comparan los precios.
-
-          ── POR QUÉ NO SE TOCAN LOS NOMBRES DE LOS CAMPOS ──
-
-          El formulario se manda con el nombre del campo escrito a
-          mano, `campo(id, 'nombre')`, y el servidor lee esos
-          nombres. Cambiar la vista es cambiar el aspecto; cambiar
-          el `name` es cambiar el contrato con el servidor, y eso
-          haría que al guardar no se guardara nada sin dar error.
-          ───────────────────────────────────────────────────── %>
       <div class="planes-lista">
         <% planes.forEach(function (p) { %>
           <% var filaErr = (errores && errores[p.id]) || {}; %>
@@ -158,7 +54,6 @@
 
           <article class="plan<%= p.destacado ? ' plan--destacado' : '' %><%= p.activo ? '' : ' plan--oculto' %><%= hayErrores ? ' plan--error' : '' %>">
 
-            <%# ── LA CABECERA: nombre y lo que se ve de un vistazo ── %>
             <div class="plan-cabecera">
               <div class="plan-cabecera-texto">
                 <div class="plan-marcas">
@@ -186,12 +81,6 @@
                 <% } %>
               </div>
 
-              <%# ── EL PRECIO, Y SOLO EL PRECIO ──
-
-                  Va en la cabecera y no en su propia columna porque es
-                  lo único de esta pantalla que hay que comparar entre
-                  los tres planes. Puesto aquí, los tres precios se leen
-                  de arriba abajo sin apartar la vista de la tarjeta. %>
               <div class="plan-precio">
                 <div class="plan-precio-cifra">
                   <label class="sr-only" for="precio_<%= p.id %>">Precio de <%= p.nombre %></label>
@@ -206,11 +95,7 @@
                 </div>
 
                 <div class="plan-precio-pie">
-                  <%# `type="text"` y no `type="number"`: con number el
-                      navegador lo pasa a otro y en algunos sistemas el
-                      separador decimal es el punto, lo que con precios
-                      en pesos convierte un 25.000 en 25. Con texto y
-                      validación en el servidor no hay sorpresas. %>
+
                   <label class="sr-only" for="moneda_<%= p.id %>">Moneda de <%= p.nombre %></label>
                   <select id="moneda_<%= p.id %>"
                           name="<%= campo(p.id, 'moneda') %>"
@@ -239,93 +124,8 @@
               </div>
             </div>
 
-            <%# ── LA DESCRIPCIÓN Y LA NOTA ── %>
-            <div class="plan-campos">
-              <div class="plan-campo">
-                <label class="plan-campo-etiqueta" for="descripcion_<%= p.id %>">Descripción</label>
-                <input type="text"
-                       id="descripcion_<%= p.id %>"
-                       name="<%= campo(p.id, 'descripcion') %>"
-                       value="<%= p.descripcion || '' %>"
-                       placeholder="Una línea: para qué es este plan"
-                       title="<%= p.descripcion || '' %>" />
-              </div>
-
-              <div class="plan-campo">
-                <label class="plan-campo-etiqueta" for="nota_<%= p.id %>">Nota al pie</label>
-                <input type="text"
-                       id="nota_<%= p.id %>"
-                       name="<%= campo(p.id, 'nota') %>"
-                       value="<%= p.nota || '' %>"
-                       placeholder="Texto pequeño debajo del precio"
-                       title="<%= p.nota || '' %>" />
-              </div>
-            </div>
-
-            <%# ── EL BOTÓN DE LA WEB PÚBLICA ──
-
-                  Texto y destino van juntos porque son una sola
-                  decisión: no tiene sentido medio botón. Y la
-                  previsualización va al lado, para ver lo que sale
-                  sin tener que abrir la portada. %>
-            <div class="plan-boton">
-              <div class="plan-campo plan-campo--ancho">
-                <label class="plan-campo-etiqueta" for="cta_texto_<%= p.id %>">Botón: texto y destino</label>
-                <div class="plan-boton-campos">
-                  <input type="text"
-                         id="cta_texto_<%= p.id %>"
-                         name="<%= campo(p.id, 'cta_texto') %>"
-                         value="<%= p.cta_texto || '' %>"
-                         placeholder="Empezar gratis"
-                         title="<%= p.cta_texto || '' %>" />
-                  <input type="text"
-                         id="cta_href_<%= p.id %>"
-                         name="<%= campo(p.id, 'cta_href') %>"
-                         value="<%= p.cta_href || '' %>"
-                         placeholder="/cuenta/crear"
-                         title="<%= p.cta_href || '' %>"
-                         class="<%= filaErr.cta_href ? 'panel-input--error' : '' %>" />
-                </div>
-                <% if (filaErr.cta_href) { %>
-                  <small class="panel-cell-error"><%= filaErr.cta_href %></small>
-                <% } %>
-              </div>
-
-              <div class="plan-boton-vista">
-                <span class="plan-campo-etiqueta">Así se ve</span>
-                <% if (p.cta_texto) { %>
-                  <span class="plan-boton-falso<%= p.destacado ? ' es-destacado' : '' %>"><%= p.cta_texto %></span>
-                <% } else { %>
-                  <span class="plan-boton-vacio">sin botón</span>
-                <% } %>
-              </div>
-            </div>
-
-            <%# ── QUÉ APLICACIONES DA ACCESO ──
-
-                  Esto y el campo de texto de arriba son la misma cosa
-                  escrita de dos maneras, y por eso van juntos.
-
-                  El texto es para lo que se LEE en la web: los puntos
-                  de venta que escribe el equipo.
-
-                  Las casillas son para lo que se EJECUTA: a qué
-                  microservicios da acceso real este plan.
-
-                  Y pueden contradecirse. Un plan puede decir «bot de
-                  WhatsApp» en el texto y no marcar el bot: el
-                  visitante lee que lo tiene y no lo tiene. O al
-                  revés, y el cliente compra algo que no esperaba.
-
-                  ── LAS CASILLAS OCULTAS ──
-
-                  Igual que en destacado y visible: una casilla sin
-                  marcar NO LLEGA en el POST. Sin el campo oculto con
-                  el mismo nombre y valor "0", no se podría desmarcar
-                  nunca, y se volvería a marcar sola al abrir la
-                  pantalla. %>
             <fieldset class="plan-apps">
-              <legend class="plan-apps-leyenda">Aplicaciones incluidas</legend>
+              <legend class="plan-apps-leyenda">Microservicios incluidos</legend>
 
               <% if (!microservicios || !microservicios.length) { %>
                 <p class="panel-help">
@@ -336,18 +136,7 @@
                 <div class="plan-apps-lista">
                   <% microservicios.forEach(function (m) { %>
                     <input type="hidden" name="<%= campo(p.id, 'aplicaciones') %>" value="" />
-                    <%# ── VENDIBLE, NO ACTIVO ──
 
-     `m.activo` es de infraestructura: dice si el microservicio
-     responde, que es lo que muestra la pantalla de salud. No dice si
-     lo estamos vendiendo.
-
-     Con `activo` aquí, una aplicación con el precio puesto salía
-     marcada como «no se está vendiendo» solo porque su microservicio
-     no estuviera levantado en ningún servidor. Es lo contrario de como
-     funciona un negocio: primero se anuncia, después se instala.
-
-     `vendible` es la decisión de negocio, y es este campo el que va. ── %>
                     <label class="plan-app<%= marcadas.has(m.modulo) ? ' is-on' : '' %><%= m.vendible ? '' : ' plan-app--inactiva' %>">
                       <input type="checkbox"
                              name="<%= campo(p.id, 'aplicaciones') %>"
@@ -374,23 +163,6 @@
               <% } %>
             </fieldset>
 
-            <%# ── LA PUBLICACIÓN ──
-
-                  Orden, destacado y visible van al pie porque son las
-                  tres cosas que se cambian poco y que no hay que ver
-                  para entender el plan.
-
-                  ── LAS CASILLAS OCULTAS ──
-
-                  Una casilla sin marcar no llega en el POST. El campo
-                  oculto con el mismo nombre y valor "0" hace que
-                  llegue siempre algo, y si está marcada llegan los
-                  dos y gana el último.
-
-                  Es el patrón de siempre, pero aquí importa
-                  doblemente: una casilla que acepta el clic y no
-                  guarda nada es un fallo que no se ve ni se
-                  denuncia. %>
             <div class="plan-pie">
               <div class="plan-pie-orden">
                 <label class="plan-campo-etiqueta" for="orden_<%= p.id %>">Orden</label>
@@ -438,23 +210,9 @@
           </article>
         <% }); %>
       </div>
+      </div>
     </form>
 
-    <%# `panel-help`, no una clase inventada.
-
-        La primera vez era `panel-foot-note`, que no existe en ningún
-        CSS. No daba error: un `<p>` sin clases se ve perfectamente. Lo
-        que pasaba es que salía pegado al formulario, porque el reset
-        pone los márgenes a cero y la clase que debía separarlo no
-        estaba.
-
-        Una clase que no existe es un estilo que no se aplica, y eso no
-        se ve mirando el HTML: se ve mirando el hueco entre bloques. %>
-    <p class="panel-help">
-      Lo que se escribe aquí sustituye a <code>content/shopcito.js</code>. Ese
-      fichero ya no tiene precios: solo queda como respaldo por si algún día la
-      base no responde, y sale sin cifra.
-    </p>
   <% } %>
 </div>
 

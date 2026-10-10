@@ -35,16 +35,6 @@
   grid-template-columns: repeat(auto-fit, minmax(195px, 1fr));
 }
 
-/* ── ESTA DECLARACIÓN ESTÁ VACÍA A PROPÓSITO ──
-
-   `.panel-stat` se declaraba dos veces en esta hoja: aquí y unas
-   cuatrocientas líneas más abajo, donde la otra tenía el fondo, el
-   borde, el radio y la sombra. La segunda ganaba siempre, y esta
-   primera se quedaba sin efecto.
-
-   Lo único que queda aquí es el relleno pequeño de la portada, que es
-   más corto que el de la otra. Todo lo demás lo pone el sistema de
-   superficies del final del archivo. */
 .panel-stat {
   padding: 0.9rem 1rem;
   text-decoration: none;

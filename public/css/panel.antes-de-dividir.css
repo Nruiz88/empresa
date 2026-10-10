@@ -1188,16 +1188,6 @@ html[data-panel] {
   grid-template-columns: repeat(auto-fit, minmax(195px, 1fr));
 }
 
-/* ── ESTA DECLARACIÓN ESTÁ VACÍA A PROPÓSITO ──
-
-   `.panel-stat` se declaraba dos veces en esta hoja: aquí y unas
-   cuatrocientas líneas más abajo, donde la otra tenía el fondo, el
-   borde, el radio y la sombra. La segunda ganaba siempre, y esta
-   primera se quedaba sin efecto.
-
-   Lo único que queda aquí es el relleno pequeño de la portada, que es
-   más corto que el de la otra. Todo lo demás lo pone el sistema de
-   superficies del final del archivo. */
 .panel-stat {
   padding: 0.9rem 1rem;
   text-decoration: none;
@@ -7098,33 +7088,6 @@ a.panel-stat:hover {
   margin-top: 0.35rem;
 }
 
-/* ─────────────────────────────────────────────────────────
-   LOS CAMPOS SUELTOS
-
-   Cada campo lleva su etiqueta encima, visible. Antes no había
-   ninguna: seis campos de texto seguidos sin nombre, y había que
-   deducir cuál era cuál.
-
-   Y el ancho del campo dice lo que es, porque un campo de texto
-   ancho es un texto y uno de tres números es un número. Eso no
-   hace falta decirlo si el control tiene la forma correcta.
-   ───────────────────────────────────────────────────────── */
-
-.plan-campos {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
-}
-
-.plan-campo {
-  min-width: 0;
-}
-
-.plan-campo--ancho {
-  flex: 1;
-  min-width: 0;
-}
-
 .plan-campo-etiqueta {
   display: block;
   margin-bottom: 0.25rem;
@@ -7133,57 +7096,6 @@ a.panel-stat:hover {
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--text-dim);
-}
-
-/* ── El botón de la web pública ──
-
-   Texto y destino en la misma fila porque son una sola decisión: no
-   tiene sentido medio botón. Y al lado, la previsualización, para
-   ver lo que sale sin abrir la portada. */
-.plan-boton {
-  display: flex;
-  align-items: flex-end;
-  gap: 1rem;
-  padding: 0.85rem 0 0;
-  border-top: 1px solid var(--border);
-}
-
-.plan-boton-campos {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.5rem;
-}
-
-.plan-boton-vista {
-  flex: none;
-  text-align: end;
-}
-
-.plan-boton-falso {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: var(--control-h);
-  padding: 0 1.1rem;
-  border-radius: var(--radius-sm);
-  background: var(--raise-strong);
-  color: var(--text-muted);
-  font-size: var(--fs-sm);
-  font-weight: 600;
-}
-
-.plan-boton-falso.es-destacado {
-  background: var(--accent-grad);
-  color: var(--on-accent);
-}
-
-.plan-boton-vacio {
-  display: inline-flex;
-  align-items: center;
-  min-height: var(--control-h);
-  font-size: var(--fs-sm);
-  color: var(--text-dim);
-  font-style: italic;
 }
 
 /* ─────────────────────────────────────────────────────────
@@ -7347,8 +7259,6 @@ a.panel-stat:hover {
    pegado al borde de la caja. Con el relleno del panel, el aire es
    el mismo que en el resto del formulario, y un campo se lee como
    un campo y no como una raya con letras encima. */
-.plan-campo input[type="text"],
-.plan-boton-campos input[type="text"],
 .plan-pie-orden input[type="text"] {
   min-height: var(--control-h);
   padding: 0 var(--p-3);
@@ -7361,77 +7271,9 @@ a.panel-stat:hover {
   transition: border-color var(--caja-transicion);
 }
 
-.plan-campo input[type="text"]:hover,
-.plan-boton-campos input[type="text"]:hover {
-  border-color: var(--border-strong);
-}
-
-.plan-campo input[type="text"]:focus,
-.plan-boton-campos input[type="text"]:focus,
 .plan-pie-orden input[type="text"]:focus {
   outline: none;
   border-color: var(--accent);
-}
-
-.plan-campo input::placeholder,
-.plan-boton-campos input::placeholder {
-  color: var(--text-dim);
-}
-
-/* ─────────────────────────────────────────────────────────
-   EL PIEGABLE DE AYUDA
-
-   ── POR QUÉ UN `<details>` Y NO UN BLOQUE FIJO ──
-
-   Porque es una duda que se tiene una vez. La primera vez que
-   alguien abre esta pantalla necesita leerla entera; las veinte
-   siguientes, no. Con la nota siempre abierta ocupaba un tercio de
-   la pantalla y empujaba los tres planes tan abajo que había que
-   desplazarse para verlos, y eso en la pantalla donde se editan
-   los precios no es un detalle pequeño.
-
-   Y el resumen dice lo importante —que vacío es «A consultar»— para
-   que no haya que abrirlo para enterarse de eso.
-
-   ── POR QUÉ SIN CAJA ──
-
-   Un plegable ya es un borde por sí mismo, con la línea y el
-   triángulo. Ponerle una caja encima sería dibujar dos bordes
-   alrededor de lo mismo. */
-.panel-detalle {
-  background: var(--caja-hundida-fondo);
-  border: 1px solid transparent;
-  border-radius: var(--caja-radio);
-  margin-bottom: var(--panel-gap-lg);
-}
-
-.panel-detalle[open] {
-  border-color: var(--border);
-}
-
-.panel-detalle-resumen {
-  display: flex;
-  align-items: baseline;
-  gap: 0.6rem;
-  flex-wrap: wrap;
-  padding: 0.7rem 0.9rem;
-  cursor: pointer;
-  font-size: var(--fs-sm);
-  color: var(--text);
-  list-style-position: inside;
-}
-
-.panel-detalle-resumen:hover {
-  background: var(--raise);
-  border-radius: var(--caja-radio);
-}
-
-.panel-detalle-cuerpo {
-  margin: 0;
-  padding: 0 0.9rem 0.85rem;
-  font-size: var(--fs-sm);
-  color: var(--text-muted);
-  max-width: 68ch;
 }
 
 /* ─────────────────────────────────────────────────────────
@@ -7441,11 +7283,6 @@ a.panel-stat:hover {
    una descripción de una línea metida en 180px corta a media frase.
    ───────────────────────────────────────────────────────── */
 @media (max-width: 640px) {
-  .plan-campos,
-  .plan-boton-campos {
-    grid-template-columns: 1fr;
-  }
-
   .plan-cabecera {
     flex-direction: column;
     gap: 0.85rem;
@@ -7458,15 +7295,6 @@ a.panel-stat:hover {
   .plan-precio-cifra,
   .plan-precio-pie {
     justify-content: flex-start;
-  }
-
-  .plan-boton {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .plan-boton-vista {
-    text-align: start;
   }
 
   .plan-pie {
