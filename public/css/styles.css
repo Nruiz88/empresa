@@ -27,130 +27,48 @@
      grande. El precio de los planes va en --brand y es de 46 px: da
      7,04:1, con holgura.
      ───────────────────────────────────────────────────────── */
+  /* =========================================================
+     LOS PLANOS Y LOS BORDES
+
+     ── ESTOS VALORES SON LOS DE LA WEB PÚBLICA ──
+
+     La portada y el panel comparten este archivo, así que lo que se
+     declare aquí se ve en los dos sitios.
+
+     Los tres planos del panel NO se cambian aquí. Se redeclaran en
+     `html[data-panel]`, en `panel.css`.
+
+     La primera versión de este trabajo los cambió en `:root`, y fue
+     un error: `--bg` y `--surface` tienen 84 usos en esta hoja, que
+     carga la portada. Cambiarlos aquí teñía de otro color la web
+     pública sin que nadie lo hubiera decidido, y una web pública que
+     se cambia por accidente es una web pública que hay que revisar
+     entera.
+
+     ── LO QUE SÍ CAMBIA AQUÍ, Y POR QUÉ ──
+
+     El borde fuerte baja de 0.16 a 0.11 de blanco.
+
+     Es el cambio con motivo, y vale para los dos sitios: con 0.16, el
+     borde de un campo de formulario se ve como una caja negra
+     alrededor de la caja. Es un borde demasiado pesado dibujando una
+     segunda forma donde solo hace falta un contorno, y pasa igual en
+     la portada que en el panel.
+
+     El borde normal baja de 0.09 a 0.07. Ese es más discreto y solo
+     lo nota el panel, porque en la portada cada bloque dibuja su
+     propio contorno.
+     ========================================================= */
   --bg: #0f172a;
   --bg-soft: #131f38;
   --surface: #1b2942;
   --surface-2: #223252;
-  --border: rgba(255, 255, 255, 0.09);
-  --border-strong: rgba(255, 255, 255, 0.16);
+  --border: rgba(255, 255, 255, 0.07);
+  --border-strong: rgba(255, 255, 255, 0.11);
   --text: #f1f5f9;
   --text-muted: #a8b3cc;
   --text-dim: #8b9ab5;
 
-  /* El verde de la marca, para el botón principal y el precio. */
-  --brand: #10b981;
-  --brand-deep: #059669;
-
-  /* Texto e iconos que van sobre el fondo: el verde un paso más
-     claro, que sobre azul noche se ve y sobre blanco no. */
-  --accent: #34d399;
-  --accent-2: #fbbf24;
-  --accent-grad: linear-gradient(120deg, #10b981 0%, #34d399 100%);
-
-  /* Texto sobre el verde del botón.
-     El blanco sobre #10b981 da 2,54:1, así que no: azul noche, que da
-     7,04:1. */
-  --brand-ink: #0f172a;
-  --on-accent: #0f172a;
-  --icon-color: #6ee7b7;
-
-  --success: #34d399;
-  --success-text: #a7f3d0;
-  --success-bg: rgba(52, 211, 153, 0.12);
-  --success-border: rgba(52, 211, 153, 0.4);
-
-  /* ── Aviso: ni bien ni mal ──
-     El tercer estado. Rojo y verde no cubren "esto no esta roto,
-     pero se va a romper": un modulo a la venta sin url detras, una
-     migracion sin aplicar, un despliegue viejo. Sin el, todo lo que
-     no este bien tiene que pintarse de rojo, y un panel donde todo
-     es rojo deja de ensenar nada.
-
-     Ambar apagado a proposito: si el estado intermedio llama mas la
-     atencion que el roto, se deja de mirar el rojo. */
-  --warning: #fbbf24;
-  --warning-text: #fde68a;
-  --warning-bg: rgba(251, 191, 36, 0.12);
-  --warning-border: rgba(251, 191, 36, 0.4);
-  --danger: #f87171;
-
-  /* ── Dos estados más que el panel necesitaba ──
-   *
-   * El panel usaba dos colores escritos a mano, sin token. Un literal
-   * no cambia con el tema y rompía el contraste en los otros.
-   *
-   * `--info` NO puede ser verde: el panel pinta con él los chips de
-   * salud de cada caja de Evolution, donde el verde significa
-   * "funciona". Con los dos en la misma familia, un bot caído y uno
-   * sano se parecen. */
-  --info: #60a5fa;
-  --urgent: #fb923c;
-
-  --text-grad: linear-gradient(120deg, #059669 0%, #34d399 100%);
-
-  --header-bg: rgba(15, 23, 42, 0.82);
-  --header-bg-solid: rgba(15, 23, 42, 0.95);
-  --menu-bg: #131f38;
-
-  /* Degradados de fondo. Muy bajos a propósito: esto va detrás de
-     texto y un verde fuerte detrás de un titular lo vuelve ilegible. */
-  --hero-glow: radial-gradient(
-    ellipse at center,
-    rgba(16, 185, 129, 0.26) 0%,
-    rgba(56, 189, 248, 0.1) 45%,
-    transparent 70%
-  );
-  --page-glow: radial-gradient(ellipse at center, rgba(16, 185, 129, 0.2), transparent 70%);
-  --grid-line: rgba(255, 255, 255, 0.035);
-  --stats-bg: rgba(27, 41, 66, 0.7);
-  --raise: rgba(255, 255, 255, 0.045);
-  --raise-strong: rgba(255, 255, 255, 0.09);
-  --btn-glow: 0 10px 30px rgba(16, 185, 129, 0.35);
-  --btn-glow-strong: 0 14px 36px rgba(16, 185, 129, 0.5);
-  --featured-bg: linear-gradient(180deg, rgba(16, 185, 129, 0.16), rgba(27, 41, 66, 0.9));
-  --featured-glow: 0 24px 60px rgba(16, 185, 129, 0.24);
-  --cta-bg: linear-gradient(120deg, rgba(16, 185, 129, 0.2), rgba(56, 189, 248, 0.12));
-  --cta-border: rgba(16, 185, 129, 0.45);
-  --thumb-overlay: linear-gradient(180deg, transparent 40%, rgba(15, 23, 42, 0.55) 100%);
-
-  /* Tipografía */
-  --font-display: "Outfit", "Plus Jakarta Sans", "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
-
-  /* ── La monoespaciada ──
-     El sistema no tenía ninguna, y eso se notaba justo donde más
-     importa: en las cifras.
-
-     Sin ella, una columna de importes usa la fuente de texto, donde
-     los números no ocupan el mismo ancho. "1.500" y "250" miden
-     distinto, así que las cifras quedan descentradas y comparar dos
-     precios de un vistazo es trabajo de cabeza.
-
-     Con monoespaciada los dígitos ocupan lo mismo, la columna se
-     alinea sola y el ojo baja por ella sin leer. Además es la señal
-     de "esto es un dato técnico" que distingue un panel de
-     herramienta de una web de marketing, que es lo que se buscaba.
-
-     JetBrains Mono y no la del sistema porque en Windows la
-     monoespaciada por defecto (Consolas) es más ancha y menos
-     cuidada. Con la del sistema, el diseño depende de una fuente que
-     cambia según el ordenador, que es la forma más fácil de que un
-     panel se vea distinto en cada casa. La de reserva va igual, para
-     el caso de que el CDN no cargue. */
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-
-  --fs-hero: clamp(2.4rem, 6vw, 4.2rem);
-  --fs-h1: clamp(2rem, 4.5vw, 3rem);
-  --fs-h2: clamp(1.6rem, 3.4vw, 2.35rem);
-  --fs-h3: clamp(1.15rem, 2vw, 1.4rem);
-  --fs-body: 1rem;
-  --fs-sm: 0.9rem;
-  --fs-xs: 0.8rem;
-
-  /* Espaciado y layout */
-  --radius: 16px;
-  --radius-sm: 10px;
-  --radius-lg: 26px;
   --container: 1160px;
   --gap: clamp(1rem, 2vw, 1.5rem);
   --section-y: clamp(4rem, 9vw, 7rem);

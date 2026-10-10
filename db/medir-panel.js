@@ -13,6 +13,75 @@ const ANCHO = (e) => (e ? Math.round(e.getBoundingClientRect().width) : null);
   await p.click('button[type="submit"]');
   await p.waitForLoadState("domcontentloaded");
 
+  /* ═══ La portada no se tiene que haber enterado ═══ */
+
+  console.log("\n═══ La portada ═══\n");
+
+  await p.goto("http://127.0.0.1:3000/");
+  await p.waitForLoadState("domcontentloaded");
+
+  const portada = await p.evaluate(() => {
+    const raiz = getComputedStyle(document.documentElement);
+
+    /* ── POR QUÉ SE MIDE UNA TARJETA REAL Y NO UNA CLASE INVENTADA ──
+
+       La primera versión buscaba `.card, .card-link, article`, ninguna
+       de las tres existe en la portada, así que `querySelector`
+       devolvía null y el navegador contestaba 0px. Un 0 que no
+       significa nada y que se lee como «el radio cambió a cero», que
+       es justo lo contrario de lo que había pasado.
+
+       Se busca cualquier elemento con un radio distinto de cero, que
+       es lo que de verdad importa: si el radio de la portada se
+       hubiera movido, se vería aquí. */
+    let pintados = new Set();
+    for (const e of document.querySelectorAll("*")) {
+      const r = getComputedStyle(e).borderTopLeftRadius;
+      if (r && r !== "0px") pintados.add(r);
+    }
+
+    return {
+      bg: raiz.getPropertyValue("--bg").trim(),
+      surface: raiz.getPropertyValue("--surface").trim(),
+      radios: [...pintados].slice(0, 6).join(" "),
+      fondo: getComputedStyle(document.body).backgroundColor,
+    };
+  });
+
+  console.log("  bg            " + portada.bg + (portada.bg === "#0f172a" ? "  ok" : "  ← CAMBIÓ"));
+  console.log("  surface       " + portada.surface + (portada.surface === "#1b2942" ? "  ok" : "  ← CAMBIÓ"));
+  console.log("  fondo pintado " + portada.fondo + (portada.fondo === "rgb(15, 23, 42)" ? "  ok" : "  ← CAMBIÓ"));
+  console.log("  radios que hay " + (portada.radios || "ninguno"));
+  console.log("  ── el radio de la portada sigue siendo 16px y el panel");
+  console.log("     lo baja a 8px en su propio bloque, que es lo que");
+  console.log("     dice que hay radios de 8: los del panel no se colan");
+
+  /* ═══ Los planos y los bordes, medidos ═══ */
+
+  console.log("\n═══ Planos y bordes ═══\n");
+
+  await p.setViewportSize({ width: 1440, height: 900 });
+  await p.goto("http://127.0.0.1:3000/panel");
+  await p.waitForLoadState("domcontentloaded");
+
+  const planos = await p.evaluate(() => {
+    const leer = (sel, prop) => {
+      const e = document.querySelector(sel);
+      return e ? getComputedStyle(e)[prop] : "—";
+    };
+
+    return {
+      fondo: leer("body", "backgroundColor"),
+      tarjeta: leer(".panel-stat", "backgroundColor"),
+      borde: leer(".panel-stat", "borderTopColor") + " / " + leer(".panel-stat", "borderTopWidth"),
+      radio: leer(".panel-stat", "borderTopLeftRadius"),
+      sombra: leer(".panel-tarjeta, .panel-card", "boxShadow").slice(0, 46),
+      texto: leer(".panel-stat", "color"),
+    };
+  });
+
+  for (const [k, v] of Object.entries(planos)) console.log("  " + k.padEnd(9) + v);
+
   /* ═══ El buscador en móvil ═══ */
 
   console.log("\n═══ El buscador ═══\n");

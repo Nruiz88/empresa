@@ -34,6 +34,52 @@
    ========================================================= */
 
 html[data-panel] {
+  /* =========================================================
+     LOS TRES PLANOS DEL PANEL
+
+     ── EL PROBLEMA QUE RESUELVEN ──
+
+     Antes, fondo y tarjeta se diferenciaban en 1,226:1 y la tarjeta
+     y la tabla en 1,141:1. Por debajo de 1,3 el ojo los lee como el
+     mismo plano, y eso era lo que hacía que el panel se viera plano:
+     no faltaban colores, faltaba separación.
+
+     ── POR QUÉ ESTÁN AQUÍ Y NO EN `:root` ──
+
+     Porque `styles.css` lo carga la portada también, y `--bg` y
+     `--surface` tienen ahí 84 usos. Cambiarlos en `:root` teñía la
+     web pública de otro color sin que nadie lo hubiera pedido. Este
+     bloque solo existe en páginas del panel, que llevan
+     `data-panel`, así que la portada no se entera.
+
+     ── LO QUE NO SE HA INTENTADO ──
+
+     Se probó aclarar las tarjetas hasta llegar a 1,5:1
+     (`db/buscar-paleta.js`): cuatro paletas, ninguna llegó. En la
+     parte baja de la escala de luminancia, que es donde vive un
+     panel oscuro, cada paso perceptible cuesta el doble que el
+     anterior, y para llegar a 1,5 la tarjeta tiene que volverse gris
+     medio: se ve más clara que el texto y compite con él.
+
+     También se probó en claro, y sale peor, 1,064:1
+     (`db/claro-vs-oscuro.js`).
+
+     ── LA SALIDA ──
+
+     La separación la hace el BORDE, no el tono. Stripe separa sus
+     tarjetas con un 1px y no con un gris distinto, y por eso sus
+     grises pueden parecerse: el gris da profundidad, el borde da el
+     contorno.
+
+     Así que aquí el tono se mueve lo justo para dar una pista, y el
+     borde hace el trabajo. Estos valores suben el contraste del texto
+     de 13,29:1 a 14,50:1 de regalo.
+     ========================================================= */
+  --bg: #0b0f1a;
+  --bg-soft: #121829;
+  --surface: #1a2234;
+  --surface-2: #212b40;
+
   /* Medidas del layout. El lateral es fijo porque el contenido se
      lee en columna estrecha y no conviene quitarle espacio. */
   --panel-sidebar: 248px;
@@ -46,6 +92,28 @@ html[data-panel] {
   --panel-gap: 1rem;
   --panel-gap-lg: 1.5rem;
   --panel-gap-xl: 2.25rem;
+
+  /* ── EL RADIO DEL PANEL, QUE NO ES EL DE LA WEB ──
+
+     En `:root` el radio son 16px, y ahí está bien: la portada tiene
+     tarjetas con imágenes y esquinas blandas de 26px, y eso ablanda
+     una página de contenido y la hace leer más ligera.
+
+     En un panel es al revés. Un panel son cajas de datos apiladas, y
+     a 16px cada una queda con las esquinas tan abiertas que parece
+     una burbuja en vez de una superficie de trabajo. Con la sombra
+     corta que lleva ahora se nota más: un radio grande y un halo
+     pequeño se pelean, porque la sombra insinúa un borde recto y las
+     esquinas están diciendo otra cosa.
+
+     8px es donde la caja sigue siendo rectilínea, y por tanto «de
+     herramienta», sin llegar al 0, que se ve duro y hace que todo
+     parezca una tabla.
+
+     Se redeclara aquí y no en `styles.css` por el mismo motivo que
+     los planos: `:root` es de los dos sitios. */
+  --radius: 8px;
+  --radius-sm: 6px;
 
   /* ─────────────────────────────────────────────────────────
      LA ESCALA DE TIPOGRAFÍA
@@ -682,13 +750,31 @@ html[data-panel] {
 
      ── EL COLOR ──
 
-     Se queda en el acento. Es el único color del encabezado de página
-     y por eso funciona como lo que es: la señal de que ahí empieza
-     algo. */
+     ── EL COLOR, Y POR QUÉ PASA A GRIS ──
+
+     Estaba en `var(--accent-2)`, el mismo amarillo que llevan los
+     chips de estado. Eso ponía dos colores de marca vivos a la vez
+     diciendo «esto es importante»: el verde del botón principal y el
+     amarillo de cada etiqueta de sección.
+
+     Cuando todo es acento no hay acento. El ojo aprende que el
+     amarillo no significa nada en concreto, y entonces deja de
+     servir para lo que sí lo significa, que es un estado de una fila.
+
+     El verde se queda como color de marca y para la acción
+     principal. El amarillo pasa a ser solo estado, y esta etiqueta
+     baja a `text-dim`: es un rótulo, no un aviso.
+
+     ── POR QUÉ NO SE BORRA ──
+
+     Porque separa la pantalla de lo que hay dentro de ella. Un
+     rótulo gris y pequeño cumple eso igual, y además se leen todos
+     los encabezados de golpe como una sola cosa, que con el color
+     no pasaba: cada uno tiraba para su lado. */
   font-weight: 600;
   letter-spacing: 0.07em;
   text-transform: uppercase;
-  color: var(--accent-2);
+  color: var(--text-dim);
 }
 
 .panel-count {
@@ -4488,26 +4574,41 @@ body.cmd-abierto {
   --elev-1: 0 1px 2px rgba(0, 0, 0, 0.14);
   --elev-2: 0 12px 32px -8px rgba(0, 0, 0, 0.45);
 
-    /* La sombra de tarjeta, que es otra cosa que --elev-2.
+    /* ── LA SOMBRA DE TARJETA ──
 
-       --elev-2 es "esto flota por encima de la pagina": un menu, una
-       paleta de busqueda, un dialogo. Es una sombra profunda y
-       direccional, con desplazamiento, porque el elemento esta
-       DESPEGADO.
+       El criterio de arriba sigue en pie y no se toca: una tarjeta
+       está PEGADA al lienzo, así que no lleva desplazamiento, y el
+       hueco de sombra queda para lo que de verdad flota.
 
-       La tarjeta al reves esta PEGADA al lienzo y lo que quiero es
-       que se destaque por un pelo, no que parezca flotando. Por eso
-       no lleva desplazamiento y el desenfoque es grande: muchos
-       pixeles de difuminacion y ninguno de recorrido.
+       Lo que cambia es la cantidad. Era `0 0 2rem` (32px de
+       difuminación) con un 10% de gris azulado, y eso no se leía como
+       una tarjeta apoyada: se leía como un resplandor. Un halo tan
+       ancho ilumina la superficie entera y hace que la caja parezca
+       brillar por dentro.
 
-       Es la sombra de Argon, `0 0 2rem rgba(136,152,170,.15)`, y el
-       2rem sale de ahi, no de elegir a ojo. El gris azulado tambien
-       es el suyo porque en oscuro una sombra con tinte cold se
-       distingue de la superficie; una gris neutra se mezcla con
-       ella y no dibuja nada. */
+       ── POR QUÉ 0.5rem Y NO 2rem ──
 
-    --elev-card: 0 0 2rem rgba(136, 152, 170, 0.10);
-    --elev-card-fuerte: 0 0 2.5rem rgba(136, 152, 170, 0.16);
+       Porque el objetivo declarado más arriba —«que se destaque por
+       un pelo»— necesita un pelo, y un pelo son 8px. Con 0.5rem la
+       sombra es justo una separación suave del fondo, que es lo que
+       hace una tarjeta apoyada. A partir de 1rem ya se nota el halo,
+       y a 2rem la tarjeta parece iluminada.
+
+       ── LA OPACIDAD ──
+
+       Baja a 0.06 y 0.10. La diferencia entre la tarjeta y el fondo es
+       de un 6% en tono, así que la sombra tiene que ser más tenue que
+       eso, no más fuerte: si la sombra compite con la diferencia de
+       tono, se ve la sombra y no la superficie, que es al revés de lo
+       que se busca.
+
+       ── EL GRIS AZULADO ──
+
+       Se mantiene, y el motivo es el del comentario anterior: en
+       oscuro una sombra con tinte frío se distingue de la superficie;
+       una gris neutra se mezcla con ella y no dibuja nada. */
+    --elev-card: 0 0 0.5rem rgba(136, 152, 170, 0.06);
+    --elev-card-fuerte: 0 0 0.75rem rgba(136, 152, 170, 0.10);
 
   /* Una sola sombra para el tema oscuro tambien. Las sombras
      sobre fondo casi negro no se ven; el relieve lo hace el
