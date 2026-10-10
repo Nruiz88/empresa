@@ -13,6 +13,7 @@ const CSRF = "pruebacsrf";
 const hash = (s) => crypto.createHash("sha256").update(s).digest("hex");
 
 const COMPROBAR = [
+  [/class="panel-body panel-body--staff"/, "tema de equipo aplicado"],
   [/<aside class="panel-side"/, "lateral presente"],
   [/panel-menu-item is-active/, "sección actual marcada"],
   [/class="panel-scrim"/, "capa del cajón"],
