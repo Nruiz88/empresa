@@ -85,7 +85,7 @@ Complementos, no sustitutos:
       `TODO` en `routes/panel-accesos.js`.
 - [ ] **Conectar el bot de verdad.** Acceso, aislamiento de cookies y
       renovación del token: hechos y con tests (44 comprobaciones en
-      `db/test-acceso-servicio.js`). El equipo (staff) entra sin
+      `db/herramientas/test-acceso-servicio.js`). El equipo (staff) entra sin
       suscripción, que es lo que hace falta para dar soporte.
       El destino se deduce del dominio (`bot.<tu-dominio>`), sin
       dominio inventado guardado en la base. Probado por HTTPS entre

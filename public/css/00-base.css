@@ -71,6 +71,88 @@ html[data-panel] {
   --surface: #1a2234;
   --surface-2: #212b40;
 
+  /* =========================================================
+     LA ESCALA DE PROFUNDIDAD
+
+     ── POR QUÉ ESTÁ AQUÍ Y NO EN `10-bots.css` ──
+
+     Estaba al final de la cadena, en el módulo número 10 de 12, en
+     un archivo que se llama `bots` y que por su nombre no anuncia
+     nada de superficies. Los módulos que la necesitan están al
+     principio: `01-estructura.css`, `02-controles.css`,
+     `03-datos.css`. O sea que los primeros usaban su propia cosa y
+     el único que la usaba bien estaba al final.
+
+     Eso es lo que producía las 44 sombras distintas que había: cada
+     módulo decidió la suya, y por eso dos cajas con sombras parecidas
+     no se distinguían.
+
+     Aquí está desde el principio y con nombre de panel, no de bots.
+
+     ── POR QUÉ HAY CUATRO PLANOS Y NO TRES ──
+
+     Porque faltaba el más común. Los tres que había eran página,
+     caja y flotante, y el caso de todos los días —una caja con
+     contenido dentro de la página— no tenía plano propio y se
+     resolvía a ojo en cada sitio.
+
+     El orden va de más lejos a más cerca:
+
+       0   la página, el fondo
+       1   una caja sobre la página
+       2   una caja dentro de una caja, un hueco
+       3   lo que flota de verdad: menús, diálogos
+     ========================================================= */
+  --plano-0: #0b0f1a;
+  --plano-1: #1a2234;
+  --plano-2: #131f38;
+  --plano-3: #212b40;
+
+  /* ── EL VELO DE LA WEB PÚBLICA, DECLARADO AQUÍ ──
+
+     `--raise` y `--raise-strong` venían de `styles.css`, que es el
+     CSS de la portada. El panel los usaba sin haberlos declarado:
+     funcionaba porque `styles.css` se carga siempre, pero significaba
+     que el panel dependía de un archivo del que no dice nada en su
+     nombre que le preste atención.
+
+     Se declaran aquí los mismos valores. El panel deja de depender
+     de un archivo ajeno y si mañana cambia el velo de la portada,
+     aquí no se mueve nada.
+     ========================================================= */
+  --raise: rgba(255, 255, 255, 0.045);
+  --raise-strong: rgba(255, 255, 255, 0.09);
+
+  /* =========================================================
+     LAS TRES SOMBRAS, Y SOLO TRES
+
+     ── EL PROBLEMA QUE RESUELVEN ──
+
+     Había 44 valores distintos repartidos por los módulos, y solo dos
+     eran tokens. El resto eran decisiones escritas una por una dentro
+     de cada componente, casi todas con la misma forma:
+
+         0 2px 4px rgba(0,0,0,.32), 0 4px 14px color-mix(...)
+
+     Cuando dos cajas llevan sombras parecidas, el ojo las lee al
+     mismo nivel y no hay forma de saber cuál está encima. No faltaba
+     profundidad: sobraban profundidades distintas.
+
+     ── POR QUÉ LA SEGUNDA CAPA BAJA TANTO ──
+
+     Antes la de abajo era `0 1px 2px .24` y la de arriba `0 4px 12px
+     .18`. Sobre fondo oscuro una sombra así es casi invisible: el
+     negro sobre negro no se ve. Se sube el recorrido y el difuminado,
+     y la opacidad también, para que la tarjeta se despegue de verdad.
+
+     La primera capa se queda corta y marcada porque es la que dibuja
+     el contacto con la superficie: es la línea de sombra que dice
+     «esto está encima». La segunda da el volumen.
+     ========================================================= */
+  --sombra-1: 0 1px 2px rgba(0, 0, 0, 0.28), 0 8px 24px rgba(0, 0, 0, 0.34);
+  --sombra-2: 0 2px 4px rgba(0, 0, 0, 0.3), 0 16px 40px rgba(0, 0, 0, 0.42);
+  --sombra-3: 0 8px 24px rgba(0, 0, 0, 0.5), 0 28px 60px rgba(0, 0, 0, 0.55);
+
   /* Medidas del layout. El lateral es fijo porque el contenido se
      lee en columna estrecha y no conviene quitarle espacio. */
   --panel-sidebar: 248px;

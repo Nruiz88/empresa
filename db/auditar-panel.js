@@ -26,7 +26,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const RAIZ = path.join(__dirname, "..");
+const RAIZ = path.join(__dirname, "..", );
 const VISTAS_PANEL = path.join(RAIZ, "views", "panel");
 
 const leerTodo = (dir, ext) => {

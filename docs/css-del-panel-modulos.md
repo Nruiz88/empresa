@@ -48,7 +48,7 @@ Y lo lee `lib/modulos-panel.js`, que lo pasa a todas las vistas como
 
 ## Cómo se garantiza que no cambia nada
 
-    node db/ver-modulos-css.js
+    node db/herramientas/ver-modulos-css.js
 
 Compara la concatenación de los doce, **en el orden del manifiesto**,
 contra una copia del archivo único de antes de la división.
@@ -89,9 +89,9 @@ respeta la codificación.
 ## Si se toca un módulo
 
 1. Editar solo el módulo.
-2. `node db/ver-modulos-css.js` — avisa en qué línea se separó.
-3. `node db/ver-css-entero.js` — balance de llaves.
-4. `node db/ver-css.js` y `node db/ver-desborde.js` — en navegador.
+2. `node db/herramientas/ver-modulos-css.js` — avisa en qué línea se separó.
+3. `node db/herramientas/ver-css-entero.js` — balance de llaves.
+4. `node db/herramientas/ver-css.js` y `node db/herramientas/ver-desborde.js` — en navegador.
 
 El paso 2 es el que hace falta. Los otros tres los encuentra igual
 por su cuenta; el 2 es el único que sabe si el cambio fue a otro

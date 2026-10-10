@@ -28,7 +28,7 @@ faltaban colores, faltaba separación.
 ## El intento que falló: aclarar las superficies
 
 Lo primero que se probó fue subir el tono de las tarjetas hasta llegar
-a 1.5:1 con el fondo (`db/buscar-paleta.js`, cuatro paletas).
+a 1.5:1 con el fondo (`db/herramientas/buscar-paleta.js`, cuatro paletas).
 **Ninguna llegó.**
 
 El motivo es la forma de la curva de luminancia. En la parte baja de
@@ -38,7 +38,7 @@ la tarjeta tiene que volverse un gris medio, se ve más clara que el
 texto y compite con él. En oscuro caben bien dos planos; tres, apretados.
 
 También se probó un panel claro, y sale **peor**: 1,064:1 entre fondo y
-tarjeta (`db/claro-vs-oscuro.js`).
+tarjeta (`db/herramientas/claro-vs-oscuro.js`).
 
 ## El hallazgo
 
@@ -84,11 +84,11 @@ el verde es la marca y la acción, y el amarillo es solo estado.
 
 ## Herramientas
 
-    db/contraste-colores.js       contraste del texto sobre cada plano
-    db/separacion-superficies.js  separación entre planos
-    db/buscar-paleta.js           prueba paletas candidatas (falló)
-    db/claro-vs-oscuro.js         por qué en claro tampoco funciona
-    db/repartir-planos.js         verifica la paleta finalmente elegida
+    db/herramientas/contraste-colores.js       contraste del texto sobre cada plano
+    db/herramientas/separacion-superficies.js  separación entre planos
+    db/herramientas/buscar-paleta.js           prueba paletas candidatas (falló)
+    db/herramientas/claro-vs-oscuro.js         por qué en claro tampoco funciona
+    db/herramientas/repartir-planos.js         verifica la paleta finalmente elegida
 
 Las tres primeras son de diagnóstico y la cuarta verifica. El orden
 importa: se diagnostica, se prueban alternativas, y solo entonces se

@@ -39,7 +39,7 @@ Panel en `/panel`. El alta de cliente no tiene registro abierto; el
 primer usuario de equipo se crea a mano:
 
 ```bash
-node db/create-user.js --email tu@correo.com --nombre "Tu Nombre" --staff
+node db/herramientas/create-user.js --email tu@correo.com --nombre "Tu Nombre" --staff
 ```
 
 Sin `--password` genera una de 18 caracteres y la imprime una vez.
@@ -187,7 +187,7 @@ Esto **no** está listo para producción. Lo que falta:
 - [ ] **Rotar las credenciales de Supabase** si alguna vez se
       compartieron por chat o pantalla. Borrarlas del historial no
       basta: hay que hacerlo en Supabase > Settings > API.
-- [ ] **Cambiar las claves de prueba.** Las de `db/seed.js` y
+- [ ] **Cambiar las claves de prueba.** Las de `db/herramientas/seed.js` y
       `NOTAS-LOCAL.md` son de desarrollo.
 - [ ] **Elegir dominio** y sustituir `midominio.com` (en `lib/site.js`
       o por `.env`).

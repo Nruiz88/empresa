@@ -42,7 +42,7 @@ solo las seis líneas de los planos.
 
 ## La herramienta
 
-    node db/ver-variables-roto.js
+    node db/herramientas/ver-variables-roto.js
 
 Busca lo que se usa y no está declarado, en las hojas de
 `public/css`. Distingue los `var(--x, reserva)`, que sí funcionan

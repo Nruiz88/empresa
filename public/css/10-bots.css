@@ -532,7 +532,7 @@
 html[data-panel] {
   /* ── El sistema, en nuestra paleta ── */
 
-  --caja-fondo: var(--surface);
+  --caja-fondo: var(--plano-1);
 
   /* Sin borde. La separación la hace el tono.
 
@@ -543,23 +543,23 @@ html[data-panel] {
      panel se vea amateur. */
   --caja-borde: transparent;
   --caja-radio: 12px;
-  --caja-sombra: 0 1px 2px rgba(0, 0, 0, 0.24), 0 4px 12px rgba(0, 0, 0, 0.18);
+  --caja-sombra: var(--sombra-1);
   --caja-relleno: 1.25rem;
 
   /* Una caja dentro de otra. Un tono por debajo y sin sombra: si
      una cosa está dentro de otra no tiene por qué parecer que está
      encima. */
-  --caja-hundida-fondo: var(--bg-soft);
+  --caja-hundida-fondo: var(--plano-2);
   --caja-hundida-borde: transparent;
 
   /* Lo que flota de verdad. Aquí sí hay hueco de sombra: un menú
      por encima de la página tiene que parecer que está delante. */
-  --caja-alta-fondo: var(--surface-2);
+  --caja-alta-fondo: var(--plano-3);
   --caja-alta-borde: var(--border);
-  --caja-alta-sombra: 0 6px 20px rgba(0, 0, 0, 0.45);
+  --caja-alta-sombra: var(--sombra-2);
 
   --caja-transicion: 0.2s ease;
-  --caja-hover-sombra: 0 2px 4px rgba(0, 0, 0, 0.26), 0 8px 20px rgba(0, 0, 0, 0.24);
+  --caja-hover-sombra: var(--sombra-2);
   --caja-hover-y: -2px;
 
   /* ─────────────────────────────────────────────────────
