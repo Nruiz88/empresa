@@ -133,6 +133,28 @@ if (process.env.NODE_ENV !== "production" && process.env.SESSION_SECRET) {
   });
 }
 
+/* ─────────────────────────────────────────────────────────────
+   LOS MÓDULOS DE CSS DEL PANEL, PARA TODAS LAS VISTAS
+
+   El CSS del panel son doce hojas y su orden de carga está en
+   `public/css/panel.orden.json`. El parcial lo lee y arma los
+   `<link>`.
+
+   Va como middleware y no dentro de la vista porque EJS no expone
+   `require`: una plantilla no puede pedir un módulo, y la primera
+   versión lo intentó con un `try`/`catch` que se tragaba el
+   `require is not defined` y caía al archivo único. El panel se
+   veía bien, con estilos, y la división no estaba funcionando: un
+   respaldo callado que tapa el error en vez de dejarlo visible.
+
+   Con esto el módulo se pide una vez, se guarda en memoria y
+   cualquier vista que lo necesite lo tiene sin pedirlo.
+   ───────────────────────────────────────────────────────────── */
+app.use(function (req, res, next) {
+  res.locals.modulosDelPanel = require("./lib/modulos-panel")();
+  next();
+});
+
 /* El panel va primero: su 404 cierra el espacio de /panel */
 app.use(require("./routes/panel"));
 

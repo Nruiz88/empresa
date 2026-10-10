@@ -27,7 +27,41 @@
   <%# Reutiliza el CSS y los tokens de la web: el panel se ve
       igual de cuidado que el sitio. %>
   <link rel="stylesheet" href="/css/styles.css" />
-  <link rel="stylesheet" href="/css/panel.css" />
+
+  <%# ─────────────────────────────────────────────────────────
+      LOS MÓDULOS DEL PANEL
+
+      El CSS del panel son doce hojas, y se cargan en el orden que
+      dice `panel.orden.json`. Ese orden NO es un detalle: en CSS el
+      que gana es el último, y en este panel hay selectores
+      declarados más de una vez —.panel-shell tres veces, .panel-page
+      tres, .panel-topbar-acciones tres— de modo que mover una hoja de
+      sitio cambia el resultado sin dar ningún error ni dejar rastro.
+
+      Por eso el orden no está escrito aquí, que es donde alguien lo
+      movería sin querer, sino en un manifiesto al lado de las hojas,
+      y este bucle lo recorre tal cual.
+
+      Y `db/ver-modulos-css.js` comprueba que la concatenación de los
+      doce da exactamente el mismo texto que el archivo único de
+      antes de la división. Si algún día se cambia el orden o se
+      edita un módulo, se ejecuta y avisa.
+
+      ── POR QUÉ DOCE Y NO UNO ──
+
+      El archivo único llegó a 7.323 líneas. Eso no se abre, y cada
+      cambio obligaba a recorrer un archivo que nadie puede leer
+      entero para saber qué había antes.
+
+      Los módulos van por lo que hacen, no por orden de aparición:
+      base, estructura, controles, datos, formularios, portal,
+      responsive, catálogo, comandos, argon, bots y planes. Para
+      cambiar un botón se lee `02-controles.css`, que son 174
+      líneas.
+      ───────────────────────────────────────────────────────── %>
+  <% modulosDelPanel.forEach(function (hoja) { %>
+  <link rel="stylesheet" href="/css/<%= hoja %>" />
+  <% }); %>
 <link rel="stylesheet" href="/css/aplicaciones.css" />
 <link rel="stylesheet" href="/css/plan-apps.css" />
 <link rel="stylesheet" href="/css/aplicacion-form.css" />

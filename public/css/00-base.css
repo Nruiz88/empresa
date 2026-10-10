@@ -1,0 +1,255 @@
+/* =========================================================
+   00 BASE
+   =========================================================
+
+   Parte 1 de 12 del CSS del panel.
+   Empieza en: 1. BASE Y MEDIDAS
+
+   ── EL ORDEN DE ESTAS HOJAS ES EL ORDEN DE CARGA ──
+
+   En CSS el que gana es el último, y en este panel hay
+   selectores declarados más de una vez. Mover una hoja de sitio
+   cambia el resultado sin dar ningún error.
+
+   El número del principio es su posición: 00 se carga
+   primero y el último, el último. El orden está en
+   panel.orden.json, que es lo que lee
+   views/partials/panel-head.ejs para armar los <link>.
+
+   Y db/ver-modulos-css.js comprueba que la concatenación da
+   el mismo texto que el archivo único de antes de la división.
+   Si eso dice que no, el aspecto va a cambiar.
+   ========================================================= */
+/* =========================================================
+   1. BASE Y MEDIDAS
+   ========================================================= */
+
+html[data-panel] {
+  /* =========================================================
+     LOS TRES PLANOS DEL PANEL
+
+     ── EL PROBLEMA QUE RESUELVEN ──
+
+     Antes, fondo y tarjeta se diferenciaban en 1,226:1 y la tarjeta
+     y la tabla en 1,141:1. Por debajo de 1,3 el ojo los lee como el
+     mismo plano, y eso era lo que hacía que el panel se viera plano:
+     no faltaban colores, faltaba separación.
+
+     ── POR QUÉ ESTÁN AQUÍ Y NO EN `:root` ──
+
+     Porque `styles.css` lo carga la portada también, y `--bg` y
+     `--surface` tienen ahí 84 usos. Cambiarlos en `:root` teñía la
+     web pública de otro color sin que nadie lo hubiera pedido. Este
+     bloque solo existe en páginas del panel, que llevan
+     `data-panel`, así que la portada no se entera.
+
+     ── LO QUE NO SE HA INTENTADO ──
+
+     Se probó aclarar las tarjetas hasta llegar a 1,5:1
+     (`db/buscar-paleta.js`): cuatro paletas, ninguna llegó. En la
+     parte baja de la escala de luminancia, que es donde vive un
+     panel oscuro, cada paso perceptible cuesta el doble que el
+     anterior, y para llegar a 1,5 la tarjeta tiene que volverse gris
+     medio: se ve más clara que el texto y compite con él.
+
+     También se probó en claro, y sale peor, 1,064:1
+     (`db/claro-vs-oscuro.js`).
+
+     ── LA SALIDA ──
+
+     La separación la hace el BORDE, no el tono. Stripe separa sus
+     tarjetas con un 1px y no con un gris distinto, y por eso sus
+     grises pueden parecerse: el gris da profundidad, el borde da el
+     contorno.
+
+     Así que aquí el tono se mueve lo justo para dar una pista, y el
+     borde hace el trabajo. Estos valores suben el contraste del texto
+     de 13,29:1 a 14,50:1 de regalo.
+     ========================================================= */
+  --bg: #0b0f1a;
+  --bg-soft: #121829;
+  --surface: #1a2234;
+  --surface-2: #212b40;
+
+  /* Medidas del layout. El lateral es fijo porque el contenido se
+     lee en columna estrecha y no conviene quitarle espacio. */
+  --panel-sidebar: 248px;
+  --panel-topbar: 60px;
+  --panel-page-max: 1180px;
+
+  /* Ritmo vertical. Se usa en los paddings grandes para que todos
+     los bloques respiren igual, sin valeurs sueltas por ahí. */
+  --panel-gap-sm: 0.5rem;
+  --panel-gap: 1rem;
+  --panel-gap-lg: 1.5rem;
+  --panel-gap-xl: 2.25rem;
+
+  /* ── EL RADIO DEL PANEL, QUE NO ES EL DE LA WEB ──
+
+     En `:root` el radio son 16px, y ahí está bien: la portada tiene
+     tarjetas con imágenes y esquinas blandas de 26px, y eso ablanda
+     una página de contenido y la hace leer más ligera.
+
+     En un panel es al revés. Un panel son cajas de datos apiladas, y
+     a 16px cada una queda con las esquinas tan abiertas que parece
+     una burbuja en vez de una superficie de trabajo. Con la sombra
+     corta que lleva ahora se nota más: un radio grande y un halo
+     pequeño se pelean, porque la sombra insinúa un borde recto y las
+     esquinas están diciendo otra cosa.
+
+     8px es donde la caja sigue siendo rectilínea, y por tanto «de
+     herramienta», sin llegar al 0, que se ve duro y hace que todo
+     parezca una tabla.
+
+     Se redeclara aquí y no en `styles.css` por el mismo motivo que
+     los planos: `:root` es de los dos sitios. */
+  --radius: 8px;
+  --radius-sm: 6px;
+
+  /* ─────────────────────────────────────────────────────────
+     LA ESCALA DE TIPOGRAFÍA
+
+     ── POR QUÉ ESTA ESCALA Y NO LAS DE `--fs-*` DE LA WEB ──
+
+     Porque el panel no es una página de contenido: es una herramienta
+     donde cabe mucha información y hay que leerla de un vistazo. La
+     web pública usa 16px de cuerpo y títulos de 2rem, y queda bien
+     porque hay una idea por sección. El panel tiene tablas con
+     cuarenta filas, y a 16px no entran.
+
+     El cuerpo va a 14px. Es el cambio que más se nota y el que más
+     separa «panel» de «página».
+
+     ── LOS PASOS ──
+
+     De abajo arriba, en proporción parecida a 1.2, que es la que se
+     nota sin llegar a notar. Y todos múltiplos de medio píxel, para
+     que a 1x y a 2x no bailen.
+
+     No hay paso de 16. Antes lo había, y sobraba: entre 14 y 18 no
+     hay sitio para nada, así que quedó un escalón vacío. La
+     diferencia real entre dos textos hay que buscarla en el salto de
+     14 a 18, no en el intermedio.
+
+     ── POR QUÉ LA CIFRA VA CON CLAMP ──
+
+     Porque el número grande de una tarjeta tiene que caber en una
+     columna estrecha sin partirse, y en una ancha sin quedarse
+     pequeño. Un tamaño fijo hace una de las dos dos cosas.
+     ───────────────────────────────────────────────────────── */
+  --fs-label: 0.6875rem;  /* 11px  etiquetas en versalitas */
+  --fs-xs: 0.75rem;       /* 12px  texto secundario */
+  --fs-sm: 0.8125rem;     /* 13px  tablas y listas densas */
+  --fs-cuerpo: 0.875rem;  /* 14px  el texto normal del panel */
+  --fs-lg: 1.125rem;      /* 18px  subtítulos */
+  --fs-xl: 1.5rem;       /* 24px  título de página */
+  --fs-numero: clamp(1.5rem, 2.2vw, 1.875rem);
+
+  /* ─────────────────────────────────────────────────────────
+     LA ALTURA DE UNA FILA DE TABLA
+
+     40px. Antes el padding fijo de 0.85rem daba filas de 47, y a 47
+     solo entran quince en la pantalla de un portátil. El panel existe
+     para ver de un vistazo qué hay, y una tabla de clientes no
+     debería obligar a desplazarse para ver el resto.
+
+     Va aparte de `--control-h` porque no es lo mismo: esto es una fila
+     de datos, aquello es algo que se pulsa o se escribe. Igualarlas no
+     sale gratis, porque el texto de una fila tiene que poder partirse
+     en dos líneas sin que la fila se descoloque.
+     ───────────────────────────────────────────────────────── */
+
+  /* ─────────────────────────────────────────────────────────
+     EL RITMO VERTICAL
+
+     Antes había veinticuatro valores distintos de `padding` y
+     `margin`, y muchos se diferenciaban en 0.05rem: menos de un
+     píxel. Eso no es elegir poco, es no elegir.
+
+     ── POR QUÉ NO HAY VARIABLES PARA ESTO ──
+
+     Porque ya existen cuatro que cubren lo mismo: `--panel-gap-sm`,
+     `--panel-gap`, `--panel-gap-lg` y `--panel-gap-xl`. Declarar una
+     segunda nomenclatura para el mismo intervalo sería tener dos
+     truths y no saber cuál usar, que es justo el problema que se
+     viene a arreglar.
+
+     ── LA REGLA, QUE ES LO QUE IMPORTA ──
+
+     Para separar bloques por dentro se usan estos cuatro, de menor a
+     mayor. Para padding suelto se redondea al más cercano de los
+     cuatro y se sigue adelante: un valor que no cae exacto en la
+     escala casi nunca se nota, y bloquear el trabajo por eso tampoco.
+
+     Para la altura de todo lo que se pulsa o se escribe está
+     `--control-h`. Esa altura se fija directamente, sin calcularla a
+     partir del tamaño de la letra, y por eso no depende de la
+     tipografía: si mañana el cuerpo pasa de 14 a 15, el botón sigue
+     midiendo lo mismo.
+
+     La altura de una fila de tabla es la excepción, y está escrita a
+     mano junto a `.panel-table td`, que es donde de verdad vive.
+     ───────────────────────────────────────────────────────── */
+
+  color-scheme: dark;
+}
+
+.panel-body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body, "Inter", system-ui, sans-serif);
+  font-size: var(--fs-cuerpo);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* El login centra todo verticalmente; el resto, no.
+
+   Y a diferencia del resto de pantallas, el fondo lleva un
+   lavado de acento. Es lo que hace Argon y es lo que separa
+   "pantalla de acceso" de "panel": entrar es entrar en otro
+   sitio, y se nota antes de leer una palabra. */
+.panel-body--centrado {
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  background:
+    radial-gradient(
+      120% 90% at 50% 0%,
+      color-mix(in srgb, var(--accent) 8%, transparent) 0%,
+      transparent 60%
+    ),
+    var(--bg);
+}
+
+/* ── LOS TOKENS SON LOS DE LA WEB, Y NO SE PISAN ──
+
+   Aquí había seis tokens «de reserva» —tamaños de letra y radios—
+   más un `--accent-grad` propio. El comentario decía que eran por si
+   el CSS del sitio no cargaba, pero el bloque no era condicional: al
+   vivir en `.panel-body`, que está siempre, GANABA SIEMPRE.
+
+   El resultado era que el panel no era la misma marca que la web:
+
+     token          web        panel (antes)
+     --fs-sm        0.9rem     0.8125rem
+     --fs-xs        0.8rem     0.75rem
+     --radius-sm    10px       8px
+     --radius       16px       12px
+     --radius-lg    26px       16px
+     --accent-grad  verde→verde (120deg)  verde→ÁMBAR (135deg)
+
+   El degradado era el más visible: el botón principal del panel era
+   verde→ámbar y el de la portada verde→verde, así que dos pantallas
+   de la misma casa no parecían de la misma casa.
+
+   Y como reserva no servía de nada: aquí no están `--bg`, `--text`
+   ni `--border`, así que sin styles.css el panel se quedaría sin
+   colores igual. Los tokens del sistema de diseño se consumen, no se
+   duplican: si cambia la marca, cambia en un solo sitio. */
+
+/* Y no se sustituye por otro bloque de tokens: lo que el panel sí
+   necesita —el ancho del lateral, el alto de la barra y su ritmo
+   vertical— ya vive en `html[data-panel]`, unas líneas más arriba. */

@@ -25,7 +25,13 @@
 
   <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
   <link rel="stylesheet" href="/css/styles.css" />
-  <link rel="stylesheet" href="/css/panel.css" />
+
+  <%# Los doce módulos del CSS del panel, en el orden del
+      manifiesto. Esta pantalla tiene su propio <head> y no usa el
+      parcial de arriba, así que el bucle va también aquí. %>
+  <% modulosDelPanel.forEach(function (hoja) { %>
+  <link rel="stylesheet" href="/css/<%= hoja %>" />
+  <% }); %>
 
   <%# El panel no carga GSAP ni Lenis: no los necesita y son
       ~70 KB que no queremos en la parte privada. %>

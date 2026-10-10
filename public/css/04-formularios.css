@@ -1,0 +1,644 @@
+/* =========================================================
+   04 FORMULARIOS
+   =========================================================
+
+   Parte 5 de 12 del CSS del panel.
+   Empieza en: 9. FORMULARIOS
+
+   ── EL ORDEN DE ESTAS HOJAS ES EL ORDEN DE CARGA ──
+
+   En CSS el que gana es el último, y en este panel hay
+   selectores declarados más de una vez. Mover una hoja de sitio
+   cambia el resultado sin dar ningún error.
+
+   El número del principio es su posición: 00 se carga
+   primero y el último, el último. El orden está en
+   panel.orden.json, que es lo que lee
+   views/partials/panel-head.ejs para armar los <link>.
+
+   Y db/ver-modulos-css.js comprueba que la concatenación da
+   el mismo texto que el archivo único de antes de la división.
+   Si eso dice que no, el aspecto va a cambiar.
+   ========================================================= */
+/* =========================================================
+   9. FORMULARIOS
+   ========================================================= */
+
+.panel-form-card {
+  display: grid;
+  gap: 1.15rem;
+  padding: clamp(1.15rem, 2.5vw, 1.85rem);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.panel-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.panel-field {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.panel-field--ancho {
+  grid-column: 1 / -1;
+}
+
+.panel-field > span {
+  margin-bottom: 0.35rem;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--text-muted);
+}
+
+.panel-field input,
+.panel-field select,
+.panel-field textarea,
+.panel-note-edit textarea {
+  width: 100%;
+
+  /* ── POR QUÉ LA ALTURA FIJA Y NO EL RELLENO VERTICAL ──
+
+     La primera versión de esto calculaba el relleno:
+
+         padding: calc((var(--control-h) - 1.3em) / 2) 0.7rem;
+
+     y daba 39px en vez de 34. La razón es que `em` no mide la altura
+     de la línea de texto sino el tamaño de la letra: el `1.3em` son
+     16.9px, pero la línea ocupa 20.15px. Faltaba la parte del
+     interlineado, y como esa parte depende de `line-height`, que
+     cambia según la pantalla, el cálculo no daba el mismo resultado
+     en todos los sitios.
+
+     Fijar la altura y dejar el relleno solo en horizontal evita el
+     problema entero: no hay nada que cuadrar, y si mañana cambia el
+     cuerpo de 13 a 14 el control sigue midiendo lo mismo.
+
+     ── POR QUÉ CAMBIA SEGÚN EL CASO ──
+
+     Un `select` con una sola opción puede medir menos que el
+     `--control-h` que se le pide, y por eso lleva `min-height` y no
+     `height`: que nunca sea más bajo de lo debido. El resto usa
+     `height` y se queda clavado.
+
+     ── EL HORIZONTAL ──
+
+     0.7rem es el valor de siempre, y no se toca: es el que hace que
+     el texto no quede pegado al borde. */
+  min-height: var(--control-h);
+  padding: 0 0.7rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  background: var(--bg-soft);
+  color: var(--text);
+  font-family: inherit;
+  font-size: var(--fs-sm);
+  line-height: 1.45;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.panel-field textarea {
+  resize: vertical;
+
+  /* ── POR QUÉ AQUÍ SÍ HAY QUE RESTAR ──
+
+     Porque el `padding: 0 0.7rem` de arriba deja el relleno vertical
+     en cero, y un `textarea` con relleno cero se ve aplastado: la
+     primera línea toca el borde de arriba.
+
+     No se usa `calc()` con `em` porque en un `textarea` el alto no
+     está fijado y el relleno no tiene que cuadrar con nada. Se
+     escribe el valor y se dice qué es. */
+  min-height: 5rem;
+  padding-top: 0.55rem;
+  padding-bottom: 0.55rem;
+}
+
+/* El foco se ve: en un panel se teclea mucho y sin esto no sabes
+   dónde estás. */
+.panel-field input:focus,
+.panel-field select:focus,
+.panel-field textarea:focus,
+.panel-note-edit textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 28%, transparent);
+}
+
+.panel-field.has-error input,
+.panel-field.has-error select,
+.panel-field.has-error textarea {
+  border-color: var(--danger);
+}
+
+.panel-field.has-error > span {
+  color: var(--danger);
+}
+
+/* ---------- Desplegables ----------
+   Sin esto el <select> se dibuja con el estilo del sistema: una
+   flechita clara sobre un campo oscuro, que es lo más despacho que
+   se puede ver en una pantalla oscura. appearance:none quita la
+   flecha nativa y se pone una propia. */
+.panel-field select,
+.panel-select,
+.panel-select-mini {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-inline-end: 2rem;
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%),
+    linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position: right 1rem center, right 0.7rem center;
+  background-size: 0.32rem 0.32rem, 0.32rem 0.32rem;
+  background-repeat: no-repeat;
+}
+
+/* La lista de opciones la pinta el navegador, pero con color-scheme
+   oscuro sale en oscuro en vez de una lista blanca que deslumbra. */
+.panel-field select option,
+.panel-select option,
+.panel-select-mini option {
+  background: var(--surface);
+  color: var(--text);
+}
+
+/* El hueco para la flecha se escribe DENTRO de la abreviatura.
+
+   Antes estaba en el bloque de arriba (`padding-inline-end: 2rem`),
+   y aquí `padding: 0.5rem 0.7rem` la pisaba: una abreviatura reinicia
+   los cuatro lados, no solo el que nombra. El resultado medido eran
+   11px de hueco con una flecha de 5px encima, y el texto de las
+   opciones se metía debajo: "Todos los tipos" con la flecha encima.
+
+   Se escribe aquí y no arriba porque el orden en la cascada es el que
+   falla. `.panel-field select` (que sí tenía el hueco puesto antes)
+   no se veía afectado, y por eso el fallo parecía de los filtros. */
+.panel-select {
+  padding: 0.5rem 2rem 0.5rem 0.7rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  background-color: var(--surface);
+  color: var(--text);
+  font-family: inherit;
+  font-size: var(--fs-sm);
+}
+
+.panel-select-mini {
+  max-width: 140px;
+  padding: 0.3rem 1.6rem 0.3rem 0.5rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  background-color: var(--bg-soft);
+  color: var(--text);
+  font-family: inherit;
+  font-size: var(--fs-xs);
+  background-position: right 0.85rem center, right 0.62rem center;
+}
+
+.panel-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--border);
+}
+
+/* La contraseña se muestra una vez: se hace evidente, no escondida. */
+.panel-secret {
+  display: grid;
+  gap: var(--panel-gap);
+  padding: 1.25rem 1.4rem;
+  background: var(--surface);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+}
+
+.panel-secret-aviso {
+  margin: 0;
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+}
+
+.panel-secret-caja {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.panel-secret-caja code {
+  flex: 1;
+  min-width: 220px;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--bg-soft);
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  font-size: var(--fs-cuerpo);
+  letter-spacing: 0.05em;
+  user-select: all;
+}
+
+/* =========================================================
+   10. FILTROS, PESTAÑAS Y PAGINACIÓN
+   ========================================================= */
+
+.panel-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem;
+  margin-bottom: 1.15rem;
+}
+
+.panel-search {
+  /* ── POR QUÉ NO `flex: 1` ──
+
+     Antes ocupaba todo el ancho sobrante de la fila, y en Clientes,
+     Cobros y Servicios eso son casi 1100px para un campo donde se
+     busca con tres palabras.
+
+     El problema no es que sea ancho, es que compite con los filtros
+     que están a su lado. Un `select` de periodo mide 180px, un botón
+     90, y el campo se lleva el resto. En una fila de filtros, el
+     elemento que manda es el que más ocupa, y ese no debería ser el
+     de escribir.
+
+     ── EL ANCHO ──
+
+     420px es lo que hace falta para leer «Buscar por nombre, empresa
+     o email» sin cortarse en el marcador de posición, que es la
+     cadena más larga de las cinco pantallas que lo usan. Con
+     `max-width` y no `width`, en un móvil estrecho baja a lo que
+     entre en la pantalla.
+
+     ── POR QUÉ `min-width: 200` Y NO 0 ──
+
+     Porque en una ventana de 280px, con los filtros al lado, el
+     campo se quedaría en un tamaño ridículo. 200px es el punto en
+     que se puede escribir «adri» a gusto.
+
+     ── LA ALTURA ──
+
+     La misma que los demás campos y que los botones, para que la
+     fila de filtros se lea como una sola línea. Se fija la altura en
+     vez de calcular el relleno, porque el cálculo con `em` mide el
+     tamaño de la letra y no la altura de la línea. */
+  /* ── EL FLEX, Y POR QUÉ HAY QUE TENER CUIDADO CON ÉL ──
+
+     `flex: 1 1 260px` es flexible, y eso tiene un coste: el eje
+     principal lo decide quien llama. En escritorio la fila de
+     filtros es horizontal, así que el 260 es el ancho y todo va bien.
+
+     En móvil `.panel-filters` pasa a `flex-direction: column` y el
+     eje principal se convierte en el vertical. Ahí el mismo 260 pasó
+     a ser la ALTURA, y el campo medía 358 de ancho por 260 de alto:
+     un óvalo en mitad de la pantalla. Hay una regla propia más abajo
+     que lo deshace.
+
+     Por eso aquí no se escribe `flex: 1` a secas, que es todavía
+     peor, y por eso la corrección de móvil tiene que anular el
+     crecimiento en vez de solo cambiar el ancho. */
+  flex: 1 1 260px;
+  min-width: 200px;
+  max-width: 420px;
+  min-height: var(--control-h);
+  padding: 0 0.85rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  font-family: inherit;
+  font-size: var(--fs-sm);
+}
+
+.panel-search:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+
+
+.panel-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-bottom: 1.15rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.panel-tabs a {
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.panel-tabs a:hover {
+  background: var(--raise);
+  color: var(--text);
+}
+
+.panel-tabs a.is-active {
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* La pestaña de vencidos va en rojo siempre, no solo cuando está
+   activa. Es la que se busca cuando hay un problema, y una pestaña
+   gris del mismo tono que las demás no se encuentra. */
+.panel-tabs a.panel-tab--vencido {
+  color: var(--danger);
+}
+
+.panel-tabs a.panel-tab--vencido:hover {
+  background: color-mix(in srgb, var(--danger) 10%, transparent);
+  color: var(--danger);
+}
+
+.panel-tabs a.panel-tab--vencido.is-active {
+  background: color-mix(in srgb, var(--danger) 16%, transparent);
+  color: var(--danger);
+}
+
+.panel-pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--panel-gap);
+  margin-top: 1.4rem;
+  font-size: var(--fs-sm);
+  color: var(--text-dim);
+}
+
+.panel-pager a {
+  padding: 0.35rem 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--accent-2);
+  text-decoration: none;
+}
+
+.panel-pager a:hover {
+  background: var(--raise);
+}
+
+/* =========================================================
+   11. ESTADOS VACÍOS, ALERTAS Y LOGIN
+   ========================================================= */
+
+.panel-empty {
+  padding: 2.25rem 1.75rem;
+  margin-bottom: 1.35rem;
+  background: var(--surface);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-lg);
+  text-align: center;
+}
+
+.panel-empty--sm {
+  padding: 1.5rem 1.25rem;
+}
+
+.panel-empty h2 {
+  margin: 0 0 0.4rem;
+  font-family: var(--font-display, "Outfit", sans-serif);
+  font-size: var(--fs-lg);
+  font-weight: 700;
+}
+
+.panel-empty p {
+  max-width: 46ch;
+  margin: 0 auto 1.1rem;
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.panel-alert {
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.15rem;
+  border: 1px solid color-mix(in srgb, var(--danger) 40%, transparent);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--danger) 8%, transparent);
+  color: var(--text);
+  font-size: var(--fs-sm);
+}
+
+.panel-alert--ok {
+  border-color: var(--success-border);
+  background: var(--success-bg);
+  color: var(--success-text);
+}
+  /* --error: el estado por defecto de .panel-alert, declarado aqui
+     para que quede junto a los otros dos y se vea que hay tres. */
+  .panel-alert--error {
+    border-color: color-mix(in srgb, var(--danger) 40%, transparent);
+    background: color-mix(in srgb, var(--danger) 8%, transparent);
+    color: var(--text);
+  }
+  .panel-alert--warn {
+    border-color: var(--warning-border);
+    background: var(--warning-bg);
+    color: var(--warning-text);
+  }
+
+.panel-note {
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--raise);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.panel-note p {
+  margin: 0;
+}
+
+.panel-note--portal {
+  margin-top: 1.4rem;
+}
+
+.panel-note--portal a {
+  color: var(--accent-2);
+}
+
+.panel-foot {
+  padding: 1.5rem;
+  border-top: 1px solid var(--border);
+  font-size: var(--fs-xs);
+  color: var(--text-dim);
+  text-align: center;
+}
+
+.panel-login {
+  width: 100%;
+  max-width: 420px;
+}
+
+/* ---------- El campo con icono ----------
+
+   El icono va en su propia caja con borde a la derecha, pegado
+   al campo, y los dos comparten radio: el de la izquierda
+   arriba-izquierda y abajo-izquierda, el de la derecha al reves.
+   Si los dos comparten ese radio, la union se ve como una sola pieza; si se
+   deixa el mismo a los cuatro, se ve una esquina redondeada en
+   medio del lado. */
+.panel-barra {
+  display: flex;
+  align-items: center;
+  height: var(--control-h);
+  background: var(--bg-soft);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: border-color var(--mov-1) var(--ease-out),
+              box-shadow var(--mov-1) var(--ease-out);
+}
+
+.panel-barra:focus-within {
+  border-color: var(--accent-2);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-2) 22%, transparent);
+}
+
+.panel-barra-icono {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  align-self: stretch;
+  padding-inline: 0.75rem;
+  color: var(--text-dim);
+  border-inline-end: 1px solid var(--border);
+  transition: color var(--mov-1) var(--ease-out);
+}
+
+.panel-barra:focus-within .panel-barra-icono {
+  color: var(--accent-2);
+}
+
+.panel-barra-icono svg {
+  width: 1.05rem;
+  height: 1.05rem;
+}
+
+.panel-barra input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+  padding: 0 0.85rem;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: var(--fs-sm);
+}
+
+/* El input nooutline nunca: el foco se pinta en la barra, y sin
+   esta linea el navegador pinta SU foco encima del nuestro, que
+   es como se ven dos halos en el mismo campo. */
+.panel-barra input:focus {
+  outline: none;
+}
+
+.panel-login-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.panel-login-titulo {
+  margin: 0;
+  font-family: var(--font-display, "Outfit", sans-serif);
+  font-size: var(--fs-xl);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.panel-login-card {
+  padding: 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  display: grid;
+  gap: 1rem;
+}
+
+.panel-form {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.panel-login-sub {
+  margin: 0.3rem 0 0;
+  font-size: var(--fs-sm);
+  color: var(--text-dim);
+}
+
+.panel-login-foot a {
+  color: var(--text-dim);
+  text-decoration: none;
+}
+
+.panel-login-foot a:hover {
+  color: var(--text);
+  text-decoration: underline;
+}
+
+.panel-login-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--p-3);
+  margin-top: 1.1rem;
+  font-size: var(--fs-xs);
+  color: var(--text-dim);
+}
+
+/* Que no se parta en dos lineas en movil. Los dos enlaces son
+   cortos, pero a 320px con el padding de la tarjeta no caben
+   los dos, y un enlace partido en dos renglones se lee como si
+   fueran tres. */
+.panel-login-foot a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  white-space: nowrap;
+}
+
+.panel-login-foot a svg {
+  width: 0.85rem;
+  height: 0.85rem;
+}
+
+/* ---------- 403 / 404 ---------- */
+.panel-error-page {
+  max-width: 420px;
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+}
+
+.panel-error-page h1 {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-display, "Outfit", sans-serif);
+  font-size: var(--fs-xl);
+}
+
+.panel-error-page p {
+  margin: 0 0 1.25rem;
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+}

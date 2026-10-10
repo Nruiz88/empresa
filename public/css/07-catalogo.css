@@ -1,0 +1,731 @@
+/* =========================================================
+   07 CATALOGO
+   =========================================================
+
+   Parte 8 de 12 del CSS del panel.
+   Empieza en: CATÁLOGO: editar productos y precios
+
+   ── EL ORDEN DE ESTAS HOJAS ES EL ORDEN DE CARGA ──
+
+   En CSS el que gana es el último, y en este panel hay
+   selectores declarados más de una vez. Mover una hoja de sitio
+   cambia el resultado sin dar ningún error.
+
+   El número del principio es su posición: 00 se carga
+   primero y el último, el último. El orden está en
+   panel.orden.json, que es lo que lee
+   views/partials/panel-head.ejs para armar los <link>.
+
+   Y db/ver-modulos-css.js comprueba que la concatenación da
+   el mismo texto que el archivo único de antes de la división.
+   Si eso dice que no, el aspecto va a cambiar.
+   ========================================================= */
+/* =========================================================
+   CATÁLOGO: editar productos y precios
+   =========================================================
+   Esta tabla es distinta de las otras, y por eso tiene sus propias
+   reglas: aquí hay CAMPOS DENTRO de la tabla, no solo texto. Es la
+   primera vez que el panel edita algo en línea.
+
+   Y ahí hay un problema de ancho que no existe en las otras tablas:
+   cada celda lleva un input, y un input tiene su ancho mínimo
+   pequeño pero no tan pequeño. Con siete columnas, en una pantalla
+   de portátil, la tabla se sale.
+
+   La solución NO es `overflow-x` (que ya hay) sino quitar columnas:
+   en catálogo, `clientes` y `a la venta` son de solo lectura y no
+   hacen falta para escribir un precio. Se esconden por debajo de
+   1200px, que es donde empiezan a apretar, y la información se
+   conserva en el `data-label` de cada celda.
+*/
+
+/* ---------- La cabecera de la pantalla ---------- */
+
+.panel-page-lead {
+  margin: 0.5rem 0 0;
+  max-width: 46rem;
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  line-height: 1.55;
+}
+
+.panel-page-acciones {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* ---------- Los campos dentro de la tabla ---------- */
+
+.panel-cat-tabla td {
+  vertical-align: top;
+}
+
+.panel-cat-tabla input[type="text"],
+.panel-cat-tabla input[type="url"],
+.panel-cat-tabla .panel-select-mini {
+  width: 100%;
+  min-width: 0;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 7px;
+  background: var(--bg-soft);
+  color: var(--text);
+  font-family: inherit;
+  font-size: var(--fs-sm);
+  line-height: 1.35;
+  transition: border-color 0.14s ease, background 0.14s ease;
+}
+
+.panel-cat-tabla input:hover,
+.panel-cat-tabla .panel-select-mini:hover {
+  border-color: var(--border-strong);
+  background: var(--raise);
+}
+
+.panel-cat-tabla input:focus,
+.panel-cat-tabla .panel-select-mini:focus {
+  outline: 2px solid var(--accent-2);
+  outline-offset: 1px;
+  background: var(--surface);
+}
+
+/* La cifra del precio.
+
+   Monoespaciada y alineada a la derecha, porque es una columna de
+   números y comparar "1.500" con "250" a ojo es trabajo innecesario
+   cuando el navegador ya los alinea por tabulación. `tabular-nums`
+   por si acaso, que en esta fuente da igual pero en la que se cambie
+   no. */
+.panel-input--numero {
+  font-family: var(--font-mono, ui-monospace, monospace) !important;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  font-size: var(--fs-base, 0.95rem) !important;
+}
+
+.panel-cat-precio {
+  width: 7.5rem;
+}
+
+/* La url se corta porque es larga, y se ve el final, que es lo que
+   dice si termina en slash o en ruta rara. */
+.panel-cat-url {
+  width: 13rem;
+}
+
+/* El desplegable de moneda va justo al ancho de su código y no más.
+
+   Con el nombre largo dentro ("ARS · pesos argentinos") se cortaba a
+   media palabra en la tabla, y el ancho necesario dependía de la
+   pantalla. El código solo ("ARS") entra siempre, y el nombre largo
+   va en el título de la opción. */
+.panel-cat-tabla td:has(select[name^="moneda_"]) {
+  width: 5.5rem;
+}
+
+.panel-input--url {
+  font-family: var(--font-mono, ui-monospace, monospace) !important;
+  font-size: var(--fs-xs) !important;
+  direction: ltr;
+  text-overflow: ellipsis;
+}
+
+.panel-cat-nombre {
+  min-width: 15rem;
+}
+
+.panel-cat-nombre input + input {
+  margin-top: 0.35rem;
+}
+
+/* El id del módulo.
+
+   Se muestra y no se edita porque es la clave foránea de
+   `suscripciones.modulo` y de `microservicios.modulo`. Cambiarla
+   deja huérfano todo lo que apunta a ella, y en monoespaciada porque
+   es un identificador, no un texto. */
+.panel-cat-id {
+  display: inline-block;
+  margin-top: 0.35rem;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: var(--fs-label);
+  color: var(--text-dim);
+
+  /* Que parta la línea antes de salirse de la caja.
+
+     Una clave larga —`notificacion_whatsapp`— no entra en un móvil, y
+     sin esto el texto se sale de su celda y queda encima del de al
+     lado. Partirlo es feo; salirse es ilegible. */
+  overflow-wrap: anywhere;
+}
+
+/* ---------- Errores ---------- */
+
+.panel-cat-tabla .panel-input--error {
+  border-color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 8%, var(--bg-soft));
+}
+
+.panel-cell-error {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: var(--fs-xs);
+  color: var(--danger);
+}
+
+/* La fila entera se marca, no solo el campo.
+
+   Con siete columnas, un campo con borde rojo y el resto normal deja
+   duda de qué ha fallado: se ve que algo está mal pero no dónde. La
+   fila entera tiñéndola se ve al instante, y el borde rojo del campo
+   concreta dónde. */
+.panel-table tbody tr.panel-tr--error > td {
+  background: color-mix(in srgb, var(--danger) 5%, var(--surface));
+}
+
+.panel-table tbody tr.panel-tr--error > td:first-child {
+  box-shadow: inset 3px 0 0 var(--danger);
+}
+
+.panel-cat-clientes {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.panel-cat-clientes--cero {
+  color: var(--text-dim);
+  font-weight: 400;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   EL RÓTULO PEQUEÑO DE UNA CELDA
+
+   Lo que va debajo de un campo para decir algo que el campo no puede:
+   «vacío = A consultar», «3 vigentes», «quedan sin precio».
+
+   ── POR QUÉ ESTA DEFINICIÓN TARDÓ ──
+
+   Porque `panel-cell-note` se usaba en `planes.ejs` sin existir en el
+   CSS. Una clase que no existe no da error: da un `<small>` con el
+   estilo del navegador, que se ve más grande de lo que debía y sin el
+   tono apagado que pedía el contexto.
+
+   Se define ahora porque el catálogo de aplicaciones la necesita seis
+   veces, y esa es la diferencia entre una nota al pie de un campo y un
+   texto que compite con el campo.
+   ───────────────────────────────────────────────────────────── */
+.panel-cell-note {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: var(--fs-xs);
+  line-height: 1.4;
+  color: var(--text-dim);
+}
+
+/* La variante que avisa. Es un aviso, no una nota: hay gente detrás que
+   no tiene un importe, y eso no se puede leer igual que «3 vigentes». */
+.panel-cell-note--aviso {
+  color: var(--warning-text);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   UNA FILA QUE NO SE VENDE
+
+   Atenuada, no tachada ni gris de error.
+
+   ── POR QUÉ SE PINTA ──
+
+   Porque «no se vende» y «no existe» tienen que verse distinto. Una
+   fila apagada sigue ahí, con su precio y sus clientes, y la lista de
+   clientes la sigue contando. Una tachada parece borrada, y quien la
+   vea puede creer que hay que recuperarla de algún sitio.
+
+   El precio, además, se puede seguir editando. Desactivar una
+   aplicación no la retira: deja de aparecer en el alta y sigue
+   funcionando para quien ya la tiene.
+   ───────────────────────────────────────────────────────────── */
+.panel-table tbody tr.panel-tr--apagada > td {
+  opacity: 0.55;
+}
+
+.panel-table tbody tr.panel-tr--apagada:hover > td {
+  opacity: 1;
+}
+
+/* ---------- El pie ---------- */
+
+.panel-cat-pie {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+/* ---------- Por debajo de 1200px ----------
+
+   Se van las dos columnas de solo lectura. Los datos no se pierden:
+   cada celda lleva `data-label` y el modo tarjeta las enseña con su
+   título. Con esto no hay que decidir qué columna es "la
+   importante". */
+@media (max-width: 1200px) {
+  .panel-cat-tabla th:nth-child(5),
+  .panel-cat-tabla td:nth-child(5),
+  .panel-cat-tabla th:nth-child(6),
+  .panel-cat-tabla td:nth-child(6) {
+    display: none;
+  }
+
+  .panel-cat-precio,
+  .panel-cat-url {
+    width: auto;
+  }
+}
+
+@media (max-width: 720px) {
+  /* Las columnas escondidas por anchura vuelven a salir cuando la
+     tabla se convierte en tarjetas, porque ahí ya no hay problema de
+     sitio: lo que hay es poco alto, y el número de clientes y el
+     "a la venta" son justo lo que se quiere ver en un móvil. */
+  .panel-cat-tabla th:nth-child(5),
+  .panel-cat-tabla td:nth-child(5),
+  .panel-cat-tabla th:nth-child(6),
+  .panel-cat-tabla td:nth-child(6) {
+    display: flex;
+  }
+}
+
+/* =========================================================
+   CIFRAS Y VALORES TÉCNICOS EN MONOESPACIADA
+   =========================================================
+   Una columna de importes es una columna de números, y los números
+   se comparan por posición, no leyéndolos. Con la fuente de texto,
+   el "1" ocupa más que el "0", la columna queda descentrada y para
+   comparar dos precios hay que leerlos enteros.
+
+   Con monoespaciada, todos los dígitos ocupan lo mismo y la comparación
+   es un golpe de vista. Por eso aquí no es una decisión estética: es
+   la diferencia entre mirar una columna y recorrerla letra a letra.
+
+   ── DÓNDE SÍ Y DÓNDE NO ──
+
+   Sí: importes, referencias, fechas, urls, identificadores, hashes.
+
+   No: los títulos, los nombres de cliente, los botones, el cuerpo de
+   los párrafos. Meter todo en mono da el aspecto de una terminal de
+   1980 y encima se lee peor. La mono se usa para DATO, no para
+   decoración, y sobre todo no se usa para algo que se lee como
+   frase.
+
+   Y las celdas numéricas se alinean a la derecha, no a la izquierda
+   como el resto de la columna: los decimales quedan en el mismo sitio
+   y es donde están los céntimos, que es lo que se compara. */
+.panel-table .panel-th-num,
+.panel-table td.panel-th-num {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-variant-numeric: tabular-nums;
+}
+
+.panel-table td.panel-th-num {
+  text-align: right;
+}
+
+/* Las cabeceras de columna numérica, en mono también.
+
+   Con la fuente de texto y en mayúsculas, "IMPORTE" ocupa más que la
+   columna que describe y empuja al resto de la tabla. En mono y sin
+   mayúsculas se lee como una etiqueta técnica, que es lo que es. */
+.panel-table th.panel-th-num {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: var(--text-muted);
+  text-align: right;
+}
+
+/* Las referencias y los identificadores de la tabla de cobros. */
+.panel-cell-sub--ref,
+.panel-cell-mono {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-variant-numeric: tabular-nums;
+
+  /* Que pueda partir.
+
+     Una URL en monoespaciada es lo peor que hay para que quepa: cada
+     carácter ocupa lo mismo y no hay ni un espacio en todo el
+     dominio. Medido en `/panel/servidores` a 390px: una dirección de
+     Evolution API pedía 337px en una caja de 308, y se salía 29px por
+     la derecha, encima de la columna de al lado.
+
+     `anywhere` y no `break-word` porque `break-word` no cambia el
+     cálculo del ancho mínimo: la caja seguiría diciendo que necesita
+     337 y el texto seguiría saliéndose.
+     ───────────────────────────────────────────────────── */
+  overflow-wrap: anywhere;
+}
+
+/* =========================================================
+   RITMO: LA ESCALA DE ESPACIO
+   =========================================================
+   Antes estos valores vivían sueltos, uno a uno, en cada regla:
+   `0.7rem` por aquí, `0.9rem` por allá, y donde nadie los dejó,
+   `13.6px`. Medido, la fila de clientes daba 48px y la de cobros
+   70px, y no había forma de saber cuál era el bueno.
+
+   Una escala no es capricho ni purismo: es lo que hace que dos pantallas
+   distintos se vean como el mismo panel. Con seis valores, el
+   siguiente bloque elige de una lista en vez de inventar un número.
+
+   La escala es un múltiplo de 4px. Cualquier valor que no salga de
+   aquí es probablemente un valor que se inventó alguien un día y
+   nadie revisó. */
+:root {
+  --p-1: 0.25rem;   /*  4px  -- ajuste fino, entre elementos pegados */
+  --p-2: 0.5rem;    /*  8px  -- dentro de un control, entre icono y texto */
+  --p-3: 0.75rem;   /* 12px  -- entre campos de un formulario */
+  --p-4: 1rem;      /* 16px  -- el padrão: relleno de celda, hueco de bloque */
+  --p-5: 1.5rem;    /* 24px  -- entre bloques de una página */
+  --p-6: 2rem;      /* 32px  -- separación de secciones */
+  --p-7: 3rem;      /* 48px  -- respiro grande, antes de un h1 */
+
+  /* Un solo alto para todo lo que se puede pulsar o escribir.
+
+     Medido: los campos daban 30px en consultas, 34px en catálogo y
+     38px en servicios. Tres alturas para el mismo control, y se
+     notaba al pasar de una pantalla a otra con el ratón encima:
+     el botón crecía o menguaba solo.
+
+     ── POR QUÉ AHORA 34 Y NO 38 ──
+
+     Porque 38 era el más alto de los tres y se había quedado con el
+     más alto por prudencia. Bajarlo a 34 mantiene esa prudencia y
+     además mejora la densidad: campos y botones medían 37px sueltos
+     por el padding de cada uno, y en una pantalla con veinte botones
+     eso se nota al compararlos en fila.
+
+     ── POR QUÉ UN SOLO NÚMERO Y NO UNO PARA CAMPO Y OTRO PARA BOTÓN ──
+
+     Porque casi siempre están en la misma línea, y si miden distinto
+     se leen como dos objetos distintos en lugar de como una sola
+     acción. Una diferencia de dos píxeles no se ve; una diferencia de
+     seis se ve mucho. El mismo motivo por el que aquí no se
+     declaran `--campo-h` ni `--boton-h`: dos variables para el mismo
+     intervalo acabarían usándose una u otra según el ánimo del día,
+     que es exactamente el problema que este trabajo vino a arreglar.
+
+     ── EL LÍMITE ──
+
+     34px es el mínimo que se puede pulsar cómodo con el dedo en una
+     tableta. Por debajo hay que bajar a 32 o menos y la zona táctil
+     se empieza a resentir, así que ese es el suelo. */
+  --control-h: 2.125rem;   /* 34px */
+}
+
+/* =========================================================
+   TABLAS: COLUMNAS FIJAS Y FILAS DEL MISMO ALTO
+   =========================================================
+   El problema medido: en clientes la columna del email medía 405px
+   —más ancha que el nombre de la empresa— y las filas alternaban 48
+   y 69px. En cobros, la columna de acciones medía 161px, más ancha
+   que la del importe.
+
+   ── POR QUÉ PASABA ──
+
+   `.panel-th-email` declaraba `max-width: 210px` y `text-overflow:
+   ellipsis`, y no cumplía ninguna de las dos cosas.
+
+   En una tabla con `table-layout: auto` —que es el valor por
+   defecto— el ancho de una columna lo decide el contenido más
+   largo, y el ancho máximo de una celda es una SUGERENCIA que el
+   navegador descarta. El navegador tiene una tabla de una fila con
+   un email largo, y el email largo gana.
+
+   De ahí las dos cosas: la columna se come el ancho, y las filas se
+   descuadran según lo que lleve dentro. La fila de 69px era la que
+   tenía algo que se partía en dos líneas.
+
+   ── LA SOLUCIÓN ──
+
+   `table-layout: fixed` hace que el navegador obedezca el ancho que
+   se le da, y no el que le dicta el contenido. Con eso:
+
+     · las columnas tienen la proporción que se ha elegido a mano
+     · las filas miden lo mismo porque el texto no engorda la celda
+     · el email se corta con puntos suspensivos, que es lo que se
+       había pedido y nunca ocurrió
+
+   ── POR QUÉ SOLO LAS LISTAS, Y NO TODAS ──
+
+   La tabla del catálogo también lleva `panel-table`, y con `fixed`
+   sus siete columnas se repartieron en partes iguales: 161px cada
+   una. Peor que antes. "Moneda" con 161px para un código de tres
+   letras, y "Producto" con 161px para un nombre de producto.
+
+   El catálogo no es una lista de texto: cada fila lleva un
+   formulario entero, con sus campos dentro. Repartir a partes
+   iguales aplasta justo las columnas que necesitan ancho, porque el
+   ancho se lo dan las más anchas y las cortas no lo necesitan.
+
+   Así que `fixed` va solo en las tres listas, que sí son texto
+   comparable, y el catálogo se queda con el reparto por contenido
+   que ya tenía.
+
+   ── POR QUÉ SOLO EN ESCRITORIO ──
+
+   Por debajo de 720px la tabla ya se ha convertido en tarjetas: todo
+   pasa a `display: block` y las celdas se apilan con su etiqueta.
+   En ese modo las columnas no existen, y `table-layout` no tiene
+   nada que repartir. Por eso va dentro de su `min-width`: no hace
+   falta tocar el modo tarjeta, que ya funciona. */
+@media (min-width: 721px) {
+  .panel-table--clientes,
+  .panel-table--servicios,
+  .panel-table--cobros {
+    table-layout: fixed;
+  }
+
+  /* El ancho se reparte a mano por pantalla. Se podría dejar que el
+     navegador lo hiciera sola —sin `fixed`—, y es lo que pasaba: se
+     lo dejaba y salía mal. Estas proporciones son de lectura, no de
+     contenido: lo que se compara entre filas va ancho, lo que solo
+     se reconoce va estrecho. */
+
+  /* Clientes: la empresa manda, porque es por donde se busca. El
+     email va en monoespaciada y se corta: es un dato de referencia,
+     se copia, no se lee entero. */
+  .panel-table--clientes th:nth-child(1),
+  .panel-table--clientes td:nth-child(1) { width: 34%; }
+  .panel-table--clientes th:nth-child(2),
+  .panel-table--clientes td:nth-child(2) { width: 22%; }
+  .panel-table--clientes th:nth-child(3),
+  .panel-table--clientes td:nth-child(3) { width: 30%; }
+  .panel-table--clientes th:nth-child(4),
+  .panel-table--clientes td:nth-child(4) { width: 14%; }
+
+  /* Servicios: el importe va siempre en la misma derecha para que
+     la columna de cifras se pueda leer de un tirón, sin seguirlas
+     con la vista. */
+  .panel-table--servicios th:nth-child(1),
+  .panel-table--servicios td:nth-child(1) { width: 32%; }
+  .panel-table--servicios th:nth-child(2),
+  .panel-table--servicios td:nth-child(2) { width: 24%; }
+  .panel-table--servicios th:nth-child(3),
+  .panel-table--servicios td:nth-child(3) { width: 16%; }
+  .panel-table--servicios th:nth-child(4),
+  .panel-table--servicios td:nth-child(4) { width: 14%; }
+  .panel-table--servicios th:nth-child(5),
+  .panel-table--servicios td:nth-child(5) { width: 14%; }
+
+  /* Cobros: seis columnas y la que menos necesita ancho es la de
+     acciones. Antes ocupaba 161px, más que el importe. */
+  .panel-table--cobros th:nth-child(1),
+  .panel-table--cobros td:nth-child(1) { width: 30%; }
+  .panel-table--cobros th:nth-child(2),
+  .panel-table--cobros td:nth-child(2) { width: 18%; }
+  .panel-table--cobros th:nth-child(3),
+  .panel-table--cobros td:nth-child(3) { width: 15%; }
+  .panel-table--cobros th:nth-child(4),
+  .panel-table--cobros td:nth-child(4) { width: 13%; }
+  .panel-table--cobros th:nth-child(5),
+  .panel-table--cobros td:nth-child(5) { width: 15%; }
+  .panel-table--cobros th:nth-child(6),
+  .panel-table--cobros td:nth-child(6) { width: 9%; }
+
+  /* ── La columna de acciones, cuando no hay nada en ella ──
+
+     En una tabla con `row-link` la fila entera es pulsable, así que
+     los botones de acción se ocultan: no hay nada que pulsar ahí. La
+     columna se queda vacía, con su cabecera invisible y sus 158px de
+     aire.
+
+     Medido: 158px de 1192, un 13% de la tabla, para nada.
+
+     Se colapsa a cero y el ancho vuelve a las columnas que sí
+     enseñan algo. Y la condición se lee del propio marcado, con
+     `:has()`, en vez de mantener a mano una lista de qué tablas son
+     de fila pulsable: esa lista se desactualiza en cuanto alguien
+     añade una tabla y no se da cuenta.
+
+     En móvil no se aplica: allí los botones sí se ven, al fondo de la
+     tarjeta y a lo ancho, que es lo que se hizo para que no quedaran
+     fuera de la pantalla. */
+  .panel-table:has(tbody tr.panel-row--link) th:last-child,
+  .panel-table:has(tbody tr.panel-row--link) td:last-child {
+    width: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+}
+
+/* La celda que puede partirse en dos líneas es la que descuadra las
+   filas. Se le da una sola línea con puntos suspensivos y el alto
+   queda garantizado.
+
+   Con `fixed` ya no debería pasar en escritorio, pero el modo tarjeta
+   de móvil apila todo en bloques y esta regla no le toca: solo
+   aplica a la tabla de verdad. Es la red de seguridad, no el
+   mecanismo. */
+@media (min-width: 721px) {
+  .panel-table--clientes tbody td,
+  .panel-table--servicios tbody td,
+  .panel-table--cobros tbody td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Excepción: el importe y el estado no se cortan nunca. Son cortos
+     y si se cortan es que la columna se ha quedado sin sitio, que
+     es un problema de la proporción, no del texto. */
+  .panel-table--clientes tbody td.panel-th-num,
+  .panel-table--clientes tbody td.panel-th-actions,
+  .panel-table--servicios tbody td.panel-th-num,
+  .panel-table--servicios tbody td.panel-th-actions,
+  .panel-table--cobros tbody td.panel-th-num,
+  .panel-table--cobros tbody td.panel-th-actions {
+    overflow: visible;
+    text-overflow: clip;
+  }
+}
+
+/* El email en monoespaciada. AntesOccupaba la columna más ancha de la
+   pantalla y no se entendía por qué: es una dirección, no una frase.
+   Al ponerla en monoespaciada se lee como lo que es, un identificador,
+   y ahora que la columna es estrecha se recorta sin que parezca un
+   error. */
+.panel-table tbody td.panel-th-email {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+
+/* ── La cabecera, que se leía a 10.88px ──
+
+   Medido en las cuatro tablas. Es un tamaño por debajo de lo que se
+   lee de un vistazo, y la cabecera es justo lo que tiene que leerse
+   de un vistazo para saber en qué columna se está uno.
+
+   De 10.88 a 11.5. Poco, pero salta de "no se lee sin apartar la
+   vista" a "se lee de reojo". */
+.panel-table thead th {
+  font-size: var(--fs-label);
+}
+
+/* =========================================================
+   ALTO ÚNICO DE LOS CONTROLES
+   =========================================================
+   Es el segundo desacuerdo medido: los campos de texto daban 38px en
+   servicios, 34px en catálogo y 30px en consultas.
+
+   Tres alturas distintas para el mismo control. Passing el ratón de
+   una pantalla a otra, el botón de abajo crecía y menguaba sin que
+   nada lo explicara. */
+@media (min-width: 721px) {
+  .panel-input,
+  .panel-table input[type="text"],
+  .panel-table input[type="url"],
+  .panel-table input[type="number"],
+  .panel-table select {
+    min-height: var(--control-h);
+  }
+
+  /* El botón principal y el secundario también. Los botones con
+     `padding` en vez de alto se les da alto, porque si no el
+     relleno y la escala de espaciado se pelean. */
+  .panel-btn:not(.panel-btn--xs) {
+    min-height: var(--control-h);
+  }
+}
+
+/* =========================================================
+   CONTADORES DEL LATERAL
+   =========================================================
+   El número que va al lado de una sección.
+
+   ── POR QUÉ NO ES SOLO EL COLOR ──
+
+   Un 3 rojo junto a "Cobros" se lee como "los cobros están mal". Y a
+   lo mejor no lo están: lo que está mal son tres facturas concretas
+   que se pasaron de fecha. La sección está bien; lo que urge está
+   dentro.
+
+   Por eso cada uno lleva su `title` diciendo qué cuenta. El color
+   ordena por urgencia, que es lo único que tiene que hacer; el
+   título explica qué es. Un color solo no se puede leer, y un número
+   solo no se distingue de otro número.
+
+   ── TRES COLORES Y PARA QUÉ ──
+
+     rojo    lo que se pasó de fecha. Requiere una acción hoy.
+     ámbar   lo que está quieto y va a pedir atención pronto.
+     cian    lo nuevo. No es un problema: es una bandeja de entrada.
+
+   El cian es `--info`, no el acento. Con el acento el número se
+   confundía con "activo" y con el estado de la sección, que ya usa
+   ese color para otra cosa.
+
+   ── POR QUÉ SE OCULTA EN 0 ──
+
+   Un "0" al lado de cada sección es ruido que no enseña nada y
+   empuja el resto de la lista. Si no hay nada pendiente, no hay nada
+   que recordar. Y el hueco se queda: si el número crece, aparece en
+   su sitio sin que nada se mueva de golpe.
+
+   ── MÁS DE 99 ──
+
+   Se corta en "99+". Un número de cuatro cifras no cabe en el ancho
+   del lateral y empuja el texto de la sección hacia fuera. El
+   `title` lleva el número exacto, que es donde hace falta. */
+.panel-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.35rem;
+  height: 1.35rem;
+  margin-left: auto;
+  padding: 0 0.35rem;
+  border-radius: 999px;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--fs-label);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0;
+
+  /* El borde de 1px compensa el `box-sizing`: sin él el círculo sale
+     2px más grande de lo que dice el alto y descuadra la fila. */
+  border: 1px solid transparent;
+}
+
+.panel-badge--vencido {
+  color: var(--danger);
+  border-color: color-mix(in srgb, var(--danger) 45%, transparent);
+  background: color-mix(in srgb, var(--danger) 14%, transparent);
+}
+
+.panel-badge--pausa {
+  color: var(--warning);
+  border-color: color-mix(in srgb, var(--warning) 45%, transparent);
+  background: color-mix(in srgb, var(--warning) 12%, transparent);
+}
+
+.panel-badge--nuevo {
+  color: var(--info);
+  border-color: color-mix(in srgb, var(--info) 45%, transparent);
+  background: color-mix(in srgb, var(--info) 14%, transparent);
+}
+
+/* En móvil el lateral es un cajón con el ancho de la pantalla, así
+   que el `margin-left: auto` funciona igual. Pero en pantallas
+   muy estrechas, con las tres secciones con contador, el número
+   empuja el texto: se permite que la sección ocupe dos líneas en vez
+   de dejar el nombre cortado. */
+.panel-menu-item {
+  flex-wrap: wrap;
+  row-gap: 0.15rem;
+}

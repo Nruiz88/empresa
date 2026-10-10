@@ -16,7 +16,14 @@
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
   <link rel="stylesheet" href="/css/styles.css" />
-  <link rel="stylesheet" href="/css/panel.css" />
+  <%# Los doce módulos del CSS del panel, en el orden del manifiesto.
+    Esta pantalla tiene su propio <head> y no usa el parcial, así que
+    el bucle va aquí también. Duplicado en tres líneas y no en trece:
+    lo que no se puede compartir es la lista, y esa viene del
+    manifiesto. %>
+<% modulosDelPanel.forEach(function (hoja) { %>
+<link rel="stylesheet" href="/css/<%= hoja %>" />
+<% }); %>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700&display=swap" rel="stylesheet" />

@@ -1,0 +1,173 @@
+/* =========================================================
+   02 CONTROLES
+   =========================================================
+
+   Parte 3 de 12 del CSS del panel.
+   Empieza en: 4. BOTONES
+
+   ── EL ORDEN DE ESTAS HOJAS ES EL ORDEN DE CARGA ──
+
+   En CSS el que gana es el último, y en este panel hay
+   selectores declarados más de una vez. Mover una hoja de sitio
+   cambia el resultado sin dar ningún error.
+
+   El número del principio es su posición: 00 se carga
+   primero y el último, el último. El orden está en
+   panel.orden.json, que es lo que lee
+   views/partials/panel-head.ejs para armar los <link>.
+
+   Y db/ver-modulos-css.js comprueba que la concatenación da
+   el mismo texto que el archivo único de antes de la división.
+   Si eso dice que no, el aspecto va a cambiar.
+   ========================================================= */
+/* =========================================================
+   4. BOTONES
+   ========================================================= */
+
+.panel-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+
+  /* ── EL RELLENO HORIZONTAL ──
+
+     El vertical no se escribe: se calcula a partir de `--control-h`
+     para que el botón mida exactamente lo mismo que el campo que
+     tiene al lado, que es lo que hace Stripe y lo que hace que se
+     lean como una sola cosa y no como dos objetos distintos.
+
+     El horizontal sí es un valor propio. Más corto que el padding
+     del campo, porque el botón tiene el borde y el campo no: con el
+     mismo relleno horizontal el botón parecería más estrecho, porque
+     su contenido está más encogido. */
+  /* ── LA ALTURA, FIJA Y NO CALCULADA ──
+
+     Lo mismo que en los campos, y por el mismo motivo: aquí también
+     se calculaba con `em` y daba 36px en vez de los 34 que pide
+     `--control-h`, porque `1.2em` mide el tamaño de la letra y no la
+     altura de la línea.
+
+     Se usa `min-height` y no `height` porque hay botones cuyo
+     contenido es más alto que una línea —los que llevan un icono al
+     lado del texto, o los que se parten en dos renglones en móvil— y
+     con `height` fijo esos se recortarían.
+
+     El relleno horizontal sí es propio, 0.85rem, más corto que el del
+     campo: el botón tiene borde y el campo no, y con el mismo relleno
+     parecería más estrecho por tener el contenido más encogido. */
+  min-height: var(--control-h);
+  padding: 0.3rem 0.85rem;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: var(--raise);
+  color: var(--text);
+  font-family: inherit;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+}
+
+.panel-btn:hover {
+  background: var(--raise-strong);
+}
+
+.panel-btn:active {
+  transform: translateY(1px);
+}
+
+/* En una tabla, el morado repetido en cada fila se come la
+   atención de los datos. El botón de acción se queda discreto y el
+   morado se reserva para lo que abre algo nuevo. */
+.panel-table .panel-btn--primary,
+.panel-caduco .panel-btn--primary,
+.panel-lead .panel-btn--primary {
+  background: transparent;
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  color: color-mix(in srgb, var(--accent) 55%, var(--text));
+}
+
+.panel-table .panel-btn--primary:hover,
+.panel-caduco .panel-btn--primary:hover,
+.panel-lead .panel-btn--primary:hover {
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  color: var(--text);
+}
+
+/* El botón principal, con el MISMO degradado y el mismo resplandor
+   que `.btn-primary` de la web pública.
+
+   Antes era el verde plano `--accent`. La diferencia no es de matiz:
+   el degradado verde de la marca es lo que hace que el botón de
+   «Guardar» del panel y el de «Empezar» de la portada se lean como el
+   mismo botón. El resplandor se reserva para el principal, que es lo
+   que lo separa del fantasma que suele ir al lado. */
+.panel-btn--primary {
+  background: var(--accent-grad);
+  border-color: transparent;
+  color: var(--on-accent);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 8px color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+.panel-btn--primary:hover {
+  /* El degradado se repite a propósito.
+
+     `.panel-btn:hover` —que es más específico por el `:hover`— pinta
+     `--raise-strong`, y sin esta línea el botón principal perdía el
+     verde al pasar el ratón. En la web el principal no cambia de
+     color al pasar por encima: solo sube el resplandor. */
+  background: var(--accent-grad);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.32), 0 4px 14px color-mix(in srgb, var(--accent) 38%, transparent);
+}
+
+/* El botón de aviso: «3 requieren atención».
+
+   Es el único que no invita a crear nada, avisa. Va en el color de
+   aviso y sólido, como el primario, porque es una llamada a la
+   acción y no un adorno: el borde solo lo dejaría al mismo nivel
+   que el botón fantasma que tiene al lado.
+
+   El texto va en `--on-accent` y no en blanco: sobre el ámbar, que
+   es claro, el blanco no llega al contraste mínimo y el número
+   —que es el dato que importa— se pierde. */
+.panel-btn--aviso {
+  background: var(--warning);
+  border-color: transparent;
+  color: var(--on-accent);
+  font-weight: 600;
+}
+
+.panel-btn--aviso:hover {
+  background: color-mix(in srgb, var(--warning) 85%, var(--text));
+}
+
+.panel-btn--ghost {
+  background: transparent;
+  border-color: var(--border-strong);
+  color: var(--text-muted);
+}
+
+.panel-btn--ghost:hover {
+  background: var(--raise);
+  color: var(--text);
+}
+
+.panel-btn--xs {
+  padding: 0.35rem 0.7rem;
+  font-size: var(--fs-xs);
+  border-radius: 8px;
+}
+
+.panel-btn--ancho,
+.panel-btn--bloque {
+  width: 100%;
+}
+
+/* En tablas y listas el botón es pequeño: el texto manda. */
+.panel-table .panel-btn {
+  font-weight: 500;
+}

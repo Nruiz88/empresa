@@ -1,0 +1,92 @@
+/* =========================================================
+   06 RESPONSIVE
+   =========================================================
+
+   Parte 7 de 12 del CSS del panel.
+   Empieza en: 14. ACCESIBILIDAD
+
+   ── EL ORDEN DE ESTAS HOJAS ES EL ORDEN DE CARGA ──
+
+   En CSS el que gana es el último, y en este panel hay
+   selectores declarados más de una vez. Mover una hoja de sitio
+   cambia el resultado sin dar ningún error.
+
+   El número del principio es su posición: 00 se carga
+   primero y el último, el último. El orden está en
+   panel.orden.json, que es lo que lee
+   views/partials/panel-head.ejs para armar los <link>.
+
+   Y db/ver-modulos-css.js comprueba que la concatenación da
+   el mismo texto que el archivo único de antes de la división.
+   Si eso dice que no, el aspecto va a cambiar.
+   ========================================================= */
+/* =========================================================
+   14. ACCESIBILIDAD
+   ========================================================= */
+
+/* Saltar el lateral: invisible hasta que recibe el foco. */
+.panel-skip {
+  position: absolute;
+  top: -100px;
+  inset-inline-start: 1rem;
+  z-index: 100;
+  padding: 0.6rem 1rem;
+  border-radius: 0 0 10px 10px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.panel-skip:focus {
+  top: 0;
+}
+
+/* Foco visible en todo lo interactivo del panel. Sin esto, navegar
+   con teclado en el panel es adivinar dónde estás. */
+.panel-body :focus-visible {
+  outline: 2px solid var(--accent-2);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Quien pide menos movimiento, no lo tiene. El panel tiene
+   animaciones cortas, pero no son la razón para marearse. */
+@media (prefers-reduced-motion: reduce) {
+  .panel-body *,
+  .panel-body *::before,
+  .panel-body *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Imprimir: sin barras, sin botones. Si alguien imprime una ficha
+   de cliente, quiere el contenido y nada más. */
+@media print {
+  .panel-side,
+  .panel-topbar,
+  .panel-foot,
+  .panel-burger,
+  .panel-btn,
+  .panel-scrim {
+    display: none !important;
+  }
+
+  .panel-shell {
+    margin: 0;
+  }
+
+  .panel-page {
+    max-width: none;
+    padding: 0;
+  }
+
+  .panel-body {
+    background: #fff;
+    color: #000;
+  }
+}

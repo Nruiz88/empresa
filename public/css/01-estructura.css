@@ -1,0 +1,644 @@
+/* =========================================================
+   01 ESTRUCTURA
+   =========================================================
+
+   Parte 2 de 12 del CSS del panel.
+   Empieza en: 2. ESTRUCTURA
+
+   ── EL ORDEN DE ESTAS HOJAS ES EL ORDEN DE CARGA ──
+
+   En CSS el que gana es el último, y en este panel hay
+   selectores declarados más de una vez. Mover una hoja de sitio
+   cambia el resultado sin dar ningún error.
+
+   El número del principio es su posición: 00 se carga
+   primero y el último, el último. El orden está en
+   panel.orden.json, que es lo que lee
+   views/partials/panel-head.ejs para armar los <link>.
+
+   Y db/ver-modulos-css.js comprueba que la concatenación da
+   el mismo texto que el archivo único de antes de la división.
+   Si eso dice que no, el aspecto va a cambiar.
+   ========================================================= */
+/* =========================================================
+   2. ESTRUCTURA
+   ========================================================= */
+
+/* ---------- Lateral ---------- */
+.panel-side {
+  /* ─────────────────────────────────────────────────────
+     LA BARRA LATERAL, QUE TAMBIÉN ES UNA TARJETA
+
+     En Sakai el menú lateral no es una columna pegada al borde: es
+     una tarjeta, con radio, sombra y margen alrededor, flotando
+     sobre el fondo de la página. Su CSS es `border-radius: 12px`
+     con una sombra de tres capas y `padding: 1.5rem`.
+
+     ── POR QUÉ IMPORTA ──
+
+     Porque es lo que hace que la página entera se lea como un
+     conjunto de piezas apoyadas unas en otras y no como una rejilla
+     con líneas. Con el menú pegado al borde y un filete vertical, el
+     ojo lee dos mitades y un corte. Con el menú flotando, lee una
+     tarjeta grande a la izquierda y el contenido a la derecha, que
+     es la misma gramática que las cifras y las cajas de abajo.
+
+     Y da aire: con 248px pegados al borde, el contenido no tiene
+     sitio para el margen que llevan todas las cajas, y por eso
+     se ven todas contra la barra.
+
+     ── EL FILETE SE QUITA ──
+
+     Por el mismo motivo que en las cajas: el borde dibujaba un
+     corte que la sombra ya dibuja. Con las dos cosas hay un doble
+     filo.
+
+     ── EL MÓVIL NO CAMBIA ──
+
+     En móvil la barra es un cajón que entra desde el borde, y
+     afloat una tarjeta ocuparía toda la pantalla sin que su radio
+     se viera. El margen y el radio se quitan abajo, en la regla del
+     cajón, para que solo apliquen en escritorio. */
+  position: fixed;
+  inset-block: 1.5rem;
+  inset-inline-start: 1.5rem;
+  width: var(--panel-sidebar);
+  display: flex;
+  flex-direction: column;
+  background: var(--caja-fondo);
+  border: 1px solid transparent;
+  border-radius: var(--caja-radio);
+  box-shadow: var(--caja-sombra);
+  z-index: 40;
+}
+
+.panel-side-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 1.1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.panel-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  text-decoration: none;
+  color: var(--text);
+  min-width: 0;
+}
+
+/* El logo del panel NO tiene regla propia a propósito.
+
+   Usa la chapa de la web pública —`.brand-mark`, en styles.css— con
+   el mismo `shopcito-logo.jpg` y el mismo fondo `#f0f5ee`. Definir
+   aquí una segunda chapa sería tener dos logos que se van separando
+   en cuanto alguien toque uno: el panel y la web son la misma marca,
+   y el sitio donde se decide cómo se ve es uno solo.
+
+   Aquí vivía una «N» blanca sobre un degradado verde→ámbar que no
+   está en la paleta de la casa. Se veía como otro producto. */
+.brand-mark {
+  /* Solo el ajuste que necesita la barra del panel, que es más baja
+     que la cabecera de la web: el logo de 26px deja la chapa en
+     34px y entra de sobra en los 60px de la barra superior. */
+  align-self: center;
+}
+
+.panel-brand-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.25;
+}
+
+.panel-brand-text strong {
+  font-family: var(--font-display, "Outfit", sans-serif);
+  font-size: var(--fs-cuerpo);
+  letter-spacing: -0.01em;
+}
+
+.panel-brand-text small {
+  font-size: var(--fs-label);
+  color: var(--text-dim);
+}
+
+.panel-side-cerrar {
+  display: none;
+  margin-inline-start: auto;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--fs-xl);
+  line-height: 1;
+  cursor: pointer;
+}
+
+.panel-menu {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.9rem 0.7rem 1.25rem;
+}
+
+.panel-menu-titulo {
+  margin: 1.1rem 0 0.4rem;
+  padding-inline: 0.6rem;
+  font-size: var(--fs-label);
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.panel-menu-titulo:first-child {
+  margin-top: 0.25rem;
+}
+
+.panel-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.55rem 0.65rem;
+  border-radius: 9px;
+  font-size: var(--fs-cuerpo);
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+/* El icono no se encoge: es lo que da ritmo vertical al menú. */
+.panel-menu-item svg {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.8;
+}
+
+.panel-menu-item:hover {
+  background: var(--raise);
+  color: var(--text);
+}
+
+/* La sección actual se marca con un fondo Y con una barra a la
+   izquierda. Con seis secciones parecidas, el color solo no basta:
+   un daltonismo no distingue el morado del acento. */
+.panel-menu-item.is-active {
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+  color: var(--text);
+  font-weight: 600;
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+
+.panel-menu-item--externo {
+  color: var(--text-dim);
+  font-size: var(--fs-xs);
+}
+
+/* ---------- Pie del lateral ---------- */
+.panel-side-foot {
+  padding: 0.85rem 0.7rem 1rem;
+  border-top: 1px solid var(--border);
+  display: grid;
+  gap: 0.65rem;
+}
+
+.panel-side-user {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.35rem 0.4rem;
+}
+
+.panel-avatar {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent-2) 30%, transparent);
+  border: 1px solid var(--border-strong);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+/* ---------- El bloque de usuario de la barra simple ----------
+   En el portal del cliente esto es avatar + "Salir", y va pegado a
+   la derecha. Con flex y nowrap, para que en pantallas estrechas se
+   encoja el menú (que es lo prescindible) y no el botón de salir,
+   que es una acción. */
+.panel-topbar--simple .panel-user {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.panel-topbar--simple .panel-user form {
+  margin: 0;
+}
+
+.panel-salir {
+  gap: 0.4rem;
+  white-space: nowrap;
+  padding-inline: 0.75rem;
+}
+
+.panel-salir svg {
+  flex-shrink: 0;
+  opacity: 0.8;
+}
+
+.panel-salir:hover svg {
+  opacity: 1;
+}
+
+.panel-side-user-datos {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.3;
+}
+
+.panel-side-user-datos strong {
+  font-size: var(--fs-xs);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.panel-side-user-datos small {
+  font-size: var(--fs-label);
+  color: var(--text-dim);
+}
+
+/* ---------- Contenido ---------- */
+.panel-shell {
+  /* El margen es el ancho de la barra MÁS el hueco que la separa del
+     contenido, porque la barra ya no está pegada al borde.
+
+     Es un margen y no un `padding` porque el fondo de la página tiene
+     que verse en ese hueco: si el hueco fuera relleno, se vería
+     color de contenido y la barra dejaría de flotar. */
+  margin-inline-start: calc(var(--panel-sidebar) + 3rem);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  /* Sin esto, una tabla ancha (min-width 560px) ensancha el lateral
+     entero y la página entera se desplaza en horizontal: en el móvil
+     las tarjetas se salen de la pantalla y nada queda donde debe.
+     clip recorta sin crear un contenedor de scroll, así que el
+     scroll de la tabla sigue funcionando dentro de su caja. */
+  overflow-x: clip;
+  min-width: 0;
+}
+
+.panel-shell--simple {
+  margin-inline-start: 0;
+}
+
+.panel-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  height: var(--panel-topbar);
+  padding-inline: 1.5rem;
+
+  /* ── LA BARRA DE ARRIBA, SIN FILete ──
+
+     Estaba con `background: color-mix(--bg 88%)` más un `blur`, que
+     es la barra de una aplicación de escritorio: pegada arriba,
+     translúcida, y con una línea que la separa del contenido.
+
+     Aquí ya no hay línea. Se quedan el fondo translúcido y el
+     desenfoque, que son los que hacen que la barra se lea por
+     encima del contenido al desplazarse.
+
+     ── POR QUÉ EL FILete SE QUITA ──
+
+     Por el mismo motivo que en las cajas y que en el lateral: el
+     borde dibujaba un corte horizontal que partía la pantalla en
+     dos bandas, y con las cajas flotando por debajo esa línea ya no
+     separa nada. Se nota sobre todo al desplazarse: el contenido
+     pasa por debajo de la barra y cruza un filete, y eso es un
+     borde de los que se quieren quitar.
+
+     ── POR QUÉ SIGUE SIENDO FIJA ──
+
+     Porque es lo que hace útil la pantalla: la búsqueda y el botón
+     de «Nuevo» tienen que estar a mano en cualquier punto de una
+     tabla de cuarenta filas. */
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(8px);
+}
+
+.panel-topbar--simple {
+  justify-content: space-between;
+}
+
+/* El selector de tema, a la derecha de la barra.
+
+   Con `--simple` la barra ya es `space-between`, así que con el
+   `margin-inline-start: auto` de aquí el selector se va al extremo
+   derecho y no entre el título y el usuario. En la del equipo, que no
+   lleva `--simple`, el hueco que había a la derecha se llena con
+   algo útil. */
+.panel-theme {
+  margin-inline-start: auto;
+  flex: 0 0 auto;
+}
+
+/* La navegación del cliente: cuatro enlaces en fila, en el centro.
+
+   EL BUG QUE ESTABA
+   -----------------
+   Los enlaces se partían en dos líneas ("Mis / servicios") y el
+   texto se salía de la pastilla. La causa no era el ancho: era que
+   no había `white-space: nowrap`. Una pastilla con
+   `border-radius: 999px` y texto que envuelve parece una gota
+   deformada, y encima el texto se sale por arriba y por abajo.
+
+   Por eso nowrap no es opcional: un enlace de navegación que se
+   parte en dos líneas deja de leerse como una sola cosa. */
+.panel-nav--simple {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.panel-nav--simple a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--text-muted);
+  text-decoration: none;
+  /* Lo de arriba. */
+  white-space: nowrap;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.panel-nav--simple a svg {
+  flex-shrink: 0;
+  opacity: 0.75;
+}
+
+.panel-nav--simple a:hover {
+  background: var(--raise);
+  color: var(--text);
+}
+
+.panel-nav--simple a:hover svg {
+  opacity: 1;
+}
+
+/* El activo se distingue por relleno Y por peso, no solo por color:
+   quien no distingue el morado sigue viendo cuál es. */
+.panel-nav--simple a.is-active {
+  background: var(--raise-strong);
+  border-color: var(--border);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.panel-nav--simple a.is-active svg {
+  opacity: 1;
+  color: var(--accent);
+}
+
+/* Foco visible en el menú. Sin esto, con teclado no se veía dónde
+   estabas. */
+.panel-nav--simple a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* En escritorio la barra superior solo existe para el móvil, así que
+   no muestra el título de la página: cada vista ya lo pone en su
+   encabezado y repetirlo ahí sería ruido. */
+.panel-topbar-titulo {
+  display: none;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text-dim);
+}
+
+.panel-burger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  width: 36px;
+  height: 36px;
+  padding: 0 8px;
+  border: 1px solid var(--border-strong);
+  border-radius: 9px;
+  background: var(--surface);
+  cursor: pointer;
+}
+
+.panel-burger span {
+  display: block;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--text);
+}
+
+.panel-main {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ---------- Página ---------- */
+.panel-page {
+  max-width: var(--panel-page-max);
+  margin-inline: auto;
+
+  /* El aire de los lados es el mismo margen que separa la barra
+     lateral del contenido. Si fueran distintos, el contenido se
+     vería encajonado en un ancho raro: la barra flotando con aire
+     alrededor y las cajas metidas contra los bordes de la ventana.
+
+     Y arriba se deja lo que mide la barra más un margen, para que la
+     primera caja no quede escondida debajo de ella. */
+  padding: calc(var(--panel-topbar) + 1.5rem) 1.5rem 4rem;
+}
+
+.panel-page--form {
+  max-width: 860px;
+}
+
+.panel-page--portal {
+  max-width: 940px;
+}
+
+.panel-page-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--panel-gap);
+  flex-wrap: wrap;
+
+  /* ── POR QUÉ 1.6 Y AHORA 1.15 ──
+
+     Este margen era el espacio muerto más visible de todo el panel:
+     entre el título y lo que viene abajo había una franja vacía que
+     no pertenecía a ningún bloque. Con el título más chico y las
+     filas más bajas, 1.6rem dejaba un hueco que parecía un error de
+     maquetación.
+
+     1.15rem es un paso corto de la escala. Deja respirar el título sin
+     abrir un vacío: el ojo baja del rótulo al contenido casi sin
+     notar el corte, que es lo que se busca. */
+  margin-bottom: 1.15rem;
+}
+
+.panel-page-head h1 {
+  margin: 0;
+  font-family: var(--font-display, "Outfit", sans-serif);
+
+  /* ── POR QUÉ BAJA DE 31 A 24 ──
+
+     Estaba en `clamp(1.5rem, 2.6vw, 1.95rem)`, que a 1440 da 31px.
+     Con el texto de la tabla ahora a 14, la proporción era de 2,2 a
+     uno: el título parecía un cartel pegado encima de una hoja de
+     cálculo.
+
+     ── POR QUÉ NO ES MÁS PEQUEÑO ──
+
+     Porque es lo que separa una pantalla de otra. Con 18 sería un
+     subtítulo y no sabrías de qué pantalla estás.
+
+     ── EL PESO Y EL INTERLETRAJE ──
+
+     600 y no 700. Un título en negrita cerrada del tamaño de un
+     titular se lee como un titular; en 600 se lee como un rótulo, que
+     es lo que es: el nombre de la pantalla de arriba.
+
+     Y el interletraje se cierra a -0.02em. Con -0.03 y este peso las
+     letras se tocan y en pantallas con mucho texto al lado se nota el
+     roce. Cerrado un pelo menos, respira igual y no se junta. */
+  /* ── POR QUÉ SIN CLAMP ──
+
+     Estaba en `clamp(1.5rem, 2.6vw, 1.95rem)`, y el `2.6vw` se pasó de
+     largo en cuanto la ventana pasó de 1200: a 1440 el `clamp` ya
+     estaba en su tope, así que en cualquier monitor grande el título
+     medía exactamente lo mismo.
+
+     Medido después del cambio, da 24 en 1920, en 1440 y en 1280. Un
+     `clamp` que devuelve lo mismo en todas partes no está haciendo
+     nada: ocupa sitio y hace creer que el título se adapta. Va fijo,
+     con la escala por delante. */
+  font-size: var(--fs-xl);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.panel-kicker {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-size: var(--fs-label);
+
+  /* ── EL INTERLETRAJE ──
+
+     Bajamos de 0.12em a 0.07em, que es el mismo que usan las cabeceras
+     de tabla y las etiquetas de campo.
+
+     ── POR QUÉ ──
+
+     A 11px, 0.12em abre tanto los espacios entre letras que «GESTIÓN»
+     deja de leerse como una palabra y empieza a leerse como seis
+     caracteres sueltos. El ancho de más no le da más jerarquía: la
+     jerarquía la dan el tamaño respecto del título de abajo y el
+     color. Con 0.07em se lee como una palabra, que es lo que es.
+
+     ── EL PESO ──
+
+     600 y no 700, igual que las cabeceras de tabla. A este tamaño la
+     negrita cerrada engorda la etiqueta en vez de destacarla.
+
+     ── EL COLOR ──
+
+     ── EL COLOR, Y POR QUÉ PASA A GRIS ──
+
+     Estaba en `var(--accent-2)`, el mismo amarillo que llevan los
+     chips de estado. Eso ponía dos colores de marca vivos a la vez
+     diciendo «esto es importante»: el verde del botón principal y el
+     amarillo de cada etiqueta de sección.
+
+     Cuando todo es acento no hay acento. El ojo aprende que el
+     amarillo no significa nada en concreto, y entonces deja de
+     servir para lo que sí lo significa, que es un estado de una fila.
+
+     El verde se queda como color de marca y para la acción
+     principal. El amarillo pasa a ser solo estado, y esta etiqueta
+     baja a `text-dim`: es un rótulo, no un aviso.
+
+     ── POR QUÉ NO SE BORRA ──
+
+     Porque separa la pantalla de lo que hay dentro de ella. Un
+     rótulo gris y pequeño cumple eso igual, y además se leen todos
+     los encabezados de golpe como una sola cosa, que con el color
+     no pasaba: cada uno tiraba para su lado. */
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.panel-count {
+  margin: 0.3rem 0 0;
+  font-size: var(--fs-sm);
+  color: var(--text-dim);
+}
+.panel-head-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+
+.panel-hint {
+  margin: 0 0 0.9rem;
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.panel-help {
+  display: block;
+  margin-top: 0.3rem;
+  font-style: normal;
+  font-size: var(--fs-xs);
+  line-height: 1.5;
+  color: var(--text-dim);
+}
+
+.panel-error {
+  display: block;
+  margin-top: 0.3rem;
+  font-style: normal;
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  color: var(--danger);
+}

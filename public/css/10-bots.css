@@ -1,0 +1,793 @@
+/* =========================================================
+   10 BOTS
+   =========================================================
+
+   Parte 11 de 12 del CSS del panel.
+   Empieza en: BOTS Y CAJAS DE EVOLUTION
+
+   ── EL ORDEN DE ESTAS HOJAS ES EL ORDEN DE CARGA ──
+
+   En CSS el que gana es el último, y en este panel hay
+   selectores declarados más de una vez. Mover una hoja de sitio
+   cambia el resultado sin dar ningún error.
+
+   El número del principio es su posición: 00 se carga
+   primero y el último, el último. El orden está en
+   panel.orden.json, que es lo que lee
+   views/partials/panel-head.ejs para armar los <link>.
+
+   Y db/ver-modulos-css.js comprueba que la concatenación da
+   el mismo texto que el archivo único de antes de la división.
+   Si eso dice que no, el aspecto va a cambiar.
+   ========================================================= */
+/* =========================================================
+   BOTS Y CAJAS DE EVOLUTION
+   ---------------------------------------------------------
+   Los chips del estado de un número de WhatsApp.
+
+   Se nombran `bot-*` y no `salud-*` a propósito. `salud-*` ya lo usan
+   los microservicios (verde / rojo / ámbar) y `estado-*` los servicios.
+   Un bot tiene cuatro estados y uno de ellos (`close`, "sin conectar")
+   NO es un fallo: es el estado normal de un bot recién dado de alta, que
+   todavía no ha escaneado el QR. Pintarlo en rojo sería mentir, y con la
+   tabla entera en rojo nadie distinguiría "está mal" de "todavía no lo
+   ha conectado".
+
+   Por eso el rojo se reserva para lo que sí requiere intervención: un
+   servidor que no responde.
+   ========================================================= */
+.panel-chip--bot-open {
+  color: var(--accent);
+  border-color: var(--success-border);
+  background: var(--success-bg);
+}
+
+.panel-chip--bot-close {
+  color: var(--text-muted);
+  border-color: var(--border-strong);
+  background: var(--raise);
+}
+
+/* Conectando y esperando QR comparten color a propósito: los dos son
+   "está en ello" y no necesitan distinguirse. El texto ya los
+   distingue. */
+.panel-chip--bot-espera {
+  color: var(--warning);
+  border-color: color-mix(in srgb, var(--warning) 40%, transparent);
+  background: color-mix(in srgb, var(--warning) 12%, transparent);
+}
+
+/* ---------- La entrada de menú que cuelga de otra ----------
+
+   "Cajas de bots" es hijo de "Bots" en el menú: se usa con el mismo bot
+   abierto delante. El sangrado va en `padding-inline-start` y no en un
+   margen, para que el hover siga siendo un rectángulo y no un rectángulo
+   con un hueco al lado. */
+.panel-menu-item--hijillo {
+  padding-inline-start: 1.75rem;
+  font-size: var(--fs-xs);
+}
+
+/* ---------- El menú «Nuevo» de la barra superior ---------- */
+
+.panel-topbar-acciones {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+
+  /* Empujado al extremo derecho de la barra.
+
+     No es solo estética: el menú que cuelga de aquí se ancla a la
+     derecha del botón, y con el botón pegado a la izquierda el
+     desplegable se metía debajo del lateral fijo de 248px. A la
+     derecha crece hacia dentro y nunca choca. */
+  margin-inline-start: auto;
+}
+
+.panel-rapido {
+  position: relative;
+  display: inline-block;
+}
+
+/* Solo la mecánica del `<details>`.
+
+   La pinta la pone `.panel-btn--primary`, que ya está en el HTML del
+   `<summary>`. Repetir aquí fondo, borde y color no era solo
+   redundante: esta regla va después y gana, así que el botón de
+   «Nuevo» salía del color del fondo en vez del verde de la marca. */
+.panel-rapido summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+.panel-rapido summary:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.panel-rapido summary::-webkit-details-marker {
+  display: none;
+}
+
+.panel-rapido .panel-rapido-abrir svg {
+  flex: 0 0 auto;
+  width: 0.85rem;
+  height: 0.85rem;
+}
+
+/* Abierto: se marca con un anillo, no cambiando de color.
+
+   Si al abrirse perdiera el degradado, el botón parecería desactivado
+   justo mientras está en uso. El anillo dice «está abierto» sin
+   tocar el color de la marca. */
+.panel-rapido[open] .panel-rapido-abrir {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent),
+              0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 8px color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+.panel-rapido .panel-menu-rapido {
+  position: absolute;
+  inset-block-start: calc(100% + 6px);
+
+  /* Anclado a la DERECHA del botón, no a su izquierda.
+
+     El botón vive en la barra superior, cerca del borde derecho, y
+     el menú mide 180px: anclado a la izquierda se salía de la
+     pantalla justo en el sitio donde más se usa, que es el móvil.
+     Anclado a la derecha crece hacia dentro y nunca desborda. */
+  inset-inline-end: 0;
+  inset-inline-start: auto;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+  min-width: 180px;
+  margin: 0;
+  padding: 0.3rem 0;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.14);
+  overflow: hidden;
+}
+
+.panel-rapido .panel-menu-rapido a {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.6rem;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text);
+  font-family: inherit;
+  font-size: var(--fs-xs);
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* Los iconos del menú, con el mismo trato que los del lateral.
+
+   Sin esto cada fila medía 124px de alto: un `<svg>` con `viewBox`
+   pero SIN `width`/`height` toma el tamaño de reserva del navegador
+   —unos 150px— y el enlace crecía con él. Un icono no se dimensiona
+   solo porque lo parezca: hay que decirle cuánto mide. */
+.panel-rapido .panel-menu-rapido a svg {
+  flex: 0 0 auto;
+  width: 1rem;
+  height: 1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.8;
+}
+
+.panel-rapido .panel-menu-rapido a:hover {
+  background: var(--raise);
+  color: var(--text);
+}
+
+.panel-rapido .panel-menu-rapido a:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: -3px;
+}
+
+.panel-rapido[open] .panel-menu-rapido {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* El cajón del lateral se cierra a la vez que entra el menú «Nuevo». */
+.panel-scrim {
+  display: none;
+}
+
+/* La lupa deja de empujar cuando comparte barra con el menú «Nuevo».
+
+   El buscador lleva `margin-inline-start: auto` para pegarse a la
+   derecha, y el grupo de acciones lo lleva ahora también. Dos `auto`
+   en la misma fila se reparten el hueco, así que en móvil el botón de
+   crear quedaba flotando en mitad de la barra en vez de junto a la
+   lupa. El que empuja es el grupo: el buscador solo acompaña.
+
+   Se acota con `:has()` y no se quita la regla del buscador porque en
+   el portal del cliente —barra `--simple`, sin grupo de acciones— el
+   buscador sí tiene que hacerlo. */
+.panel-topbar:has(.panel-topbar-acciones) .panel-buscar {
+  margin-inline-start: 0;
+}
+
+@media (max-width: 1000px) {
+  /* En el cajón, la barra tiene burger, título, «Nuevo» y la lupa:
+     el título es lo que sobra, así que se deja truncar en vez de
+     empujar los botones fuera. */
+  .panel-topbar-titulo {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+  }
+
+  .panel-topbar-acciones {
+    flex-wrap: nowrap;
+  }
+
+  .panel-rapido summary {
+    padding: 0.4rem 0.7rem;
+  }
+
+  .panel-rapido .panel-menu-rapido {
+    inset-block-start: calc(100% + 4px);
+    min-width: 200px;
+  }
+}
+
+@media (max-width: 560px) {
+  .panel-topbar-acciones {
+    justify-content: flex-end;
+    gap: 0.35rem;
+  }
+
+  /* Con el texto fuera, el botón queda en el icono «+» y cabe junto a
+     la lupa en un teléfono de 390px. La etiqueta sigue estando para
+     quien navega con lector de pantalla: el `<summary>` la lleva
+     puesta en `aria-label` (ver panel-head.ejs). */
+  .panel-rapido-abrir span {
+    display: none;
+  }
+
+  .panel-rapido summary {
+    padding: 0.4rem 0.5rem;
+  }
+
+  .panel-rapido .panel-menu-rapido {
+    min-width: 170px;
+    padding: 0.25rem 0;
+  }
+
+  .panel-rapido .panel-menu-rapido a {
+    padding: 0.45rem 0.5rem;
+    font-size: var(--fs-xs);
+  }
+}
+
+/* =========================================================
+   EL ESTADO DE LA CAJA, Y LOS SITIOS DE LA CAJA
+   =========================================================
+
+   â”€â”€ POR QUÃ‰ EL ESTADO VA CON UN PUNTO Y CON LA PALABRA â”€â”€
+
+   El punto es lo que se ve de reojo, y la palabra es lo que evita
+   la malentrada: una caja con 15 sitios puede estar Â«OnlineÂ» con
+   uno solo funcionando, y quien lea solo el punto se lleva una
+   impresiÃ³n que no es cierta.
+
+   Por eso el Online lleva tambiÃ©n el tiempo que tardÃ³ en
+   contestar. Un nÃºmero al lado de la etiqueta convierte un Â«parece
+   que va bienÂ» en un hecho medido, y cuando la caja contesta en
+   400ms y cuando tarda 3s se ven distinto de un vistazo, que es lo
+   que avisa de que algo empieza a ir mal antes de que se caiga.
+
+   â”€â”€ POR QUÃ‰ TRES ESTADOS Y NO UNO DE Â«BIENÂ» â”€â”€
+
+   Porque hay tres cosas distintas que decir y una sola palabra
+   Â«bienÂ» mentirÃ­a a todas: que la caja contesta, que se le ha
+   preguntado hoy, y que estÃ¡ en servicio. Se necesitan separadas
+   porque se rompen por separado: una caja caÃ­da estÃ¡ offline pero
+   sigue en servicio, y una caja dada de baja estÃ¡ en servicio pero
+   no se pregunta nunca.
+
+   â”€â”€ POR QUÃ‰ EL PUNTO ES UN `::before` Y NO UN ELEMENTO â”€â”€
+
+   Porque son dos pÃ­xeles. Ponerlos en el DOM obligarÃ­a a
+   escribirlos en la vista, y un `<i>` vacÃ­o dentro de una etiqueta
+   es una etiqueta mal marcada para el lector de pantalla y para
+   quien edite el HTML dentro de seis meses.
+
+   El halo del punto se hace con `box-shadow` en lugar de con un
+   segundo anillo, por lo mismo: un anillo serÃ­a un elemento mÃ¡s y
+   `box-shadow` se pinta gratis. */
+
+.panel-estado-caja {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.panel-estado-caja::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex: none;
+}
+
+.panel-estado-caja[data-estado="online"] {
+  color: var(--accent);
+}
+
+.panel-estado-caja[data-estado="offline"] {
+  color: var(--danger);
+}
+
+.panel-estado-caja[data-estado="desconocido"] {
+  color: var(--text-dim);
+}
+
+/* El halo va solo en los dos estados que se distinguen, para que se
+   distingan de un texto cualquiera a reojo. */
+.panel-estado-caja[data-estado="online"]::before {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+.panel-estado-caja[data-estado="offline"]::before {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 18%, transparent);
+}
+
+/* =========================================================
+   LOS SITIOS DE UNA CAJA
+
+   â”€â”€ POR QUÃ‰ UNA REJILLA Y NO UNA TABLA â”€â”€
+
+   Porque un sitio son tres cosas â€”el nÃºmero, quÃ© hay detrÃ¡s y si
+   el nÃºmero existe de verdadâ€” y en una tabla eso son tres columnas
+   de las que dos no sirven para nada y hay que mirar igual.
+
+   â”€â”€ POR QUÃ‰ CUATRO COLUMNAS â”€â”€
+
+   Con quince sitios, una sola columna los deja en una tira larga
+   que obliga a desplazarse para ver el Ãºltimo, y el Ãºltimo es
+   justo el que interesa: el reciÃ©n ocupado, o el primero libre.
+
+   El ancho mÃ­nimo de 220px es lo que cabe un nombre de bot y una
+   empresa sin cortarlos. Con menos, el nombre se corta a mitad y
+   ya no se distingue `bot-adri` de `bot-adrian`. */
+.panel-sitios {
+  margin-bottom: 1rem;
+}
+
+.panel-sitios-cabecera {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.55rem;
+}
+
+.panel-sitios-titulo {
+  font-size: var(--fs-label);
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.panel-sitios-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.4rem;
+}
+
+.panel-sitio {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-soft);
+}
+
+/* â”€â”€ LOS TRES ESTADOS DE UN SITIO â”€â”€
+
+   Se distinguen por el borde y no por el fondo, y cada uno dice
+   una cosa distinta:
+
+     ocupado   hay un bot detrÃ¡s y todo en su sitio
+     creado    hay una instancia en la caja sin bot que la use
+     libre     el sitio estÃ¡ disponible
+
+   El tercero lleva borde discontinuo y sin fondo, para que se lea
+   como Â«aquÃ­ no hay nadaÂ», que es lo que es. Un sitio libre con
+   el mismo aspecto que uno ocupado es peor que no enseÃ±arlos. */
+.panel-sitio[data-estado="ocupado"] {
+  border-color: color-mix(in srgb, var(--accent) 28%, var(--border));
+}
+
+.panel-sitio[data-estado="creado"] {
+  border-color: color-mix(in srgb, var(--warning) 34%, var(--border));
+  background: color-mix(in srgb, var(--warning) 5%, var(--bg-soft));
+}
+
+.panel-sitio[data-estado="libre"] {
+  background: transparent;
+  border-style: dashed;
+}
+
+.panel-sitio-num {
+  font-size: var(--fs-xs);
+  color: var(--text-dim);
+  min-width: 1.4em;
+  text-align: end;
+  flex: none;
+}
+
+.panel-sitio-texto {
+  min-width: 0;
+  flex: 1;
+}
+
+.panel-sitio-principal {
+  display: block;
+  font-size: var(--fs-sm);
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.panel-sitio-estado {
+  font-size: var(--fs-xs);
+  color: var(--text-dim);
+  white-space: nowrap;
+  flex: none;
+}
+
+.panel-sitio-estado.es-online {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* =========================================================
+   =========================================================
+   EL SISTEMA DE SUPERFICIES Y LA REJILLA
+
+   ── DE DÓNDE VIENE ──
+
+   De la plantilla Sakai de PrimeFaces, que es la referencia elegida.
+   Lo que se toma no es su color, que es de otro tema, sino su manera
+   de separar las cosas.
+
+   Sus tres variables, textuales, de `src/assets/styles/_variables.scss`:
+
+       $fontSize:14px
+       $borderRadius:12px
+       $transitionDuration:.2s
+
+   ── SU IDEA CENTRAL, QUE ES LA QUE CAMBIA EL ASPECTO ──
+
+   Un contenedor no se dibuja con un borde: se separa porque está
+   sobre otro plano. En Sakai la tarjeta y el fondo son dos tonos y
+   no hay ni una línea entre ellos.
+
+   ── POR QUÉ ANTES SÍ HABÍA BORDES ──
+
+   Porque con tres superficies a 1,226:1 de diferencia —lo que había,
+   medido— la separación por tono no se lee. Se puso un borde para
+   taparlo.
+
+   La diferencia real no es que faltara color: es que el borde
+   estaba tapando una diferencia de planos que no existía. Y con
+   borde por todas partes el panel se lee como un documento con
+   cajas dibujadas, no como una herramienta.
+
+   ── LOS TRES NIVELES, Y POR QUÉ TRES ──
+
+   Porque tres es lo que aguanta un panel con tablas, tarjetas y
+   estados. Con cuatro, por encima de 1,3:1 de diferencia de
+   luminancia dos planos dejan de distinguirse, y en un panel oscuro
+   el margen es corto. Se probaron cuatro paletas buscando llegar a
+   1,5:1 y ninguna llegó: en la parte baja de la escala de
+   luminancia cada paso cuesta el doble que el anterior.
+
+     --caja-fondo   una caja sobre el fondo de la página
+     --caja-hundida un hueco dentro de una caja
+     --caja-alta    lo que flota: menús, diálogos
+
+   ── POR QUÉ EL RADIO ES 12 Y NO 8 ──
+
+   Es el de Sakai, y hay un motivo que no es de gusto. Un radio
+   grande redondea también la sombra, y una sombra redondeada se ve
+   blanda; con un radio pequeño la sombra se sale por las esquinas y
+   la caja parece recortada.
+
+   Con sombra larga y difusa, que es lo que hacen sus contenedores,
+   el radio tiene que ser generoso. Por eso su sombra tiene dos
+   capas y 12px de radio, y no una sombra corta con 8px.
+   ========================================================= */
+
+html[data-panel] {
+  /* ── El sistema, en nuestra paleta ── */
+
+  --caja-fondo: var(--surface);
+
+  /* Sin borde. La separación la hace el tono.
+
+     Y no es que el borde sea tonto: es que la sombra larga de
+     Sakai ya dibuja el contorno, y un borde encima de una sombra
+     dibuja la misma línea dos veces. Con las dos cosas se ve un
+     doble filo en las esquinas, que es justo lo que hace que un
+     panel se vea amateur. */
+  --caja-borde: transparent;
+  --caja-radio: 12px;
+  --caja-sombra: 0 1px 2px rgba(0, 0, 0, 0.24), 0 4px 12px rgba(0, 0, 0, 0.18);
+  --caja-relleno: 1.25rem;
+
+  /* Una caja dentro de otra. Un tono por debajo y sin sombra: si
+     una cosa está dentro de otra no tiene por qué parecer que está
+     encima. */
+  --caja-hundida-fondo: var(--bg-soft);
+  --caja-hundida-borde: transparent;
+
+  /* Lo que flota de verdad. Aquí sí hay hueco de sombra: un menú
+     por encima de la página tiene que parecer que está delante. */
+  --caja-alta-fondo: var(--surface-2);
+  --caja-alta-borde: var(--border);
+  --caja-alta-sombra: 0 6px 20px rgba(0, 0, 0, 0.45);
+
+  --caja-transicion: 0.2s ease;
+  --caja-hover-sombra: 0 2px 4px rgba(0, 0, 0, 0.26), 0 8px 20px rgba(0, 0, 0, 0.24);
+  --caja-hover-y: -2px;
+
+  /* ─────────────────────────────────────────────────────
+     LA REJILLA
+
+     Sakai reparte en 12 columnas y sus tarjetas de cifra ocupan
+     3 de esas 12 en pantalla grande, 6 en mediana y 12 en móvil.
+     Traducido: cuatro cifras arriba en un portátil, dos en una
+     tableta y una en un móvil.
+
+     Lo que cambia respecto a lo que había no es cuántas columnas
+     son, sino el MÍNIMO. Estaba en 180px, y eso en un monitor de
+     1440 da siete cifras por fila, cada una de 180px: se leen
+     como etiquetas estrechas y la última queda descolgada.
+
+     Con 240px caben cuatro a 1440 y quedan del mismo ancho, que es
+     lo que hace que se lean como una fila y no como una lista.
+     ───────────────────────────────────────────────────── */
+  --rejilla-min: 240px;
+  --rejilla-gap: 1rem;
+}
+
+/* ─────────────────────────────────────────────────────────
+   LAS SUPERFICIES, DEFINIDAS UNA VEZ
+
+   Se declaran juntas y con el mismo esqueleto a propósito. Si cada
+   una escribiera su propio fondo y su propio borde, la diferencia
+   entre una tarjeta y una cifra volvería a ser una diferencia que
+   hay que mantener sincronizada a mano. Lo único que cambia entre
+   ellas es el nombre de la variable que leen.
+
+   Y esta es la corrección de fondo: `.panel-stat` estaba declarado
+   dos veces en esta hoja, a unas cuatrocientas líneas de distancia,
+   y la segunda ganaba siempre. La primera era papel. Eso convertía
+   cualquier ajuste en un misterio: se cambiaba una regla, no se
+   veía nada, y el motivo estaba a cuatrocientas líneas.
+   ───────────────────────────────────────────────────────── */
+
+.panel-card,
+.panel-stat,
+.panel-resumen-tarjeta {
+  background: var(--caja-fondo);
+  border: 1px solid var(--caja-borde);
+  border-radius: var(--caja-radio);
+  box-shadow: var(--caja-sombra);
+}
+
+.panel-card {
+  overflow: hidden;
+}
+
+/* ── La cifra, con la anatomía de Sakai ──
+
+   Sakai la monta en este orden, y el orden es la mitad del
+   resultado:
+
+       etiqueta         encima, apagada, pequeña
+       cifra            debajo, grande
+       icono            40x40, redondeado, a la derecha
+       estado           abajo, en color
+
+   El icono va a la derecha y arriba, no a la izquierda, porque la
+   izquierda es la columna de números y ahí estorba: con el icono a
+   la izquierda, todas las cifras de una fila quedan a distinta
+   distancia del borde y la fila no se lee como una fila. */
+.panel-stat {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--p-4);
+  container-type: inline-size;
+  padding: var(--caja-relleno);
+  text-decoration: none;
+  color: inherit;
+  transition: box-shadow var(--caja-transicion),
+              transform var(--caja-transicion);
+}
+
+.panel-stat:hover,
+a.panel-stat:hover {
+  box-shadow: var(--caja-hover-sombra);
+  transform: translateY(var(--caja-hover-y));
+}
+
+/* El icono: 40px, como los de Sakai, y completamente redondeado.
+
+   Estaba en 44px con radio 10. Los dos cambios van en la misma
+   dirección: a 40px el icono deja de competir con la cifra, y con
+   `999px` pasa a ser un círculo, que es lo que usan ellos y lo que
+   separa la forma del resto de iconos del panel sin gritar. */
+.panel-stat-icono {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 999px;
+  background: var(--stat-tinte, color-mix(in srgb, var(--accent) 16%, transparent));
+  color: var(--stat-color, var(--accent));
+}
+
+/* ── La etiqueta de la cifra ──
+
+   En Sakai la etiqueta va ENCIMA de la cifra y en apagado, y la
+   cifra debajo. Aquí el orden era al revés por el HTML, y por eso
+   la etiqueta se leía como un pie de la cifra y no como su
+   encabezado. Con `flex-direction: column` se invierte aquí sin
+   tocar ninguna vista. */
+/* ── El orden de la etiqueta y la cifra ──
+
+   En Sakai la etiqueta va ENCIMA de la cifra y en apagado, y la
+   cifra debajo. Aquí el HTML es `<strong>` y luego `<span>`, o sea
+   al revés, y el orden se invierte con `order`.
+
+   ── POR QUÉ NO SE TOCA EL HTML ──
+
+   Porque hay 26 cifras repartidas por seis vistas y el orden
+   correcto depende de qué se mire. La etiqueta arriba convierte la
+   tarjeta en un bloque de texto con un número, que es lo que es
+   una cifra. Con el número arriba y la etiqueta abajo parece un
+   botón con un pie.
+
+   Y la inversión con `order` no mueve el HTML, que para el
+   lector de pantalla se sigue leyendo número y luego etiqueta, que
+   es como se lee de verdad: «152, orders».
+
+   ── POR QUÉ HACE FALTA EL WRAPPER ──
+
+   Porque `order` solo funciona entre hermanos, y `<strong>` y
+   `<span>` son hermanos de `<span class="panel-stat-icono">` si
+   hay icono. Con el icono no se pueden reordenar sin un
+   contenedor que los agrupe.
+
+   Y el `display: flex` en el contenedor no es decorativo: un
+   `<span>` suelto es en línea, así que la etiqueta y la cifra
+   quedarían en la misma línea y no habría dos filas que invertir. */
+.panel-stat-cuerpo {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-stat-cuerpo > span {
+  order: -1;
+}
+
+/* ── La rejilla de cifras ──
+
+   `auto-fit` y no `auto-fill`: con `auto-fill` la rejilla reserva
+   las columnas sobrantes aunque no haya nada que poner en ellas, y
+   se ve una última tarjeta más estrecha que las demás. Con `auto-fit`
+   las que sobran se reparten entre las que sí tienen contenido. */
+.panel-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(var(--rejilla-min), 1fr));
+  gap: var(--rejilla-gap);
+  margin-bottom: var(--panel-gap-xl);
+}
+
+/* ── La cabecera de una tarjeta ──
+
+   En Sakai la cabecera no lleva línea debajo: el título y el
+   contenido se separan con un margen, y ya está. Aquí la línea se
+   queda porque la cabecera y el cuerpo comparten tono, y sin ella
+   se leerían como un bloque solo. */
+.panel-card-head {
+  border-bottom: 1px solid var(--border);
+  padding: var(--caja-relleno);
+}
+
+/* ── El aviso ──
+
+   Un aviso no es una tarjeta: es un mensaje. Por eso no lleva
+   sombra, porque una sombra haría que se lea como algo que se puede
+   agarrar, y no se puede.
+
+   Y lleva el fondo muy tenue y el color solo en el borde y en el
+   texto. Un aviso entero del color del peligro parece una alarma
+   cuando lo que es es un texto que hay que leer. */
+.panel-alert {
+  background: color-mix(in srgb, var(--danger) 9%, var(--caja-fondo));
+  border: 1px solid color-mix(in srgb, var(--danger) 32%, transparent);
+  border-radius: var(--caja-radio);
+  padding: 0.85rem 1.1rem;
+}
+
+.panel-alert--ok {
+  background: color-mix(in srgb, var(--accent) 9%, var(--caja-fondo));
+  border-color: color-mix(in srgb, var(--accent) 32%, transparent);
+}
+
+/* ── La nota ──
+
+   Una nota es un comentario: está en la pantalla pero no pide
+   atención. Sin sombra y sin borde, solo un poco de fondo. */
+.panel-note {
+  background: var(--caja-hundida-fondo);
+  border: 1px solid transparent;
+  border-radius: var(--caja-radio);
+  padding: 0.75rem 1rem;
+  color: var(--text-muted);
+}
+
+/* ── El estado vacío ──
+
+   Cuando no hay nada que enseñar, el hueco ES la información. Por
+   eso no lleva sombra y su borde es discontinuo: es una ausencia
+   declarada, no un objeto. */
+.panel-empty {
+  background: var(--caja-hundida-fondo);
+  border: 1px dashed var(--border);
+  border-radius: var(--caja-radio);
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+}
+
+.panel-empty--sm {
+  padding: 1.5rem 1.1rem;
+}
+
+/* ── La tabla ──
+
+   Una tabla no es una caja más: es una superficie continua con
+   líneas. Por eso no lleva radio ni sombra propias, y lo único que
+   hace es quitar el fondo para no tapar el de la tarjeta que la
+   envuelve. */
+.panel-table-wrap {
+  border-radius: 0;
+  box-shadow: none;
+}

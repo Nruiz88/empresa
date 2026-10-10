@@ -1,0 +1,1145 @@
+/* =========================================================
+   08 COMANDOS
+   =========================================================
+
+   Parte 9 de 12 del CSS del panel.
+   Empieza en: PALETA DE COMANDOS (Ctrl+K)
+
+   ── EL ORDEN DE ESTAS HOJAS ES EL ORDEN DE CARGA ──
+
+   En CSS el que gana es el último, y en este panel hay
+   selectores declarados más de una vez. Mover una hoja de sitio
+   cambia el resultado sin dar ningún error.
+
+   El número del principio es su posición: 00 se carga
+   primero y el último, el último. El orden está en
+   panel.orden.json, que es lo que lee
+   views/partials/panel-head.ejs para armar los <link>.
+
+   Y db/ver-modulos-css.js comprueba que la concatenación da
+   el mismo texto que el archivo único de antes de la división.
+   Si eso dice que no, el aspecto va a cambiar.
+   ========================================================= */
+/* =========================================================
+   PALETA DE COMANDOS (Ctrl+K)
+   =========================================================
+   La capa va sobre todo, con `backdrop-filter` para que se vea que
+   hay algo encima. Sin oscurecer, la lista de resultados se mezcla
+   con la tabla que hay debajo y no se sabe dónde termina una cosa y
+   empieza la otra. */
+
+.cmd-capa {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: clamp(3rem, 12vh, 8rem) 1rem 2rem;
+  /* Fondo del menú en el celular.
+
+     Sale de `--bg`, que es de donde sale el de la home. Estaba como un
+     hexadecimal suelto —un negro azulado que no existe en la paleta— y
+     por eso el menú se veía de un negro distinto al header de la portada.
+
+     No es un detalle menor: es lo que tapa toda la pantalla en el celular.
+     Y un color suelto es de los que nadie revisa nunca, porque no rompe
+     nada y no se nota hasta que se compara con otra pantalla.
+
+     El `color-mix` con `transparent` es para que se vea el contenido de
+     detrás, que es lo que hace también la cabecera. */
+  background: color-mix(in srgb, var(--bg) 62%, transparent);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: cmd-aparece 0.14s ease-out;
+}
+
+.cmd-capa[hidden] {
+  display: none;
+}
+
+/* `overflow-y: auto` en la CAPA y no en la caja: si la lista crece,
+   lo que scrollea es el fondo y la caja se queda en su sitio. Con el
+   scroll en la caja, el encabezado se iba con el contenido y ya no
+   se veía qué se estaba escribiendo. */
+.cmd-capa {
+  overflow-y: auto;
+}
+
+@keyframes cmd-aparece {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.cmd-caja {
+  width: min(40rem, 100%);
+  border: 1px solid var(--border-strong);
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
+  overflow: hidden;
+}
+
+/* ---------- El campo ---------- */
+
+.cmd-cabecera {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.cmd-icono {
+  flex: 0 0 auto;
+  width: 1rem;
+  height: 1rem;
+  border: 1.5px solid var(--text-dim);
+  border-radius: 999px;
+  position: relative;
+}
+
+/* El mango de la lupa: un palito, no otra forma. */
+.cmd-icono::after {
+  content: "";
+  position: absolute;
+  inset-block-start: 0.95rem;
+  inset-inline-start: 0.7rem;
+  width: 0.4rem;
+  height: 1.5px;
+  background: var(--text-dim);
+  transform: rotate(45deg);
+  transform-origin: left center;
+}
+
+.cmd-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font-family: inherit;
+  font-size: var(--fs-cuerpo);
+}
+
+/* El contorno del foco va en la CAJA, no en el input. Si se dejara en
+   el input se vería un rectángulo dentro de otro rectángulo, y el
+   input no llega al borde: queda hueco. */
+.cmd-input:focus {
+  outline: none;
+}
+
+.cmd-caja:focus-within {
+  border-color: var(--accent-2);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-2) 22%, transparent);
+}
+
+/* ---------- La lista ---------- */
+
+.cmd-lista {
+  max-height: min(24rem, 55vh);
+  overflow-y: auto;
+  padding: 0.35rem;
+  scrollbar-width: thin;
+}
+
+.cmd-grupo {
+  padding: 0.7rem 0.6rem 0.3rem;
+  font-size: var(--fs-label);
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.cmd-item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.7rem;
+  padding: 0.5rem 0.6rem;
+  border-radius: 8px;
+  color: var(--text);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* La marcada se pinta con el MISMO fondo que el hover, para que pasar
+   el ratón y bajar con el teclado den el mismo aviso de dónde
+   estás. Con dos estilos distintos, con el ratón no sabes cuál es
+   la que va a abrir Enter. */
+.cmd-item:hover,
+.cmd-item.es-marcada {
+  background: var(--raise);
+}
+
+.cmd-item.es-marcada {
+  box-shadow: inset 0 0 0 1px var(--border-strong);
+}
+
+.cmd-item-icono {
+  flex: 0 0 auto;
+  width: 1rem;
+  color: var(--text-dim);
+}
+
+.cmd-item-textos {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+.cmd-item-titulo {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cmd-item-detalle {
+  font-size: var(--fs-xs);
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cmd-vacio {
+  margin: 0;
+  padding: 1.5rem 1rem;
+  text-align: center;
+  font-size: var(--fs-sm);
+  color: var(--text-dim);
+}
+
+/* ---------- El pie ---------- */
+
+.cmd-pie {
+  display: flex;
+  gap: 1rem;
+  padding: 0.6rem 1rem;
+  border-top: 1px solid var(--border);
+  font-size: var(--fs-label);
+  color: var(--text-dim);
+}
+
+.cmd-pie kbd {
+  display: inline-block;
+  padding: 0.1rem 0.35rem;
+  margin-inline-end: 0.2rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  background: var(--bg-soft);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: var(--fs-label);
+}
+
+/* ---------- El botón de la barra ---------- */
+
+.panel-buscar {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+
+  /* SIN margin auto aquí.
+
+     El selector de tema ya lo lleva, y son los dos hijos últimos de
+     la barra. Con dos `margin-inline-start: auto` en la misma fila,
+     el hueco se reparte entre los dos y el tema queda flotando en
+     mitad de la pantalla en vez de pegado a la derecha.
+
+     En la barra del portal no hay selector de tema, y entonces sí lo
+     necesita: se le da más abajo. */
+  padding: 0.35rem 0.5rem 0.35rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg-soft);
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: var(--fs-sm);
+  cursor: pointer;
+  transition: border-color 0.14s ease, color 0.14s ease;
+}
+
+.panel-buscar:hover {
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+/* La barra del cliente no lleva selector de tema, así que aquí el
+   botón sí tiene que empujar el resto. */
+.panel-topbar--simple .panel-buscar {
+  margin-inline-start: auto;
+}
+
+.panel-buscar-lupa {
+  width: 0.85rem;
+  height: 0.85rem;
+  border: 1.5px solid currentColor;
+  border-radius: 999px;
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.panel-buscar-lupa::after {
+  content: "";
+  position: absolute;
+  inset-block-start: 0.8rem;
+  inset-inline-start: 0.6rem;
+  width: 0.35rem;
+  height: 1.5px;
+  background: currentColor;
+  transform: rotate(45deg);
+  transform-origin: left center;
+}
+
+.panel-buscar-atajo {
+  padding: 0.1rem 0.4rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 5px;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: var(--fs-label);
+  color: var(--text-dim);
+}
+
+/* Con la paleta abierta, el fondo no se mueve: scroll sigue
+   funcionando detrás, que es lo que se espera. */
+body.cmd-abierto {
+  overflow: hidden;
+}
+
+/* En móvil no hay sitio para un botón con texto y atajo, y además
+   el atajo no existe en un teléfono. Se queda solo la lupa. */
+@media (max-width: 560px) {
+  .panel-buscar-texto,
+  .panel-buscar-atajo {
+    display: none;
+  }
+
+  .panel-buscar {
+    padding: 0.45rem;
+    margin-inline-start: auto;
+  }
+
+  .cmd-pie {
+    display: none;
+  }
+}
+
+/* =========================================================
+   TICKETS DE SOPORTE
+   =========================================================
+   El equipo atiende y el cliente escribe. Las dos mitades se
+   parecen a proposito —es el mismo hilo— pero la del equipo tiene
+   una cosa que la del cliente no: las notas internas.
+
+   ── POR QUE UNA NOTA INTERNA NO SE DISTINGUE SOLO POR EL COLOR ──
+
+   El color solo no se puede leer. Un ticket de cliente y uno del
+   equipo ya se distinguen por quien escribe; la nota interna se
+   distingue por la palabra "interno" y por el fondo rayado. El
+   color reinforces, no informa.
+
+   El rayado (repeating-linear-gradient) se elige por una razon
+   concreta: es lo unico que sigue leyendose en una captura
+   impresa en gris, y un ticket impreso en la oficina ya no tiene
+   color. Un color se pierde al imprimir; el rayado no.
+
+   ── LOS ESTADOS ──
+
+   abierto   --info      hay algo que hacer
+   en_curso  --warning   alguien lo esta cogiendo
+   resuelto  --success   hecho
+
+   Y el texto va SIEMPRE al lado del color. Un circulo rojo solo
+   obliga a pasar por el texto para saber que significa; con las
+   dos cosas se lee de reojo, que es de como se mira una lista. */
+
+.ticket-estado {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.15rem 0.55rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.ticket-estado::before {
+  content: "";
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.ticket-estado--abierto {
+  color: var(--info);
+  border-color: color-mix(in srgb, var(--info) 45%, transparent);
+  background: color-mix(in srgb, var(--info) 14%, transparent);
+}
+
+.ticket-estado--en_curso {
+  color: var(--warning);
+  border-color: color-mix(in srgb, var(--warning) 45%, transparent);
+  background: color-mix(in srgb, var(--warning) 12%, transparent);
+}
+
+.ticket-estado--resuelto {
+  color: var(--text-dim);
+  border-color: var(--border-strong);
+  background: transparent;
+}
+
+/* Un ticket resuelto no necesita color: se salen del color porque ya
+   no piden nada. El gris lo dice sin ensuciar la lista. */
+
+/* La fecha en monoespaciada y atenuada. Es una referencia, no una
+   cifra que se comparen: va en el margen y no compite con el
+   asunto. */
+.ticket-cuando {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: var(--fs-xs);
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+/* Las columnas de la lista del equipo.
+
+   El ancho se reparte aqui y no por el contenido porque el
+   contenido cambia con los datos: si el reparto lo hiciera el
+   navegador, un cliente con el nombre largo ensancharia su
+   columna y moveria todas las de al lado. La lista tiene que
+   verse IGUAL vaya quien vaya tener abierto un ticket. */
+@media (min-width: 721px) {
+  .panel-table--tickets th:nth-child(1),
+  .panel-table--tickets td:nth-child(1) { width: 26%; }
+  .panel-table--tickets th:nth-child(2),
+  .panel-table--tickets td:nth-child(2) { width: 42%; }
+  .panel-table--tickets th:nth-child(3),
+  .panel-table--tickets td:nth-child(3) { width: 14%; }
+  .panel-table--tickets th:nth-child(4),
+  .panel-table--tickets td:nth-child(4) { width: 18%; }
+}
+
+/* ---------- El hilo ---------- */
+
+/* `<ol>` y no `<div>` porque un hilo ES una lista ordenada: el
+   orden es lo que hace que se entienda. El `list-style` se quita
+   porque el numero no aporta: lo que importa es quien y cuando. */
+.ticket-hilo {
+  list-style: none;
+  margin: var(--p-5) 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-3);
+}
+
+.ticket-msg {
+  padding: var(--p-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+/* El equipo se distingue por el LADO, no por el color.
+
+   Alineado a la derecha y con el borde de acento: la disposicion
+   ya dice de quien es sin depender del color, y asi funciona en
+   los tres temas y en una impresion. */
+.ticket-msg--staff {
+  margin-inline-start: var(--p-5);
+  border-color: color-mix(in srgb, var(--accent) 32%, transparent);
+  background: color-mix(in srgb, var(--accent) 7%, var(--surface));
+}
+
+.ticket-msg--cliente {
+  margin-inline-end: var(--p-5);
+}
+
+/* La nota interna. El rayado es el aviso que sobrevive a imprimir
+   en gris; el color solo hace ruido si se lee en pantalla. */
+.ticket-msg--interno {
+  background:
+    repeating-linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--warning) 7%, transparent) 0 6px,
+      transparent 6px 12px
+    ),
+    var(--surface);
+  border-color: color-mix(in srgb, var(--warning) 42%, transparent);
+  border-inline-start: 3px solid var(--warning);
+}
+
+.ticket-msg-cab {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--p-2);
+  margin-bottom: var(--p-2);
+  padding-bottom: var(--p-2);
+  border-bottom: 1px solid var(--border);
+}
+
+.ticket-msg-quien {
+  font-weight: 600;
+  font-size: var(--fs-sm);
+}
+
+.ticket-msg-sello {
+  padding: 0.05rem 0.4rem;
+  border: 1px solid color-mix(in srgb, var(--warning) 50%, transparent);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--warning) 16%, transparent);
+  color: var(--warning);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: var(--fs-label);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.ticket-msg-cuando {
+  margin-inline-start: auto;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: var(--fs-xs);
+  color: var(--text-dim);
+}
+
+/* El cuerpo conserva los saltos de línea que escribió quien lo
+  Mandó.
+
+   Sin `white-space: pre-line`, los saltos del textarea se pierden
+   al pintar y un texto con tres lineas sale en un parrafo largo
+   que no se puede leer. Es un detalle de una linea que cambia
+   del todo si el texto es largo. */
+.ticket-msg-cuerpo {
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+  line-height: 1.6;
+}
+
+/* ---------- Contestar ---------- */
+
+.ticket-responder {
+  margin-top: var(--p-5);
+}
+
+.ticket-responder-pie {
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* La casilla de "solo para el equipo" va con el raton al principio
+   de la frase y no al final.
+
+   Es la casilla que cambia lo que va a pasar —si se marca, el
+   cliente NO lo vera—, asi que tiene que leerse antes de decidir,
+   no despues de leer todo lo demas. */
+.ticket-interno {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.ticket-interno input {
+  accent-color: var(--warning);
+  width: 1rem;
+  height: 1rem;
+}
+
+/* ---------- La lista del cliente ---------- */
+
+.ticket-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.ticket-fila + .ticket-fila {
+  border-top: 1px solid var(--border);
+}
+
+.ticket-fila a {
+  display: block;
+  padding: var(--p-4);
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.14s ease;
+}
+
+.ticket-fila a:hover {
+  background: var(--raise);
+}
+
+.ticket-fila-asunto {
+  display: block;
+  font-weight: 600;
+  margin-bottom: var(--p-2);
+}
+
+.ticket-fila-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--p-2) var(--p-3);
+}
+
+/* ---------- Volver ---------- */
+
+/* El enlace de vuelta va arriba y pegado al margen, sin flecha
+   grande. Es una ayuda de orientacion, no un boton: si destaca
+   mas que el titulo, el ojo va al sitio equivocado. */
+.panel-volver {
+  margin: 0 0 var(--p-4);
+  font-size: var(--fs-sm);
+}
+
+.panel-volver a {
+  color: var(--text-muted);
+  text-decoration: none;
+}
+
+.panel-volver a:hover {
+  color: var(--text);
+  text-decoration: underline;
+}
+
+/* El selector de estado, en la cabecera de la ficha.
+
+   Es un `<form>` propio y no un boton por estado porque cambiar de
+   estado a "resuelto" sin confirmar es un accidentte, y un
+   `<select>` obliga a elegir explicitamente. */
+.ticket-estado-cambiar form {
+  display: flex;
+  align-items: center;
+  gap: var(--p-2);
+}
+
+.ticket-estado-cambiar label {
+  font-size: var(--fs-xs);
+  color: var(--text-dim);
+}
+
+/* ---------- Movil ---------- */
+
+/* En movil el margen lateral del hilo se quita: con 390px de
+   ancho, 24px por lado se comen una parte grande de la pantalla y
+   el texto queda en una columna estrecha. El lado ya no dice de
+   quien es el mensaje —que ademas va escrito arriba—, asi que no
+   se pierde nada. */
+@media (max-width: 720px) {
+  .ticket-msg--staff,
+  .ticket-msg--cliente {
+    margin-inline: 0;
+  }
+
+  .ticket-msg-cuando {
+    margin-inline-start: 0;
+    width: 100%;
+  }
+
+  .ticket-responder-pie {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ticket-estado-cambiar form {
+    flex-wrap: wrap;
+  }
+}
+
+/* =========================================================
+   SISTEMA DE MOVIMIENTO Y ELEVACION
+   =========================================================
+   Lo que faltaba no era decoracion: era un SISTEMA. Trece
+   `transition` sueltas repartidas por el archivo, cada una con su
+   duracion escrita a mano, y ni un token.
+
+   Eso hace que dos animaciones que se supone gemelas duren cosas
+   distintas, y que nadie pueda acelerar el panel entero cuando le
+   parece lento.
+
+   ── LAS TRES DURACIONES Y POR QUE TRES ──
+
+   Menos de tres y no se distinguen los momentos; mas de tres y
+   acabas eligiendo al azar.
+
+     --mov-1  120ms  micro. Hover, foco, pulsado.
+                       Por debajo de 100ms no se perceived; por
+                       encima de 150 el raton va por delante del
+                       boton y da la sensacion de que elraton se
+                       arrastra.
+
+     --mov-2  200ms  cambio de estado. Abrir, cerrar, expandir,
+                       cambiar de pestaña. Donde se nota que algo
+                       ha cambiado.
+
+     --mov-3  320ms  entrar en pantalla. Panel lateral, paleta,
+                       avisos. Solo lo que APARECE y por tanto
+                       tiene un sitio de donde salir.
+
+   ── LAS DOS CURVAS, Y POR QUE NO UNA ──
+
+     --ease-out    algo ENTRA: arranca rapido y frena. Se percibe
+                   como inmediato, que es lo que se quiere de una
+                   cosa que aparece.
+
+     --ease-in-out algo SE MUEVE: de un sitio a otro. Frena al
+                   arrancar y al llegar, que es lo que hace que se
+                   lea como movimiento y no como salto.
+
+   Escribirlos al reves —entrar lento, salir rapido— es el error
+   clasico: la cosa que aparece tarde en arrancar parece lenta
+   aunque tarde lo mismo en terminar. */
+
+:root {
+  --mov-1: 120ms;
+  --mov-2: 200ms;
+  --mov-3: 320ms;
+
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ── ELEVACION: TRES NIVELES Y NI UNO MAS ──
+
+     Antes habia nueve sombras distintas, y solo dos eran elevation
+     real; las demas eran anillos de foco y tramas. Nueve niveles
+     de sombra no significan nueve niveles de altura: significan
+     que nadie sabe cuando usar cada una, y acabas poniendo
+     `box-shadow` cuando lo que hace falta es un borde.
+
+     Tres niveles, y una regla: si dudas entre dos, usa el mas bajo.
+
+       --elev-0  nada. Plano. El nivel por defecto de TODO.
+       --elev-1  una tarjeta que se apoya en la pagina.
+       --elev-2  algo que flota: menu, paleta, aviso.
+
+     La diferencia entre 0 y 1 no es una sombra, es un BORDE. Una
+     tarjeta pegada a la pagina se separa con una linea, y el hueco
+     de sombra se reserva para lo que de verdad flota. Un borde es
+     mas barato de pintar y se lee mejor en un tema oscuro, donde
+     las sombras casi no se ven. */
+  --elev-0: none;
+  --elev-1: 0 1px 2px rgba(0, 0, 0, 0.14);
+  --elev-2: 0 12px 32px -8px rgba(0, 0, 0, 0.45);
+
+    /* ── LA SOMBRA DE TARJETA ──
+
+       El criterio de arriba sigue en pie y no se toca: una tarjeta
+       está PEGADA al lienzo, así que no lleva desplazamiento, y el
+       hueco de sombra queda para lo que de verdad flota.
+
+       Lo que cambia es la cantidad. Era `0 0 2rem` (32px de
+       difuminación) con un 10% de gris azulado, y eso no se leía como
+       una tarjeta apoyada: se leía como un resplandor. Un halo tan
+       ancho ilumina la superficie entera y hace que la caja parezca
+       brillar por dentro.
+
+       ── POR QUÉ 0.5rem Y NO 2rem ──
+
+       Porque el objetivo declarado más arriba —«que se destaque por
+       un pelo»— necesita un pelo, y un pelo son 8px. Con 0.5rem la
+       sombra es justo una separación suave del fondo, que es lo que
+       hace una tarjeta apoyada. A partir de 1rem ya se nota el halo,
+       y a 2rem la tarjeta parece iluminada.
+
+       ── LA OPACIDAD ──
+
+       Baja a 0.06 y 0.10. La diferencia entre la tarjeta y el fondo es
+       de un 6% en tono, así que la sombra tiene que ser más tenue que
+       eso, no más fuerte: si la sombra compite con la diferencia de
+       tono, se ve la sombra y no la superficie, que es al revés de lo
+       que se busca.
+
+       ── EL GRIS AZULADO ──
+
+       Se mantiene, y el motivo es el del comentario anterior: en
+       oscuro una sombra con tinte frío se distingue de la superficie;
+       una gris neutra se mezcla con ella y no dibuja nada. */
+    --elev-card: 0 0 0.5rem rgba(136, 152, 170, 0.06);
+    --elev-card-fuerte: 0 0 0.75rem rgba(136, 152, 170, 0.10);
+
+  /* Una sola sombra para el tema oscuro tambien. Las sombras
+     sobre fondo casi negro no se ven; el relieve lo hace el
+     borde. Y al ponerla como token, el tema claro la cambia sin
+     tener que buscar nueve reglas. */
+}
+
+
+/* ── CUANDO EL USUARIO PIDE MENOS MOVIMIENTO ──
+
+   No es un detalle de accesibilidad: es que hay gente a quien el
+   movimiento en pantalla le cae mal de verdad, y en el panel se
+   pasa horas.
+
+   Ponerlo a `0.01ms` en vez de a `none` deja las transiciones en su
+   sitio, asi que los estados finales se siguen aplicando y nada
+   se queda a medio camino. Con `none` un elemento con `transition`
+   y un estado final sigue mostrando el estado inicial en algunos
+   navegadores. */
+@media (prefers-reduced-motion: reduce) {
+  .panel-body *,
+  .panel-body *::before,
+  .panel-body *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+
+/* =========================================================
+   TRANSICIONES EN LO INTERACTIVO
+   =========================================================
+   Aqui hay una exclusion importante, y es la que mas se nota.
+
+   El hover de fila y de boton NO lleva transicion.
+
+   Un boton con `transition: 120ms` tarda esos 120ms en responder al
+   raton. En una pantalla en la que el usuario va moviendo el
+   raton de un elemento a otro, lo que ve no es "suave": es que el
+   raton va por delante. El hover tiene que ser INMEDIATO; lo que
+   se anima es la SALIDA, que es lo que no molesta.
+
+   Por eso el patron de abajo pone transicion solo en el estado de
+   reposo y no en el activo: el elemento llega al hover de golpe y
+   sale de él despacio. */
+.panel-btn,
+.panel-menu-item,
+.panel-tab,
+.panel-tabs a,
+.panel-filters input,
+.panel-filters select,
+.panel-chip,
+.panel-badge,
+.ticket-fila a,
+.panel-search {
+  transition:
+    background-color var(--mov-1) var(--ease-out),
+    border-color var(--mov-1) var(--ease-out),
+    color var(--mov-1) var(--ease-out),
+    box-shadow var(--mov-1) var(--ease-out);
+}
+
+.panel-btn--primary,
+.panel-theme,
+.cmd-caja,
+.cmd-item {
+  transition:
+    background-color var(--mov-2) var(--ease-out),
+    border-color var(--mov-2) var(--ease-out),
+    color var(--mov-2) var(--ease-out),
+    box-shadow var(--mov-2) var(--ease-out),
+    transform var(--mov-1) var(--ease-out);
+}
+
+/* El foco visible tambien se anima. Sin transicion aparece de
+   golpe con el Tab y da un tirón; con transicion se ve de donde
+   viene el foco. */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  transition: box-shadow var(--mov-1) var(--ease-out);
+}
+
+/* =========================================================
+   CABECERA PEGADA AL HACER SCROLL
+   =========================================================
+   El contenedor `.panel-table-wrap` lleva desde el principio un
+   comentario que dice "la cabecera sticky se ancla al contenedor
+   que hace scroll". O sea: se planeo, se dejo el sitio preparado y
+   nunca se aplico el `position: sticky`. Por eso al bajar en una
+   tabla de 40 cobros ya no sabes en que columna estas, y subes a
+   mirarlo.
+
+   ── POR QUE HAY QUE SACARLE EL SCROLL ──
+
+   Para que `position: sticky` funcione, el elemento se ancla al
+   ancestro con scroll mas cercano. Ahora el wrap es
+   `overflow-x: auto` + `overflow-y: auto`, asi que es contenedor de
+   scroll en los dos ejes, pero no tiene alto: crece hasta llenar la
+   tabla y nunca scrollea. El sticky se ancla a un contenedor que
+   no se mueve, y no pasa nada.
+
+   Y no se puede poner `overflow-y: visible` con `overflow-x: auto`
+   porque CSS no lo permite: si un eje no es `visible`, el otro
+   computes a `auto`. O los dos scrollean, o ninguno.
+
+   En escritorio el contenedor se abre. Las tablas tienen
+   `min-width: 560px` y el area de contenido mide 1192px a 1440, asi
+   que en la practica no hay scroll horizontal. En movil el modo
+   tarjeta ya pone `overflow: visible` y no hay tabla que anclar.
+
+   ── LA SOMBRA AL SCROLLEAR ──
+
+   Aqui no vale la sombra siempre puesta: la sombra indica que hay
+   algo por encima, y si esta siempre dice que lo hay aunque no lo
+   haya. Es un aviso que miente, y por eso no se pone.
+
+   La sombra la anade `panel.js` cuando la cabecera deja de verse
+   entera. No es decoracion: la sombra es la que separa el fondo
+   del texto, porque un fondo traslucido con las filas pasando por
+   debajo es ilegible, y ese es el problema que resuelve. */
+
+@media (min-width: 721px) {
+  .panel-table-wrap {
+    /* Solo hay dos pares validos en CSS para esto:
+       `visible visible` y `auto auto`. Y `visible visible` es lo
+       mismo que `visible`, que no scrollea: justo lo que se
+       quiere. */
+    overflow: visible;
+  }
+}
+
+.panel-table thead th {
+  position: sticky;
+  /* Se ancla DEBAJO de la barra superior, no en 0: si en 0, la
+     cabecera se esconde detras de la barra al bajar, y una
+     cabecera pegada que desaparece no esta pegada a nada. */
+  top: var(--panel-topbar);
+  z-index: 2;
+
+  /* El fondo va SOLID. Traslucido es mas elegante e ilegible: las
+     filas de detras se leen a traves del texto. Con `backdrop-filter`
+     encima solo se ve en los navegadores que lo soportan, y el resto
+     se queda sin fondo, que es peor. */
+  background: var(--surface);
+}
+
+/* La sombra, cuando toca. La pone `panel.js` cuando el borde superior
+   de la tabla pasa por debajo de la barra: a partir de ahi, lo que
+   asoma por debajo de la cabecera es una fila de datos.
+
+   ── POR QUE DOS SOMBRAS Y NO UNA ──
+
+   La primera es la linea de 1px que separa la cabecera de la fila
+   que tiene pegada debajo. La segunda es la difuminacion que dice
+   "por aqui hay algo tapado".
+
+   Con solo la linea se ve un recuadro plano pegado a la tabla. Con
+   solo la difuminacion no se distingue donde acaba la cabecera. Las
+   dos juntas hacen lo que hace un papel al que se pasa algo por
+   encima.
+
+   Y el borde de abajo se quita cuando la sombra esta puesta: los dos
+   juntos dan una linea doble que engorda la cabecera un pixel y se
+   nota como un fallo de calibrado. */
+.panel-table-wrap--scrolled > .panel-table > thead th {
+  box-shadow:
+    0 1px 0 var(--border-strong),
+    0 8px 14px -8px rgba(0, 0, 0, 0.55);
+  border-bottom-color: transparent;
+}
+
+/* =========================================================
+   "QUÉ HAY QUE HACER"
+   =========================================================
+   Lo primero de la portada.
+
+   ── POR QUÉ NO ES OTRA TARJETA MÁS ──
+
+   Porque la portada ya tenía tarjetas sueltas, y con cuatro
+   tarjetas al lado la pregunta "qué hago ahora" hay que
+   contestársela a uno mismo: leer los números, compararlos y decidir.
+   Eso es trabajo, y lo que esta pantalla tiene que hacer es
+   quitárselo.
+
+   Así que no enseña cuatro datos: enseña cuatro COSAS, en orden de
+   urgencia, y en ese orden el orden ES el mensaje. Lo vencido
+   primero porque es dinero que ya no está. Lo demás detrás, porque
+   tiene dueño y se está esperando.
+
+   ── LA FILA ──
+
+   El número va en un círculo a la izquierda, no encima y no dentro
+   de una caja. Es el primer dato que hay que ver al entrar y
+   cuanto más grande y menos ruido tenga alrededor, antes se lee.
+
+   Y el botón de la derecha dice la ACCIÓN, no "ver". "Ver" obliga a
+   adivinar qué va a pasar; "Cobrar" dice qué hay que hacer. Es la
+   diferencia entre un enlace y un botón, y aquí el botón es
+   correcto.
+
+   ── EL VACÍO ──
+
+   Cuando no hay nada, se dice que no hay nada y se dice por qué no
+   está lleno. Un bloque en blanco con "pendientes: 0" es un aviso
+   de que algo no se está leyendo. Esta frase dice "no hay cobros
+   vencidos, ni consultas sin responder..." —o sea, explica el
+   alcance de lo que se ha mirado— y la nota pequeña debajo recuerda
+   que es un estado, no un sitio vacío. */
+
+.panel-hacer {
+  margin-bottom: var(--p-6);
+  padding: var(--p-5);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg, 14px);
+  background: var(--surface);
+}
+
+.panel-hacer-titulo {
+  margin: 0 0 var(--p-4);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.panel-hacer-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-2);
+}
+
+.panel-hacer-item {
+  display: flex;
+  align-items: center;
+  gap: var(--p-4);
+  padding: var(--p-3) var(--p-3) var(--p-3) var(--p-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-soft);
+  transition: border-color var(--mov-1) var(--ease-out),
+              background-color var(--mov-1) var(--ease-out);
+}
+
+.panel-hacer-item:hover {
+  border-color: var(--border-strong);
+  background: var(--raise);
+}
+
+/* El número en círculo. El color va en el borde y en la cifra, no
+   en el fondo de la fila: cuatro filas de color entero parecen
+   cuatro alarmas, y solo una lo es. */
+.panel-hacer-n {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  height: 2rem;
+  padding: 0 0.4rem;
+  border: 1px solid;
+  border-radius: 999px;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: var(--fs-cuerpo);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.panel-hacer-item--rojo .panel-hacer-n {
+  color: var(--danger);
+  border-color: color-mix(in srgb, var(--danger) 50%, transparent);
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+}
+
+.panel-hacer-item--cian .panel-hacer-n {
+  color: var(--info);
+  border-color: color-mix(in srgb, var(--info) 50%, transparent);
+  background: color-mix(in srgb, var(--info) 12%, transparent);
+}
+
+.panel-hacer-item--ambar .panel-hacer-n {
+  color: var(--warning);
+  border-color: color-mix(in srgb, var(--warning) 50%, transparent);
+  background: color-mix(in srgb, var(--warning) 12%, transparent);
+}
+
+.panel-hacer-texto {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  text-decoration: none;
+  color: var(--text);
+}
+
+.panel-hacer-linea {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── La pista: POR QUÉ está en la lista ──
+
+   "Caducó hace 38 días" sin más es un dato suelto. "Caducó hace 38
+   días" debajo de "Panadería López · tienda online" ya es una tarea:
+   se sabe a quién hay que llamar y por qué.
+
+   Va en un tono apagado y más pequeña que el nombre, porque el
+   orden de lectura tiene que ser empresa primero. Al revés — el
+   motivo encima y la empresa debajo — el ojo lee el motivo, ve
+   "caducó", y no tiene con quién. */
+.panel-hacer-pista {
+  font-size: var(--fs-xs);
+  color: var(--text-dim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.panel-hacer-texto strong {
+  font-weight: 500;
+}
+
+.panel-hacer-texto:hover {
+  color: var(--text);
+  text-decoration: underline;
+}
+
+/* ── El vacío ── */
+
+.panel-hacer-vacio {
+  margin: 0;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.panel-hacer-vacio-nota {
+  display: block;
+  margin-top: var(--p-2);
+  font-size: var(--fs-xs);
+  color: var(--text-dim);
+}
+
+/* ── Movil ──
+
+   En una columna estrecha, la fila pasa a dos líneas: el texto
+   arriba y el botón debajo, a lo ancho. Con el número, el texto y el
+   botón en la misma línea a 390px, el texto se come el botón y la
+   acción queda ilegible. */
+
+@media (max-width: 560px) {
+  .panel-hacer-item {
+    flex-wrap: wrap;
+    gap: var(--p-3);
+  }
+
+  .panel-hacer-texto {
+    flex: 1 1 60%;
+  }
+
+  .panel-hacer-linea,
+  .panel-hacer-pista {
+    white-space: normal;
+  }
+
+  .panel-hacer-item .panel-btn {
+    flex: 1 1 100%;
+    justify-content: center;
+  }
+}

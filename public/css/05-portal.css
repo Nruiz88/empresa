@@ -1,0 +1,557 @@
+/* =========================================================
+   05 PORTAL
+   =========================================================
+
+   Parte 6 de 12 del CSS del panel.
+   Empieza en: 12. PORTAL DEL CLIENTE
+
+   ── EL ORDEN DE ESTAS HOJAS ES EL ORDEN DE CARGA ──
+
+   En CSS el que gana es el último, y en este panel hay
+   selectores declarados más de una vez. Mover una hoja de sitio
+   cambia el resultado sin dar ningún error.
+
+   El número del principio es su posición: 00 se carga
+   primero y el último, el último. El orden está en
+   panel.orden.json, que es lo que lee
+   views/partials/panel-head.ejs para armar los <link>.
+
+   Y db/ver-modulos-css.js comprueba que la concatenación da
+   el mismo texto que el archivo único de antes de la división.
+   Si eso dice que no, el aspecto va a cambiar.
+   ========================================================= */
+/* =========================================================
+   12. PORTAL DEL CLIENTE
+   ========================================================= */
+
+  grid-template-columns: minmax(0, 1fr) auto;
+  padding: 1.2rem 1.4rem;
+
+  border-radius: var(--radius-lg);
+
+  text-align: end;
+  white-space: nowrap;
+
+  display: block;
+  font-family: var(--font-display, "Outfit", sans-serif);
+  font-size: var(--fs-xl);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+
+  font-size: var(--fs-xs);
+  color: var(--text-dim);
+
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.4rem;
+  margin: 0.7rem 0 0;
+
+  font-size: var(--fs-label);
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+
+  margin: 0.15rem 0 0;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+
+/* =========================================================
+   PORTAL DEL CLIENTE — ESTADO DE ACCESO
+   ------------------------------------------------------------
+   Los cuatro niveles tienen que distinguirse de un vistazo, sin
+   tener que leer. Pero ninguno usa solo color: cada uno lleva su
+   etiqueta escrita, y el color va en el borde como refuerzo.
+
+     activo    → verde: en marcha
+     bloqueado → rojo: debe dinero
+     oferta    → morado: por decidir
+     inactivo  → gris: no en marcha
+   ========================================================= */
+
+  border-inline-start: 3px solid var(--border-strong);
+
+.panel-serv--activo    { border-inline-start-color: var(--accent); }
+.panel-serv--bloqueado { border-inline-start-color: var(--danger); }
+.panel-serv--oferta    { border-inline-start-color: var(--accent-2); }
+.panel-serv--inactivo  { border-inline-start-color: var(--border-strong); }
+
+.panel-serv-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-bottom: 0.35rem;
+}
+
+.panel-chip--acceso-activo    { color: var(--accent); border-color: var(--success-border); background: var(--success-bg); }
+.panel-chip--acceso-bloqueado { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 45%, transparent); background: color-mix(in srgb, var(--danger) 12%, transparent); }
+.panel-chip--acceso-oferta    { color: var(--accent-2); border-color: color-mix(in srgb, var(--accent-2) 40%, transparent); background: color-mix(in srgb, var(--accent-2) 12%, transparent); }
+.panel-chip--acceso-inactivo  { color: var(--text-dim); }
+
+  /* El estado de un microservicio es el mismo dato que el estado de un
+     servicio, pero con otros tres valores: verde, rojo y "revisar", que
+     no es un color sino la ausencia de respuesta. Se nombran
+     `salud-*` y no `estado-*` porque `estado-*` ya lo usa la cartera de
+     servicios y las dos cosas nunca se pintan en la misma fila. */
+  .panel-chip--salud-verde { color: var(--accent); border-color: var(--success-border); background: var(--success-bg); }
+  .panel-chip--salud-rojo  { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 55%, transparent); background: color-mix(in srgb, var(--danger) 16%, transparent); }
+  .panel-chip--salud-ambar { color: var(--warning); border-color: color-mix(in srgb, var(--warning) 40%, transparent); background: color-mix(in srgb, var(--warning) 12%, transparent); }
+
+  /* La ficha de un microservicio apila nombre, módulo, url, secreto y
+     notas. `.panel-serv-main p` ya tiene margen 0, así que sin esto las
+     líneas quedan pegadas y la ficha se lee como un bloque de texto. */
+  .panel-serv-main p + p {
+    margin-top: 0.4rem;
+  }
+
+  .panel-serv-main code {
+    font-size: var(--fs-xs);
+    word-break: break-all;
+  }
+
+/* El motivo es lo que hace que "bloqueado" se entienda. Sin esta
+   frase, el candado es un muro sin explicación. */
+.panel-serv-motivo {
+  margin: 0.5rem 0 0;
+  font-size: var(--fs-sm);
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+.panel-serv--bloqueado {
+  background: color-mix(in srgb, var(--danger) 4%, var(--surface));
+}
+
+.panel-requiere-dinero {
+  color: var(--danger);
+  font-family: var(--font-display, "Outfit", sans-serif);
+  font-size: var(--fs-lg);
+}
+
+.panel-serv-sinimporte {
+  font-size: var(--fs-sm);
+  color: var(--text-dim);
+}
+
+.panel-serv-accion {
+  margin-top: 0.6rem;
+}
+
+/* El aviso de arriba del todo: lo que hay que hacer al entrar. */
+/* La etiqueta "ve: ..." va en su propia columna, con el resto de
+   acciones. Dentro de la tarjeta se leería como otro estado, y no
+   lo es: es lo que ve el cliente, no lo que dice el servicio. */
+.panel-serv .panel-chip--acceso-activo,
+.panel-serv .panel-chip--acceso-bloqueado,
+.panel-serv .panel-chip--acceso-oferta,
+.panel-serv .panel-chip--acceso-inactivo {
+  font-size: var(--fs-label);
+  align-self: center;
+}
+
+.panel-requiere {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--panel-gap);
+  padding: 1rem 1.2rem;
+  margin-bottom: 1.5rem;
+  background: color-mix(in srgb, var(--danger) 7%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--danger) 35%, transparent);
+  border-radius: var(--radius);
+}
+
+.panel-requiere-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.panel-requiere-texto strong {
+  font-size: var(--fs-cuerpo);
+}
+
+.panel-requiere-texto span {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+
+/* Botón dentro del estado vacío. */
+.panel-empty-accion {
+  margin-top: 1.1rem;
+}
+
+/* ---------- Generar cobros del mes ---------- */
+
+/* La lista de lo que se va a crear es la parte importante: se lee
+   entera antes de pulsar nada. */
+
+
+
+/* =========================================================
+   13. RESPONSIVE
+   ------------------------------------------------------------
+   En el lateral fijo no hay sitio para los seis botones, así que
+   por debajo de 1000px se convierte en un cajón que se abre con
+   el botón de la barra superior.
+   ========================================================= */
+
+/* Capa oscura detrás del cajón. Se muestra al abrirlo. */
+.panel-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 35;
+  background: rgba(0, 0, 0, 0.55);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.panel-scrim.is-visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+@media (max-width: 1000px) {
+  .panel-side {
+    transform: translateX(-100%);
+    transition: transform 0.22s ease;
+    box-shadow: none;
+  }
+
+  /* El lateral abierto se dibuja por encima de la página. */
+  .panel-side.is-open {
+    transform: translateX(0);
+    box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.5);
+  }
+
+  .panel-side-cerrar,
+  .panel-burger {
+    display: flex;
+  }
+
+  .panel-shell {
+    margin-inline-start: 0;
+  }
+
+  /* ── LA BARRA VUELVE A SER UN CAJÓN PEGADO AL BORDE ──
+
+     En escritorio flota como una tarjeta, con margen y radio. En
+     móvil no puede: ocupa casi toda la pantalla, y una tarjeta con
+     radio a pantalla casi completa es solo un rectángulo con las
+     esquinas redondeadas, que es peor que un rectángulo.
+
+     Y un cajón entra desde el borde, no desde dentro: si flotara,
+     al abrirse dejaría medio fuera de la pantalla.
+
+     Aquí se quitan el margen, el radio y la sombra, y se le
+     devuelve el fondo propio, que es lo que lo hace cajón. */
+  .panel-side {
+    inset-block: 0;
+    inset-inline-start: 0;
+    width: min(86vw, var(--panel-sidebar));
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+
+  .panel-form-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .panel-serv,
+  .panel-caduco,
+  .panel-acceso {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .panel-serv-side,
+  .panel-caduco-side,
+  .panel-acceso-side {
+    align-items: flex-start;
+    justify-content: flex-start;
+    text-align: start;
+  }
+
+  .panel-serv-form,
+  .panel-acceso-acciones,
+  .panel-lead-actions {
+    flex-wrap: wrap;
+  }
+}
+
+/* =========================================================
+   13 BIS. TABLAS QUE SE CONVIERTEN EN TARJETAS
+   ========================================================= */
+
+/* ── POR QUÉ ESTO ──
+
+   Antes, en un móvil, la tabla se metía en un scroll horizontal con
+   `min-width: 560px`. Medido a 390px:
+
+     · los emails se cortaban a mitad: `javier@tallerru`
+     · la columna de acciones quedaba FUERA de la pantalla, así que
+       los 18 botones "Abrir" no se veían sin desplazarse a la derecha
+     · los nombres partían en tres líneas y las filas medían 91-102px
+
+   El scroll horizontal no se ve. No hay ninguna señal de que haya más
+   a la derecha, así que la pantalla parece llena y no lo está: media
+   columna y la acción principal, fuera.
+
+   Aquí no hay scroll: cada fila pasa a ser una tarjeta y la acción
+   queda a la vista.
+
+   ── EL 720 ──
+
+   Por debajo de 720px y no de 560px: entre 560 y 720 la tabla con
+   scroll todavía tiene sentido (entra en una tableta), y a 560 la
+   tabla ya está flotando. El punto donde deja de ser tabla es más
+   alto que el punto donde deja de caber el panel.
+*/
+@media (max-width: 720px) {
+  /* El contenedor deja de hacer scroll: si se mantiene, aparecería una
+     segunda barra de scroll horizontal dentro de las tarjetas. */
+  .panel-table-wrap {
+    overflow: visible;
+    border: 0;
+    background: transparent;
+  }
+
+  .panel-table,
+  .panel-table tbody,
+  .panel-table tbody tr,
+  .panel-table tbody td,
+  .panel-table thead,
+  .panel-table thead tr,
+  .panel-table thead th {
+    display: block;
+    width: auto;
+
+    /* `min-width: 0` en la tabla, no solo `width: auto`.
+       La abreviatura anterior no lo quitaba: `min-width: 560px`
+       seguía mandando, y las celdas quedaban de 526px dentro de una
+       pantalla de 390. Medido: filas de 196px, PEOR que las 102px que
+       había antes de tocar nada.
+
+       Es el mismo fallo de siempre: poner `width` no es lo mismo que
+       quitar lo que impone el mínimo. */
+    min-width: 0;
+  }
+
+  /* La cabecera no cabe: se usa su texto en cada celda. */
+  .panel-table thead {
+    display: none;
+  }
+
+  .panel-table tbody tr {
+    position: relative;
+    margin-bottom: 0.7rem;
+    padding: 0.9rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+  }
+
+  /* El plano de la fila vencida, que en la tabla iba en la primera
+     celda, aquí va en la tarjeta entera. */
+  .panel-table tbody tr.panel-tr--vencido {
+    border-color: color-mix(in srgb, var(--danger) 35%, transparent);
+  }
+
+  .panel-table tbody tr:hover {
+    background: inherit;
+  }
+
+  .panel-table tbody td {
+    position: relative;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.3rem 0;
+    border-bottom: 0;
+  }
+
+  /* El nombre arriba, solo y con la etiqueta puesta: "Empresa: ..."
+     es ruido, porque el nombre ya se explica solo. */
+  .panel-table tbody td[data-principal] {
+    display: block;
+    padding-bottom: 0.6rem;
+    margin-bottom: 0.35rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .panel-table tbody td[data-label]::before {
+    content: attr(data-label);
+    flex: 0 0 auto;
+    font-size: var(--fs-xs);
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  /* Las celdas con etiqueta apilan el dato debajo de su título, en
+     vez de pelearse en la misma línea a 390px: "PERIODO" y "octubre
+     2026" en la misma línea salen de dos en dos. */
+  .panel-table tbody td[data-label] > * {
+    text-align: end;
+    min-width: 0;
+  }
+
+  .panel-table tbody td[data-label] > .panel-cell-sub {
+    text-align: end;
+  }
+
+  /* ─────────────────────────────────────────────────────
+     LA CELDA DEL NOMBRE, APILADA
+
+     Todas las celdas pasan a ser flex con `justify-content:
+     space-between`, para poner la etiqueta a la izquierda y el dato a
+     la derecha. En la celda del nombre eso no funciona: hay DOS
+     inputs y el id, y los tres se pelean por el mismo ancho.
+
+     El id se quedaba con 2 píxeles y su texto se salía encima del de
+     al lado. No se veía mirando el HTML —una celda con dos campos es
+     lo normal— sino midiendo cuánto ocupa cada texto frente a su caja.
+
+     Aquí la celda se apila y vuelve a ser lo que es en el escritorio:
+     un campo encima de otro. La etiqueta se quita porque los dos
+     inputs ya se explican solos, que es el mismo criterio que lleva
+     `data-principal` en las demás tablas.
+
+     Afecta al catálogo de productos, al de aplicaciones y a los
+     planes: las tres tienen la misma celda de nombre.
+     ───────────────────────────────────────────────────── */
+  .panel-table tbody td.panel-cat-nombre {
+    display: block;
+  }
+
+  .panel-table tbody td.panel-cat-nombre::before {
+    content: none;
+  }
+
+  .panel-table tbody td.panel-cat-nombre > * {
+    width: 100%;
+    text-align: start;
+  }
+
+  .panel-table tbody td.panel-cat-nombre input + input {
+    margin-top: 0.35rem;
+  }
+
+  /* La acción, al fondo de la tarjeta y a lo ancho. Es el dato que
+     antes quedaba fuera de la pantalla. */
+  .panel-table tbody td.panel-th-actions {
+    display: block;
+    padding-top: 0.75rem;
+    margin-top: 0.5rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .panel-table tbody td.panel-th-actions::before {
+    content: none;
+  }
+
+  .panel-table tbody td.panel-th-actions .panel-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* La etiqueta del email se apila, no se corta. */
+  .panel-th-email {
+    max-width: none;
+    overflow: visible;
+    white-space: normal;
+
+    /* Un email no tiene espacios, así que en una tarjeta estrecha se
+       parte en cualquier punto y queda medio fuera. */
+    word-break: break-all;
+  }
+
+  .panel-table tbody td[data-label="Email"] {
+    align-items: flex-start;
+  }
+
+  /* El formulario de estado (servicios) también, o el desplegable
+     se queda con la mitad del ancho. */
+  .panel-table tbody td[data-label="Estado"] form {
+    width: 100%;
+  }
+
+  .panel-table tbody td[data-label="Estado"] .panel-select-mini {
+    max-width: none;
+    width: 100%;
+  }
+}
+
+@media (max-width: 560px) {
+  .panel-page {
+    padding: 1.35rem 1rem 3rem;
+  }
+
+  .panel-topbar {
+    padding-inline: 1rem;
+  }
+
+  .panel-page-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  /* Una columna: con dos, cada tarjeta queda en 150px y el importe
+     no cabe. */
+  .panel-stats,
+  .panel-stats--cobros {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .panel-stat strong {
+    font-size: var(--fs-numero);
+  }
+
+  /* Los filtros se apilan y la búsqueda ocupa el ancho entero. */
+  .panel-filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  /* ── EL BUSCADOR EN MÓVIL, Y POR QUÉ NECESITA SU PROPIA REGLA ──
+
+     Aquí no basta con `width: 100%`.
+
+     El buscador se define arriba con `flex: 1 1 260px` y
+     `min-height`. En escritorio la fila de filtros es horizontal, y
+     como el campo crece solo a lo ancho, `min-height` da la altura
+     correcta.
+
+     Al pasar a `flex-direction: column`, la columna pasa a ser el eje
+     principal. Entonces el `flex-basis: 260px` —que se pensaba para
+     el ancho— pasa a decidir la ALTURA, y `flex-grow: 1` la estira
+     más. El resultado medido es un campo de 358 de ancho por 260 de
+     alto: un óvalo enorme en mitad de la pantalla.
+
+     ── LA CORRECCIÓN ──
+
+     Se anula el crecimiento y se fija la base, que es lo que quiere
+     decir un campo de texto: un ancho, y un alto de una línea. */
+  .panel-search {
+    width: 100%;
+    min-width: 0;
+    min-height: var(--control-h);
+    flex: 0 0 auto;
+  }
+
+  .panel-select {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .panel-empty {
+    padding: 1.75rem 1.25rem;
+  }
+
+
+}
