@@ -343,6 +343,11 @@ html:not([data-panel]) {
   --font-display: "Outfit", "Plus Jakarta Sans", "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-body: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --featured-bg: linear-gradient(180deg, rgba(16, 185, 129, 0.16), rgba(27, 41, 66, 0.9));
+  --featured-glow: 0 24px 60px rgba(16, 185, 129, 0.24);
+  --cta-bg: linear-gradient(120deg, rgba(16, 185, 129, 0.2), rgba(56, 189, 248, 0.12));
+  --cta-border: rgba(16, 185, 129, 0.45);
+  --page-glow: radial-gradient(ellipse at center, rgba(16, 185, 129, 0.2), transparent 70%);
 }
 
 /* ---------- Reset ---------- */
