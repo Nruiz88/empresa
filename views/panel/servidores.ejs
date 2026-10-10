@@ -68,9 +68,38 @@
     <div class="panel-card" id="<%= c.id %>" style="margin-bottom:1.1rem">
       <div class="panel-card-head">
         <div class="panel-card-head-texto">
+          <%# ── EL ESTADO DE LA CAJA ──
+
+              Antes este cintillo decía «En servicio», que habla de si la
+              caja participa en el reparto. Es cierto y no es lo que
+              pregunta quien mira esta pantalla.
+
+              Lo que se pregunta es si la caja contesta, que es otra
+              cosa: una caja caída y una caja vacía se veían igual, y
+              no es lo mismo. Una tiene 15 números que no funcionan; la
+              otra tiene 15 números que nadie ha pedido todavía.
+
+              Por eso van las dos cosas y no una: la de arriba es la
+              vida, y la que se añade al lado es si sirve.
+
+              Y el punto verde, que es lo que se busca con la vista
+              antes de leer nada. %>
           <span class="panel-card-cintillo">
             <% if (!c.activo) { %>Desactivada<% } else if (!c.libres) { %>Llena<% } else { %>En servicio<% } %>
           </span>
+          <% if (!c.activo) { %>
+            <%# De abajo no se pregunta nada: una caja dada de
+                baja no se espera, y si se le preguntara aparecería
+                «offline» siempre, que sería mentir. %>
+          <% } else if (c.noPreguntada) { %>
+            <span class="panel-estado-caja" data-estado="desconocido">Sin comprobar</span>
+          <% } else if (c.online) { %>
+            <span class="panel-estado-caja" data-estado="online">Online</span>
+            <span class="panel-cell-sub">contestó en <%= c.respuestaMs %> ms</span>
+          <% } else { %>
+            <span class="panel-estado-caja" data-estado="offline">Offline</span>
+            <span class="panel-cell-sub"><%= c.estadoMsg %></span>
+          <% } %>
           <h2 class="panel-card-titulo"><%= c.name %></h2>
         </div>
         <div class="panel-cell-sub" style="text-align:end">
@@ -79,13 +108,100 @@
       </div>
 
       <div class="panel-card-cuerpo">
+        <%# ── LOS SITIOS, UNO POR UNO ──
+
+            La barra y el contador dicen cuántos sitios hay y cuántos
+            están usados. Eso no dice cuáles ni por qué, y con 15
+            sitios no se entra por el panel a comprobar uno a uno.
+
+            Cada fila es un sitio. Dice el número, si hay un bot
+            detrás, y si el número existe de verdad en la caja.
+
+            ── POR QUÉ TRES ESTADOS Y NO UNO ──
+
+            «Libre» y «libre porque nunca se creó» son cosas distintas
+            que se parecen en pantalla. La segunda significa que la
+            caja tiene hueco de sobra, así que la culpa no es del
+            reparto. La primera significa que hay un hueco que se
+            puede usar ya.
+
+            ── CUANDO NO SE HA PODIDO PREGUNTAR ──
+
+            Si la Evolution no contesta, los sitios salen como
+            «sin comprobar» en vez de «libre». Pinta 15 huecos
+            libres cuando lo que pasa es que no se sabe, que es la
+            forma de tener la pantalla mintiendo. %>
+
+        <% if (!c.activo) { %>
+          <%# Una caja de abajo no se pregunta, así que no se enseña
+              una lista de sitios que no se sabe. %>
+        <% } else if (c.numeros && c.numeros.length) { %>
+          <div class="panel-sitios">
+            <div class="panel-sitios-cabecera">
+              <span class="panel-sitios-titulo">Sitios</span>
+              <% if (!c.consultada) { %>
+                <span class="panel-cell-sub">
+                  No se ha podido preguntar a la caja, así que no se sabe
+                  qué números hay creados:
+                  <%= c.avisoCaja || "la caja no ha contestado." %>
+                </span>
+              <% } else { %>
+                <span class="panel-cell-sub">
+                  La caja tiene <%= c.enEvolution %> número(s) creado(s)
+                  de <%= c.max_instances %> que permite el plan.
+                </span>
+              <% } %>
+            </div>
+
+            <ol class="panel-sitios-lista">
+              <% c.numeros.forEach(function (n) { %>
+                <li class="panel-sitio" data-estado="<%= n.botId ? 'ocupado' : (n.enEvolution ? 'creado' : 'libre') %>">
+                  <span class="panel-sitio-num panel-th-num"><%= n.sitio %></span>
+                  <span class="panel-sitio-texto">
+                    <% if (n.botId) { %>
+                      <span class="panel-sitio-principal"><%= n.botNombre %></span>
+                      <% if (n.empresa) { %>
+                        <span class="panel-cell-sub"><%= n.empresa %></span>
+                      <% } %>
+                    <% } else if (n.enEvolution) { %>
+                      <%# El número existe en la caja pero nadie lo tiene
+                          asignado en la base. Esa es una incongruencia
+                          real: ocupa sitio en la caja y no lo paga
+                          nadie, así que se dice, no se esconde. %>
+                      <span class="panel-sitio-principal">Sin asignar</span>
+                      <span class="panel-cell-sub">
+                        Hay una instancia con este nombre en la caja
+                        <% if (n.nombre) { %>(<%= n.nombre %>)<% } %>,
+                        pero no hay ningún bot en la base.
+                      </span>
+                    <% } else if (c.consultada) { %>
+                      <span class="panel-sitio-principal">Libre</span>
+                      <span class="panel-cell-sub">
+                        Sitio <%= n.sitio %> sin usar.
+                      </span>
+                    <% } else { %>
+                      <span class="panel-sitio-principal">Sin comprobar</span>
+                      <span class="panel-cell-sub">La caja no ha contestado.</span>
+                    <% } %>
+                  </span>
+                  <% if (n.enEvolution) { %>
+                    <span class="panel-sitio-estado<%= n.estadoEvolution === 'stateStart' || n.estadoBot === 'en_linea' ? ' es-online' : '' %>">
+                      <%= n.estadoEvolution || 'creado' %>
+                    </span>
+                  <% } %>
+                </li>
+              <% }); %>
+            </ol>
+          </div>
+        <% } %>
+
         <%# La barra de cupos. El color lo pone el propio fullness:
             verde con sitio, ámbar al límite, rojo llena. Con `--meter-color`
             en línea y no en tres clases, el valor único donde cambia es el
             número, que es lo que hay que leer. %>
         <span class="panel-meter" style="margin-bottom:0.9rem">
           <span class="panel-meter-relleno"
-                style="width:<%= c.max_instances ? Math.min(100, Math.round((c.bots / c.max_instances) * 100)) : 0 %>%;
+                style="width:<%= c.max_instances ? Math.min(100, Math.round((c.bots / c.max_instances) * 100)) : 0 %>;
                        --meter-color: <%= !c.activo
                             ? 'var(--text-dim)'
                             : c.libres === 0 ? 'var(--danger)'

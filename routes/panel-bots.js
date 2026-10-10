@@ -738,6 +738,61 @@ module.exports = function rutasBots({ db, sitio, requiereStaff }) {
     const totalSlots = cajas.filter((c) => c.activo).reduce((n, c) => n + c.max_instances, 0);
     const totalLibres = cajas.filter((c) => c.activo).reduce((n, c) => n + c.libres, 0);
 
+    /* ── SI ESTÁ ONLINE, Y QUÉ HAY DENTRO ──
+
+       Las dos cosas que faltaban en esta pantalla.
+
+       `cajasConCupos()` solo sabe cuántas cajas hay y cuántas están
+       llenas: no ha preguntado a nadie. Con eso la pantalla enseña un
+       `0 / 15` que no dice si la caja está viva, cuántos números hay
+       de verdad, ni si el bot tiene el número que debería tener. Una
+       caja caída y una caja vacía se ven igual, y no es lo mismo.
+
+       Aquí se pregunta a cada caja activa una sola vez, y en
+       paralelo, porque son llamadas de red con tiempo límite y
+       esperarlas en serie multiplica el tiempo de carga por el
+       número de cajas.
+
+       Y el detalle de los sitios, para no dejar un `0 / 15` como
+       única información. El contador dice cuántos; este dice cuáles. */
+
+    let conEstado = cajas;
+
+    if (!errorCarga && cajas.length) {
+      const lasActivas = cajas.filter((c) => c.activo).map((c) => c.id);
+
+      const detalles = await Promise.all(
+        cajas.map(async (c) => {
+          if (!c.activo) {
+            return Object.assign({}, c, {
+              online: false,
+              noPreguntada: true,
+              estadoMsg: "Caja dada de baja: no se participa en el reparto.",
+              numeros: [],
+            });
+          }
+
+          const [estado, detalle] = await Promise.all([
+            botsLib.estadoDeCaja(c),
+            botsLib.numerosDeCaja(db, c),
+          ]);
+
+          return Object.assign({}, c, {
+            online: estado.online,
+            estadoMsg: estado.mensaje,
+            respuestaMs: estado.ms,
+            enEvolution: estado.instancias,
+            consultada: detalle.consultada,
+            avisoCaja: detalle.aviso,
+            numeros: detalle.numeros,
+            noPreguntada: false,
+          });
+        })
+      );
+
+      conEstado = conEstado.map((c) => lasActivas.includes(c.id) ? (detalles.find((d) => d.id === c.id) || c) : c);
+    }
+
     res.render("panel/servidores", {
       title: "Servidores de bots",
       site: sitio,
@@ -754,7 +809,7 @@ module.exports = function rutasBots({ db, sitio, requiereStaff }) {
        Dos nombres para el mismo dato, uno encima del otro, es justo el
        error que hace que un número se convierta en "undefined" o en
        "[object Object]" sin que nada más se entere. */
-      cajas: cajas.map((c) => Object.assign({}, c, { contenido: porCaja.get(c.id) || [] })),
+      cajas: conEstado.map((c) => Object.assign({}, c, { contenido: porCaja.get(c.id) || [] })),
       mensaje: mensajeDe(req),
       nota: notaDe(req),
       errorCarga,
