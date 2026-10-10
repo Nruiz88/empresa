@@ -239,6 +239,102 @@
   --header-h: 78px;
   /* Alto al hacer scroll (--header-h menos el margen de seguridad) */
   --header-h-compact: 64px;
+
+  /* =========================================================
+     LOS FONDOS QUE FALTABAN
+
+     Estas catorce se usaban en veintitrés sitios y no estaban
+     declaradas en ninguna hoja. Nunca lo estuvieron: son restos de
+     una versión anterior del sitio, y se llegaron a usar sin que
+     nadie declarara lo que se usaba.
+
+     ── POR QUÉ NO DIERON ERROR ──
+
+     Porque una variable que no existe no es un error de sintaxis.
+     El navegador descarta la declaración entera y sigue, como si
+     la regla no estuviera.
+
+     ── LO QUE SE VEÍA ──
+
+     Nada de fondo, y nada de error. Un sitio entero puede
+     construirse con el fondo de un elemento en vez del suyo y
+     seguir viéndose bien, porque el color que se queda es el del
+     padre y casi siempre se parece.
+
+     Eso es lo grave: el síntoma es «se ve un poco plano» y la
+     causa es que media pantalla no tiene el fondo que el diseño
+     pedía. Nadie lo iba a encontrar mirando.
+
+     ── POR QUÉ DECLARARLAS Y NO BORRAR LOS USOS ──
+
+     Porque las tres últimas que se declaran aquí se ven: la banda
+     final de llamada a la acción, el halo del título y el velo de
+     las miniaturas son cosas que se notan si faltan.
+
+     Y borrarlas sería reescribir veintitrés reglas de la portada
+     para conseguir el mismo resultado que ahora: el mismo color, en
+     un sitio menos donde se puede cambiar.
+
+     ── CUÁLES ERAN ──
+
+       --header-bg        la cabecera, translúcida
+       --header-bg-solid  la cabecera al hacer scroll
+       --menu-bg          el menú desplegado
+       --stats-bg         la caja de cifras de la portada
+       --thumb-overlay    el velo sobre una miniatura
+       --featured-bg      la tarjeta de precio destacada
+       --featured-glow    su halo
+       --text-grad        el degradado de los títulos
+       --cta-bg           la banda final
+       --cta-border       su borde
+       --page-glow        el halo detrás del título
+       --grid-line        la retícula de fondo, en dos sitios
+     ========================================================= */
+
+  /* La cabecera lleva un fondo translúcido con desenfoque, para que
+     se vea el contenido que pasa por debajo al desplazarse. Y al
+     hacer scroll pasa a opaca, porque con el menú abierto la
+     cabecera tiene que tapar de verdad. */
+  --header-bg: color-mix(in srgb, var(--bg) 82%, transparent);
+  --header-bg-solid: var(--bg);
+  --menu-bg: color-mix(in srgb, var(--bg) 96%, transparent);
+
+  /* Los tres planos de la portada, todos translúcidos porque el
+     fondo de la página lleva su propia luz detrás y un panel opaco
+     la taparía. */
+  --stats-bg: color-mix(in srgb, var(--surface) 72%, transparent);
+  --featured-bg: color-mix(in srgb, var(--accent) 8%, var(--surface));
+  --featured-glow: color-mix(in srgb, var(--accent) 22%, transparent);
+
+  /* El velo de las miniaturas: oscurece la imagen para que el texto
+     de encima se lea. Sin él, un proyecto con foto clara deja el
+     nombre ilegible. */
+  --thumb-overlay: linear-gradient(
+    to top,
+    rgba(4, 8, 15, 0.92) 0%,
+    rgba(4, 8, 15, 0.45) 45%,
+    transparent 100%
+  );
+
+  /* El degradado de los títulos. Va del verde profundo al claro, y
+     recorta el texto: el fondo del degradado es la propia letra. */
+  --text-grad: linear-gradient(120deg, #059669 0%, #34d399 100%);
+
+  /* La banda final. Fondo y borde por separado porque el borde es
+     más claro: si fueran uno, el borde se vería igual de fuerte y
+     la banda parecería una caja. */
+  --cta-bg: color-mix(in srgb, var(--surface) 78%, transparent);
+  --cta-border: color-mix(in srgb, var(--accent) 26%, transparent);
+
+  /* El halo detrás del título de la portada: un desenfoque grande y
+     muy tenue, que da profundidad sin que se vea de dónde sale. */
+  --page-glow: color-mix(in srgb, var(--accent) 14%, transparent);
+
+  /* La retícula del fondo. Dos usos: la de la portada y la de
+     una sección concreta. Con dos usan la misma línea de 1px que
+     el borde, para que no se vea una retícula más gruesa que el
+     contorno de las cajas. */
+  --grid-line: rgba(255, 255, 255, 0.05);
 }
 
 /* ---------- Reset ---------- */
@@ -4178,52 +4274,6 @@ html:not(.has-gsap) .hero-showcase {
 }
 
 /* Gráfico de barras: crece al entrar en pantalla */
-.mock-chart {
-  display: flex;
-  align-items: flex-end;
-  gap: 6px;
-  height: 108px;
-  padding-top: 0.5rem;
-  border-bottom: 1px solid var(--border);
-}
-
-.mock-chart span {
-  flex: 1;
-  height: var(--h);
-  border-radius: 4px 4px 0 0;
-  background: linear-gradient(180deg, var(--accent), color-mix(in srgb, var(--accent-2) 75%, transparent));
-  opacity: 0.85;
-  transform-origin: bottom;
-}
-
-/* Con GSAP cargado el crecimiento lo hace motion.js */
-html:not(.has-gsap) .mock-chart span {
-  animation: barGrow 0.9s cubic-bezier(0.16, 0.84, 0.28, 1) both;
-}
-
-html:not(.has-gsap) .mock-chart span:nth-child(1) { animation-delay: 0.75s; }
-html:not(.has-gsap) .mock-chart span:nth-child(2) { animation-delay: 0.82s; }
-html:not(.has-gsap) .mock-chart span:nth-child(3) { animation-delay: 0.89s; }
-.mock-chart span:nth-child(4) { animation-delay: 0.96s; }
-.mock-chart span:nth-child(5) { animation-delay: 1.03s; }
-html:not(.has-gsap) .mock-chart span:nth-child(6) { animation-delay: 1.1s; }
-html:not(.has-gsap) .mock-chart span:nth-child(7) { animation-delay: 1.17s; }
-html:not(.has-gsap) .mock-chart span:nth-child(8) { animation-delay: 1.24s; }
-html:not(.has-gsap) .mock-chart span:nth-child(9) { animation-delay: 1.31s; }
-html:not(.has-gsap) .mock-chart span:nth-child(10) { animation-delay: 1.38s; }
-html:not(.has-gsap) .mock-chart span:nth-child(11) { animation-delay: 1.45s; }
-html:not(.has-gsap) .mock-chart span:nth-child(12) { animation-delay: 1.52s; }
-
-@keyframes barGrow {
-  from {
-    transform: scaleY(0);
-  }
-  to {
-    transform: scaleY(1);
-  }
-}
-
-/* ---------- Tarjetas flotantes ---------- */
 .float-card {
   position: absolute;
   z-index: 3;
