@@ -1,34 +1,124 @@
-/* Acabado del panel de equipo.
-   Se limita a panel-body--staff; el portal del cliente conserva su UI. */
+/* =========================================================
+   PANEL DE EQUIPO — CAPA DE ACABADO MODERNA
+   =========================================================
+   Este archivo es la ÚLTIMA hoja que carga el panel (va después de
+   los doce módulos y de portal.css), así que es el sitio correcto
+   para dos cosas:
+
+     1. Afinar lo que los módulos comparten (radio, sombra, bordes),
+        sin tocar los doce archivos ni el verificador de módulos.
+     2. Definir el vocabulario moderno del panel de equipo.
+
+   ── POR QUÉ SOLO `panel-body--staff` ──
+   El portal del cliente comparte casi todo el CSS (los doce módulos
+   son de los dos). Todo lo de aquí va colgado de `.panel-body--staff`,
+   que solo lleva el panel del equipo: el portal no se entera.
+
+   ── EN QUÉ SE INSPIRA ──
+   En los paneles de 2026 que se hicieron populares por su claridad,
+   no por su decoración:
+
+     · shadcn-admin  → tarjetas separadas por un borde de 1px y no
+                        por sombra, densidades compactas, foco visible.
+     · Adminator 4   → tokens de color con variante clara/oscura y
+                        un único sistema de superficies.
+     · Tabler       → cabeceras de página con acciones alineadas y
+                        tablas limpias dentro de una caja.
+
+   De todos se toma la ANATOMÍA, no los colores: la marca sigue
+   siendo verde/ámbar sobre azul noche.
+
+   ── CÓMO SE LEE ESTE ARCHIVO ──
+   En el mismo orden en que se ve la pantalla:
+     1. tokens y atmósfera
+     2. lateral
+     3. barra superior
+     4. página y cabecera
+     5. tarjetas
+     6. cifras
+     7. listas y "qué hay que hacer"
+     8. tablas
+     9. controles (botones, campos, filtros)
+    10. etiquetas y estados
+    11. avisos, vacíos y pistas
+    12. responsive
+   ========================================================= */
+
+/* =========================================================
+   1. TOKENS Y ATMÓSFERA
+   ========================================================= */
 
 .panel-body--staff {
-  --panel-sidebar: 258px;
-  --panel-page-max: 1380px;
-  --fs-label: 0.72rem;
-  --fs-xs: 0.8rem;
-  --fs-sm: 0.875rem;
-  --fs-cuerpo: 0.9rem;
+  --panel-sidebar: 264px;
+  --panel-topbar: 64px;
+  --panel-page-max: 1400px;
 
+  /* ── LA ESCALA DE RADIOS DEL EQUIPO ──
+     Un solo sitio para el radio, y tres pasos. Antes cada bloque
+     elegía entre 8, 9, 10, 12 y 14 según el día. */
+  --staff-radio-sm: 8px;
+  --staff-radio: 12px;
+  --staff-radio-lg: 16px;
+
+  /* ── EL HALO DE FOCO ──
+     Se usa en campos, botones y enlaces. Un solo halo para todo lo
+     que se puede pulsar: si cada control tuviera el suyo, enfocar
+     con el teclado parecería que cambia de estilo a cada paso. */
+  --staff-halo: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent);
+
+  /* ── LAS SUPERFICIES, AFINADAS AQUÍ ──
+     Los módulos ya declaran `--caja-*` en `html[data-panel]`. Se
+     reescriben en el body del equipo para que TODAS las cajas
+     (tarjetas, cifras, tablas) compartan el mismo acabado sin tocar
+     las veinte reglas que las pintan por separado.
+       · borde de 1px visible → la separación la hace la línea, como
+         en shadcn, y no una sombra que en oscuro casi no se ve.
+       · sombra corta → solo para dar un pelo de volumen. */
+  --caja-radio: var(--staff-radio);
+  --caja-borde: var(--border);
+  --caja-sombra: 0 1px 2px rgba(0, 0, 0, 0.22);
+  --caja-hover-sombra: 0 2px 4px rgba(0, 0, 0, 0.24),
+                       0 12px 28px -18px rgba(0, 0, 0, 0.6);
+
+  /* El fondo de la página con dos lavados de marca muy tenues. Es lo
+     que evita que una pantalla casi vacía se vea como un vacío negro:
+     hay un degradado, no ruido. Fijo para que no se mueva al
+     desplazar, que marearía. */
   background:
-    radial-gradient(ellipse at 88% 0, color-mix(in srgb, var(--accent) 7%, transparent), transparent 36rem),
+    radial-gradient(
+      60rem 42rem at 100% -12%,
+      color-mix(in srgb, var(--accent) 7%, transparent),
+      transparent 62%
+    ),
+    radial-gradient(
+      46rem 40rem at -8% 112%,
+      color-mix(in srgb, var(--accent-2) 5%, transparent),
+      transparent 58%
+    ),
     var(--bg);
+  background-attachment: fixed;
 }
+
+/* =========================================================
+   2. LATERAL
+   ========================================================= */
 
 .panel-body--staff .panel-side {
-  background: var(--bg-soft);
-  border-color: var(--border);
-  box-shadow: var(--caja-sombra);
+  background: linear-gradient(
+    180deg,
+    var(--bg-soft),
+    color-mix(in srgb, var(--bg) 55%, var(--bg-soft))
+  );
+  border: 1px solid var(--border);
+  border-radius: var(--staff-radio-lg);
+  box-shadow: var(--sombra-2);
   overflow: hidden;
-}
-
-.panel-body--staff .panel-side-brand,
-.panel-body--staff .panel-side-foot {
-  border-color: var(--border);
 }
 
 .panel-body--staff .panel-side-brand {
   min-height: 76px;
-  padding-inline: 1.15rem;
+  padding: 0.9rem 1.15rem;
+  border-bottom: 1px solid var(--border);
 }
 
 .panel-body--staff .panel-brand-text strong {
@@ -42,16 +132,19 @@
 }
 
 .panel-body--staff .panel-menu {
-  padding: 1rem 0.8rem 1.25rem;
+  padding: 0.9rem 0.7rem 1.1rem;
 }
 
+/* El rótulo de sección, con su línea de puntos a la derecha. La
+   línea evita que "BOTS" o "EQUIPO" floten sueltos en la columna. */
 .panel-body--staff .panel-menu-titulo {
   display: flex;
   align-items: center;
   gap: 0.55rem;
-  margin: 1.3rem 0 0.5rem;
+  margin: 1.25rem 0 0.45rem;
+  padding-inline: 0.6rem;
   color: var(--text-dim);
-  letter-spacing: 0.08em;
+  letter-spacing: 0.09em;
 }
 
 .panel-body--staff .panel-menu-titulo::after {
@@ -61,18 +154,28 @@
   background: var(--border);
 }
 
+.panel-body--staff .panel-menu-titulo:first-child {
+  margin-top: 0.25rem;
+}
+
+/* ── El elemento de menú ── */
 .panel-body--staff .panel-menu-item {
-  min-height: 42px;
-  padding-inline: 0.75rem;
+  position: relative;
+  min-height: 40px;
+  padding-inline: 0.7rem;
+  gap: 0.7rem;
+  border-radius: 9px;
   color: var(--text-muted);
   font-weight: 500;
+  transition: background 0.15s ease, color 0.15s ease;
 }
 
 .panel-body--staff .panel-menu-item svg {
-  width: 17px;
-  height: 17px;
+  width: 18px;
+  height: 18px;
   color: var(--text-dim);
   opacity: 1;
+  transition: color 0.15s ease;
 }
 
 .panel-body--staff .panel-menu-item:hover {
@@ -80,27 +183,77 @@
   color: var(--text);
 }
 
+.panel-body--staff .panel-menu-item:hover svg {
+  color: var(--text-muted);
+}
+
+/* ── La sección actual ──
+   Fondo tenue + texto en blanco + icono de acento, y una barra corta
+   a la izquierda. La barra centrada (no de lado a lado) marca la
+   pestaña sin convertir el menú en un bloque de color. */
 .panel-body--staff .panel-menu-item.is-active {
-  background: color-mix(in srgb, var(--accent) 14%, var(--surface));
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
   color: var(--text);
-  box-shadow: inset 3px 0 0 var(--accent);
-  font-weight: 650;
+  box-shadow: none;
+  font-weight: 600;
+}
+
+.panel-body--staff .panel-menu-item.is-active::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 20px;
+  border-radius: 0 3px 3px 0;
+  background: var(--accent);
 }
 
 .panel-body--staff .panel-menu-item.is-active svg {
   color: var(--accent);
 }
 
-.panel-body--staff .panel-topbar {
-  background: color-mix(in srgb, var(--bg) 92%, transparent);
-  border-bottom: 1px solid var(--border);
-  box-shadow: var(--sombra-1);
-  backdrop-filter: blur(14px);
+/* Los hijos (subnivel, como "Catálogo de aplicaciones") se sangran
+   un poco para que se lean como dependientes del padre. */
+.panel-body--staff .panel-menu-item--hijillo {
+  padding-inline-start: 1.6rem;
+  font-size: var(--fs-xs);
 }
 
-.panel-body--staff .panel-burger {
-  border-color: var(--border);
-  background: var(--surface);
+/* ── El pie del lateral: usuario y salida ── */
+.panel-body--staff .panel-side-foot {
+  padding: 0.85rem 0.7rem 1rem;
+  gap: 0.7rem;
+  border-top: 1px solid var(--border);
+}
+
+.panel-body--staff .panel-side-user {
+  padding: 0.5rem 0.6rem;
+  border-radius: 10px;
+  background: var(--raise);
+}
+
+.panel-body--staff .panel-avatar {
+  width: 32px;
+  height: 32px;
+  background: var(--accent-grad);
+  color: var(--on-accent);
+  border: 0;
+}
+
+/* =========================================================
+   3. BARRA SUPERIOR
+   ========================================================= */
+
+.panel-body--staff .panel-topbar {
+  height: var(--panel-topbar);
+  padding-inline: 1.75rem;
+  gap: 1rem;
+  background: color-mix(in srgb, var(--bg) 80%, transparent);
+  border-bottom: 1px solid var(--border);
+  box-shadow: none;
+  backdrop-filter: blur(14px) saturate(1.2);
 }
 
 .panel-body--staff .panel-topbar-titulo {
@@ -109,21 +262,36 @@
   font-weight: 600;
 }
 
-.panel-body--staff .panel-page {
-  padding-top: calc(var(--panel-topbar) + 1.75rem);
-  padding-bottom: 3rem;
+.panel-body--staff .panel-burger {
+  border-color: var(--border);
+  background: var(--surface);
+  border-radius: 9px;
 }
 
+/* =========================================================
+   4. PÁGINA Y CABECERA
+   ========================================================= */
+
+.panel-body--staff .panel-page {
+  padding-top: calc(var(--panel-topbar) + 1.9rem);
+  padding-bottom: 3.5rem;
+}
+
+/* ── La cabecera de la pantalla ──
+   Rótulo, título y, a la derecha y centrado con el bloque, la acción
+   principal. La línea de abajo separa la cabecera del contenido sin
+   tener que añadir una caja: es la misma idea que la barra. */
 .panel-body--staff .panel-page-head {
   align-items: center;
-  margin-bottom: 1.65rem;
-  padding-bottom: 1.2rem;
+  gap: 1rem 1.5rem;
+  margin-bottom: 1.6rem;
+  padding-bottom: 1.25rem;
   border-bottom: 1px solid var(--border);
 }
 
 .panel-body--staff .panel-page-head h1 {
   color: var(--text);
-  font-size: clamp(1.55rem, 2.2vw, 1.9rem);
+  font-size: clamp(1.6rem, 2.1vw, 2rem);
   font-weight: 700;
   letter-spacing: -0.035em;
 }
@@ -134,130 +302,301 @@
   letter-spacing: 0.1em;
 }
 
-.panel-body--staff .panel-card,
-.panel-body--staff .panel-stat,
-.panel-body--staff .panel-resumen-tarjeta,
-.panel-body--staff .panel-table-wrap,
-.panel-body--staff .panel-hacer {
-  background: var(--plano-1);
-  border: 1px solid var(--border);
-  box-shadow: var(--sombra-1);
+.panel-body--staff .panel-count {
+  margin-top: 0.35rem;
+  color: var(--text-dim);
 }
 
+/* El conjunto de acciones de la derecha no se parte solo: mantiene
+   los botones en una fila hasta que de verdad no caben. */
+.panel-body--staff .panel-head-actions {
+  gap: 0.6rem;
+  flex-wrap: nowrap;
+}
+
+/* =========================================================
+   5. TARJETAS
+   ========================================================= */
+
 .panel-body--staff .panel-card {
-  transition: box-shadow 0.18s ease, border-color 0.18s ease;
+  border-radius: var(--caja-radio);
+  background: var(--caja-fondo);
+  border: 1px solid var(--caja-borde);
+  box-shadow: var(--caja-sombra);
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
 }
 
 .panel-body--staff .panel-card-head {
   align-items: center;
-  padding: 1rem 1.2rem;
+  gap: 1rem;
+  padding: 1.05rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.panel-body--staff .panel-card-cintillo {
+  letter-spacing: 0.1em;
 }
 
 .panel-body--staff .panel-card-titulo {
-  font-size: 0.95rem;
-  letter-spacing: -0.01em;
+  font-size: 0.98rem;
+  font-weight: 650;
+  letter-spacing: -0.012em;
 }
 
 .panel-body--staff .panel-card-cuerpo {
-  padding: 1.2rem;
+  padding: 1.25rem;
 }
 
-.panel-body--staff .panel-card-head {
-  border-bottom-color: var(--border);
-}
-
-.panel-body--staff .panel-form-card {
+/* La rejilla 8/4 de la portada respira un poco más. */
+.panel-body--staff .panel-rejilla {
   gap: 1.25rem;
-  padding: clamp(1.2rem, 2.5vw, 2rem);
-  background: var(--plano-1);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  box-shadow: var(--sombra-1);
 }
 
-.panel-body--staff .panel-field > span {
-  margin-bottom: 0.45rem;
-  color: var(--text);
-  font-size: var(--fs-xs);
-  font-weight: 650;
+/* =========================================================
+   6. CIFRAS
+   ========================================================= */
+
+.panel-body--staff .panel-stats {
+  gap: 1rem;
+  margin-bottom: 2rem;
 }
 
-.panel-body--staff .panel-filters {
-  gap: 0.65rem;
-  margin-bottom: 1.25rem;
-  padding: 0.8rem;
-  background: var(--plano-1);
-  border: 1px solid var(--border);
-  border-radius: 12px;
+/* ── La anatomía de una cifra ──
+   Rótulo arriba y apagado, número grande debajo, y el icono a la
+   derecha en una pastilla de color tenue. El icono NO va a la
+   izquierda: a la izquierda está la columna de números, y ahí el
+   icono de cada tarjeta cae a distinta distancia según lo larga que
+   sea la cifra. A la derecha, las cuatro tarjetas de una fila
+   alinean sus iconos en la misma vertical.
+
+   Como el número va arriba, las etiquetas pueden partirse en dos
+   líneas sin mover ninguna cifra: todas arrancan a la misma altura. */
+.panel-body--staff .panel-stat {
+  align-items: flex-start;
+  gap: 1rem;
+  min-height: 6rem;
+  padding: 1.1rem 1.2rem;
+  border-radius: var(--staff-radio);
+  transition: border-color 0.18s ease, transform 0.18s ease,
+              box-shadow 0.18s ease;
 }
 
-.panel-body--staff .panel-filters .panel-search,
-.panel-body--staff .panel-filters select {
-  background-color: var(--bg-soft);
+.panel-body--staff a.panel-stat:hover,
+.panel-body--staff .panel-stat:hover {
   border-color: var(--border-strong);
+  transform: translateY(-2px);
+  box-shadow: var(--caja-hover-sombra);
 }
 
-.panel-body--staff .panel-form-actions {
-  gap: 0.7rem;
-  padding-top: 1.15rem;
+/* El texto manda; se queda con el espacio sobrante. */
+.panel-body--staff .panel-stat-cuerpo {
+  order: 1;
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
 }
 
-.panel-body--staff .panel-btn {
-  min-height: 38px;
-  border-radius: 9px;
+/* Se revierte el `order` de los módulos: aquí el NÚMERO va primero
+   y el rótulo debajo, que es la lectura natural de una cifra. */
+.panel-body--staff .panel-stat-cuerpo > span {
+  order: 0;
+}
+
+.panel-body--staff .panel-stat strong {
+  font-size: clamp(1.4rem, 6.5cqi, 1.85rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  color: var(--text);
+}
+
+.panel-body--staff .panel-stat span {
+  margin-top: 0;
+  font-size: var(--fs-label);
   font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-dim);
 }
 
-.panel-body--staff .panel-btn--primary {
-  box-shadow: 0 2px 5px color-mix(in srgb, var(--accent) 20%, transparent);
+/* ── El icono, en pastilla ── */
+.panel-body--staff .panel-stat-icono {
+  order: 2;
+  flex: 0 0 auto;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 10px;
+  background: var(--stat-tinte, color-mix(in srgb, var(--accent) 15%, transparent));
+  color: var(--stat-color, var(--accent));
 }
 
-.panel-body--staff .panel-btn--primary:hover {
-  transform: translateY(-1px);
+/* Las cifras de aviso: el número en su color, el rótulo también,
+   pero el icono mantiene la pastilla para no gritar de más. */
+.panel-body--staff .panel-stat--alerta,
+.panel-body--staff .panel-stat--ambar {
+  border-color: color-mix(in srgb, var(--stat-color, var(--warning)) 32%, var(--border));
 }
 
-.panel-body--staff .panel-btn--ghost {
-  background: var(--surface);
+.panel-body--staff .panel-stat--alerta strong,
+.panel-body--staff .panel-stat--ambar strong {
+  color: var(--stat-color);
+}
+
+.panel-body--staff .panel-stat--alerta span,
+.panel-body--staff .panel-stat--ambar span {
+  color: color-mix(in srgb, var(--stat-color) 75%, var(--text-dim));
+}
+
+/* Las que no llevan envoltorio (cobros, bots, servidores) apilan. */
+.panel-body--staff .panel-stat:not(:has(.panel-stat-cuerpo)) {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.1rem;
+}
+
+/* =========================================================
+   7. LISTAS Y "QUÉ HAY QUE HACER"
+   ========================================================= */
+
+/* La lista de tareas de la portada ya es una tarjeta; solo se afina
+   el relleno y la fila, que llevaba un botón pegado al borde. */
+.panel-body--staff .panel-hacer {
+  border-radius: var(--caja-radio);
+  background: var(--caja-fondo);
+  border: 1px solid var(--caja-borde);
+  box-shadow: var(--caja-sombra);
+}
+
+.panel-body--staff .panel-hacer-lista {
+  gap: 0.4rem;
+}
+
+.panel-body--staff .panel-hacer-item {
+  border-radius: 10px;
+}
+
+/* Comparativas y detalles van en su caja hundida, un tono por debajo
+   de la tarjeta, como manda el sistema de superficies. */
+.panel-body--staff .panel-lead,
+.panel-body--staff .panel-serv,
+.panel-body--staff .panel-acceso,
+.panel-body--staff .panel-caduco {
+  border-radius: var(--staff-radio-sm);
+}
+
+/* =========================================================
+   8. TABLAS
+   ========================================================= */
+
+/* La tabla vuelve a ser una caja: borde de 1px y radio, como las
+   tarjetas. En los módulos se le quitaba el borde porque el tono
+   bastaba; aquí la línea es la que separa y da el contorno limpio. */
+.panel-body--staff .panel-table-wrap {
+  border: 1px solid var(--caja-borde);
+  border-radius: var(--staff-radio);
+  box-shadow: var(--caja-sombra);
+  background: var(--caja-fondo);
 }
 
 .panel-body--staff .panel-table th {
-  background: var(--surface-2);
-  border-bottom-color: var(--border-strong);
+  padding: 0.7rem 1rem;
+  background: color-mix(in srgb, var(--surface-2) 55%, transparent);
+  border-bottom: 1px solid var(--border);
   color: var(--text-muted);
-  font-size: 0.72rem;
-}
-
-.panel-body--staff .panel-table {
-  border-spacing: 0;
+  font-size: var(--fs-label);
+  letter-spacing: 0.08em;
 }
 
 .panel-body--staff .panel-table td {
-  padding-block: 0.82rem;
-  border-bottom-color: var(--border);
-}
-
-.panel-body--staff .panel-table tbody tr:hover {
-  background: var(--raise);
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
 }
 
 .panel-body--staff .panel-table tbody tr:last-child td {
   border-bottom: 0;
 }
 
+.panel-body--staff .panel-table tbody tr {
+  transition: background 0.12s ease;
+}
+
+.panel-body--staff .panel-table tbody tr:hover {
+  background: var(--raise);
+}
+
+.panel-body--staff .panel-table a {
+  color: var(--text);
+}
+
+.panel-body--staff .panel-table a:hover {
+  color: var(--accent);
+}
+
 .panel-body--staff .panel-cell-main {
   font-weight: 650;
 }
 
-.panel-body--staff .panel-empty {
-  color: var(--text-muted);
+.panel-body--staff .panel-cell-sub {
+  color: var(--text-dim);
 }
 
+/* =========================================================
+   9. CONTROLES
+   ========================================================= */
+
+/* ── Botones ── */
+.panel-body--staff .panel-btn {
+  min-height: 38px;
+  padding-inline: 0.9rem;
+  border-radius: 9px;
+  font-weight: 600;
+  transition: background 0.15s ease, border-color 0.15s ease,
+              transform 0.1s ease, box-shadow 0.15s ease;
+}
+
+.panel-body--staff .panel-btn--xs {
+  min-height: 32px;
+  padding-inline: 0.7rem;
+  border-radius: 8px;
+}
+
+.panel-body--staff .panel-btn--primary {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.28),
+              0 6px 16px -8px color-mix(in srgb, var(--accent) 55%, transparent);
+  color: var(--brand-ink);
+}
+
+.panel-body--staff .panel-btn--primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3),
+              0 10px 22px -8px color-mix(in srgb, var(--accent) 65%, transparent);
+}
+
+.panel-body--staff .panel-btn--ghost {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+.panel-body--staff .panel-btn--ghost:hover {
+  background: var(--surface-2);
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+/* ── Campos ── */
 .panel-body--staff input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
 .panel-body--staff select,
-.panel-body--staff textarea {
-  color: var(--text);
+.panel-body--staff textarea,
+.panel-body--staff .panel-field input,
+.panel-body--staff .panel-field select,
+.panel-body--staff .panel-field textarea {
   background-color: var(--bg-soft);
-  border-color: var(--border-strong);
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  color: var(--text);
 }
 
 .panel-body--staff input::placeholder,
@@ -270,67 +609,221 @@
 .panel-body--staff select:focus,
 .panel-body--staff textarea:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 24%, transparent);
+  box-shadow: var(--staff-halo);
+  outline: none;
 }
 
-.panel-body--staff input[type="checkbox"],
-.panel-body--staff input[type="radio"] {
-  accent-color: var(--accent);
+/* ── La barra de filtros: una caja, no campos sueltos ──
+   Agrupa búsqueda y filtros en una sola superficie para que se lean
+   como la barra de herramientas de la lista que hay debajo. */
+.panel-body--staff .panel-filters {
+  gap: 0.65rem;
+  margin-bottom: 1.25rem;
+  padding: 0.8rem;
+  background: var(--caja-fondo);
+  border: 1px solid var(--caja-borde);
+  border-radius: var(--staff-radio);
+  box-shadow: var(--caja-sombra);
 }
 
-.panel-body--staff .panel-buscar,
+.panel-body--staff .panel-filters .panel-search,
+.panel-body--staff .panel-filters select,
 .panel-body--staff .panel-search {
   background-color: var(--bg-soft);
-  border-color: var(--border);
+  border-color: var(--border-strong);
 }
 
-.panel-body--staff .panel-menu-rapido {
-  background: var(--caja-alta-fondo);
-  border-color: var(--border);
-  box-shadow: var(--sombra-2);
-}
+/* =========================================================
+   10. ETIQUETAS Y ESTADOS
+   ========================================================= */
 
-.panel-body--staff .panel-menu-rapido a {
-  min-height: 40px;
-  padding-inline: 0.8rem;
-}
-
-.panel-body--staff .panel-menu-rapido a:hover {
-  background: var(--raise);
-}
-
-.panel-body--staff .panel-btn--primary {
-  color: var(--brand-ink);
+.panel-body--staff .panel-chip {
+  padding: 0.22rem 0.6rem;
+  font-weight: 650;
+  letter-spacing: 0.04em;
 }
 
 .panel-body--staff .panel-badge {
   font-weight: 700;
+  border-radius: 999px;
+}
+
+.panel-body--staff .panel-tag-soft {
+  background: var(--raise-strong);
+  color: var(--text-muted);
+}
+
+.panel-body--staff .panel-avatar {
+  font-weight: 700;
+}
+
+/* =========================================================
+   11. AVISOS, VACÍOS Y PISTAS
+   ========================================================= */
+
+.panel-body--staff .panel-alert {
+  border-radius: var(--staff-radio-sm);
+}
+
+.panel-body--staff .panel-empty {
+  border-radius: var(--staff-radio-lg);
+}
+
+.panel-body--staff .panel-hint {
+  color: var(--text-muted);
+}
+
+/* =========================================================
+   12. FORMULARIOS Y OTRAS PIEZAS
+   ========================================================= */
+
+/* ── El formulario es una tarjeta ──
+   Un alta es una tarea de una sola columna: se enmarca en la misma
+   superficie que el resto para que no parezca que la pantalla cambia
+   de material al entrar a editar algo. */
+.panel-body--staff .panel-form-card {
+  gap: 1.25rem;
+  padding: clamp(1.2rem, 2.5vw, 1.9rem);
+  background: var(--caja-fondo);
+  border: 1px solid var(--caja-borde);
+  border-radius: var(--staff-radio-lg);
+  box-shadow: var(--caja-sombra);
+}
+
+.panel-body--staff .panel-field-grid,
+.panel-body--staff .panel-form-grid {
+  gap: 1.1rem;
+}
+
+/* La etiqueta del campo en blanco y con algo de peso: en un
+   formulario largo, el gris apagado se pierde y hay que releerlo. */
+.panel-body--staff .panel-field > span {
+  margin-bottom: 0.45rem;
+  color: var(--text);
+  font-weight: 650;
+}
+
+.panel-body--staff .panel-form-actions {
+  gap: 0.7rem;
+  padding-top: 1.15rem;
+}
+
+.panel-body--staff .panel-bloque-titulo {
+  color: var(--text-muted);
+}
+
+/* ── Las acciones de la cabecera de una pantalla ──
+   Servicios usa `.panel-page-acciones` y cobros/clientes
+   `.panel-head-actions`. Son la misma idea con dos nombres; aquí se
+   igualan para que los botones midan y se separen igual en las dos. */
+.panel-body--staff .panel-page-acciones {
+  gap: 0.6rem;
+}
+
+/* ── El resumen de aplicaciones ──
+   Cinco cifras de grupo en una fila; con el borde de color a la
+   izquierda van en la misma familia que las cifras grandes. */
+.panel-body--staff .panel-resumen-aplicaciones {
+  gap: 0.75rem;
+}
+
+.panel-body--staff .panel-resumen-tarjeta {
+  background: var(--caja-fondo);
+  border: 1px solid var(--caja-borde);
+  border-radius: var(--staff-radio);
+  box-shadow: var(--caja-sombra);
+}
+
+.panel-body--staff .panel-resumen-tarjeta:hover {
+  border-color: var(--border-strong);
+}
+
+.panel-body--staff .panel-resumen-tarjeta.is-activo {
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.panel-body--staff .panel-resumen-num {
+  font-family: var(--font-display, "Outfit", sans-serif);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Los avisos con filete de color ── */
+.panel-body--staff .panel-callout {
+  background: var(--caja-fondo);
+  border: 1px solid var(--caja-borde);
+  border-radius: var(--staff-radio);
+}
+
+.panel-body--staff .panel-tag-soft {
+  border: 1px solid var(--border);
+}
+
+/* ── El desplegable de "Nuevo" ──
+   Flota por encima; por eso lleva el fondo del plano alto y una
+   sombra de verdad, no la corta de las tarjetas. */
+.panel-body--staff .panel-menu-rapido {
+  background: var(--caja-alta-fondo);
+  border: 1px solid var(--caja-alta-borde);
+  border-radius: var(--staff-radio);
+  box-shadow: var(--sombra-2);
+}
+
+/* ── La paginación ── */
+.panel-body--staff .panel-pager a {
+  border-radius: 8px;
+  border-color: var(--border);
+}
+
+.panel-body--staff .panel-pager a:hover {
+  border-color: var(--border-strong);
+}
+
+/* =========================================================
+   13. RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1100px) {
+  /* La portada pasa de 8/4 a una columna antes que antes: con el
+     lateral fijo, a 1100 la columna estrecha ya no tiene sitio. */
+  .panel-body--staff .panel-rejilla {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 @media (max-width: 720px) {
-  .panel-body--staff .panel-page {
-    padding-top: calc(var(--panel-topbar) + 1rem);
-    padding-inline: 1rem;
+  .panel-body--staff {
+    --panel-page-max: 100%;
   }
 
-  .panel-body--staff .panel-page-head h1 {
-    font-size: 1.55rem;
+  .panel-body--staff .panel-page {
+    padding-top: calc(var(--panel-topbar) + 1.25rem);
+    padding-inline: 1rem;
   }
 
   .panel-body--staff .panel-page-head {
     align-items: flex-start;
+    gap: 0.85rem;
     padding-bottom: 1rem;
   }
 
+  .panel-body--staff .panel-page-head h1 {
+    font-size: 1.5rem;
+  }
+
+  /* En una mano, el rótulo de cifra parte en dos líneas casi siempre:
+     se baja el tamaño mínimo para que el número no mande en la caja. */
+  .panel-body--staff .panel-stat {
+    min-height: 0;
+    padding: 1rem;
+  }
+
+  .panel-body--staff .panel-card-cuerpo,
   .panel-body--staff .panel-filters {
-    padding: 0.65rem;
+    padding: 0.9rem;
   }
 
-  .panel-body--staff .panel-card-cuerpo {
-    padding: 1rem;
-  }
-
-  .panel-body--staff .panel-form-card {
-    padding: 1rem;
+  .panel-body--staff .panel-card-head {
+    padding: 0.9rem 1rem;
   }
 }
