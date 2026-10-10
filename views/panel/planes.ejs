@@ -6,7 +6,7 @@
       <span class="panel-kicker">Lo que vendes al público</span>
       <h1>Planes</h1>
       <p class="panel-page-lead">
-        Administra los precios y las aplicaciones incluidas en cada plan.
+        Edita el precio, los servicios incluidos y qué planes se muestran en la web.
       </p>
     </div>
 
@@ -45,7 +45,6 @@
     <form id="form-planes" method="post" action="<%= base %>/planes">
       <input type="hidden" name="_csrf" value="<%= csrf %>" />
 
-      <div class="panel-table-wrap">
       <div class="planes-lista">
         <% planes.forEach(function (p) { %>
           <% var filaErr = (errores && errores[p.id]) || {}; %>
@@ -55,6 +54,21 @@
           <article class="plan<%= p.destacado ? ' plan--destacado' : '' %><%= p.activo ? '' : ' plan--oculto' %><%= hayErrores ? ' plan--error' : '' %>">
 
             <div class="plan-cabecera">
+              <span class="plan-icono" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <% if (p.id === 'inicial') { %>
+                    <path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H7l-4 2 1.3-4A7.5 7.5 0 1 1 20 11.5Z" />
+                    <path d="M8 11h.01M12 11h.01M16 11h.01" />
+                  <% } else if (p.id === 'comercio') { %>
+                    <path d="M3 9h18l-1.5 11h-15L3 9Z" />
+                    <path d="m5 9 2-5h10l2 5M9 13v3M15 13v3" />
+                  <% } else { %>
+                    <path d="m12 3 9 5-9 5-9-5 9-5Z" />
+                    <path d="m3 12 9 5 9-5M3 16l9 5 9-5" />
+                  <% } %>
+                </svg>
+              </span>
+
               <div class="plan-cabecera-texto">
                 <div class="plan-marcas">
                   <% if (p.destacado) { %>
@@ -82,8 +96,8 @@
               </div>
 
               <div class="plan-precio">
+                <label class="plan-campo-etiqueta" for="precio_<%= p.id %>">Precio público</label>
                 <div class="plan-precio-cifra">
-                  <label class="sr-only" for="precio_<%= p.id %>">Precio de <%= p.nombre %></label>
                   <input type="text"
                          inputmode="decimal"
                          autocomplete="off"
@@ -123,7 +137,15 @@
             </div>
 
             <fieldset class="plan-apps">
-              <legend class="plan-apps-leyenda">Microservicios incluidos</legend>
+              <legend class="plan-apps-leyenda">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="3" y="3" width="7" height="7" rx="1.5" />
+                  <rect x="14" y="3" width="7" height="7" rx="1.5" />
+                  <rect x="3" y="14" width="7" height="7" rx="1.5" />
+                  <rect x="14" y="14" width="7" height="7" rx="1.5" />
+                </svg>
+                Microservicios incluidos
+              </legend>
 
               <% if (!microservicios || !microservicios.length) { %>
                 <p class="panel-help">
@@ -177,7 +199,7 @@
 
               <div class="plan-pie-marcas">
                 <input type="hidden" name="<%= campo(p.id, 'destacado') %>" value="0" />
-                <label class="plan-casilla" for="destacado_<%= p.id %>">
+                <label class="plan-casilla<%= p.destacado ? ' is-on' : '' %>" for="destacado_<%= p.id %>">
                   <input type="checkbox"
                          id="destacado_<%= p.id %>"
                          name="<%= campo(p.id, 'destacado') %>"
@@ -188,7 +210,7 @@
                 </label>
 
                 <input type="hidden" name="<%= campo(p.id, 'activo') %>" value="0" />
-                <label class="plan-casilla" for="activo_<%= p.id %>">
+                <label class="plan-casilla<%= p.activo ? ' is-on' : '' %>" for="activo_<%= p.id %>">
                   <input type="checkbox"
                          id="activo_<%= p.id %>"
                          name="<%= campo(p.id, 'activo') %>"
@@ -208,6 +230,16 @@
           </article>
         <% }); %>
       </div>
+
+      <div class="plan-guardar-panel">
+        <span>Cuando termines de editar los planes, guarda los cambios para publicarlos.</span>
+        <button type="submit" class="panel-btn panel-btn--primary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 3h12l4 4v14H3V3h2Z" />
+            <path d="M7 3v6h10V3M7 21v-8h10v8" />
+          </svg>
+          Guardar cambios
+        </button>
       </div>
     </form>
 
