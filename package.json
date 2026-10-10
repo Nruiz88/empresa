@@ -67,7 +67,7 @@
                     "test:paleta":  "node db/probar-paleta.mjs",
                     "test:tickets":  "node db/probar-tickets.mjs",
                     "test:vistas":  "node db/ver-vistas.js",
-                    "test:css":  "node db/ver-css-entero.js && node db/ver-variables-css.js",
+                    "test:css":  "node db/ver-css-entero.js && node db/ver-variables-css.js && node db/ver-variables-roto.js",
                     "test:idioma":  "node db/ver-idioma.js",
                     "lint":  "node db/ver-vistas.js"
                 },

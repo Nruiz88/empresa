@@ -69,6 +69,160 @@
   --text-muted: #a8b3cc;
   --text-dim: #8b9ab5;
 
+  /* =========================================================
+     LOS ESTADOS
+
+     ── POR QUÉ ESTÁN AQUÍ Y NO ARRIBA DEL TODO ──
+
+     Este bloque se reescribió cuando los planos del panel se
+     movieron a `html[data-panel]`, y al reescribirlo se perdió
+     este grupo de estados entero. Como una variable que no
+     existe no da error, el resultado fue que `--danger`,
+     `--warning`, `--success` y `--brand` dejaron de existir para
+     todo el panel: 185 usos repartidos por las cinco hojas.
+
+     Lo que se veía en pantalla eran chips de estado y alertas sin
+     color, textos que deberían ser rojos y amarillos, y bordes de
+     aviso que no aparecían. Todo el color de estado del panel
+     llevaba tiempo caído sin que ninguna comprobación lo dijera,
+     porque una declaración con una variable inexistente no está
+     mal: simplemente no se aplica.
+
+     Se ha añadido `db/ver-variables-roto.js` para que no vuelva a
+     pasar, que busca lo que se usa y no está declarado.
+
+     ── LOS VALORES, MEDIDOS ──
+
+     Sobre el fondo del panel, todos por encima de 4,5:1, que es lo
+     que pide WCAG para texto normal. El más justo es `--danger` con
+     6,45:1.
+
+       success   #34d399    9,29:1
+       warning   #fbbf24   10,69:1
+       danger    #f87171    6,45:1
+       info      #60a5fa    7,12:1
+       brand     #10b981    7,80:1
+
+     Los tres textos de apoyo son versiones claras de su color, para
+     que un texto sobre fondo tintado siga teniendo contraste y no
+     solo se distinga por el tono. */
+  --brand: #10b981;
+  --brand-deep: #059669;
+  --brand-ink: #0f172a;
+  --on-accent: #0f172a;
+
+  --success: #34d399;
+  --success-text: #a7f3d0;
+  --success-bg: rgba(52, 211, 153, 0.12);
+  --success-border: rgba(52, 211, 153, 0.4);
+
+  --warning: #fbbf24;
+  --warning-text: #fde68a;
+  --warning-bg: rgba(251, 191, 36, 0.12);
+  --warning-border: rgba(251, 191, 36, 0.4);
+
+  --danger: #f87171;
+  --danger-text: #fecaca;
+  --danger-bg: rgba(248, 113, 113, 0.12);
+  --danger-border: rgba(248, 113, 113, 0.4);
+
+  /* ── EL CUARTO NIVEL ──
+
+     Hay cuatro estados de un cobro, no tres: al día, pendiente,
+     vencido y urgente. Y `--urgent` se usaba sin estar declarado,
+     así que la fila más grave del negocio se veía igual que una
+     vencida cualquiera.
+
+     Un rojo más intenso que `--danger` no serviría: en la misma
+     pantalla un rojo sobre otro rojo no se distingue, y lo que
+     tiene que distinguir es el nivel, no el color.
+
+     Por eso el urgente es `--danger` con más peso, no otro rojo.
+     El texto va en negrita y el borde a un rojo más saturado, y es
+     el peso de la cifra lo que dice «este es el que hay que mirar
+     primero». Un color nuevo sería un cuarto color que aprender a
+     distinguir, y en una tabla de cobros no hay sitio para eso. */
+  --urgent: #ef4444;
+
+  --info: #60a5fa;
+  --info-text: #bfdbfe;
+  --info-bg: rgba(96, 165, 250, 0.12);
+  --info-border: rgba(96, 165, 250, 0.4);
+
+  /* =========================================================
+     EL VERDE DE LA MARCA, Y SU ACENTO
+
+     `--accent` y `--accent-2` se perdieron en la misma operación
+     que los estados, y son los dos que se usan más: 105 y 81 veces.
+     El acento es el verde claro de la marca y el acento-2 el
+     ámbar, que solo se usa para estados.
+
+     ── POR QUÉ HAY DOS ──
+
+     Porque `--success` y `--accent` son el mismo verde y están
+     separados a propósito. `--success` dice «esto está bien» y
+     `--accent` dice «esto es la marca». Hoy coinciden en color,
+     que es lo que los hace confusos, pero en cuanto un estado
+    Semantico necesite un verde distinto, `--accent` seguirá siendo
+     la marca y `--success` será el estado.
+
+     ── POR QUÉ ESTOS SE LLAMAN PRODUCTOS Y NO COLORES ──
+
+     Porque no son colores: `--raise` es el fondo de una fila al
+     pasar el ratón y `--raise-strong` el de una zona elevada. Se
+     declaran aquí para que quien los busque los encuentre junto a
+     los otros planos, y no los declare otra vez con un valor
+     parecido pero distinto.
+
+     ── EL GRADIENTE DEL BOTÓN ──
+
+     Un degradado corto, de `--brand` a `--accent`, que va del
+     verde profundo al claro. Con un solo tono el botón se ve plano
+     contra el fondo casi negro; con el degradado tiene luz propia,
+     que es lo que lo distingue de las cajas que lo rodean. */
+  --accent: #34d399;
+  --accent-2: #fbbf24;
+  --accent-grad: linear-gradient(120deg, #10b981 0%, #34d399 100%);
+  --icon-color: #6ee7b7;
+
+  /* Lo que se superpone al fondo: una fila al pasar el ratón, una
+     zona elevada. No son colores. */
+  --raise: rgba(255, 255, 255, 0.045);
+  --raise-strong: rgba(255, 255, 255, 0.09);
+
+  /* =========================================================
+     LA ESCALA DE TIPOGRAFÍA DE LA WEB PÚBLICA
+
+     ── ESTOS SE PERDIERON Y VOLVIERON ──
+
+     Cuando se escribió el panel se reescribió este bloque para
+     mover los planos del panel a `html[data-panel]`, y en la
+     operación se llevó por delante los siete pasos de tipografía
+     de la portada. `--fs-body` se usa 3 veces, `--fs-h2` otras 4 y
+     `--fs-hero` una, y ninguna daba error: una variable que no
+     existe hace que la declaración no se aplique y la página se
+     queda sin título.
+
+     Está aquí y no en `panel.css` a propósito. El panel tiene su
+     propia escala, con nombres distintos y otros valores, porque un
+     panel de 14px no es una página de contenido. Las dos viven
+     juntas en la misma hoja, pero cada una es de su sitio.
+
+     ── POR QUÉ EL PANEL NO USA ESTOS ──
+
+     Porque estos son grandes. `--fs-h2` llega a 2.35rem, que es un
+     titular de página, y en un panel con cuarenta filas de tabla no
+     hay sitio para titulares. El panel necesita 24px como máximo
+     para el título de una pantalla, y esta escala empieza por
+     encima de eso. */
+  --fs-hero: clamp(2.4rem, 6vw, 4.2rem);
+  --fs-h1: clamp(2rem, 4.5vw, 3rem);
+  --fs-h2: clamp(1.6rem, 3.4vw, 2.35rem);
+  --fs-h3: clamp(1.15rem, 2vw, 1.4rem);
+  --fs-body: 1rem;
+  --fs-sm: 0.9rem;
+  --fs-xs: 0.8rem;
+
   --container: 1160px;
   --gap: clamp(1rem, 2vw, 1.5rem);
   --section-y: clamp(4rem, 9vw, 7rem);
@@ -246,14 +400,40 @@ h4 {
   transform: translateY(-2px);
 }
 
+/* ─────────────────────────────────────────────────────────
+   LA SOMBRA DEL BOTÓN PRINCIPAL
+
+   `--btn-glow` y `--btn-glow-strong` se usan en cinco sitios de
+   estas dos hojas y NO estaban declarados en ninguna.
+
+   Eso no daba error: el navegador descarta la declaración entera
+   cuando una variable no existe, así que el botón principal se
+   quedaba sin sombra y no había ningún aviso. Un botón de acción
+   principal sin sombra sobre fondo oscuro se ve plano y pegado a la
+   página, y el síntoma se atribuye al color cuando la causa es la
+   sombra.
+
+   ── POR QUÉ UNA SOMBRA SUAVE Y NO UN RESPLANDOR ──
+
+   El nombre dice «glow» y eso sugiere un halo verde fuerte. Con la
+   paleta plana actual eso shouts: un botón que brilla entre cajas
+   que no brillan parece un anuncio, no una acción.
+
+   Lo que hace falta es que el botón se despegue un poco de la
+   página, y para eso una sombra corta más otra larga y difusa
+   bastan. El color es el mismo verde del botón, para que la sombra
+   parezca salir de él y no ser un contorno gris alrededor.
+   ───────────────────────────────────────────────────────── */
 .btn-primary {
   background: var(--accent-grad);
   color: var(--on-accent);
-  box-shadow: var(--btn-glow);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3),
+              0 2px 8px color-mix(in srgb, var(--accent) 30%, transparent);
 }
 
 .btn-primary:hover {
-  box-shadow: var(--btn-glow-strong);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.32),
+              0 4px 14px color-mix(in srgb, var(--accent) 38%, transparent);
 }
 
 .btn-ghost {

@@ -269,14 +269,49 @@ html[data-panel] {
 
 /* ---------- Lateral ---------- */
 .panel-side {
+  /* ─────────────────────────────────────────────────────
+     LA BARRA LATERAL, QUE TAMBIÉN ES UNA TARJETA
+
+     En Sakai el menú lateral no es una columna pegada al borde: es
+     una tarjeta, con radio, sombra y margen alrededor, flotando
+     sobre el fondo de la página. Su CSS es `border-radius: 12px`
+     con una sombra de tres capas y `padding: 1.5rem`.
+
+     ── POR QUÉ IMPORTA ──
+
+     Porque es lo que hace que la página entera se lea como un
+     conjunto de piezas apoyadas unas en otras y no como una rejilla
+     con líneas. Con el menú pegado al borde y un filete vertical, el
+     ojo lee dos mitades y un corte. Con el menú flotando, lee una
+     tarjeta grande a la izquierda y el contenido a la derecha, que
+     es la misma gramática que las cifras y las cajas de abajo.
+
+     Y da aire: con 248px pegados al borde, el contenido no tiene
+     sitio para el margen que llevan todas las cajas, y por eso
+     se ven todas contra la barra.
+
+     ── EL FILETE SE QUITA ──
+
+     Por el mismo motivo que en las cajas: el borde dibujaba un
+     corte que la sombra ya dibuja. Con las dos cosas hay un doble
+     filo.
+
+     ── EL MÓVIL NO CAMBIA ──
+
+     En móvil la barra es un cajón que entra desde el borde, y
+     afloat una tarjeta ocuparía toda la pantalla sin que su radio
+     se viera. El margen y el radio se quitan abajo, en la regla del
+     cajón, para que solo apliquen en escritorio. */
   position: fixed;
-  inset-block: 0;
-  inset-inline-start: 0;
+  inset-block: 1.5rem;
+  inset-inline-start: 1.5rem;
   width: var(--panel-sidebar);
   display: flex;
   flex-direction: column;
-  background: var(--bg-soft);
-  border-inline-end: 1px solid var(--border);
+  background: var(--caja-fondo);
+  border: 1px solid transparent;
+  border-radius: var(--caja-radio);
+  box-shadow: var(--caja-sombra);
   z-index: 40;
 }
 
@@ -492,7 +527,13 @@ html[data-panel] {
 
 /* ---------- Contenido ---------- */
 .panel-shell {
-  margin-inline-start: var(--panel-sidebar);
+  /* El margen es el ancho de la barra MÁS el hueco que la separa del
+     contenido, porque la barra ya no está pegada al borde.
+
+     Es un margen y no un `padding` porque el fondo de la página tiene
+     que verse en ese hueco: si el hueco fuera relleno, se vería
+     color de contenido y la barra dejaría de flotar. */
+  margin-inline-start: calc(var(--panel-sidebar) + 3rem);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -518,9 +559,33 @@ html[data-panel] {
   gap: 1rem;
   height: var(--panel-topbar);
   padding-inline: 1.5rem;
+
+  /* ── LA BARRA DE ARRIBA, SIN FILete ──
+
+     Estaba con `background: color-mix(--bg 88%)` más un `blur`, que
+     es la barra de una aplicación de escritorio: pegada arriba,
+     translúcida, y con una línea que la separa del contenido.
+
+     Aquí ya no hay línea. Se quedan el fondo translúcido y el
+     desenfoque, que son los que hacen que la barra se lea por
+     encima del contenido al desplazarse.
+
+     ── POR QUÉ EL FILete SE QUITA ──
+
+     Por el mismo motivo que en las cajas y que en el lateral: el
+     borde dibujaba un corte horizontal que partía la pantalla en
+     dos bandas, y con las cajas flotando por debajo esa línea ya no
+     separa nada. Se nota sobre todo al desplazarse: el contenido
+     pasa por debajo de la barra y cruza un filete, y eso es un
+     borde de los que se quieren quitar.
+
+     ── POR QUÉ SIGUE SIENDO FIJA ──
+
+     Porque es lo que hace útil la pantalla: la búsqueda y el botón
+     de «Nuevo» tienen que estar a mano en cualquier punto de una
+     tabla de cuarenta filas. */
   background: color-mix(in srgb, var(--bg) 88%, transparent);
   backdrop-filter: blur(8px);
-  border-bottom: 1px solid var(--border);
 }
 
 .panel-topbar--simple {
@@ -651,7 +716,15 @@ html[data-panel] {
 .panel-page {
   max-width: var(--panel-page-max);
   margin-inline: auto;
-  padding: var(--panel-gap-xl) 1.5rem 4rem;
+
+  /* El aire de los lados es el mismo margen que separa la barra
+     lateral del contenido. Si fueran distintos, el contenido se
+     vería encajonado en un ancho raro: la barra flotando con aire
+     alrededor y las cajas metidas contra los bordes de la ventana.
+
+     Y arriba se deja lo que mide la barra más un margen, para que la
+     primera caja no quede escondida debajo de ella. */
+  padding: calc(var(--panel-topbar) + 1.5rem) 1.5rem 4rem;
 }
 
 .panel-page--form {
@@ -903,7 +976,7 @@ html[data-panel] {
   background: var(--accent-grad);
   border-color: transparent;
   color: var(--on-accent);
-  box-shadow: var(--btn-glow);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 8px color-mix(in srgb, var(--accent) 30%, transparent);
 }
 
 .panel-btn--primary:hover {
@@ -914,7 +987,7 @@ html[data-panel] {
      verde al pasar el ratón. En la web el principal no cambia de
      color al pasar por encima: solo sube el resplandor. */
   background: var(--accent-grad);
-  box-shadow: var(--btn-glow-strong);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.32), 0 4px 14px color-mix(in srgb, var(--accent) 38%, transparent);
 }
 
 /* El botón de aviso: «3 requieren atención».
@@ -980,20 +1053,26 @@ html[data-panel] {
   grid-template-columns: repeat(auto-fit, minmax(195px, 1fr));
 }
 
+/* ── ESTA DECLARACIÓN ESTÁ VACÍA A PROPÓSITO ──
+
+   `.panel-stat` se declaraba dos veces en esta hoja: aquí y unas
+   cuatrocientas líneas más abajo, donde la otra tenía el fondo, el
+   borde, el radio y la sombra. La segunda ganaba siempre, y esta
+   primera se quedaba sin efecto.
+
+   Lo único que queda aquí es el relleno pequeño de la portada, que es
+   más corto que el de la otra. Todo lo demás lo pone el sistema de
+   superficies del final del archivo. */
 .panel-stat {
-  display: block;
-  padding: 1.15rem 1.25rem;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  padding: 0.9rem 1rem;
   text-decoration: none;
   color: inherit;
-  transition: border-color 0.15s ease, transform 0.15s ease;
 }
 
 a.panel-stat:hover {
   border-color: var(--border-strong);
-  transform: translateY(-2px);
+  transform: translateY(var(--caja-hover-y));
+  box-shadow: var(--caja-hover-sombra);
 }
 
 /* El rojo de la portada lo pone .panel-stat--alerta, más abajo. No se
@@ -1043,36 +1122,49 @@ a.panel-stat:hover {
 
 /* Lo que hay que cobrar va en rojo y con borde: es la única cifra
    que obliga a hacer algo hoy. */
-.panel-stat--alerta {
-  border-color: color-mix(in srgb, var(--danger) 42%, transparent);
-  background: color-mix(in srgb, var(--danger) 7%, var(--surface));
-}
+/* ── LA ESTADÍSTICA QUE AVISA ──
 
+   Aquí no se vuelve a escribir el fondo ni el borde, que es lo que
+   se hacía antes. El estado se marca con el color de la cifra, que
+   es lo que se mira.
+
+   Y no se tiñe la tarjeta entera. Cuatro tarjetas de color entero
+   parecen cuatro alarmas, y solo una lo es: la del dinero vencido. */
 .panel-stat--alerta strong {
   color: var(--danger);
 }
 
 /* ---------- Ámbar: lo que está en plazo ----------
 
-   Va DESPUÉS de .panel-stat strong a propósito. Este bloque se
-   escribió primero, más arriba, y los números salían en violeta: la
-   regla de .panel-stat strong llega después y, con la misma
-   especificidad, gana. El fondo y el borde sí se veían, porque para
-   esos no compite nadie — y por eso el fallo era engañoso: media
-   tarjeta funcionaba y la otra mitad no.
+   Antes esta regla iba aquí y después de `.panel-stat strong`, y el
+   motivo estaba escrito: las cifras salían en violeta porque la
+   regla de `.panel-stat strong` llegaba más abajo y, con la misma
+   especificidad, ganaba.
 
-   Por eso `--ambar` está aquí y no arriba. Si se mueve, hay que
-   moverlo después de .panel-stat strong, no antes. */
-.panel-stat--ambar {
-  border-color: color-mix(in srgb, var(--warning) 32%, transparent);
-  background: color-mix(in srgb, var(--warning) 7%, var(--surface));
-}
+   Ese era el síntoma. La causa era que cada bloque pintaba su propio
+   fondo y su propio borde, así que el resultado dependedía de en qué
+   orden estuviera escrito cada cosa. Arreglarlo was añadir reglas,
+   o mover esta más abajo, y las dos cosas se deshacen en cuanto se
+   edita otra vez.
 
+   Ahora no hay nada que ordenar: el estado va solo en el color de la
+   cifra, y el fondo y el borde los pone el sistema de superficies,
+   que es un solo sitio. Aquí ya no depende de estar antes o después
+   de nada.
+
+   Y el tinte de la tarjeta tampoco se escribe. Cuatro tarjetas de
+   color entero parecen cuatro alarmas, y solo una lo es: la del
+   dinero vencido.
+   ───────────────────────────────────────────────────────── */
 .panel-stat--ambar strong {
   color: var(--warning);
   font-weight: 800;
 }
 
+/* El borde se pone solo al pasar el ratón. En reposo la tarjeta se
+   ve como cualquier otra y la cifra es lo que avisa, que es lo que
+   hay que mirar. Si el borde estuviera siempre, estaríamos
+   gritando lo mismo en cada pantalla. */
 a.panel-stat--ambar:hover {
   border-color: color-mix(in srgb, var(--warning) 58%, transparent);
 }
@@ -2779,6 +2871,26 @@ a.panel-stat--ambar:hover {
 
   .panel-shell {
     margin-inline-start: 0;
+  }
+
+  /* ── LA BARRA VUELVE A SER UN CAJÓN PEGADO AL BORDE ──
+
+     En escritorio flota como una tarjeta, con margen y radio. En
+     móvil no puede: ocupa casi toda la pantalla, y una tarjeta con
+     radio a pantalla casi completa es solo un rectángulo con las
+     esquinas redondeadas, que es peor que un rectángulo.
+
+     Y un cajón entra desde el borde, no desde dentro: si flotara,
+     al abrirse dejaría medio fuera de la pantalla.
+
+     Aquí se quitan el margen, el radio y la sombra, y se le
+     devuelve el fondo propio, que es lo que lo hace cajón. */
+  .panel-side {
+    inset-block: 0;
+    inset-inline-start: 0;
+    width: min(86vw, var(--panel-sidebar));
+    border-radius: 0;
+    box-shadow: none;
   }
 
 
@@ -5033,11 +5145,11 @@ body.cmd-abierto {
    tarjeta. En tema claro vuelve a hacer lo de siempre, que es
    dar un contorno. */
 
+/* El fondo, el borde, el radio y la sombra los pone el sistema de
+   superficies del final del archivo. Aquí solo queda lo que es
+   propio de una tarjeta, que es esconder lo que se sale por las
+   esquinas redondeadas. */
 .panel-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--elev-card);
   overflow: hidden;
 }
 
@@ -5176,13 +5288,21 @@ body.cmd-abierto {
      ───────────────────────────────────────────────────── */
   container-type: inline-size;
 
-  padding: var(--p-4) var(--p-5);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--elev-card);
-  text-decoration: none;
-  color: inherit;
+  /* El fondo, el borde, el radio y la sombra ya no se escriben aquí.
+
+     Antes esta regla los escribía, y también los escribía la
+     declaración de `.panel-stat` de la línea 983, cuatrocientas
+     líneas más arriba. Dos copias del mismo esqueleto: la de abajo
+     ganaba, y la de arriba era papel.
+
+     Ahora las dos superficies salen del sistema de superficies, que
+     está al final del archivo y es el único sitio donde se decide
+     cómo se ve una caja. Esta regla se queda con lo que sí es
+     propio de una estadística: que es un contenedor, y que el
+     relleno va aquí porque el sistema no lo pone (una tarjeta y una
+     cifra no se rellenan igual). */
+
+  padding: var(--caja-relleno);
   transition: border-color var(--mov-1) var(--ease-out),
               transform var(--mov-1) var(--ease-out),
               box-shadow var(--mov-1) var(--ease-out);
@@ -5190,8 +5310,8 @@ body.cmd-abierto {
 
 .panel-stat:hover {
   border-color: var(--border-strong);
-  transform: translateY(-1px);
-  box-shadow: var(--elev-card-fuerte);
+  transform: translateY(var(--caja-hover-y));
+  box-shadow: var(--caja-hover-sombra);
 }
 
 /* ─────────────────────────────────────────────────────────
@@ -5893,7 +6013,8 @@ body.cmd-abierto {
    justo mientras está en uso. El anillo dice «está abierto» sin
    tocar el color de la marca. */
 .panel-rapido[open] .panel-rapido-abrir {
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent), var(--btn-glow);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent),
+              0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 8px color-mix(in srgb, var(--accent) 30%, transparent);
 }
 
 .panel-rapido .panel-menu-rapido {
@@ -6241,3 +6362,323 @@ body.cmd-abierto {
   font-weight: 600;
 }
 
+/* =========================================================
+   =========================================================
+   EL SISTEMA DE SUPERFICIES Y LA REJILLA
+
+   ── DE DÓNDE VIENE ──
+
+   De la plantilla Sakai de PrimeFaces, que es la referencia elegida.
+   Lo que se toma no es su color, que es de otro tema, sino su manera
+   de separar las cosas.
+
+   Sus tres variables, textuales, de `src/assets/styles/_variables.scss`:
+
+       $fontSize:14px
+       $borderRadius:12px
+       $transitionDuration:.2s
+
+   ── SU IDEA CENTRAL, QUE ES LA QUE CAMBIA EL ASPECTO ──
+
+   Un contenedor no se dibuja con un borde: se separa porque está
+   sobre otro plano. En Sakai la tarjeta y el fondo son dos tonos y
+   no hay ni una línea entre ellos.
+
+   ── POR QUÉ ANTES SÍ HABÍA BORDES ──
+
+   Porque con tres superficies a 1,226:1 de diferencia —lo que había,
+   medido— la separación por tono no se lee. Se puso un borde para
+   taparlo.
+
+   La diferencia real no es que faltara color: es que el borde
+   estaba tapando una diferencia de planos que no existía. Y con
+   borde por todas partes el panel se lee como un documento con
+   cajas dibujadas, no como una herramienta.
+
+   ── LOS TRES NIVELES, Y POR QUÉ TRES ──
+
+   Porque tres es lo que aguanta un panel con tablas, tarjetas y
+   estados. Con cuatro, por encima de 1,3:1 de diferencia de
+   luminancia dos planos dejan de distinguirse, y en un panel oscuro
+   el margen es corto. Se probaron cuatro paletas buscando llegar a
+   1,5:1 y ninguna llegó: en la parte baja de la escala de
+   luminancia cada paso cuesta el doble que el anterior.
+
+     --caja-fondo   una caja sobre el fondo de la página
+     --caja-hundida un hueco dentro de una caja
+     --caja-alta    lo que flota: menús, diálogos
+
+   ── POR QUÉ EL RADIO ES 12 Y NO 8 ──
+
+   Es el de Sakai, y hay un motivo que no es de gusto. Un radio
+   grande redondea también la sombra, y una sombra redondeada se ve
+   blanda; con un radio pequeño la sombra se sale por las esquinas y
+   la caja parece recortada.
+
+   Con sombra larga y difusa, que es lo que hacen sus contenedores,
+   el radio tiene que ser generoso. Por eso su sombra tiene dos
+   capas y 12px de radio, y no una sombra corta con 8px.
+   ========================================================= */
+
+html[data-panel] {
+  /* ── El sistema, en nuestra paleta ── */
+
+  --caja-fondo: var(--surface);
+
+  /* Sin borde. La separación la hace el tono.
+
+     Y no es que el borde sea tonto: es que la sombra larga de
+     Sakai ya dibuja el contorno, y un borde encima de una sombra
+     dibuja la misma línea dos veces. Con las dos cosas se ve un
+     doble filo en las esquinas, que es justo lo que hace que un
+     panel se vea amateur. */
+  --caja-borde: transparent;
+  --caja-radio: 12px;
+  --caja-sombra: 0 1px 2px rgba(0, 0, 0, 0.24), 0 4px 12px rgba(0, 0, 0, 0.18);
+  --caja-relleno: 1.25rem;
+
+  /* Una caja dentro de otra. Un tono por debajo y sin sombra: si
+     una cosa está dentro de otra no tiene por qué parecer que está
+     encima. */
+  --caja-hundida-fondo: var(--bg-soft);
+  --caja-hundida-borde: transparent;
+
+  /* Lo que flota de verdad. Aquí sí hay hueco de sombra: un menú
+     por encima de la página tiene que parecer que está delante. */
+  --caja-alta-fondo: var(--surface-2);
+  --caja-alta-borde: var(--border);
+  --caja-alta-sombra: 0 6px 20px rgba(0, 0, 0, 0.45);
+
+  --caja-transicion: 0.2s ease;
+  --caja-hover-sombra: 0 2px 4px rgba(0, 0, 0, 0.26), 0 8px 20px rgba(0, 0, 0, 0.24);
+  --caja-hover-y: -2px;
+
+  /* ─────────────────────────────────────────────────────
+     LA REJILLA
+
+     Sakai reparte en 12 columnas y sus tarjetas de cifra ocupan
+     3 de esas 12 en pantalla grande, 6 en mediana y 12 en móvil.
+     Traducido: cuatro cifras arriba en un portátil, dos en una
+     tableta y una en un móvil.
+
+     Lo que cambia respecto a lo que había no es cuántas columnas
+     son, sino el MÍNIMO. Estaba en 180px, y eso en un monitor de
+     1440 da siete cifras por fila, cada una de 180px: se leen
+     como etiquetas estrechas y la última queda descolgada.
+
+     Con 240px caben cuatro a 1440 y quedan del mismo ancho, que es
+     lo que hace que se lean como una fila y no como una lista.
+     ───────────────────────────────────────────────────── */
+  --rejilla-min: 240px;
+  --rejilla-gap: 1rem;
+}
+
+/* ─────────────────────────────────────────────────────────
+   LAS SUPERFICIES, DEFINIDAS UNA VEZ
+
+   Se declaran juntas y con el mismo esqueleto a propósito. Si cada
+   una escribiera su propio fondo y su propio borde, la diferencia
+   entre una tarjeta y una cifra volvería a ser una diferencia que
+   hay que mantener sincronizada a mano. Lo único que cambia entre
+   ellas es el nombre de la variable que leen.
+
+   Y esta es la corrección de fondo: `.panel-stat` estaba declarado
+   dos veces en esta hoja, a unas cuatrocientas líneas de distancia,
+   y la segunda ganaba siempre. La primera era papel. Eso convertía
+   cualquier ajuste en un misterio: se cambiaba una regla, no se
+   veía nada, y el motivo estaba a cuatrocientas líneas.
+   ───────────────────────────────────────────────────────── */
+
+.panel-card,
+.panel-stat,
+.panel-resumen-tarjeta {
+  background: var(--caja-fondo);
+  border: 1px solid var(--caja-borde);
+  border-radius: var(--caja-radio);
+  box-shadow: var(--caja-sombra);
+}
+
+.panel-card {
+  overflow: hidden;
+}
+
+/* ── La cifra, con la anatomía de Sakai ──
+
+   Sakai la monta en este orden, y el orden es la mitad del
+   resultado:
+
+       etiqueta         encima, apagada, pequeña
+       cifra            debajo, grande
+       icono            40x40, redondeado, a la derecha
+       estado           abajo, en color
+
+   El icono va a la derecha y arriba, no a la izquierda, porque la
+   izquierda es la columna de números y ahí estorba: con el icono a
+   la izquierda, todas las cifras de una fila quedan a distinta
+   distancia del borde y la fila no se lee como una fila. */
+.panel-stat {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--p-4);
+  container-type: inline-size;
+  padding: var(--caja-relleno);
+  text-decoration: none;
+  color: inherit;
+  transition: box-shadow var(--caja-transicion),
+              transform var(--caja-transicion);
+}
+
+.panel-stat:hover,
+a.panel-stat:hover {
+  box-shadow: var(--caja-hover-sombra);
+  transform: translateY(var(--caja-hover-y));
+}
+
+/* El icono: 40px, como los de Sakai, y completamente redondeado.
+
+   Estaba en 44px con radio 10. Los dos cambios van en la misma
+   dirección: a 40px el icono deja de competir con la cifra, y con
+   `999px` pasa a ser un círculo, que es lo que usan ellos y lo que
+   separa la forma del resto de iconos del panel sin gritar. */
+.panel-stat-icono {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 999px;
+  background: var(--stat-tinte, color-mix(in srgb, var(--accent) 16%, transparent));
+  color: var(--stat-color, var(--accent));
+}
+
+/* ── La etiqueta de la cifra ──
+
+   En Sakai la etiqueta va ENCIMA de la cifra y en apagado, y la
+   cifra debajo. Aquí el orden era al revés por el HTML, y por eso
+   la etiqueta se leía como un pie de la cifra y no como su
+   encabezado. Con `flex-direction: column` se invierte aquí sin
+   tocar ninguna vista. */
+/* ── El orden de la etiqueta y la cifra ──
+
+   En Sakai la etiqueta va ENCIMA de la cifra y en apagado, y la
+   cifra debajo. Aquí el HTML es `<strong>` y luego `<span>`, o sea
+   al revés, y el orden se invierte con `order`.
+
+   ── POR QUÉ NO SE TOCA EL HTML ──
+
+   Porque hay 26 cifras repartidas por seis vistas y el orden
+   correcto depende de qué se mire. La etiqueta arriba convierte la
+   tarjeta en un bloque de texto con un número, que es lo que es
+   una cifra. Con el número arriba y la etiqueta abajo parece un
+   botón con un pie.
+
+   Y la inversión con `order` no mueve el HTML, que para el
+   lector de pantalla se sigue leyendo número y luego etiqueta, que
+   es como se lee de verdad: «152, orders».
+
+   ── POR QUÉ HACE FALTA EL WRAPPER ──
+
+   Porque `order` solo funciona entre hermanos, y `<strong>` y
+   `<span>` son hermanos de `<span class="panel-stat-icono">` si
+   hay icono. Con el icono no se pueden reordenar sin un
+   contenedor que los agrupe.
+
+   Y el `display: flex` en el contenedor no es decorativo: un
+   `<span>` suelto es en línea, así que la etiqueta y la cifra
+   quedarían en la misma línea y no habría dos filas que invertir. */
+.panel-stat-cuerpo {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-stat-cuerpo > span {
+  order: -1;
+}
+
+/* ── La rejilla de cifras ──
+
+   `auto-fit` y no `auto-fill`: con `auto-fill` la rejilla reserva
+   las columnas sobrantes aunque no haya nada que poner en ellas, y
+   se ve una última tarjeta más estrecha que las demás. Con `auto-fit`
+   las que sobran se reparten entre las que sí tienen contenido. */
+.panel-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(var(--rejilla-min), 1fr));
+  gap: var(--rejilla-gap);
+  margin-bottom: var(--panel-gap-xl);
+}
+
+/* ── La cabecera de una tarjeta ──
+
+   En Sakai la cabecera no lleva línea debajo: el título y el
+   contenido se separan con un margen, y ya está. Aquí la línea se
+   queda porque la cabecera y el cuerpo comparten tono, y sin ella
+   se leerían como un bloque solo. */
+.panel-card-head {
+  border-bottom: 1px solid var(--border);
+  padding: var(--caja-relleno);
+}
+
+/* ── El aviso ──
+
+   Un aviso no es una tarjeta: es un mensaje. Por eso no lleva
+   sombra, porque una sombra haría que se lea como algo que se puede
+   agarrar, y no se puede.
+
+   Y lleva el fondo muy tenue y el color solo en el borde y en el
+   texto. Un aviso entero del color del peligro parece una alarma
+   cuando lo que es es un texto que hay que leer. */
+.panel-alert {
+  background: color-mix(in srgb, var(--danger) 9%, var(--caja-fondo));
+  border: 1px solid color-mix(in srgb, var(--danger) 32%, transparent);
+  border-radius: var(--caja-radio);
+  padding: 0.85rem 1.1rem;
+}
+
+.panel-alert--ok {
+  background: color-mix(in srgb, var(--accent) 9%, var(--caja-fondo));
+  border-color: color-mix(in srgb, var(--accent) 32%, transparent);
+}
+
+/* ── La nota ──
+
+   Una nota es un comentario: está en la pantalla pero no pide
+   atención. Sin sombra y sin borde, solo un poco de fondo. */
+.panel-note {
+  background: var(--caja-hundida-fondo);
+  border: 1px solid transparent;
+  border-radius: var(--caja-radio);
+  padding: 0.75rem 1rem;
+  color: var(--text-muted);
+}
+
+/* ── El estado vacío ──
+
+   Cuando no hay nada que enseñar, el hueco ES la información. Por
+   eso no lleva sombra y su borde es discontinuo: es una ausencia
+   declarada, no un objeto. */
+.panel-empty {
+  background: var(--caja-hundida-fondo);
+  border: 1px dashed var(--border);
+  border-radius: var(--caja-radio);
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+}
+
+.panel-empty--sm {
+  padding: 1.5rem 1.1rem;
+}
+
+/* ── La tabla ──
+
+   Una tabla no es una caja más: es una superficie continua con
+   líneas. Por eso no lleva radio ni sombra propias, y lo único que
+   hace es quitar el fondo para no tapar el de la tarjeta que la
+   envuelve. */
+.panel-table-wrap {
+  border-radius: 0;
+  box-shadow: none;
+}
