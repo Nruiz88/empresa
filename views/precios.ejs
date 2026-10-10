@@ -9,32 +9,6 @@
     lead: "Mensuales, sin permanencia y sin comisiones por venta. Empezás con el que necesitás hoy y subís de plan solo si te hace falta."
   }) %>
 
-  <%# ─────────────────────────────────────────────────────────
-       LOS TRES PLANES
-
-       Los mismos datos que la portada, desde `content/shopcito.js`.
-
-       Antes esta página tenía dos bloques de planes: los de Shopcito y
-       los del estudio digital de antes ("Webs y proyectos a medida",
-       "desde 890 €"). Los segundos se han retirado.
-
-       No es que se ocultaran. Tenían dos cosas que ya no pueden
-       publicarse:
-
-         · la cifra estaba en euros, y `MONEDA` estaba en euros para
-           todo el sitio. Con los tres planes viejos fuera, el símbolo
-           se cambió a pesos ($), que es lo que correspondía y lo que
-           llevaba años pendiente en un comentario de `precios.js`.
-         · eran servicios que Shopcito no vende. Anunciar "diseño web y
-           aplicaciones a medida" al lado de un bot de WhatsApp hace
-           dudar de las dos cosas.
-
-       Y hay una consecuencia que conviene tener presente: al quitar
-       `PROYECTOS` y `MANTENIMIENTO` de `content/precios.js` también
-       se quedaron sin uso `plan()` y `precioDe()`, que solo existían
-       para leerlos. El FAQ y un artículo del blog los usaban; los dos
-       textos están reescritos.
-       ───────────────────────────────────────────────────────── %>
   <section class="section" style="padding-top: 1rem;">
     <div class="container">
       <div class="price-grid">
@@ -42,16 +16,25 @@
           <article class="price-card reveal<%= p.destacado ? " featured" : "" %>">
             <% if (p.destacado) { %><span class="badge">Recomendado</span><% } %>
 
-            <h3><%= p.nombre %></h3>
-            <p class="plan-desc"><%= p.descripcion %></p>
+            <header class="price-card__header">
+              <span class="price-card__eyebrow">Plan</span>
+              <h3><%= p.nombre %></h3>
+              <p class="plan-desc"><%= p.descripcion %></p>
+            </header>
 
-            <div class="price">
-              <span class="amount<%= p.precio ? '' : ' amount--consultar' %>"><%= precioDePlan(p) %></span>
+            <div class="price-card__investment">
+              <span class="price-card__label">Inversión</span>
+              <div class="price">
+                <span class="amount<%= p.precio === null || p.precio === undefined ? ' amount--consultar' : '' %>"><%= precioDePlan(p) %></span>
+              </div>
             </div>
 
-            <ul class="price-features">
-              <% p.incluye.forEach(function (i) { %><li><%= i %></li><% }); %>
-            </ul>
+            <div class="price-card__includes">
+              <h4>Qué incluye</h4>
+              <ul class="price-features">
+                <% p.incluye.forEach(function (i) { %><li><%= i %></li><% }); %>
+              </ul>
+            </div>
 
             <p class="price-note"><%= p.nota %></p>
 
@@ -62,7 +45,7 @@
 
       <p style="text-align:center; color:var(--text-dim); font-size:var(--fs-xs); margin-top:1.5rem;">
         Sin cargo de instalación. Sin permanencia: si lo das de baja, no hay nada que cancelar.
-        Sin comisiones por venta, ni de Mercado Pago ni nuestras.
+        Shopcito no cobra comisión por venta. Tu proveedor de pagos puede aplicar sus propias tarifas.
       </p>
     </div>
   </section>
@@ -103,8 +86,8 @@
         <article class="card reveal">
           <h3>¿Me cobran comisión por las ventas?</h3>
           <p>
-            Ni de Mercado Pago ni nuestras. Lo único que pays o cobra Mercado Pago por cobrar
-            con su medio de pago es un tema de Mercado Pago.
+            Shopcito no cobra comisión por tus ventas. Si usás una plataforma de pagos, pueden
+            aplicarse las tarifas propias de ese proveedor.
           </p>
         </article>
 

@@ -1101,30 +1101,52 @@ h4 {
 .price-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: var(--gap);
+  gap: clamp(1rem, 2vw, 1.5rem);
   align-items: stretch;
 }
 
 .price-card {
-  background: var(--surface);
+  background: linear-gradient(160deg, color-mix(in srgb, var(--surface) 92%, var(--accent) 8%), var(--surface) 48%);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: clamp(1.6rem, 3vw, 2.2rem);
+  padding: clamp(1.35rem, 2.4vw, 2rem);
   display: flex;
   flex-direction: column;
-  transition: transform 0.25s ease, border-color 0.25s ease;
+  gap: 1.15rem;
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
   position: relative;
 }
 
 .price-card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-4px);
   border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  box-shadow: var(--shadow-soft);
 }
 
 .price-card.featured {
-  background: var(--featured-bg);
+  background: linear-gradient(160deg, color-mix(in srgb, var(--featured-bg) 82%, var(--accent) 18%), var(--featured-bg) 58%);
   border-color: color-mix(in srgb, var(--accent) 55%, transparent);
   box-shadow: var(--featured-glow);
+  transform: translateY(-0.5rem);
+}
+
+.price-card.featured:hover {
+  transform: translateY(calc(-0.5rem - 4px));
+}
+
+.price-card__header {
+  min-height: 9.5rem;
+}
+
+.price-card__eyebrow,
+.price-card__label {
+  display: block;
+  margin-bottom: 0.45rem;
+  color: var(--accent);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .badge {
@@ -1144,22 +1166,46 @@ h4 {
 }
 
 .price-card h3 {
-  font-size: 1.2rem;
-  margin-bottom: 0.35rem;
+  font-size: clamp(1.35rem, 2vw, 1.65rem);
+  margin: 0 0 0.45rem;
 }
 
 .price-card .plan-desc {
   color: var(--text-muted);
   font-size: var(--fs-sm);
-  margin-bottom: 1.4rem;
-  min-height: 48px;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.price-card__investment {
+  padding: 1rem 1.05rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--surface) 82%, transparent);
+}
+
+.price-card__investment .price {
+  margin: 0;
+}
+
+.price-card__investment .price .amount {
+  font-size: clamp(1.6rem, 2.7vw, 2.2rem);
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.price-card__includes h4 {
+  margin: 0 0 0.8rem;
+  font-size: var(--fs-xs);
+  color: var(--text);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .price {
   display: flex;
   align-items: baseline;
   gap: 0.4rem;
-  margin-bottom: 0.35rem;
 }
 
 .price .amount {
@@ -1178,14 +1224,17 @@ h4 {
 .price-note {
   font-size: var(--fs-xs);
   color: var(--text-dim);
-  margin-bottom: 1.5rem;
+  padding-top: 0.9rem;
+  margin: auto 0 0;
+  border-top: 1px solid var(--border);
 }
 
 .price-features {
   display: grid;
-  gap: 0.65rem;
-  margin-bottom: 1.8rem;
-  flex: 1;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 .price-features li {
@@ -1928,6 +1977,10 @@ table.compare .no {
     grid-template-columns: repeat(2, 1fr);
   }
 
+  .price-card.featured {
+    transform: none;
+  }
+
   .footer-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -2098,6 +2151,10 @@ table.compare .no {
 
   .price-card.featured {
     order: -1;
+  }
+
+  .price-card__header {
+    min-height: 0;
   }
 }
 
@@ -4603,11 +4660,6 @@ html:not(.has-gsap) .hero-showcase {
 
   .hero-showcase {
     animation: none !important;
-  }
-
-  .mock-chart span {
-    animation: none !important;
-    transform: none !important;
   }
 }
 

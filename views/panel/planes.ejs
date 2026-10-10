@@ -19,7 +19,7 @@
   </div>
 
   <% if (typeof aviso !== 'undefined' && aviso) { %>
-    <div class="panel-alert panel-alert--ok" role="status">
+    <div class="panel-alert <%= errores && Object.keys(errores).length ? 'panel-alert--error' : 'panel-alert--ok' %>" role="status">
       <%= aviso %>
     </div>
   <% } %>
@@ -28,8 +28,8 @@
     <div class="panel-alert panel-alert--error" role="alert"><%= errores.general %></div>
   <% } %>
 
-  <p class="panel-help">
-    Precio vacío = «A consultar»; <code>0</code> = gratis.
+  <p class="panel-help" id="precio-ayuda">
+    El importe se guarda en ARS, USD o EUR según la moneda elegida. Usá <code>25.000</code> para veinticinco mil; vacío = «A consultar» y <code>0</code> = gratis.
   </p>
 
   <% if (!planes.length) { %>
@@ -86,11 +86,12 @@
                   <label class="sr-only" for="precio_<%= p.id %>">Precio de <%= p.nombre %></label>
                   <input type="text"
                          inputmode="decimal"
+                         autocomplete="off"
+                         aria-describedby="precio-ayuda"
                          id="precio_<%= p.id %>"
                          name="<%= campo(p.id, 'precio') %>"
                          value="<%= p.precio === null || p.precio === undefined ? '' : p.precio %>"
                          placeholder="A consultar"
-                         autocomplete="off"
                          class="plan-precio-input <%= filaErr.precio ? 'panel-input--error' : '' %>" />
                 </div>
 
@@ -115,9 +116,6 @@
                   </select>
                 </div>
 
-                <% if (p.precio === null || p.precio === undefined) { %>
-                  <small class="panel-cell-note">Vacío = se publica «A consultar»</small>
-                <% } %>
                 <% if (filaErr.precio) { %>
                   <small class="panel-cell-error"><%= filaErr.precio %></small>
                 <% } %>

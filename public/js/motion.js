@@ -120,11 +120,6 @@
     heroTl.from(".hero-showcase", { autoAlpha: 0, y: 48, rotateY: -10, duration: 1.1 }, 0.3);
     heroTl.from(".mock-bar", { yPercent: -100, duration: 0.7 }, 0.6);
     heroTl.from(".mock-body", { autoAlpha: 0, duration: 0.6 }, 0.7);
-    heroTl.from(
-      ".mock-chart span",
-      { scaleY: 0, transformOrigin: "bottom", duration: 0.8, stagger: 0.05, ease: "power2.out" },
-      0.95
-    );
     heroTl.from(".float-card", { scale: 0.7, autoAlpha: 0, duration: 0.7, stagger: 0.12 }, 1.25);
     heroTl.from(".orbit", { scale: 0.8, autoAlpha: 0, duration: 0.8, stagger: 0.1 }, 1.3);
   } else {

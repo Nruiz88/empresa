@@ -4,7 +4,7 @@ Web pública y panel privado de gestión, en un solo repositorio.
 Express + EJS, sin build step. Los datos y el login están en Supabase.
 
 Esto es software en desarrollo. Hay datos de ejemplo y textos
-inventados; ver **Antes de publicar** abajo.
+pendientes de verificar; ver **Antes de publicar** abajo.
 
 ---
 
@@ -14,14 +14,15 @@ inventados; ver **Antes de publicar** abajo.
 |---|---|
 | Web pública | `routes/web.js` — home, servicios, precios, proyectos, blog, contacto, legales |
 | Panel del equipo y portal de clientes | `routes/panel*.js` |
-| Microservicio del bot | `bot.js` (proceso aparte) |
+| Flujo de acceso de demostración al bot | `bot.js` |
 | Lógica reutilizable | `lib/` |
 | Migraciones y comprobaciones | `db/` |
 | Textos editables sin tocar código | `content/` |
 
-**El bot tiene su propio proceso** y su propio subdominio. El acceso
-entre el panel y el bot va con tickets firmados de 60 s, en el
-fragmento de la URL para que el token no acabe en los logs.
+`bot.js` demuestra el acceso con tickets firmados de 60 s; no contiene
+el motor de WhatsApp ni el webhook de Evolution. El motor real está en
+otro proyecto y se despliega por separado. No publiques `bot.js` como
+si fuera el bot operativo; ver **[COOLIFY.md](COOLIFY.md)**.
 
 ---
 
@@ -99,7 +100,7 @@ Ver **[COOLIFY.md](COOLIFY.md)**. Resumen:
 | Servicio | Proceso | Dominio | Puerto |
 |---|---|---|---|
 | Web + panel | `server.js` | `tudominio.com`, `panel.tudominio.com` | 3000 |
-| Bot | `bot.js` | `bot.tudominio.com` | 3200 |
+| Bot operativo | Proyecto externo (ver `COOLIFY.md`) | `bot.tudominio.com` | según su despliegue |
 
 `SERVICE_SECRET` tiene que ser **idéntico** en los dos servicios. Es
 lo que más silenciosamente rompe el acceso.
@@ -155,9 +156,9 @@ Lo hecho y verificado:
 - Panel del equipo: sesiones revocables, CSRF, límite de intentos, auditoría
 - Clientes, servicios, consultas y cobros (nunca se borran, se anulan)
 - Portal de cliente de solo lectura, con cuatro niveles de acceso
-- Control automático de vencimientos
-- Acceso con ticket firmado entre el panel y el bot, con aislamiento
-  de cookies entre subdominios
+- Cálculo de vencimientos y preparación de cobros recurrentes
+- Flujo de acceso de demostración con tickets firmados y aislamiento
+  de cookies entre subdominios; el motor real del bot es externo
 - RLS cerrado en todas las tablas
 
 ---
@@ -177,29 +178,27 @@ instala 18 y falla aunque en local todo vaya bien.
 
 ## Antes de publicar
 
-Esto **no** está listo para producción. Lo que falta:
+La web y el panel responden en sus dominios por HTTPS. Antes de
+considerar cerrado el lanzamiento, falta:
 
-- [ ] **Contenido inventado.** Todos los textos, cifras, casos,
-      testimonios y métricas son inventados y están marcados para
-      reemplazo. Los testimonios tienen aviso de riesgo legal en
-      `content/testimonials.js`: publicar uno sin permiso real de
-      quien aparece es publicidad engañosa (art. 137 LSSI-CE).
-- [ ] **Rotar las credenciales de Supabase** si alguna vez se
-      compartieron por chat o pantalla. Borrarlas del historial no
-      basta: hay que hacerlo en Supabase > Settings > API.
+- [ ] **Rotar las credenciales de Supabase** que se compartieron por
+      chat. Borrarlas del historial no basta: hay que hacerlo en
+      Supabase > Settings > API. No copiar las nuevas al repositorio ni
+      compartirlas por chat.
 - [ ] **Cambiar las claves de prueba.** Las de `db/herramientas/seed.js` y
       `NOTAS-LOCAL.md` son de desarrollo.
-- [ ] **Elegir dominio** y sustituir `midominio.com` (en `lib/site.js`
-      o por `.env`).
-- [ ] **HTTPS.** Todo va por `127.0.0.1` sin TLS. La cookie `Secure`
-      ya se activa sola con `NODE_ENV=production`.
+- [ ] **Verificar los datos legales y de contacto** en `lib/site.js`.
+      El dominio es shopcito.com.ar, pero el teléfono y la dirección
+      actuales son de España; no publicar datos incorrectos.
 - [ ] **Borrar los datos `[demo]`** con `npm run seed:limpiar`.
-- [ ] **Conectar el bot de verdad.** El motor vive en `D:\webs\wweb`
-      y ya funciona con un cliente enlazado. Aquí, `bot.js` sigue con
-      `/mi-bot` como ruta de ejemplo. La gestión sí está hecha:
-      `/panel/bots` (alta con reparto de caja) y `/panel/servidores`
-      (cajas de Evolution: alta, prueba, cupos y clave).
-- [ ] **Correo.** No hay SMTP: las contraseñas se dan en mano.
+- [ ] **Preparar staging aislado y ejecutar las pruebas integradas.**
+      Varias crean y eliminan datos; no ejecutarlas contra la única
+      base de producción.
+
+El motor real del bot está desplegado en un proyecto aparte. `bot.js`
+en este repositorio es solo la demostración del flujo de acceso. Las
+altas de usuarios y el restablecimiento de contraseñas siguen siendo
+manuales porque no hay correo configurado.
 
 ---
 

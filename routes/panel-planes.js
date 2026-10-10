@@ -2,6 +2,7 @@ const express = require("express");
 const auth = require("../lib/auth");
 const planesLib = require("../lib/planes");
 const { MONEDAS } = require("../lib/monedas");
+const precioPlan = require("../lib/precio-plan");
 
 module.exports = function rutasPlanes({ db, sitio, requiereStaff }) {
   const router = express.Router();
@@ -138,11 +139,9 @@ module.exports = function rutasPlanes({ db, sitio, requiereStaff }) {
             continue;
           }
 
-          // Normalize Argentine thousands and decimal separators.
-          const limpio = texto.replace(/\./g, "").replace(",", ".");
-          const numero = Number(limpio);
+          const numero = precioPlan(texto);
 
-          if (limpio === "" || !Number.isFinite(numero)) {
+          if (numero === null) {
             erroresFila.precio = "No es un número. O vacío, que es «A consultar».";
             continue;
           }
@@ -232,11 +231,17 @@ module.exports = function rutasPlanes({ db, sitio, requiereStaff }) {
     const errores = {};
 
     for (const [id, { cambios, diff }] of cambiosPorPlan) {
-      const { error } = await db.from("plans").update(cambios).eq("id", id);
+      const { data, error } = await db
+        .from("plans")
+        .update(cambios)
+        .eq("id", id)
+        .select("id")
+        .maybeSingle();
 
-      if (error) {
-        console.error("[planes] no se pudo guardar " + id + ":", error.message);
-        errores[id] = { general: "No se pudo guardar: " + error.message };
+      if (error || !data) {
+        const motivo = error ? error.message : "No se encontró el plan en la base de datos.";
+        console.error("[planes] no se pudo guardar " + id + ":", motivo);
+        errores[id] = { general: "No se pudo guardar: " + motivo };
         continue;
       }
 

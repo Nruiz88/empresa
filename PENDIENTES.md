@@ -18,25 +18,29 @@ Complementos, no sustitutos:
 
 ## Bloqueantes para producción
 
-- [ ] **Elegir el dominio y sustituir `midominio.com`.** Los dos
-      dominios de marcador están en `lib/site.js` (`url` y `panelUrl`),
-      que es el sitio a editar. `.env` lo puede sobrescribir
-      (`SITE_URL`, `PANEL_URL`). Al arrancar en producción con el
-      marcador, `server.js` y `panel.js` avisan por consola.
-      ⚠️ `SITE_URL` no es solo para correos: de ahí se deducen los
-      subdominios de los servicios (`bot.<dominio>`) **y la dirección
-      del webhook** que el panel le da a cada Evolution
-      (`lib/bots.js`, `urlDeWebhook()`). Si se queda en `127.0.0.1`, el
-      botón "Abrir" del portal lleva al localhost del cliente, y el
-      webhook que se configura desde `/panel/bots` no llega a ninguna
-      parte. Ver COOLIFY.md.
-      Mientras tanto, el plan es: web en `midominio.com`, panel en
-      `panel.midominio.com`, bot en `bot.midominio.com`.
-- [ ] **HTTPS.** Todo es `127.0.0.1` sin TLS. La cookie `Secure` ya se
-      activa sola con `NODE_ENV=production`.
+- [x] **Dominios y HTTPS.** Verificados en octubre de 2026: web en
+      `shopcito.com.ar`, panel en `panel.shopcito.com.ar`, bot en
+      `bot.shopcito.com.ar` e inventario en `inventario.shopcito.com.ar`.
+      Los cuatro hosts respondieron por HTTPS; web y panel dieron 200,
+      y bot e inventario redirigieron al acceso. En Coolify, mantener
+      `SITE_URL` y `PANEL_URL` alineados con esos dominios. `SITE_URL`
+      también determina los subdominios y la URL de webhook
+      (`lib/bots.js`, `urlDeWebhook()`).
 - [ ] **Rotar las credenciales de Supabase** que se han pegado en chats.
       Borrarlas del historial no sirve: hay que hacerlo en
       Settings > API y las de aquí son distintas de las nuevas.
+- [ ] **Verificar razón social, CUIT y datos de contacto** en
+      `lib/site.js`. El teléfono y la dirección actuales son de España,
+      no corresponden al dominio argentino.
+- [ ] **Crear un entorno de staging aislado y correr las pruebas
+      integradas.** Actualmente solo está disponible la base de
+      producción; varias pruebas escriben y borran datos de prueba.
+- [ ] **Identificar la migración histórica `020_bots_panel.sql`.**
+      Producción la registra como aplicada, pero ese fichero no está en
+      Git. Las 31 migraciones actuales sí aparecen aplicadas y las
+      columnas esperadas de bots/cajas existen; no borrar el registro ni
+      recrear SQL a ciegas. Recuperar el fichero original y confirmar qué
+      cambios aportó antes de la próxima modificación de esquema.
 - [x] **Guía de despliegue.** Hecha: `COOLIFY.md`, con los dos
       servicios (web+panel, bot), sus dominios, qué variables van en
       cada uno y las tres cosas que rompen el acceso al bot en
@@ -83,7 +87,8 @@ Complementos, no sustitutos:
       ya están en `.env.example`, y el modo "consola" que se describe
       ahí **todavía no existe**.
       `TODO` en `routes/panel-accesos.js`.
-- [ ] **Conectar el bot de verdad.** Acceso, aislamiento de cookies y
+- [x] **Desplegar el bot real.** Está en un proyecto aparte; acceso,
+      aislamiento de cookies y
       renovación del token: hechos y con tests (44 comprobaciones en
       `db/herramientas/test-acceso-servicio.js`). El equipo (staff) entra sin
       suscripción, que es lo que hace falta para dar soporte.
@@ -108,8 +113,12 @@ Complementos, no sustitutos:
       max_instances`, migración 021). Requiere `webhook_secret` en la
       caja (migración 021) y que coincida con `WEBHOOK_SECRET` del bot:
       `npm run secreto:webhook` lo pone.
-      Tests: `npm run test:bots` (50 comprobaciones, sin tocar la caja
-      real) y `npm run probar:bots` (por HTTP, con la caja real).
+      Los hosts `bot.shopcito.com.ar` e `inventario.shopcito.com.ar`
+      respondieron por HTTPS y redirigieron al acceso en la revisión.
+      Aún hace falta comprobar un flujo real y que el webhook de
+      Evolution apunte al endpoint correcto. Tests: `npm run test:bots`
+      (50 comprobaciones, sin tocar la caja real) y
+      `npm run probar:bots` (por HTTP, con la caja real).
 - [ ] **Caducar suscripciones.** Las que no tienen `termina_en` se
       renuevan solas para siempre. Hay que poner algo que cierre las no
       pagadas, o decidir que es manual.
@@ -131,16 +140,10 @@ Complementos, no sustitutos:
       por los emails de ejemplo**, así que también se lleva el
       `cliente@ejemplo.com` que se creó a mano. Ojo: no borra las
       cuentas de Supabase Auth, quedan inactivas sin empresa.
-- [ ] **Sustituir todo el contenido inventado**: textos, casos,
-      testimonios y métricas. Los testimonios tienen aviso de riesgo
-      legal en `content/testimonials.js`: publicar uno sin permiso real
-      de quien aparece es publicidad engañosa (art. 137 LSSI-CE).
 - [ ] **Sacar de las vistas lo que está en `content/`.** Hay cifras y
       precios hardcodeados en `views/index.ejs`,
       `views/partials/page-hero.ejs` y `views/precios.ejs`, duplicando
       `content/stats.js`. Contradice lo que dice `content/tech.js`.
-- [ ] **Crear `content/precios.js`.** Los precios no están en `content/`,
-      así que el contenido más comercial es el menos editable.
 
 ---
 

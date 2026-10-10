@@ -249,7 +249,7 @@
       <div class="section-head section-head--center reveal">
         <span class="eyebrow">Planes</span>
         <h2>Empezá chico y crecé cuando <span class="gradient-text">hagas falta</span></h2>
-        <p>Los tres planes son mensuales y sin permanencia. El precio te lo decimos cuando nos escribís, y no cambia mientras no lo pidas.</p>
+        <p>Consultá cuánto cuesta cada plan y qué incluye. Sin permanencia: empezá con lo que necesitás hoy y cambiá cuando quieras.</p>
       </div>
 
       <div class="price-grid">
@@ -259,25 +259,25 @@
               <span class="badge">Recomendado</span>
             <% } %>
 
-            <h3><%= p.nombre %></h3>
-            <p class="plan-desc"><%= p.descripcion %></p>
+            <header class="price-card__header">
+              <span class="price-card__eyebrow">Plan</span>
+              <h3><%= p.nombre %></h3>
+              <p class="plan-desc"><%= p.descripcion %></p>
+            </header>
 
-            <%# ── EL PRECIO ──
-                 El formateador vive en `content/precios.js` y
-                 no acá. Cuando el plan tenga cifra devuelve el
-                 importe y esta caja desaparece sola.
-
-                 `precioDePlan` sale del mismo sitio que los
-                 precios viejos a propósito, para que no haya dos
-                 reglas distintas para poner un número en pantalla. %>
-
-            <div class="price">
-              <span class="amount<%= p.precio ? '' : ' amount--consultar' %>"><%= precioDePlan(p) %></span>
+            <div class="price-card__investment">
+              <span class="price-card__label">Inversión</span>
+              <div class="price">
+                <span class="amount<%= p.precio === null || p.precio === undefined ? ' amount--consultar' : '' %>"><%= precioDePlan(p) %></span>
+              </div>
             </div>
 
-            <ul class="price-features">
-              <% p.incluye.forEach(function (i) { %><li><%= i %></li><% }); %>
-            </ul>
+            <div class="price-card__includes">
+              <h4>Qué incluye</h4>
+              <ul class="price-features">
+                <% p.incluye.forEach(function (i) { %><li><%= i %></li><% }); %>
+              </ul>
+            </div>
 
             <p class="price-note"><%= p.nota %></p>
 
