@@ -64,7 +64,7 @@
 .panel-tarjeta--peligro { border-left: 3px solid var(--danger); }
 
 .panel-resumen-num {
-  font-size: 1.5rem;
+  font-size: var(--fs-xl);
   font-weight: 700;
   line-height: 1.1;
   font-variant-numeric: tabular-nums;

@@ -61,7 +61,7 @@
 
 .portal-cab-saludo {
   display: block;
-  font-size: 0.78rem;
+  font-size: var(--fs-xs);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -133,7 +133,7 @@
 
 .portal-metrica-valor {
   display: block;
-  font-size: 1.5rem;
+  font-size: var(--fs-xl);
   font-weight: 700;
   line-height: 1.1;
   letter-spacing: -0.02em;
@@ -184,7 +184,7 @@
 
 .portal-sec-titulo {
   margin: 0;
-  font-size: 0.78rem;
+  font-size: var(--fs-xs);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -325,7 +325,7 @@
 }
 
 .portal-app-parte {
-  font-size: 0.7rem;
+  font-size: var(--fs-label);
   padding: 0.15rem 0.45rem;
   border-radius: 999px;
   color: var(--text-dim);
@@ -402,7 +402,7 @@
 
 .portal-serv-titulo {
   display: block;
-  font-size: 0.98rem;
+  font-size: var(--fs-cuerpo);
   font-weight: 600;
   line-height: 1.35;
 }
@@ -423,7 +423,7 @@
 
 .portal-serv-precio strong {
   display: block;
-  font-size: 1.05rem;
+  font-size: var(--fs-cuerpo);
   letter-spacing: -0.01em;
 }
 
@@ -455,7 +455,7 @@
   display: inline-block;
   padding: 0.12rem 0.45rem;
   border-radius: 999px;
-  font-size: 0.7rem;
+  font-size: var(--fs-label);
   font-weight: 600;
   letter-spacing: 0.02em;
   white-space: nowrap;
@@ -521,7 +521,7 @@
 
 .portal-cat-nombre {
   margin: 0;
-  font-size: 1.05rem;
+  font-size: var(--fs-cuerpo);
   line-height: 1.3;
 }
 
@@ -583,7 +583,7 @@
 }
 
 .portal-cat-precio strong {
-  font-size: 1.4rem;
+  font-size: var(--fs-xl);
   letter-spacing: -0.02em;
 }
 
@@ -954,7 +954,7 @@
 
 .portal-cat-nombre {
   margin: 0;
-  font-size: 1.1rem;
+  font-size: var(--fs-lg);
   line-height: 1.25;
 }
 
@@ -996,7 +996,7 @@
    puesto, la rejilla de dos columnas se lee pareja. */
 .portal-cat-subtitulo {
   margin: 0 0 0.7rem;
-  font-size: 0.7rem;
+  font-size: var(--fs-label);
   font-weight: 700;
   letter-spacing: 0.11em;
   text-transform: uppercase;
@@ -1059,7 +1059,7 @@
 
 .portal-cat-precio strong {
   font-family: var(--font-display);
-  font-size: 1.5rem;
+  font-size: var(--fs-xl);
   font-weight: 700;
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
@@ -1107,7 +1107,7 @@
   padding: 0.22rem 0.55rem;
   border: 1px solid color-mix(in srgb, var(--success) 45%, transparent);
   border-radius: 999px;
-  font-size: 0.7rem;
+  font-size: var(--fs-label);
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;

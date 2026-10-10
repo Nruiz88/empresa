@@ -47,6 +47,91 @@ html[data-panel] {
   --panel-gap-lg: 1.5rem;
   --panel-gap-xl: 2.25rem;
 
+  /* ─────────────────────────────────────────────────────────
+     LA ESCALA DE TIPOGRAFÍA
+
+     ── POR QUÉ ESTA ESCALA Y NO LAS DE `--fs-*` DE LA WEB ──
+
+     Porque el panel no es una página de contenido: es una herramienta
+     donde cabe mucha información y hay que leerla de un vistazo. La
+     web pública usa 16px de cuerpo y títulos de 2rem, y queda bien
+     porque hay una idea por sección. El panel tiene tablas con
+     cuarenta filas, y a 16px no entran.
+
+     El cuerpo va a 14px. Es el cambio que más se nota y el que más
+     separa «panel» de «página».
+
+     ── LOS PASOS ──
+
+     De abajo arriba, en proporción parecida a 1.2, que es la que se
+     nota sin llegar a notar. Y todos múltiplos de medio píxel, para
+     que a 1x y a 2x no bailen.
+
+     No hay paso de 16. Antes lo había, y sobraba: entre 14 y 18 no
+     hay sitio para nada, así que quedó un escalón vacío. La
+     diferencia real entre dos textos hay que buscarla en el salto de
+     14 a 18, no en el intermedio.
+
+     ── POR QUÉ LA CIFRA VA CON CLAMP ──
+
+     Porque el número grande de una tarjeta tiene que caber en una
+     columna estrecha sin partirse, y en una ancha sin quedarse
+     pequeño. Un tamaño fijo hace una de las dos dos cosas.
+     ───────────────────────────────────────────────────────── */
+  --fs-label: 0.6875rem;  /* 11px  etiquetas en versalitas */
+  --fs-xs: 0.75rem;       /* 12px  texto secundario */
+  --fs-sm: 0.8125rem;     /* 13px  tablas y listas densas */
+  --fs-cuerpo: 0.875rem;  /* 14px  el texto normal del panel */
+  --fs-lg: 1.125rem;      /* 18px  subtítulos */
+  --fs-xl: 1.5rem;       /* 24px  título de página */
+  --fs-numero: clamp(1.5rem, 2.2vw, 1.875rem);
+
+  /* ─────────────────────────────────────────────────────────
+     LA ALTURA DE UNA FILA DE TABLA
+
+     40px. Antes el padding fijo de 0.85rem daba filas de 47, y a 47
+     solo entran quince en la pantalla de un portátil. El panel existe
+     para ver de un vistazo qué hay, y una tabla de clientes no
+     debería obligar a desplazarse para ver el resto.
+
+     Va aparte de `--control-h` porque no es lo mismo: esto es una fila
+     de datos, aquello es algo que se pulsa o se escribe. Igualarlas no
+     sale gratis, porque el texto de una fila tiene que poder partirse
+     en dos líneas sin que la fila se descoloque.
+     ───────────────────────────────────────────────────────── */
+
+  /* ─────────────────────────────────────────────────────────
+     EL RITMO VERTICAL
+
+     Antes había veinticuatro valores distintos de `padding` y
+     `margin`, y muchos se diferenciaban en 0.05rem: menos de un
+     píxel. Eso no es elegir poco, es no elegir.
+
+     ── POR QUÉ NO HAY VARIABLES PARA ESTO ──
+
+     Porque ya existen cuatro que cubren lo mismo: `--panel-gap-sm`,
+     `--panel-gap`, `--panel-gap-lg` y `--panel-gap-xl`. Declarar una
+     segunda nomenclatura para el mismo intervalo sería tener dos
+     truths y no saber cuál usar, que es justo el problema que se
+     viene a arreglar.
+
+     ── LA REGLA, QUE ES LO QUE IMPORTA ──
+
+     Para separar bloques por dentro se usan estos cuatro, de menor a
+     mayor. Para padding suelto se redondea al más cercano de los
+     cuatro y se sigue adelante: un valor que no cae exacto en la
+     escala casi nunca se nota, y bloquear el trabajo por eso tampoco.
+
+     Para la altura de todo lo que se pulsa o se escribe está
+     `--control-h`. Esa altura se fija directamente, sin calcularla a
+     partir del tamaño de la letra, y por eso no depende de la
+     tipografía: si mañana el cuerpo pasa de 14 a 15, el botón sigue
+     midiendo lo mismo.
+
+     La altura de una fila de tabla es la excepción, y está escrita a
+     mano junto a `.panel-table td`, que es donde de verdad vive.
+     ───────────────────────────────────────────────────────── */
+
   color-scheme: dark;
 }
 
@@ -56,7 +141,7 @@ html[data-panel] {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-body, "Inter", system-ui, sans-serif);
-  font-size: 0.95rem;
+  font-size: var(--fs-cuerpo);
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
 }
@@ -170,12 +255,12 @@ html[data-panel] {
 
 .panel-brand-text strong {
   font-family: var(--font-display, "Outfit", sans-serif);
-  font-size: 0.95rem;
+  font-size: var(--fs-cuerpo);
   letter-spacing: -0.01em;
 }
 
 .panel-brand-text small {
-  font-size: 0.7rem;
+  font-size: var(--fs-label);
   color: var(--text-dim);
 }
 
@@ -188,7 +273,7 @@ html[data-panel] {
   border-radius: 8px;
   background: transparent;
   color: var(--text-muted);
-  font-size: 1.4rem;
+  font-size: var(--fs-xl);
   line-height: 1;
   cursor: pointer;
 }
@@ -202,7 +287,7 @@ html[data-panel] {
 .panel-menu-titulo {
   margin: 1.1rem 0 0.4rem;
   padding-inline: 0.6rem;
-  font-size: 0.66rem;
+  font-size: var(--fs-label);
   font-weight: 700;
   letter-spacing: 0.11em;
   text-transform: uppercase;
@@ -219,7 +304,7 @@ html[data-panel] {
   gap: 0.65rem;
   padding: 0.55rem 0.65rem;
   border-radius: 9px;
-  font-size: 0.875rem;
+  font-size: var(--fs-cuerpo);
   color: var(--text-muted);
   text-decoration: none;
   transition: background 0.15s ease, color 0.15s ease;
@@ -255,7 +340,7 @@ html[data-panel] {
 
 .panel-menu-item--externo {
   color: var(--text-dim);
-  font-size: 0.8rem;
+  font-size: var(--fs-xs);
 }
 
 /* ---------- Pie del lateral ---------- */
@@ -282,7 +367,7 @@ html[data-panel] {
   border-radius: 50%;
   background: color-mix(in srgb, var(--accent-2) 30%, transparent);
   border: 1px solid var(--border-strong);
-  font-size: 0.8rem;
+  font-size: var(--fs-xs);
   font-weight: 700;
   text-transform: uppercase;
 }
@@ -326,14 +411,14 @@ html[data-panel] {
 }
 
 .panel-side-user-datos strong {
-  font-size: 0.82rem;
+  font-size: var(--fs-xs);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .panel-side-user-datos small {
-  font-size: 0.7rem;
+  font-size: var(--fs-label);
   color: var(--text-dim);
 }
 
@@ -515,24 +600,93 @@ html[data-panel] {
   justify-content: space-between;
   gap: var(--panel-gap);
   flex-wrap: wrap;
-  margin-bottom: 1.6rem;
+
+  /* ── POR QUÉ 1.6 Y AHORA 1.15 ──
+
+     Este margen era el espacio muerto más visible de todo el panel:
+     entre el título y lo que viene abajo había una franja vacía que
+     no pertenecía a ningún bloque. Con el título más chico y las
+     filas más bajas, 1.6rem dejaba un hueco que parecía un error de
+     maquetación.
+
+     1.15rem es un paso corto de la escala. Deja respirar el título sin
+     abrir un vacío: el ojo baja del rótulo al contenido casi sin
+     notar el corte, que es lo que se busca. */
+  margin-bottom: 1.15rem;
 }
 
 .panel-page-head h1 {
   margin: 0;
   font-family: var(--font-display, "Outfit", sans-serif);
-  font-size: clamp(1.5rem, 2.6vw, 1.95rem);
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  line-height: 1.15;
+
+  /* ── POR QUÉ BAJA DE 31 A 24 ──
+
+     Estaba en `clamp(1.5rem, 2.6vw, 1.95rem)`, que a 1440 da 31px.
+     Con el texto de la tabla ahora a 14, la proporción era de 2,2 a
+     uno: el título parecía un cartel pegado encima de una hoja de
+     cálculo.
+
+     ── POR QUÉ NO ES MÁS PEQUEÑO ──
+
+     Porque es lo que separa una pantalla de otra. Con 18 sería un
+     subtítulo y no sabrías de qué pantalla estás.
+
+     ── EL PESO Y EL INTERLETRAJE ──
+
+     600 y no 700. Un título en negrita cerrada del tamaño de un
+     titular se lee como un titular; en 600 se lee como un rótulo, que
+     es lo que es: el nombre de la pantalla de arriba.
+
+     Y el interletraje se cierra a -0.02em. Con -0.03 y este peso las
+     letras se tocan y en pantallas con mucho texto al lado se nota el
+     roce. Cerrado un pelo menos, respira igual y no se junta. */
+  /* ── POR QUÉ SIN CLAMP ──
+
+     Estaba en `clamp(1.5rem, 2.6vw, 1.95rem)`, y el `2.6vw` se pasó de
+     largo en cuanto la ventana pasó de 1200: a 1440 el `clamp` ya
+     estaba en su tope, así que en cualquier monitor grande el título
+     medía exactamente lo mismo.
+
+     Medido después del cambio, da 24 en 1920, en 1440 y en 1280. Un
+     `clamp` que devuelve lo mismo en todas partes no está haciendo
+     nada: ocupa sitio y hace creer que el título se adapta. Va fijo,
+     con la escala por delante. */
+  font-size: var(--fs-xl);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
 }
 
 .panel-kicker {
   display: block;
-  margin-bottom: 0.35rem;
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
+  margin-bottom: 0.3rem;
+  font-size: var(--fs-label);
+
+  /* ── EL INTERLETRAJE ──
+
+     Bajamos de 0.12em a 0.07em, que es el mismo que usan las cabeceras
+     de tabla y las etiquetas de campo.
+
+     ── POR QUÉ ──
+
+     A 11px, 0.12em abre tanto los espacios entre letras que «GESTIÓN»
+     deja de leerse como una palabra y empieza a leerse como seis
+     caracteres sueltos. El ancho de más no le da más jerarquía: la
+     jerarquía la dan el tamaño respecto del título de abajo y el
+     color. Con 0.07em se lee como una palabra, que es lo que es.
+
+     ── EL PESO ──
+
+     600 y no 700, igual que las cabeceras de tabla. A este tamaño la
+     negrita cerrada engorda la etiqueta en vez de destacarla.
+
+     ── EL COLOR ──
+
+     Se queda en el acento. Es el único color del encabezado de página
+     y por eso funciona como lo que es: la señal de que ahí empieza
+     algo. */
+  font-weight: 600;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
   color: var(--accent-2);
 }
@@ -582,7 +736,35 @@ html[data-panel] {
   align-items: center;
   justify-content: center;
   gap: 0.4rem;
-  padding: 0.55rem 1rem;
+
+  /* ── EL RELLENO HORIZONTAL ──
+
+     El vertical no se escribe: se calcula a partir de `--control-h`
+     para que el botón mida exactamente lo mismo que el campo que
+     tiene al lado, que es lo que hace Stripe y lo que hace que se
+     lean como una sola cosa y no como dos objetos distintos.
+
+     El horizontal sí es un valor propio. Más corto que el padding
+     del campo, porque el botón tiene el borde y el campo no: con el
+     mismo relleno horizontal el botón parecería más estrecho, porque
+     su contenido está más encogido. */
+  /* ── LA ALTURA, FIJA Y NO CALCULADA ──
+
+     Lo mismo que en los campos, y por el mismo motivo: aquí también
+     se calculaba con `em` y daba 36px en vez de los 34 que pide
+     `--control-h`, porque `1.2em` mide el tamaño de la letra y no la
+     altura de la línea.
+
+     Se usa `min-height` y no `height` porque hay botones cuyo
+     contenido es más alto que una línea —los que llevan un icono al
+     lado del texto, o los que se parten en dos renglones en móvil— y
+     con `height` fijo esos se recortarían.
+
+     El relleno horizontal sí es propio, 0.85rem, más corto que el del
+     campo: el botón tiene borde y el campo no, y con el mismo relleno
+     parecería más estrecho por tener el contenido más encogido. */
+  min-height: var(--control-h);
+  padding: 0.3rem 0.85rem;
   border: 1px solid transparent;
   border-radius: 10px;
   background: var(--raise);
@@ -755,7 +937,7 @@ a.panel-stat:hover {
 .panel-stat strong {
   display: block;
   font-family: var(--font-display, "Outfit", sans-serif);
-  font-size: 1.9rem;
+  font-size: var(--fs-numero);
   font-weight: 700;
   line-height: 1.05;
   letter-spacing: -0.03em;
@@ -997,9 +1179,30 @@ a.panel-stat--ambar:hover {
 }
 
 .panel-table th {
-  padding: 0.7rem 1rem;
-  font-size: 0.68rem;
-  font-weight: 700;
+  /* ── LA CABECERA DE LA TABLA ──
+
+     ── POR QUÉ MENOS ALTO QUE UNA FILA ──
+
+     El encabezado es una referencia de columnas, no contenido. Si
+     mide lo mismo que una fila, la franja gris del encabezado pesa
+     tanto como los datos que están debajo y el ojo la lee como si
+     fuera otra fila. Bajarla a 0.55rem la deja como lo que es: una
+     etiqueta apoyada arriba.
+
+     ── EL PESO ──
+
+     600 y no 700. A 11px en versalitas, la negrita cerrada no da
+     más presencia: da la impresión de que el texto está más grande
+     de lo que es. Con 600 la columna se distingue sin gritar.
+
+     ── EL INTERLETRAJE ──
+
+     0.07em, igual que las etiquetas de estado y de campo. Antes cada
+     sitio abría su propio interletraje y por eso ninguna etiqueta se
+     parecía a otra. */
+  padding: 0.55rem 1rem;
+  font-size: var(--fs-label);
+  font-weight: 600;
   letter-spacing: 0.07em;
   text-transform: uppercase;
   text-align: start;
@@ -1019,7 +1222,53 @@ a.panel-stat--ambar:hover {
 }
 
 .panel-table td {
-  padding: 0.85rem 1rem;
+  /* ── LA ALTURA DE LA FILA ──
+
+     0.85rem de relleno arriba y abajo daban filas de 47px. Con
+     0.6rem de relleno dan 40.
+
+     ── POR QUÉ CUARENTA ──
+
+     Porque el panel existe para ver de un vistazo qué hay, y a 47 solo
+     entran quince filas en la pantalla de un portátil. Hay que
+     desplazarse para ver el resto, que es justo lo que una tabla de
+     clientes no debería obligar a hacer.
+
+     Y no es solo cuestión de espacio: una fila más alta separa más
+     las que importan de las que no, y en una tabla de cuarenta filas
+     eso es ruido.
+
+     ── EL RELLENO VERTICAL ──
+
+     Aquí sí se deja el valor a ojo, y no es un descuido. Las filas
+     también tienen que aguantar las que llevan un texto que se parte
+     en dos renglones, y eso no se puede hacer con una altura fija: o
+     se recorta el texto, o la fila queda igual de alta que las demás
+     y se pierde el motivo de la altura.
+
+     La primera versión intentó calcularlo con
+     `calc((2.5rem - 1.15em) / 2)` y dio filas de 46px en vez
+     de 40. Es el mismo error que tuvieron los botones y los campos:
+     `1.15em` son 14.95px, pero la línea de texto ocupa 20.15px. Esos
+     5.2px de diferencia salían por arriba y por abajo, que es
+     exactamente la mitad de lo que faltaba.
+
+     ── POR QUÉ 0.6 ──
+
+     Medido, no estimado. Con `--fs-sm` a 13px y `line-height: 1.55`,
+     la línea de texto ocupa 20.15px. Para que la fila mida 40 hay
+     que repartir los 19.85px que sobran: 9.9px arriba y abajo, que
+     redondeados son 0.6rem.
+
+     ── EL AVISO ──
+
+     Este es el único sitio del panel donde el alto y la tipografía
+     están atados por un valor escrito a mano, y es a propósito: las
+     filas tienen que poder crecer cuando el texto se parte en dos
+     renglones, y eso no se puede hacer con una altura fija. Si algún
+     día cambia `--fs-sm`, este número hay que volver a medir, y está
+     dicho aquí para que se encuentre. */
+  padding: 0.6rem 1rem;
   border-bottom: 1px solid var(--border);
   vertical-align: top;
 }
@@ -1110,7 +1359,7 @@ a.panel-stat--ambar:hover {
   border-radius: 999px;
   background: var(--raise);
   color: var(--text-muted);
-  font-size: 0.65rem;
+  font-size: var(--fs-label);
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -1204,7 +1453,7 @@ a.panel-stat--ambar:hover {
 .panel-serv-main strong {
   display: block;
   margin: 0.25rem 0 0.3rem;
-  font-size: 0.98rem;
+  font-size: var(--fs-cuerpo);
 }
 
 .panel-serv-main p {
@@ -1340,7 +1589,7 @@ a.panel-stat--ambar:hover {
 }
 
 .panel-lead-head strong {
-  font-size: 1rem;
+  font-size: var(--fs-cuerpo);
 }
 
 .panel-lead-empresa {
@@ -1511,7 +1760,7 @@ a.panel-stat--ambar:hover {
 }
 
 .panel-dl dt {
-  font-size: 0.68rem;
+  font-size: var(--fs-label);
   font-weight: 700;
   letter-spacing: 0.07em;
   text-transform: uppercase;
@@ -1602,7 +1851,7 @@ a.panel-stat--ambar:hover {
   background: var(--bg-soft);
   color: var(--text-muted);
   font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
-  font-size: 0.7rem;
+  font-size: var(--fs-label);
   line-height: 1.5;
   word-break: break-all;
 }
@@ -1649,7 +1898,37 @@ a.panel-stat--ambar:hover {
 .panel-field textarea,
 .panel-note-edit textarea {
   width: 100%;
-  padding: 0.55rem 0.75rem;
+
+  /* ── POR QUÉ LA ALTURA FIJA Y NO EL RELLENO VERTICAL ──
+
+     La primera versión de esto calculaba el relleno:
+
+         padding: calc((var(--control-h) - 1.3em) / 2) 0.7rem;
+
+     y daba 39px en vez de 34. La razón es que `em` no mide la altura
+     de la línea de texto sino el tamaño de la letra: el `1.3em` son
+     16.9px, pero la línea ocupa 20.15px. Faltaba la parte del
+     interlineado, y como esa parte depende de `line-height`, que
+     cambia según la pantalla, el cálculo no daba el mismo resultado
+     en todos los sitios.
+
+     Fijar la altura y dejar el relleno solo en horizontal evita el
+     problema entero: no hay nada que cuadrar, y si mañana cambia el
+     cuerpo de 13 a 14 el control sigue midiendo lo mismo.
+
+     ── POR QUÉ CAMBIA SEGÚN EL CASO ──
+
+     Un `select` con una sola opción puede medir menos que el
+     `--control-h` que se le pide, y por eso lleva `min-height` y no
+     `height`: que nunca sea más bajo de lo debido. El resto usa
+     `height` y se queda clavado.
+
+     ── EL HORIZONTAL ──
+
+     0.7rem es el valor de siempre, y no se toca: es el que hace que
+     el texto no quede pegado al borde. */
+  min-height: var(--control-h);
+  padding: 0 0.7rem;
   border: 1px solid var(--border-strong);
   border-radius: 10px;
   background: var(--bg-soft);
@@ -1662,7 +1941,19 @@ a.panel-stat--ambar:hover {
 
 .panel-field textarea {
   resize: vertical;
-  min-height: 2.5rem;
+
+  /* ── POR QUÉ AQUÍ SÍ HAY QUE RESTAR ──
+
+     Porque el `padding: 0 0.7rem` de arriba deja el relleno vertical
+     en cero, y un `textarea` con relleno cero se ve aplastado: la
+     primera línea toca el borde de arriba.
+
+     No se usa `calc()` con `em` porque en un `textarea` el alto no
+     está fijado y el relleno no tiene que cuadrar con nada. Se
+     escribe el valor y se dice qué es. */
+  min-height: 5rem;
+  padding-top: 0.55rem;
+  padding-bottom: 0.55rem;
 }
 
 /* El foco se ve: en un panel se teclea mucho y sin esto no sabes
@@ -1785,7 +2076,7 @@ a.panel-stat--ambar:hover {
   border-radius: var(--radius-sm);
   background: var(--bg-soft);
   font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
-  font-size: 1.05rem;
+  font-size: var(--fs-cuerpo);
   letter-spacing: 0.05em;
   user-select: all;
 }
@@ -1803,9 +2094,58 @@ a.panel-stat--ambar:hover {
 }
 
 .panel-search {
-  flex: 1;
+  /* ── POR QUÉ NO `flex: 1` ──
+
+     Antes ocupaba todo el ancho sobrante de la fila, y en Clientes,
+     Cobros y Servicios eso son casi 1100px para un campo donde se
+     busca con tres palabras.
+
+     El problema no es que sea ancho, es que compite con los filtros
+     que están a su lado. Un `select` de periodo mide 180px, un botón
+     90, y el campo se lleva el resto. En una fila de filtros, el
+     elemento que manda es el que más ocupa, y ese no debería ser el
+     de escribir.
+
+     ── EL ANCHO ──
+
+     420px es lo que hace falta para leer «Buscar por nombre, empresa
+     o email» sin cortarse en el marcador de posición, que es la
+     cadena más larga de las cinco pantallas que lo usan. Con
+     `max-width` y no `width`, en un móvil estrecho baja a lo que
+     entre en la pantalla.
+
+     ── POR QUÉ `min-width: 200` Y NO 0 ──
+
+     Porque en una ventana de 280px, con los filtros al lado, el
+     campo se quedaría en un tamaño ridículo. 200px es el punto en
+     que se puede escribir «adri» a gusto.
+
+     ── LA ALTURA ──
+
+     La misma que los demás campos y que los botones, para que la
+     fila de filtros se lea como una sola línea. Se fija la altura en
+     vez de calcular el relleno, porque el cálculo con `em` mide el
+     tamaño de la letra y no la altura de la línea. */
+  /* ── EL FLEX, Y POR QUÉ HAY QUE TENER CUIDADO CON ÉL ──
+
+     `flex: 1 1 260px` es flexible, y eso tiene un coste: el eje
+     principal lo decide quien llama. En escritorio la fila de
+     filtros es horizontal, así que el 260 es el ancho y todo va bien.
+
+     En móvil `.panel-filters` pasa a `flex-direction: column` y el
+     eje principal se convierte en el vertical. Ahí el mismo 260 pasó
+     a ser la ALTURA, y el campo medía 358 de ancho por 260 de alto:
+     un óvalo en mitad de la pantalla. Hay una regla propia más abajo
+     que lo deshace.
+
+     Por eso aquí no se escribe `flex: 1` a secas, que es todavía
+     peor, y por eso la corrección de móvil tiene que anular el
+     crecimiento en vez de solo cambiar el ancho. */
+  flex: 1 1 260px;
   min-width: 200px;
-  padding: 0.55rem 0.9rem;
+  max-width: 420px;
+  min-height: var(--control-h);
+  padding: 0 0.85rem;
   border: 1px solid var(--border-strong);
   border-radius: 999px;
   background: var(--surface);
@@ -1911,7 +2251,7 @@ a.panel-stat--ambar:hover {
 .panel-empty h2 {
   margin: 0 0 0.4rem;
   font-family: var(--font-display, "Outfit", sans-serif);
-  font-size: 1.1rem;
+  font-size: var(--fs-lg);
   font-weight: 700;
 }
 
@@ -2060,7 +2400,7 @@ a.panel-stat--ambar:hover {
 .panel-login-titulo {
   margin: 0;
   font-family: var(--font-display, "Outfit", sans-serif);
-  font-size: 1.3rem;
+  font-size: var(--fs-xl);
   font-weight: 700;
   letter-spacing: -0.02em;
 }
@@ -2130,7 +2470,7 @@ a.panel-stat--ambar:hover {
 .panel-error-page h1 {
   margin: 0 0 0.5rem;
   font-family: var(--font-display, "Outfit", sans-serif);
-  font-size: 1.5rem;
+  font-size: var(--fs-xl);
 }
 
 .panel-error-page p {
@@ -2153,7 +2493,7 @@ a.panel-stat--ambar:hover {
 
   display: block;
   font-family: var(--font-display, "Outfit", sans-serif);
-  font-size: 1.3rem;
+  font-size: var(--fs-xl);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 
@@ -2165,7 +2505,7 @@ a.panel-stat--ambar:hover {
   gap: 1.4rem;
   margin: 0.7rem 0 0;
 
-  font-size: 0.68rem;
+  font-size: var(--fs-label);
   font-weight: 700;
   letter-spacing: 0.07em;
   text-transform: uppercase;
@@ -2244,7 +2584,7 @@ a.panel-stat--ambar:hover {
 .panel-requiere-dinero {
   color: var(--danger);
   font-family: var(--font-display, "Outfit", sans-serif);
-  font-size: 1.1rem;
+  font-size: var(--fs-lg);
 }
 
 .panel-serv-sinimporte {
@@ -2264,7 +2604,7 @@ a.panel-stat--ambar:hover {
 .panel-serv .panel-chip--acceso-bloqueado,
 .panel-serv .panel-chip--acceso-oferta,
 .panel-serv .panel-chip--acceso-inactivo {
-  font-size: 0.62rem;
+  font-size: var(--fs-label);
   align-self: center;
 }
 
@@ -2288,7 +2628,7 @@ a.panel-stat--ambar:hover {
 }
 
 .panel-requiere-texto strong {
-  font-size: 0.98rem;
+  font-size: var(--fs-cuerpo);
 }
 
 .panel-requiere-texto span {
@@ -2608,7 +2948,7 @@ a.panel-stat--ambar:hover {
   }
 
   .panel-stat strong {
-    font-size: 1.6rem;
+    font-size: var(--fs-numero);
   }
 
   /* Los filtros se apilan y la búsqueda ocupa el ancho entero. */
@@ -2617,7 +2957,32 @@ a.panel-stat--ambar:hover {
     align-items: stretch;
   }
 
-  .panel-search,
+  /* ── EL BUSCADOR EN MÓVIL, Y POR QUÉ NECESITA SU PROPIA REGLA ──
+
+     Aquí no basta con `width: 100%`.
+
+     El buscador se define arriba con `flex: 1 1 260px` y
+     `min-height`. En escritorio la fila de filtros es horizontal, y
+     como el campo crece solo a lo ancho, `min-height` da la altura
+     correcta.
+
+     Al pasar a `flex-direction: column`, la columna pasa a ser el eje
+     principal. Entonces el `flex-basis: 260px` —que se pensaba para
+     el ancho— pasa a decidir la ALTURA, y `flex-grow: 1` la estira
+     más. El resultado medido es un campo de 358 de ancho por 260 de
+     alto: un óvalo enorme en mitad de la pantalla.
+
+     ── LA CORRECCIÓN ──
+
+     Se anula el crecimiento y se fija la base, que es lo que quiere
+     decir un campo de texto: un ancho, y un alto de una línea. */
+  .panel-search {
+    width: 100%;
+    min-width: 0;
+    min-height: var(--control-h);
+    flex: 0 0 auto;
+  }
+
   .panel-select {
     width: 100%;
     min-width: 0;
@@ -2831,7 +3196,7 @@ a.panel-stat--ambar:hover {
   display: inline-block;
   margin-top: 0.35rem;
   font-family: var(--font-mono, ui-monospace, monospace);
-  font-size: 0.68rem;
+  font-size: var(--fs-label);
   color: var(--text-dim);
 
   /* Que parta la línea antes de salirse de la caja.
@@ -2982,7 +3347,7 @@ a.panel-stat--ambar:hover {
 }
 
 /* =========================================================
-   CIFRAS Y VALORES TÉCNICOS EN MONOESPACiada
+   CIFRAS Y VALORES TÉCNICOS EN MONOESPACIADA
    =========================================================
    Una columna de importes es una columna de números, y los números
    se comparan por posición, no leyéndolos. Con la fuente de texto,
@@ -3081,10 +3446,30 @@ a.panel-stat--ambar:hover {
      notaba al pasar de una pantalla a otra con el ratón encima:
      el botón crecía o menguaba solo.
 
-     38px es el más alto de los tres porque ya es el tamaño de destino
-     táctil razonable; unificar hacia abajo dejaría los botones por
-     debajo de lo que se puede pulsar con comodidad. */
-  --control-h: 2.375rem;   /* 38px */
+     ── POR QUÉ AHORA 34 Y NO 38 ──
+
+     Porque 38 era el más alto de los tres y se había quedado con el
+     más alto por prudencia. Bajarlo a 34 mantiene esa prudencia y
+     además mejora la densidad: campos y botones medían 37px sueltos
+     por el padding de cada uno, y en una pantalla con veinte botones
+     eso se nota al compararlos en fila.
+
+     ── POR QUÉ UN SOLO NÚMERO Y NO UNO PARA CAMPO Y OTRO PARA BOTÓN ──
+
+     Porque casi siempre están en la misma línea, y si miden distinto
+     se leen como dos objetos distintos en lugar de como una sola
+     acción. Una diferencia de dos píxeles no se ve; una diferencia de
+     seis se ve mucho. El mismo motivo por el que aquí no se
+     declaran `--campo-h` ni `--boton-h`: dos variables para el mismo
+     intervalo acabarían usándose una u otra según el ánimo del día,
+     que es exactamente el problema que este trabajo vino a arreglar.
+
+     ── EL LÍMITE ──
+
+     34px es el mínimo que se puede pulsar cómodo con el dedo en una
+     tableta. Por debajo hay que bajar a 32 o menos y la zona táctil
+     se empieza a resentir, así que ese es el suelo. */
+  --control-h: 2.125rem;   /* 34px */
 }
 
 /* =========================================================
@@ -3098,7 +3483,7 @@ a.panel-stat--ambar:hover {
    ── POR QUÉ PASABA ──
 
    `.panel-th-email` declaraba `max-width: 210px` y `text-overflow:
-   ellipsis`, y no cunplía ninguna de las dos cosas.
+   ellipsis`, y no cumplía ninguna de las dos cosas.
 
    En una tabla con `table-layout: auto` —que es el valor por
    defecto— el ancho de una columna lo decide el contenido más
@@ -3274,7 +3659,7 @@ a.panel-stat--ambar:hover {
    De 10.88 a 11.5. Poco, pero salta de "no se lee sin apartar la
    vista" a "se lee de reojo". */
 .panel-table thead th {
-  font-size: 0.72rem;
+  font-size: var(--fs-label);
 }
 
 /* =========================================================
@@ -3353,7 +3738,7 @@ a.panel-stat--ambar:hover {
   border-radius: 999px;
   font-family: var(--font-mono, ui-monospace, monospace);
   font-variant-numeric: tabular-nums;
-  font-size: 0.68rem;
+  font-size: var(--fs-label);
   font-weight: 600;
   line-height: 1;
   letter-spacing: 0;
@@ -3490,7 +3875,7 @@ a.panel-stat--ambar:hover {
   background: transparent;
   color: var(--text);
   font-family: inherit;
-  font-size: 1.05rem;
+  font-size: var(--fs-cuerpo);
 }
 
 /* El contorno del foco va en la CAJA, no en el input. Si se dejara en
@@ -3516,7 +3901,7 @@ a.panel-stat--ambar:hover {
 
 .cmd-grupo {
   padding: 0.7rem 0.6rem 0.3rem;
-  font-size: 0.65rem;
+  font-size: var(--fs-label);
   font-weight: 700;
   letter-spacing: 0.09em;
   text-transform: uppercase;
@@ -3589,7 +3974,7 @@ a.panel-stat--ambar:hover {
   gap: 1rem;
   padding: 0.6rem 1rem;
   border-top: 1px solid var(--border);
-  font-size: 0.68rem;
+  font-size: var(--fs-label);
   color: var(--text-dim);
 }
 
@@ -3601,7 +3986,7 @@ a.panel-stat--ambar:hover {
   border-radius: 4px;
   background: var(--bg-soft);
   font-family: var(--font-mono, ui-monospace, monospace);
-  font-size: 0.65rem;
+  font-size: var(--fs-label);
 }
 
 /* ---------- El botón de la barra ---------- */
@@ -3668,7 +4053,7 @@ a.panel-stat--ambar:hover {
   border: 1px solid var(--border-strong);
   border-radius: 5px;
   font-family: var(--font-mono, ui-monospace, monospace);
-  font-size: 0.65rem;
+  font-size: var(--fs-label);
   color: var(--text-dim);
 }
 
@@ -3866,7 +4251,7 @@ body.cmd-abierto {
   background: color-mix(in srgb, var(--warning) 16%, transparent);
   color: var(--warning);
   font-family: var(--font-mono, ui-monospace, monospace);
-  font-size: 0.65rem;
+  font-size: var(--fs-label);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -4390,7 +4775,7 @@ body.cmd-abierto {
   border: 1px solid;
   border-radius: 999px;
   font-family: var(--font-mono, ui-monospace, monospace);
-  font-size: 0.9rem;
+  font-size: var(--fs-cuerpo);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   line-height: 1;
@@ -4580,7 +4965,7 @@ body.cmd-abierto {
 .panel-card-cintillo {
   display: block;
   margin-bottom: 0.2rem;
-  font-size: 0.7rem;
+  font-size: var(--fs-label);
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -4589,7 +4974,7 @@ body.cmd-abierto {
 
 .panel-card-titulo {
   margin: 0;
-  font-size: 1.05rem;
+  font-size: var(--fs-cuerpo);
   font-weight: 600;
   line-height: 1.3;
   color: var(--text);
@@ -4827,7 +5212,7 @@ body.cmd-abierto {
 .panel-stat span {
   display: block;
   margin-top: 0.15rem;
-  font-size: 0.7rem;
+  font-size: var(--fs-label);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -5174,7 +5559,7 @@ body.cmd-abierto {
 
 .panel-dist-grande {
   font-family: var(--font-display, "Outfit", sans-serif);
-  font-size: 2.4rem;
+  font-size: var(--fs-numero);
   font-weight: 700;
   line-height: 1;
   letter-spacing: -0.03em;
@@ -5183,7 +5568,7 @@ body.cmd-abierto {
 }
 
 .panel-dist-unidad {
-  font-size: 0.7rem;
+  font-size: var(--fs-label);
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -5350,7 +5735,7 @@ body.cmd-abierto {
    con un hueco al lado. */
 .panel-menu-item--hijillo {
   padding-inline-start: 1.75rem;
-  font-size: 0.82rem;
+  font-size: var(--fs-xs);
 }
 
 /* ---------- El menú «Nuevo» de la barra superior ---------- */
@@ -5446,7 +5831,7 @@ body.cmd-abierto {
   background: transparent;
   color: var(--text);
   font-family: inherit;
-  font-size: 0.82rem;
+  font-size: var(--fs-xs);
   text-decoration: none;
   cursor: pointer;
   white-space: nowrap;
@@ -5555,6 +5940,6 @@ body.cmd-abierto {
 
   .panel-rapido .panel-menu-rapido a {
     padding: 0.45rem 0.5rem;
-    font-size: 0.78rem;
+    font-size: var(--fs-xs);
   }
 }

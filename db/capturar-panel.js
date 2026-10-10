@@ -29,18 +29,15 @@ const SALIDA = process.env.TEMP + "/opencode";
 
 const RUTAS = [
   "/panel",
-  "/panel/bots",
   "/panel/clientes",
   "/panel/cobros",
-  "/panel/aplicaciones",
   "/panel/aplicaciones/catalogo",
-  "/panel/planes",
-  "/panel/servicios",
-  "/panel/tickets",
-  "/panel/consultas",
-  "/panel/catalogo",
-  "/panel/salud",
 ];
+
+/* Se pueden pasar rutas por consola, para sacar solo una:
+     node db/capturar-panel.js /panel /panel/cobros */
+const pedidas = process.argv.slice(2).filter((a) => a.startsWith("/"));
+const A_VER = pedidas.length ? pedidas : RUTAS;
 
 (async () => {
   const navegador = await chromium.launch();
@@ -55,7 +52,7 @@ const RUTAS = [
 
   console.log("\n═══ Fotos del panel ═══\n");
 
-  for (const ruta of RUTAS) {
+  for (const ruta of A_VER) {
     const nombre = "panel-" + ruta.replace(/\//g, "_").replace(/^_/, "");
 
     for (const v of [
