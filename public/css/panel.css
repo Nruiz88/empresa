@@ -1,14 +1,47 @@
- 
+/* =========================================================
+   Nexo Studio — Estilos del panel
+   ------------------------------------------------------------
+   El panel reutiliza los tokens de styles.css (--bg, --surface,
+   --accent, --radius, tipografías) para que se vea parte de la
+   misma marca, pero NO carga la parte pública del sitio: sin
+   cabecera, sin heroes, sin GSAP.
 
- 
+   Todo lo del panel va bajo <html data-panel> para que las reglas de
+   styles.css no le apliquen nada de la web pública.
+
+   ORDEN DEL ARCHIVO (de fuera hacia dentro)
+     1. Base y medidas
+     2. Estructura: lateral, barra superior, contenido
+     3. Tipografía de página
+     4. Botones
+     5. Métricas y avisos
+     6. Tablas
+     7. Etiquetas de estado
+     8. Listas (servicios, vencimientos, consultas, accesos)
+     9. Formularios
+    10. Filtros, pestañas y paginación
+    11. Estados vacíos, alertas y login
+    12. Portal del cliente
+    13. Responsive
+    14. Accesibilidad
+
+   Los nombres de clase no deben cambiar sin revisar todas las
+   vistas: son el contrato entre el HTML y este archivo.
+   ========================================================= */
+
+/* =========================================================
+   1. BASE Y MEDIDAS
+   ========================================================= */
 
 html[data-panel] {
-   
+  /* Medidas del layout. El lateral es fijo porque el contenido se
+     lee en columna estrecha y no conviene quitarle espacio. */
   --panel-sidebar: 248px;
   --panel-topbar: 60px;
   --panel-page-max: 1180px;
 
-   
+  /* Ritmo vertical. Se usa en los paddings grandes para que todos
+     los bloques respiren igual, sin valeurs sueltas por ahí. */
   --panel-gap-sm: 0.5rem;
   --panel-gap: 1rem;
   --panel-gap-lg: 1.5rem;
@@ -28,7 +61,12 @@ html[data-panel] {
   -webkit-font-smoothing: antialiased;
 }
 
- 
+/* El login centra todo verticalmente; el resto, no.
+
+   Y a diferencia del resto de pantallas, el fondo lleva un
+   lavado de acento. Es lo que hace Argon y es lo que separa
+   "pantalla de acceso" de "panel": entrar es entrar en otro
+   sitio, y se nota antes de leer una palabra. */
 .panel-body--centrado {
   display: grid;
   place-items: center;
@@ -42,13 +80,41 @@ html[data-panel] {
     var(--bg);
 }
 
- 
+/* ── LOS TOKENS SON LOS DE LA WEB, Y NO SE PISAN ──
 
- 
+   Aquí había seis tokens «de reserva» —tamaños de letra y radios—
+   más un `--accent-grad` propio. El comentario decía que eran por si
+   el CSS del sitio no cargaba, pero el bloque no era condicional: al
+   vivir en `.panel-body`, que está siempre, GANABA SIEMPRE.
 
- 
+   El resultado era que el panel no era la misma marca que la web:
 
- 
+     token          web        panel (antes)
+     --fs-sm        0.9rem     0.8125rem
+     --fs-xs        0.8rem     0.75rem
+     --radius-sm    10px       8px
+     --radius       16px       12px
+     --radius-lg    26px       16px
+     --accent-grad  verde→verde (120deg)  verde→ÁMBAR (135deg)
+
+   El degradado era el más visible: el botón principal del panel era
+   verde→ámbar y el de la portada verde→verde, así que dos pantallas
+   de la misma casa no parecían de la misma casa.
+
+   Y como reserva no servía de nada: aquí no están `--bg`, `--text`
+   ni `--border`, así que sin styles.css el panel se quedaría sin
+   colores igual. Los tokens del sistema de diseño se consumen, no se
+   duplican: si cambia la marca, cambia en un solo sitio. */
+
+/* Y no se sustituye por otro bloque de tokens: lo que el panel sí
+   necesita —el ancho del lateral, el alto de la barra y su ritmo
+   vertical— ya vive en `html[data-panel]`, unas líneas más arriba. */
+
+/* =========================================================
+   2. ESTRUCTURA
+   ========================================================= */
+
+/* ---------- Lateral ---------- */
 .panel-side {
   position: fixed;
   inset-block: 0;
@@ -78,9 +144,20 @@ html[data-panel] {
   min-width: 0;
 }
 
- 
+/* El logo del panel NO tiene regla propia a propósito.
+
+   Usa la chapa de la web pública —`.brand-mark`, en styles.css— con
+   el mismo `shopcito-logo.jpg` y el mismo fondo `#f0f5ee`. Definir
+   aquí una segunda chapa sería tener dos logos que se van separando
+   en cuanto alguien toque uno: el panel y la web son la misma marca,
+   y el sitio donde se decide cómo se ve es uno solo.
+
+   Aquí vivía una «N» blanca sobre un degradado verde→ámbar que no
+   está en la paleta de la casa. Se veía como otro producto. */
 .brand-mark {
-   
+  /* Solo el ajuste que necesita la barra del panel, que es más baja
+     que la cabecera de la web: el logo de 26px deja la chapa en
+     34px y entra de sobra en los 60px de la barra superior. */
   align-self: center;
 }
 
@@ -148,7 +225,7 @@ html[data-panel] {
   transition: background 0.15s ease, color 0.15s ease;
 }
 
- 
+/* El icono no se encoge: es lo que da ritmo vertical al menú. */
 .panel-menu-item svg {
   flex-shrink: 0;
   width: 18px;
@@ -166,7 +243,9 @@ html[data-panel] {
   color: var(--text);
 }
 
- 
+/* La sección actual se marca con un fondo Y con una barra a la
+   izquierda. Con seis secciones parecidas, el color solo no basta:
+   un daltonismo no distingue el morado del acento. */
 .panel-menu-item.is-active {
   background: color-mix(in srgb, var(--accent) 20%, transparent);
   color: var(--text);
@@ -179,7 +258,7 @@ html[data-panel] {
   font-size: 0.8rem;
 }
 
- 
+/* ---------- Pie del lateral ---------- */
 .panel-side-foot {
   padding: 0.85rem 0.7rem 1rem;
   border-top: 1px solid var(--border);
@@ -208,7 +287,11 @@ html[data-panel] {
   text-transform: uppercase;
 }
 
- 
+/* ---------- El bloque de usuario de la barra simple ----------
+   En el portal del cliente esto es avatar + "Salir", y va pegado a
+   la derecha. Con flex y nowrap, para que en pantallas estrechas se
+   encoja el menú (que es lo prescindible) y no el botón de salir,
+   que es una acción. */
 .panel-topbar--simple .panel-user {
   display: flex;
   align-items: center;
@@ -254,13 +337,17 @@ html[data-panel] {
   color: var(--text-dim);
 }
 
- 
+/* ---------- Contenido ---------- */
 .panel-shell {
   margin-inline-start: var(--panel-sidebar);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-   
+  /* Sin esto, una tabla ancha (min-width 560px) ensancha el lateral
+     entero y la página entera se desplaza en horizontal: en el móvil
+     las tarjetas se salen de la pantalla y nada queda donde debe.
+     clip recorta sin crear un contenedor de scroll, así que el
+     scroll de la tabla sigue funcionando dentro de su caja. */
   overflow-x: clip;
   min-width: 0;
 }
@@ -287,7 +374,30 @@ html[data-panel] {
   justify-content: space-between;
 }
 
- 
+/* El selector de tema, a la derecha de la barra.
+
+   Con `--simple` la barra ya es `space-between`, así que con el
+   `margin-inline-start: auto` de aquí el selector se va al extremo
+   derecho y no entre el título y el usuario. En la del equipo, que no
+   lleva `--simple`, el hueco que había a la derecha se llena con
+   algo útil. */
+.panel-theme {
+  margin-inline-start: auto;
+  flex: 0 0 auto;
+}
+
+/* La navegación del cliente: cuatro enlaces en fila, en el centro.
+
+   EL BUG QUE ESTABA
+   -----------------
+   Los enlaces se partían en dos líneas ("Mis / servicios") y el
+   texto se salía de la pastilla. La causa no era el ancho: era que
+   no había `white-space: nowrap`. Una pastilla con
+   `border-radius: 999px` y texto que envuelve parece una gota
+   deformada, y encima el texto se sale por arriba y por abajo.
+
+   Por eso nowrap no es opcional: un enlace de navegación que se
+   parte en dos líneas deja de leerse como una sola cosa. */
 .panel-nav--simple {
   display: flex;
   flex: 1 1 auto;
@@ -308,7 +418,7 @@ html[data-panel] {
   font-weight: 500;
   color: var(--text-muted);
   text-decoration: none;
-   
+  /* Lo de arriba. */
   white-space: nowrap;
   transition: background 0.15s ease, color 0.15s ease;
 }
@@ -327,7 +437,8 @@ html[data-panel] {
   opacity: 1;
 }
 
- 
+/* El activo se distingue por relleno Y por peso, no solo por color:
+   quien no distingue el morado sigue viendo cuál es. */
 .panel-nav--simple a.is-active {
   background: var(--raise-strong);
   border-color: var(--border);
@@ -340,13 +451,16 @@ html[data-panel] {
   color: var(--accent);
 }
 
- 
+/* Foco visible en el menú. Sin esto, con teclado no se veía dónde
+   estabas. */
 .panel-nav--simple a:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
- 
+/* En escritorio la barra superior solo existe para el móvil, así que
+   no muestra el título de la página: cada vista ya lo pone en su
+   encabezado y repetirlo ahí sería ruido. */
 .panel-topbar-titulo {
   display: none;
   font-size: var(--fs-sm);
@@ -380,7 +494,7 @@ html[data-panel] {
   min-width: 0;
 }
 
- 
+/* ---------- Página ---------- */
 .panel-page {
   max-width: var(--panel-page-max);
   margin-inline: auto;
@@ -459,7 +573,9 @@ html[data-panel] {
   color: var(--danger);
 }
 
- 
+/* =========================================================
+   4. BOTONES
+   ========================================================= */
 
 .panel-btn {
   display: inline-flex;
@@ -489,7 +605,9 @@ html[data-panel] {
   transform: translateY(1px);
 }
 
- 
+/* En una tabla, el morado repetido en cada fila se come la
+   atención de los datos. El botón de acción se queda discreto y el
+   morado se reserva para lo que abre algo nuevo. */
 .panel-table .panel-btn--primary,
 .panel-caduco .panel-btn--primary,
 .panel-lead .panel-btn--primary {
@@ -505,7 +623,14 @@ html[data-panel] {
   color: var(--text);
 }
 
- 
+/* El botón principal, con el MISMO degradado y el mismo resplandor
+   que `.btn-primary` de la web pública.
+
+   Antes era el verde plano `--accent`. La diferencia no es de matiz:
+   el degradado verde de la marca es lo que hace que el botón de
+   «Guardar» del panel y el de «Empezar» de la portada se lean como el
+   mismo botón. El resplandor se reserva para el principal, que es lo
+   que lo separa del fantasma que suele ir al lado. */
 .panel-btn--primary {
   background: var(--accent-grad);
   border-color: transparent;
@@ -514,12 +639,26 @@ html[data-panel] {
 }
 
 .panel-btn--primary:hover {
-   
+  /* El degradado se repite a propósito.
+
+     `.panel-btn:hover` —que es más específico por el `:hover`— pinta
+     `--raise-strong`, y sin esta línea el botón principal perdía el
+     verde al pasar el ratón. En la web el principal no cambia de
+     color al pasar por encima: solo sube el resplandor. */
   background: var(--accent-grad);
   box-shadow: var(--btn-glow-strong);
 }
 
- 
+/* El botón de aviso: «3 requieren atención».
+
+   Es el único que no invita a crear nada, avisa. Va en el color de
+   aviso y sólido, como el primario, porque es una llamada a la
+   acción y no un adorno: el borde solo lo dejaría al mismo nivel
+   que el botón fantasma que tiene al lado.
+
+   El texto va en `--on-accent` y no en blanco: sobre el ámbar, que
+   es claro, el blanco no llega al contraste mínimo y el número
+   —que es el dato que importa— se pierde. */
 .panel-btn--aviso {
   background: var(--warning);
   border-color: transparent;
@@ -553,12 +692,14 @@ html[data-panel] {
   width: 100%;
 }
 
- 
+/* En tablas y listas el botón es pequeño: el texto manda. */
 .panel-table .panel-btn {
   font-weight: 500;
 }
 
- 
+/* =========================================================
+   5. MÉTRICAS Y AVISOS
+   ========================================================= */
 
 .panel-stats {
   display: grid;
@@ -587,9 +728,30 @@ a.panel-stat:hover {
   transform: translateY(-2px);
 }
 
- 
+/* El rojo de la portada lo pone .panel-stat--alerta, más abajo. No se
+   crea un --rojo que sería lo mismo con otro nombre: dos clases para
+   lo mismo garantizan que una acabe por cambiar y la otra no, y
+   entonces la misma idea aparece en dos tonos según la pantalla. */
 
- 
+/* Las cifras del resumen.
+
+   ── POR QUÉ SE QUITÓ EL DEGRADADO ──
+
+   Antes el número iba con `background-clip: text` y un degradado
+   violeta→cian. Se veía bien y no significaba nada.
+
+   En una portada, una cifra grande con degradado es una decisión
+   estética: busca que la mires. En un panel, una cifra es un dato, y
+   lo que tiene que distinguirla del resto es CUÁNTO, no si es guapa.
+   Con degradado, un 0 se ve igual de interesante que un 8.809.
+
+   Además el degradado era el motivo de que las cifras '$' quedaran
+   raras: al pintar el texto con una imagen de fondo, el peso óptico
+   cambia y los dígitos pierde la base. Con color plano y
+   tabulación, la columna se alinea y se lee como un número.
+
+   El color por variante se queda: lo vencido en rojo y lo demás en
+   el color de la cifra. Eso SÍ dice algo. */
 .panel-stat strong {
   display: block;
   font-family: var(--font-display, "Outfit", sans-serif);
@@ -611,7 +773,8 @@ a.panel-stat:hover {
   color: var(--text-dim);
 }
 
- 
+/* Lo que hay que cobrar va en rojo y con borde: es la única cifra
+   que obliga a hacer algo hoy. */
 .panel-stat--alerta {
   border-color: color-mix(in srgb, var(--danger) 42%, transparent);
   background: color-mix(in srgb, var(--danger) 7%, var(--surface));
@@ -621,7 +784,17 @@ a.panel-stat:hover {
   color: var(--danger);
 }
 
- 
+/* ---------- Ámbar: lo que está en plazo ----------
+
+   Va DESPUÉS de .panel-stat strong a propósito. Este bloque se
+   escribió primero, más arriba, y los números salían en violeta: la
+   regla de .panel-stat strong llega después y, con la misma
+   especificidad, gana. El fondo y el borde sí se veían, porque para
+   esos no compite nadie — y por eso el fallo era engañoso: media
+   tarjeta funcionaba y la otra mitad no.
+
+   Por eso `--ambar` está aquí y no arriba. Si se mueve, hay que
+   moverlo después de .panel-stat strong, no antes. */
 .panel-stat--ambar {
   border-color: color-mix(in srgb, var(--warning) 32%, transparent);
   background: color-mix(in srgb, var(--warning) 7%, var(--surface));
@@ -636,7 +809,9 @@ a.panel-stat--ambar:hover {
   border-color: color-mix(in srgb, var(--warning) 58%, transparent);
 }
 
- 
+/* La etiqueta cambia con el número. Si el 7.809 va en rojo y debajo
+   pone "4 cobros vencidos" en gris, se lee como dos cosas
+   distintas: el dinero es una cifra y el aviso es otra. */
 .panel-stat--alerta span,
 .panel-stat--ambar span {
   color: currentColor;
@@ -656,16 +831,23 @@ a.panel-stat--ambar:hover {
   color: var(--text-dim);
 }
 
- 
+/* ---------- Bloques del resumen ---------- */
 
- 
+/* Una cifra que vale cero.
+   "0,00 € cobrado en octubre" estaba en violeta y a 1,9 rem, el mismo
+   peso visual que "8.809 € por cobrar". Eso enseña a no mirar las
+   cifras grandes, que es justo lo contrario de lo que sirven. Cuando
+   la cifra es cero, se atenúa el número y basta: no hace falta
+   borrarla, porque el hueco delata que esa tarjeta no tiene nada. */
 .panel-stat--vacia strong {
   color: var(--text-dim);
   font-weight: 600;
   opacity: 0.55;
 }
 
- 
+/* El pie de la tarjeta roja pasa a ser un enlace: si dice "7.809 €
+   vencido", lo natural es querer verlo. Con el texto plano había que
+   constructuir el filtro a mano. */
 .panel-stat-pie--enlace {
   color: var(--danger);
   text-decoration: none;
@@ -682,7 +864,12 @@ a.panel-stat--ambar:hover {
   margin-bottom: var(--panel-gap-xl);
 }
 
- 
+/* El título de un bloque de formulario.
+
+   Faltaba: el alta de aplicaciones lo usaba desde el principio y no
+   había ninguna regla, así que «A quién» y «Qué le das» salían con el
+   tamaño de encabezado por defecto del navegador —más grandes que el
+   propio título de la página— y sin el aire de arriba. */
 .panel-bloque-titulo {
   margin: 0 0 var(--panel-gap);
   font-family: var(--font-display, "Outfit", sans-serif);
@@ -693,7 +880,16 @@ a.panel-stat--ambar:hover {
   color: var(--text-dim);
 }
 
- 
+.panel-bloque-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--panel-gap);
+}
+
+/* =========================================================
+   6. TABLAS
+   ========================================================= */
 
 .panel-table-wrap {
   max-width: 100%;
@@ -702,23 +898,35 @@ a.panel-stat--ambar:hover {
   overflow-x: auto;
   background: var(--surface);
 
-   
+  /* `auto` en vez de `visible` a propósito: la cabecera sticky se
+     ancla al contenedor que hace scroll, y para eso el padre no
+     puede estar en visible. */
   overflow-y: auto;
 }
 
- 
+/* La fila entera se abre desde el enlace del nombre.
+
+   El enlace no envuelve la fila —no valdría, porque dentro hay otros
+   enlaces: el email, el cliente— sino que se estira con un pseudo
+   elemento que se pinta por encima. Es el patrón "stretched link" y
+   es lo que evita tener dieciocho botones "Abrir" iguales: 18 copias
+   de la misma acción compiten entre sí por la atención, y la que se
+   quiere pulsar es la que se ve. */
 .panel-stretch::after {
   content: "";
   position: absolute;
   inset: 0;
 }
 
- 
+/* El padre tiene que ser el punto de referencia del `inset: 0`. Sin
+   esto el pseudo se estira a la página entera y toda la pantalla
+   parece clicable. */
 .panel-table tbody td {
   position: relative;
 }
 
- 
+/* Los enlaces de dentro de la fila van por encima del estirado, para
+   que el email siga siendo pulsable por su cuenta. */
 .panel-table tbody a:not(.panel-stretch),
 .panel-table tbody button {
   position: relative;
@@ -729,7 +937,21 @@ a.panel-stat--ambar:hover {
   cursor: pointer;
 }
 
- 
+/* ---------- Filas que se abren enteras ----------
+
+   En escritorio, la fila se abre desde el enlace del nombre, así que
+   el botón "Abrir" de la columna de acciones sobra: dieciocho
+   botones iguales compiten entre sí por la atención, y quien quiere
+   pulsar uno no sabe cuál de los doscientos píxeles de la fila es.
+
+   Se quita el botón pero NO el aviso: sin nada que diga que la fila
+   se abre, el clic accidental es el único modo de descubrirlo. El
+   chevron solo aparece al pasar por encima o al fokusar, que es
+   cuando ya se está mirando esa fila.
+
+   Con teclado el botón tampoco hacía falta: la fila se abre con el
+   enlace del nombre, y va en su sitio en la tabla de lectura.
+*/
 @media (min-width: 721px) {
   .panel-row--link .panel-th-actions .panel-btn {
     display: none;
@@ -760,7 +982,7 @@ a.panel-stat--ambar:hover {
   }
 }
 
- 
+/* En la tarjeta vuelve el botón, y el chevron sobra. */
 @media (max-width: 720px) {
   .panel-chevron {
     display: none;
@@ -786,7 +1008,11 @@ a.panel-stat--ambar:hover {
   border-bottom: 1px solid var(--border);
   white-space: nowrap;
 
-   
+  /* La cabecera se queda pegada al Scroll. Con 18 clientes la tabla
+     pasa de una pantalla, y al bajar ya no sabes en qué columna estás:
+     el importe acaba pareciendo el email. `sticky` dentro de
+     `panel-table-wrap` funciona porque ese bloque es el que hace
+     scroll en horizontal. */
   position: sticky;
   top: 0;
   z-index: 2;
@@ -828,7 +1054,27 @@ a.panel-stat--ambar:hover {
   font-size: var(--fs-xs);
   color: var(--text-dim);
 
-   
+  /* ─────────────────────────────────────────────────────
+     QUE NADA DE LO QUE HAY DENTRO SE SALGA
+
+     Esta caja lleva lo que va debajo del dato principal: un correo,
+     una instancia, un «agendar/lo-que-sea». En una celda normal
+     nada de eso es largo. En móvil la celda se apila y se queda con la
+     mitad del ancho de la tarjeta, y un correo de 130px en una caja de
+     113 se salía encima de la celda de al lado.
+
+     Medido: «cliente@ejemplo.com» pidiendo 130px en una caja de 113, a
+     390px de ancho.
+
+     `anywhere` y no `break-word`: `break-word` solo parte si la palabra
+     no cabe EN LA LINEA ENTERA, que aquí ya no cabe, y no impide que
+     el cálculo de la caja la ignore. `anywhere` sí lo hace, y es lo
+     que evita que el texto desborde de verdad.
+
+     La columna de correo de la tabla —`.panel-th-email`— sigue con
+     `ellipsis` y una línea, porque ahí el correo se recorta a
+     propósito: hay una columna entera para él.
+     ───────────────────────────────────────────────────── */
   overflow-wrap: anywhere;
 }
 
@@ -850,7 +1096,12 @@ a.panel-stat--ambar:hover {
   white-space: nowrap;
 }
 
- 
+/* =========================================================
+   7. ETIQUETAS DE ESTADO
+   ------------------------------------------------------------
+   El color es un refuerzo, nunca la única señal: todas las
+   etiquetas llevan también su texto.
+   ========================================================= */
 
 .panel-chip {
   display: inline-block;
@@ -889,10 +1140,19 @@ a.panel-stat--ambar:hover {
 .panel-chip--cobro-impagado  { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 45%, transparent); background: color-mix(in srgb, var(--danger) 12%, transparent); }
 .panel-chip--cobro-anulado   { color: var(--text-dim); }
 
- 
+/* Vencido es un estado DERIVADO: un pendiente cuya fecha ya pasó. No
+   está en el ENUM de la base, así que no hay regla para él y salía
+   sin estilo. Por eso necesita la suya, y no un alias a pendiente. */
 .panel-chip--cobro-vencido   { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 55%, transparent); background: color-mix(in srgb, var(--danger) 16%, transparent); font-weight: 700; }
 
- 
+/* ---------- La fila vencida se ve vencida ----------
+   El archivo más urgente del negocio estaba pintado igual que uno
+   rutinario. Con ocho filas, la que lleva 16 días de retraso es la
+   primera que habría que ver, y era la que menos se distinguía.
+
+   El borde va en el borde de la celda, no en la fila: `border` en un
+   <tr> no se pinta en todos los navegadores, y una regla que a veces
+   no se aplica es peor que no tenerla. */
 .panel-table tbody tr.panel-tr--vencido > td {
   background: color-mix(in srgb, var(--danger) 6%, var(--surface));
 }
@@ -917,9 +1177,11 @@ a.panel-stat--ambar:hover {
   font-size: var(--fs-xs);
 }
 
- 
+/* =========================================================
+   8. LISTAS
+   ========================================================= */
 
- 
+/* ---------- Servicios ---------- */
 .panel-serv-list {
   display: grid;
   gap: 0.6rem;
@@ -972,7 +1234,14 @@ a.panel-stat--ambar:hover {
   align-items: center;
 }
 
- 
+/* ---------- Vencimientos ----------
+   El color va en el borde izquierdo, no en el fondo: al recorrer la
+   lista de arriba abajo se leen los estados como una columna.
+
+   Y el ancho se queda en un máximo: una fila de vencimiento lleva
+   un título, una empresa y una fecha. Estirada a 1000px, el mismo
+   dato queda perdido en una línea vacía y cuesta más de leer que de
+   colocar. */
 .panel-caducos {
   display: grid;
   gap: 0.45rem;
@@ -1029,7 +1298,16 @@ a.panel-stat--ambar:hover {
   font-weight: 600;
 }
 
- 
+.panel-caduco-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  justify-content: flex-end;
+  max-width: 260px;
+}
+
+/* Varias empresas en una fila: como etiquetas, no como un párrafo
+   con puntos. Encima van una al lado de otra si caben. */
 .panel-caduco-empresas {
   display: flex;
   flex-wrap: wrap;
@@ -1037,7 +1315,7 @@ a.panel-stat--ambar:hover {
   margin-top: 0.3rem;
 }
 
- 
+/* ---------- Consultas ---------- */
 .panel-leads {
   display: grid;
   gap: 0.75rem;
@@ -1142,7 +1420,7 @@ a.panel-stat--ambar:hover {
   width: 100%;
 }
 
- 
+/* ---------- Accesos ---------- */
 .panel-accesos {
   display: grid;
   gap: 0.5rem;
@@ -1219,6 +1497,13 @@ a.panel-stat--ambar:hover {
   color: var(--danger);
 }
 
+
+
+
+.panel-box--peligro {
+  border-color: color-mix(in srgb, var(--danger) 30%, transparent);
+}
+
 .panel-dl {
   display: grid;
   gap: 0.65rem;
@@ -1263,7 +1548,19 @@ a.panel-stat--ambar:hover {
   font-size: var(--fs-xs);
   color: var(--text-dim);
 }
- 
+/* ── La lista de dos columnas ──
+
+   Un nombre por lo que hace, no por dónde se usó. Antes esto era
+   `.panel-plan-lista`, que solo quería decir "la lista del plan de
+   facturación", y por eso no se podía reutilizar: el mismo problema
+   —una columna de texto y otra de cifras— aparece en el catálogo, en
+   los vencimientos y en cualquier sitio donde haya que comparar
+   importes, y cada uno tenía que inventarse su propia clase.
+
+   En una sola columna, el ojo lee la fila entera. En dos, lee la
+   cifra: por eso los importes van a la derecha, alineados, y el
+   texto se alinea a la izquierda. Con veinte filas eso es la
+   diferencia entre comparar y recontar. */
 
 .panel-doble li {
   display: flex;
@@ -1283,7 +1580,8 @@ a.panel-stat--ambar:hover {
 }
 
 @media (max-width: 640px) {
-   
+  /* En una columna la cifra ya no tiene a donde alinearse: se pasa
+     debajo y a la izquierda, que es como se lee. */
   .panel-doble li {
     flex-direction: column;
     gap: 0.15rem;
@@ -1309,7 +1607,9 @@ a.panel-stat--ambar:hover {
   word-break: break-all;
 }
 
- 
+/* =========================================================
+   9. FORMULARIOS
+   ========================================================= */
 
 .panel-form-card {
   display: grid;
@@ -1365,7 +1665,8 @@ a.panel-stat--ambar:hover {
   min-height: 2.5rem;
 }
 
- 
+/* El foco se ve: en un panel se teclea mucho y sin esto no sabes
+   dónde estás. */
 .panel-field input:focus,
 .panel-field select:focus,
 .panel-field textarea:focus,
@@ -1385,7 +1686,11 @@ a.panel-stat--ambar:hover {
   color: var(--danger);
 }
 
- 
+/* ---------- Desplegables ----------
+   Sin esto el <select> se dibuja con el estilo del sistema: una
+   flechita clara sobre un campo oscuro, que es lo más despacho que
+   se puede ver en una pantalla oscura. appearance:none quita la
+   flecha nativa y se pone una propia. */
 .panel-field select,
 .panel-select,
 .panel-select-mini {
@@ -1399,7 +1704,8 @@ a.panel-stat--ambar:hover {
   background-repeat: no-repeat;
 }
 
- 
+/* La lista de opciones la pinta el navegador, pero con color-scheme
+   oscuro sale en oscuro en vez de una lista blanca que deslumbra. */
 .panel-field select option,
 .panel-select option,
 .panel-select-mini option {
@@ -1407,7 +1713,17 @@ a.panel-stat--ambar:hover {
   color: var(--text);
 }
 
- 
+/* El hueco para la flecha se escribe DENTRO de la abreviatura.
+
+   Antes estaba en el bloque de arriba (`padding-inline-end: 2rem`),
+   y aquí `padding: 0.5rem 0.7rem` la pisaba: una abreviatura reinicia
+   los cuatro lados, no solo el que nombra. El resultado medido eran
+   11px de hueco con una flecha de 5px encima, y el texto de las
+   opciones se metía debajo: "Todos los tipos" con la flecha encima.
+
+   Se escribe aquí y no arriba porque el orden en la cascada es el que
+   falla. `.panel-field select` (que sí tenía el hueco puesto antes)
+   no se veía afectado, y por eso el fallo parecía de los filtros. */
 .panel-select {
   padding: 0.5rem 2rem 0.5rem 0.7rem;
   border: 1px solid var(--border-strong);
@@ -1438,7 +1754,7 @@ a.panel-stat--ambar:hover {
   border-top: 1px solid var(--border);
 }
 
- 
+/* La contraseña se muestra una vez: se hace evidente, no escondida. */
 .panel-secret {
   display: grid;
   gap: var(--panel-gap);
@@ -1474,7 +1790,9 @@ a.panel-stat--ambar:hover {
   user-select: all;
 }
 
- 
+/* =========================================================
+   10. FILTROS, PESTAÑAS Y PAGINACIÓN
+   ========================================================= */
 
 .panel-filters {
   display: flex;
@@ -1533,7 +1851,9 @@ a.panel-stat--ambar:hover {
   font-weight: 600;
 }
 
- 
+/* La pestaña de vencidos va en rojo siempre, no solo cuando está
+   activa. Es la que se busca cuando hay un problema, y una pestaña
+   gris del mismo tono que las demás no se encuentra. */
 .panel-tabs a.panel-tab--vencido {
   color: var(--danger);
 }
@@ -1571,7 +1891,9 @@ a.panel-stat--ambar:hover {
   background: var(--raise);
 }
 
- 
+/* =========================================================
+   11. ESTADOS VACÍOS, ALERTAS Y LOGIN
+   ========================================================= */
 
 .panel-empty {
   padding: 2.25rem 1.75rem;
@@ -1615,7 +1937,8 @@ a.panel-stat--ambar:hover {
   background: var(--success-bg);
   color: var(--success-text);
 }
-   
+  /* --error: el estado por defecto de .panel-alert, declarado aqui
+     para que quede junto a los otros dos y se vea que hay tres. */
   .panel-alert--error {
     border-color: color-mix(in srgb, var(--danger) 40%, transparent);
     background: color-mix(in srgb, var(--danger) 8%, transparent);
@@ -1661,7 +1984,14 @@ a.panel-stat--ambar:hover {
   max-width: 420px;
 }
 
- 
+/* ---------- El campo con icono ----------
+
+   El icono va en su propia caja con borde a la derecha, pegado
+   al campo, y los dos comparten radio: el de la izquierda
+   arriba-izquierda y abajo-izquierda, el de la derecha al reves.
+   Si los dos comparten ese radio, la union se ve como una sola pieza; si se
+   deixa el mismo a los cuatro, se ve una esquina redondeada en
+   medio del lado. */
 .panel-barra {
   display: flex;
   align-items: center;
@@ -1712,7 +2042,9 @@ a.panel-stat--ambar:hover {
   font-size: var(--fs-sm);
 }
 
- 
+/* El input nooutline nunca: el foco se pinta en la barra, y sin
+   esta linea el navegador pinta SU foco encima del nuestro, que
+   es como se ven dos halos en el mismo campo. */
 .panel-barra input:focus {
   outline: none;
 }
@@ -1772,7 +2104,10 @@ a.panel-stat--ambar:hover {
   color: var(--text-dim);
 }
 
- 
+/* Que no se parta en dos lineas en movil. Los dos enlaces son
+   cortos, pero a 320px con el padding de la tarjeta no caben
+   los dos, y un enlace partido en dos renglones se lee como si
+   fueran tres. */
 .panel-login-foot a {
   display: inline-flex;
   align-items: center;
@@ -1785,7 +2120,28 @@ a.panel-stat--ambar:hover {
   height: 0.85rem;
 }
 
- 
+/* ---------- 403 / 404 ---------- */
+.panel-error-page {
+  max-width: 420px;
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+}
+
+.panel-error-page h1 {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-display, "Outfit", sans-serif);
+  font-size: 1.5rem;
+}
+
+.panel-error-page p {
+  margin: 0 0 1.25rem;
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+}
+
+/* =========================================================
+   12. PORTAL DEL CLIENTE
+   ========================================================= */
 
   grid-template-columns: minmax(0, 1fr) auto;
   padding: 1.2rem 1.4rem;
@@ -1819,7 +2175,18 @@ a.panel-stat--ambar:hover {
   font-size: var(--fs-sm);
   font-weight: 600;
 
- 
+/* =========================================================
+   PORTAL DEL CLIENTE — ESTADO DE ACCESO
+   ------------------------------------------------------------
+   Los cuatro niveles tienen que distinguirse de un vistazo, sin
+   tener que leer. Pero ninguno usa solo color: cada uno lleva su
+   etiqueta escrita, y el color va en el borde como refuerzo.
+
+     activo    → verde: en marcha
+     bloqueado → rojo: debe dinero
+     oferta    → morado: por decidir
+     inactivo  → gris: no en marcha
+   ========================================================= */
 
   border-inline-start: 3px solid var(--border-strong);
 
@@ -1828,17 +2195,30 @@ a.panel-stat--ambar:hover {
 .panel-serv--oferta    { border-inline-start-color: var(--accent-2); }
 .panel-serv--inactivo  { border-inline-start-color: var(--border-strong); }
 
+.panel-serv-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-bottom: 0.35rem;
+}
+
 .panel-chip--acceso-activo    { color: var(--success); border-color: var(--success-border); background: var(--success-bg); }
 .panel-chip--acceso-bloqueado { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 45%, transparent); background: color-mix(in srgb, var(--danger) 12%, transparent); }
 .panel-chip--acceso-oferta    { color: var(--accent-2); border-color: color-mix(in srgb, var(--accent-2) 40%, transparent); background: color-mix(in srgb, var(--accent-2) 12%, transparent); }
 .panel-chip--acceso-inactivo  { color: var(--text-dim); }
 
-   
+  /* El estado de un microservicio es el mismo dato que el estado de un
+     servicio, pero con otros tres valores: verde, rojo y "revisar", que
+     no es un color sino la ausencia de respuesta. Se nombran
+     `salud-*` y no `estado-*` porque `estado-*` ya lo usa la cartera de
+     servicios y las dos cosas nunca se pintan en la misma fila. */
   .panel-chip--salud-verde { color: var(--success); border-color: var(--success-border); background: var(--success-bg); }
   .panel-chip--salud-rojo  { color: var(--danger); border-color: color-mix(in srgb, var(--danger) 55%, transparent); background: color-mix(in srgb, var(--danger) 16%, transparent); }
   .panel-chip--salud-ambar { color: var(--warning); border-color: color-mix(in srgb, var(--warning) 40%, transparent); background: color-mix(in srgb, var(--warning) 12%, transparent); }
 
-   
+  /* La ficha de un microservicio apila nombre, módulo, url, secreto y
+     notas. `.panel-serv-main p` ya tiene margen 0, así que sin esto las
+     líneas quedan pegadas y la ficha se lee como un bloque de texto. */
   .panel-serv-main p + p {
     margin-top: 0.4rem;
   }
@@ -1848,8 +2228,23 @@ a.panel-stat--ambar:hover {
     word-break: break-all;
   }
 
+/* El motivo es lo que hace que "bloqueado" se entienda. Sin esta
+   frase, el candado es un muro sin explicación. */
+.panel-serv-motivo {
+  margin: 0.5rem 0 0;
+  font-size: var(--fs-sm);
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
 .panel-serv--bloqueado {
   background: color-mix(in srgb, var(--danger) 4%, var(--surface));
+}
+
+.panel-requiere-dinero {
+  color: var(--danger);
+  font-family: var(--font-display, "Outfit", sans-serif);
+  font-size: 1.1rem;
 }
 
 .panel-serv-sinimporte {
@@ -1857,8 +2252,14 @@ a.panel-stat--ambar:hover {
   color: var(--text-dim);
 }
 
- 
- 
+.panel-serv-accion {
+  margin-top: 0.6rem;
+}
+
+/* El aviso de arriba del todo: lo que hay que hacer al entrar. */
+/* La etiqueta "ve: ..." va en su propia columna, con el resto de
+   acciones. Dentro de la tarjeta se leería como otro estado, y no
+   lo es: es lo que ve el cliente, no lo que dice el servicio. */
 .panel-serv .panel-chip--acceso-activo,
 .panel-serv .panel-chip--acceso-bloqueado,
 .panel-serv .panel-chip--acceso-oferta,
@@ -1896,20 +2297,27 @@ a.panel-stat--ambar:hover {
 }
 
 
- 
+/* Botón dentro del estado vacío. */
 .panel-empty-accion {
   margin-top: 1.1rem;
 }
 
- 
+/* ---------- Generar cobros del mes ---------- */
 
- 
+/* La lista de lo que se va a crear es la parte importante: se lee
+   entera antes de pulsar nada. */
 
 
 
- 
+/* =========================================================
+   13. RESPONSIVE
+   ------------------------------------------------------------
+   En el lateral fijo no hay sitio para los seis botones, así que
+   por debajo de 1000px se convierte en un cajón que se abre con
+   el botón de la barra superior.
+   ========================================================= */
 
- 
+/* Capa oscura detrás del cajón. Se muestra al abrirlo. */
 .panel-scrim {
   position: fixed;
   inset: 0;
@@ -1932,7 +2340,7 @@ a.panel-stat--ambar:hover {
     box-shadow: none;
   }
 
-   
+  /* El lateral abierto se dibuja por encima de la página. */
   .panel-side.is-open {
     transform: translateX(0);
     box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.5);
@@ -1973,11 +2381,37 @@ a.panel-stat--ambar:hover {
   }
 }
 
- 
+/* =========================================================
+   13 BIS. TABLAS QUE SE CONVIERTEN EN TARJETAS
+   ========================================================= */
 
- 
+/* ── POR QUÉ ESTO ──
+
+   Antes, en un móvil, la tabla se metía en un scroll horizontal con
+   `min-width: 560px`. Medido a 390px:
+
+     · los emails se cortaban a mitad: `javier@tallerru`
+     · la columna de acciones quedaba FUERA de la pantalla, así que
+       los 18 botones "Abrir" no se veían sin desplazarse a la derecha
+     · los nombres partían en tres líneas y las filas medían 91-102px
+
+   El scroll horizontal no se ve. No hay ninguna señal de que haya más
+   a la derecha, así que la pantalla parece llena y no lo está: media
+   columna y la acción principal, fuera.
+
+   Aquí no hay scroll: cada fila pasa a ser una tarjeta y la acción
+   queda a la vista.
+
+   ── EL 720 ──
+
+   Por debajo de 720px y no de 560px: entre 560 y 720 la tabla con
+   scroll todavía tiene sentido (entra en una tableta), y a 560 la
+   tabla ya está flotando. El punto donde deja de ser tabla es más
+   alto que el punto donde deja de caber el panel.
+*/
 @media (max-width: 720px) {
-   
+  /* El contenedor deja de hacer scroll: si se mantiene, aparecería una
+     segunda barra de scroll horizontal dentro de las tarjetas. */
   .panel-table-wrap {
     overflow: visible;
     border: 0;
@@ -1994,11 +2428,18 @@ a.panel-stat--ambar:hover {
     display: block;
     width: auto;
 
-     
+    /* `min-width: 0` en la tabla, no solo `width: auto`.
+       La abreviatura anterior no lo quitaba: `min-width: 560px`
+       seguía mandando, y las celdas quedaban de 526px dentro de una
+       pantalla de 390. Medido: filas de 196px, PEOR que las 102px que
+       había antes de tocar nada.
+
+       Es el mismo fallo de siempre: poner `width` no es lo mismo que
+       quitar lo que impone el mínimo. */
     min-width: 0;
   }
 
-   
+  /* La cabecera no cabe: se usa su texto en cada celda. */
   .panel-table thead {
     display: none;
   }
@@ -2012,7 +2453,8 @@ a.panel-stat--ambar:hover {
     background: var(--surface);
   }
 
-   
+  /* El plano de la fila vencida, que en la tabla iba en la primera
+     celda, aquí va en la tarjeta entera. */
   .panel-table tbody tr.panel-tr--vencido {
     border-color: color-mix(in srgb, var(--danger) 35%, transparent);
   }
@@ -2031,7 +2473,8 @@ a.panel-stat--ambar:hover {
     border-bottom: 0;
   }
 
-   
+  /* El nombre arriba, solo y con la etiqueta puesta: "Empresa: ..."
+     es ruido, porque el nombre ya se explica solo. */
   .panel-table tbody td[data-principal] {
     display: block;
     padding-bottom: 0.6rem;
@@ -2049,7 +2492,9 @@ a.panel-stat--ambar:hover {
     color: var(--text-dim);
   }
 
-   
+  /* Las celdas con etiqueta apilan el dato debajo de su título, en
+     vez de pelearse en la misma línea a 390px: "PERIODO" y "octubre
+     2026" en la misma línea salen de dos en dos. */
   .panel-table tbody td[data-label] > * {
     text-align: end;
     min-width: 0;
@@ -2059,7 +2504,26 @@ a.panel-stat--ambar:hover {
     text-align: end;
   }
 
-   
+  /* ─────────────────────────────────────────────────────
+     LA CELDA DEL NOMBRE, APILADA
+
+     Todas las celdas pasan a ser flex con `justify-content:
+     space-between`, para poner la etiqueta a la izquierda y el dato a
+     la derecha. En la celda del nombre eso no funciona: hay DOS
+     inputs y el id, y los tres se pelean por el mismo ancho.
+
+     El id se quedaba con 2 píxeles y su texto se salía encima del de
+     al lado. No se veía mirando el HTML —una celda con dos campos es
+     lo normal— sino midiendo cuánto ocupa cada texto frente a su caja.
+
+     Aquí la celda se apila y vuelve a ser lo que es en el escritorio:
+     un campo encima de otro. La etiqueta se quita porque los dos
+     inputs ya se explican solos, que es el mismo criterio que lleva
+     `data-principal` en las demás tablas.
+
+     Afecta al catálogo de productos, al de aplicaciones y a los
+     planes: las tres tienen la misma celda de nombre.
+     ───────────────────────────────────────────────────── */
   .panel-table tbody td.panel-cat-nombre {
     display: block;
   }
@@ -2077,7 +2541,8 @@ a.panel-stat--ambar:hover {
     margin-top: 0.35rem;
   }
 
-   
+  /* La acción, al fondo de la tarjeta y a lo ancho. Es el dato que
+     antes quedaba fuera de la pantalla. */
   .panel-table tbody td.panel-th-actions {
     display: block;
     padding-top: 0.75rem;
@@ -2094,13 +2559,14 @@ a.panel-stat--ambar:hover {
     justify-content: center;
   }
 
-   
+  /* La etiqueta del email se apila, no se corta. */
   .panel-th-email {
     max-width: none;
     overflow: visible;
     white-space: normal;
 
-     
+    /* Un email no tiene espacios, así que en una tarjeta estrecha se
+       parte en cualquier punto y queda medio fuera. */
     word-break: break-all;
   }
 
@@ -2108,7 +2574,8 @@ a.panel-stat--ambar:hover {
     align-items: flex-start;
   }
 
-   
+  /* El formulario de estado (servicios) también, o el desplegable
+     se queda con la mitad del ancho. */
   .panel-table tbody td[data-label="Estado"] form {
     width: 100%;
   }
@@ -2133,7 +2600,8 @@ a.panel-stat--ambar:hover {
     flex-direction: column;
   }
 
-   
+  /* Una columna: con dos, cada tarjeta queda en 150px y el importe
+     no cabe. */
   .panel-stats,
   .panel-stats--cobros {
     grid-template-columns: minmax(0, 1fr);
@@ -2143,7 +2611,7 @@ a.panel-stat--ambar:hover {
     font-size: 1.6rem;
   }
 
-   
+  /* Los filtros se apilan y la búsqueda ocupa el ancho entero. */
   .panel-filters {
     flex-direction: column;
     align-items: stretch;
@@ -2162,9 +2630,11 @@ a.panel-stat--ambar:hover {
 
 }
 
- 
+/* =========================================================
+   14. ACCESIBILIDAD
+   ========================================================= */
 
- 
+/* Saltar el lateral: invisible hasta que recibe el foco. */
 .panel-skip {
   position: absolute;
   top: -100px;
@@ -2183,14 +2653,16 @@ a.panel-stat--ambar:hover {
   top: 0;
 }
 
- 
+/* Foco visible en todo lo interactivo del panel. Sin esto, navegar
+   con teclado en el panel es adivinar dónde estás. */
 .panel-body :focus-visible {
   outline: 2px solid var(--accent-2);
   outline-offset: 2px;
   border-radius: 4px;
 }
 
- 
+/* Quien pide menos movimiento, no lo tiene. El panel tiene
+   animaciones cortas, pero no son la razón para marearse. */
 @media (prefers-reduced-motion: reduce) {
   .panel-body *,
   .panel-body *::before,
@@ -2202,7 +2674,8 @@ a.panel-stat--ambar:hover {
   }
 }
 
- 
+/* Imprimir: sin barras, sin botones. Si alguien imprime una ficha
+   de cliente, quiere el contenido y nada más. */
 @media print {
   .panel-side,
   .panel-topbar,
@@ -2228,9 +2701,26 @@ a.panel-stat--ambar:hover {
   }
 }
 
- 
+/* =========================================================
+   CATÁLOGO: editar productos y precios
+   =========================================================
+   Esta tabla es distinta de las otras, y por eso tiene sus propias
+   reglas: aquí hay CAMPOS DENTRO de la tabla, no solo texto. Es la
+   primera vez que el panel edita algo en línea.
 
- 
+   Y ahí hay un problema de ancho que no existe en las otras tablas:
+   cada celda lleva un input, y un input tiene su ancho mínimo
+   pequeño pero no tan pequeño. Con siete columnas, en una pantalla
+   de portátil, la tabla se sale.
+
+   La solución NO es `overflow-x` (que ya hay) sino quitar columnas:
+   en catálogo, `clientes` y `a la venta` son de solo lectura y no
+   hacen falta para escribir un precio. Se esconden por debajo de
+   1200px, que es donde empiezan a apretar, y la información se
+   conserva en el `data-label` de cada celda.
+*/
+
+/* ---------- La cabecera de la pantalla ---------- */
 
 .panel-page-lead {
   margin: 0.5rem 0 0;
@@ -2247,7 +2737,7 @@ a.panel-stat--ambar:hover {
   flex-wrap: wrap;
 }
 
- 
+/* ---------- Los campos dentro de la tabla ---------- */
 
 .panel-cat-tabla td {
   vertical-align: top;
@@ -2282,7 +2772,13 @@ a.panel-stat--ambar:hover {
   background: var(--surface);
 }
 
- 
+/* La cifra del precio.
+
+   Monoespaciada y alineada a la derecha, porque es una columna de
+   números y comparar "1.500" con "250" a ojo es trabajo innecesario
+   cuando el navegador ya los alinea por tabulación. `tabular-nums`
+   por si acaso, que en esta fuente da igual pero en la que se cambie
+   no. */
 .panel-input--numero {
   font-family: var(--font-mono, ui-monospace, monospace) !important;
   font-variant-numeric: tabular-nums;
@@ -2294,12 +2790,18 @@ a.panel-stat--ambar:hover {
   width: 7.5rem;
 }
 
- 
+/* La url se corta porque es larga, y se ve el final, que es lo que
+   dice si termina en slash o en ruta rara. */
 .panel-cat-url {
   width: 13rem;
 }
 
- 
+/* El desplegable de moneda va justo al ancho de su código y no más.
+
+   Con el nombre largo dentro ("ARS · pesos argentinos") se cortaba a
+   media palabra en la tabla, y el ancho necesario dependía de la
+   pantalla. El código solo ("ARS") entra siempre, y el nombre largo
+   va en el título de la opción. */
 .panel-cat-tabla td:has(select[name^="moneda_"]) {
   width: 5.5rem;
 }
@@ -2319,7 +2821,12 @@ a.panel-stat--ambar:hover {
   margin-top: 0.35rem;
 }
 
- 
+/* El id del módulo.
+
+   Se muestra y no se edita porque es la clave foránea de
+   `suscripciones.modulo` y de `microservicios.modulo`. Cambiarla
+   deja huérfano todo lo que apunta a ella, y en monoespaciada porque
+   es un identificador, no un texto. */
 .panel-cat-id {
   display: inline-block;
   margin-top: 0.35rem;
@@ -2327,11 +2834,15 @@ a.panel-stat--ambar:hover {
   font-size: 0.68rem;
   color: var(--text-dim);
 
-   
+  /* Que parta la línea antes de salirse de la caja.
+
+     Una clave larga —`notificacion_whatsapp`— no entra en un móvil, y
+     sin esto el texto se sale de su celda y queda encima del de al
+     lado. Partirlo es feo; salirse es ilegible. */
   overflow-wrap: anywhere;
 }
 
- 
+/* ---------- Errores ---------- */
 
 .panel-cat-tabla .panel-input--error {
   border-color: var(--danger);
@@ -2345,7 +2856,12 @@ a.panel-stat--ambar:hover {
   color: var(--danger);
 }
 
- 
+/* La fila entera se marca, no solo el campo.
+
+   Con siete columnas, un campo con borde rojo y el resto normal deja
+   duda de qué ha fallado: se ve que algo está mal pero no dónde. La
+   fila entera tiñéndola se ve al instante, y el borde rojo del campo
+   concreta dónde. */
 .panel-table tbody tr.panel-tr--error > td {
   background: color-mix(in srgb, var(--danger) 5%, var(--surface));
 }
@@ -2365,7 +2881,23 @@ a.panel-stat--ambar:hover {
   font-weight: 400;
 }
 
- 
+/* ─────────────────────────────────────────────────────────────
+   EL RÓTULO PEQUEÑO DE UNA CELDA
+
+   Lo que va debajo de un campo para decir algo que el campo no puede:
+   «vacío = A consultar», «3 vigentes», «quedan sin precio».
+
+   ── POR QUÉ ESTA DEFINICIÓN TARDÓ ──
+
+   Porque `panel-cell-note` se usaba en `planes.ejs` sin existir en el
+   CSS. Una clase que no existe no da error: da un `<small>` con el
+   estilo del navegador, que se ve más grande de lo que debía y sin el
+   tono apagado que pedía el contexto.
+
+   Se define ahora porque el catálogo de aplicaciones la necesita seis
+   veces, y esa es la diferencia entre una nota al pie de un campo y un
+   texto que compite con el campo.
+   ───────────────────────────────────────────────────────────── */
 .panel-cell-note {
   display: block;
   margin-top: 0.2rem;
@@ -2374,12 +2906,28 @@ a.panel-stat--ambar:hover {
   color: var(--text-dim);
 }
 
- 
+/* La variante que avisa. Es un aviso, no una nota: hay gente detrás que
+   no tiene un importe, y eso no se puede leer igual que «3 vigentes». */
 .panel-cell-note--aviso {
   color: var(--warning-text);
 }
 
- 
+/* ─────────────────────────────────────────────────────────────
+   UNA FILA QUE NO SE VENDE
+
+   Atenuada, no tachada ni gris de error.
+
+   ── POR QUÉ SE PINTA ──
+
+   Porque «no se vende» y «no existe» tienen que verse distinto. Una
+   fila apagada sigue ahí, con su precio y sus clientes, y la lista de
+   clientes la sigue contando. Una tachada parece borrada, y quien la
+   vea puede creer que hay que recuperarla de algún sitio.
+
+   El precio, además, se puede seguir editando. Desactivar una
+   aplicación no la retira: deja de aparecer en el alta y sigue
+   funcionando para quien ya la tiene.
+   ───────────────────────────────────────────────────────────── */
 .panel-table tbody tr.panel-tr--apagada > td {
   opacity: 0.55;
 }
@@ -2388,7 +2936,7 @@ a.panel-stat--ambar:hover {
   opacity: 1;
 }
 
- 
+/* ---------- El pie ---------- */
 
 .panel-cat-pie {
   display: flex;
@@ -2400,7 +2948,12 @@ a.panel-stat--ambar:hover {
   border-top: 1px solid var(--border);
 }
 
- 
+/* ---------- Por debajo de 1200px ----------
+
+   Se van las dos columnas de solo lectura. Los datos no se pierden:
+   cada celda lleva `data-label` y el modo tarjeta las enseña con su
+   título. Con esto no hay que decidir qué columna es "la
+   importante". */
 @media (max-width: 1200px) {
   .panel-cat-tabla th:nth-child(5),
   .panel-cat-tabla td:nth-child(5),
@@ -2416,7 +2969,10 @@ a.panel-stat--ambar:hover {
 }
 
 @media (max-width: 720px) {
-   
+  /* Las columnas escondidas por anchura vuelven a salir cuando la
+     tabla se convierte en tarjetas, porque ahí ya no hay problema de
+     sitio: lo que hay es poco alto, y el número de clientes y el
+     "a la venta" son justo lo que se quiere ver en un móvil. */
   .panel-cat-tabla th:nth-child(5),
   .panel-cat-tabla td:nth-child(5),
   .panel-cat-tabla th:nth-child(6),
@@ -2425,7 +2981,31 @@ a.panel-stat--ambar:hover {
   }
 }
 
- 
+/* =========================================================
+   CIFRAS Y VALORES TÉCNICOS EN MONOESPACiada
+   =========================================================
+   Una columna de importes es una columna de números, y los números
+   se comparan por posición, no leyéndolos. Con la fuente de texto,
+   el "1" ocupa más que el "0", la columna queda descentrada y para
+   comparar dos precios hay que leerlos enteros.
+
+   Con monoespaciada, todos los dígitos ocupan lo mismo y la comparación
+   es un golpe de vista. Por eso aquí no es una decisión estética: es
+   la diferencia entre mirar una columna y recorrerla letra a letra.
+
+   ── DÓNDE SÍ Y DÓNDE NO ──
+
+   Sí: importes, referencias, fechas, urls, identificadores, hashes.
+
+   No: los títulos, los nombres de cliente, los botones, el cuerpo de
+   los párrafos. Meter todo en mono da el aspecto de una terminal de
+   1980 y encima se lee peor. La mono se usa para DATO, no para
+   decoración, y sobre todo no se usa para algo que se lee como
+   frase.
+
+   Y las celdas numéricas se alinean a la derecha, no a la izquierda
+   como el resto de la columna: los decimales quedan en el mismo sitio
+   y es donde están los céntimos, que es lo que se compara. */
 .panel-table .panel-th-num,
 .panel-table td.panel-th-num {
   font-family: var(--font-mono, ui-monospace, monospace);
@@ -2436,7 +3016,11 @@ a.panel-stat--ambar:hover {
   text-align: right;
 }
 
- 
+/* Las cabeceras de columna numérica, en mono también.
+
+   Con la fuente de texto y en mayúsculas, "IMPORTE" ocupa más que la
+   columna que describe y empuja al resto de la tabla. En mono y sin
+   mayúsculas se lee como una etiqueta técnica, que es lo que es. */
 .panel-table th.panel-th-num {
   font-family: var(--font-mono, ui-monospace, monospace);
   letter-spacing: 0.02em;
@@ -2445,31 +3029,120 @@ a.panel-stat--ambar:hover {
   text-align: right;
 }
 
- 
+/* Las referencias y los identificadores de la tabla de cobros. */
 .panel-cell-sub--ref,
 .panel-cell-mono {
   font-family: var(--font-mono, ui-monospace, monospace);
   font-variant-numeric: tabular-nums;
 
-   
+  /* Que pueda partir.
+
+     Una URL en monoespaciada es lo peor que hay para que quepa: cada
+     carácter ocupa lo mismo y no hay ni un espacio en todo el
+     dominio. Medido en `/panel/servidores` a 390px: una dirección de
+     Evolution API pedía 337px en una caja de 308, y se salía 29px por
+     la derecha, encima de la columna de al lado.
+
+     `anywhere` y no `break-word` porque `break-word` no cambia el
+     cálculo del ancho mínimo: la caja seguiría diciendo que necesita
+     337 y el texto seguiría saliéndose.
+     ───────────────────────────────────────────────────── */
   overflow-wrap: anywhere;
 }
 
- 
-:root {
-  --p-1: 0.25rem;    
-  --p-2: 0.5rem;     
-  --p-3: 0.75rem;    
-  --p-4: 1rem;       
-  --p-5: 1.5rem;     
-  --p-6: 2rem;       
-  --p-7: 3rem;       
+/* =========================================================
+   RITMO: LA ESCALA DE ESPACIO
+   =========================================================
+   Antes estos valores vivían sueltos, uno a uno, en cada regla:
+   `0.7rem` por aquí, `0.9rem` por allá, y donde nadie los dejó,
+   `13.6px`. Medido, la fila de clientes daba 48px y la de cobros
+   70px, y no había forma de saber cuál era el bueno.
 
-   
-  --control-h: 2.375rem;    
+   Una escala no es capricho ni purismo: es lo que hace que dos pantallas
+   distintos se vean como el mismo panel. Con seis valores, el
+   siguiente bloque elige de una lista en vez de inventar un número.
+
+   La escala es un múltiplo de 4px. Cualquier valor que no salga de
+   aquí es probablemente un valor que se inventó alguien un día y
+   nadie revisó. */
+:root {
+  --p-1: 0.25rem;   /*  4px  -- ajuste fino, entre elementos pegados */
+  --p-2: 0.5rem;    /*  8px  -- dentro de un control, entre icono y texto */
+  --p-3: 0.75rem;   /* 12px  -- entre campos de un formulario */
+  --p-4: 1rem;      /* 16px  -- el padrão: relleno de celda, hueco de bloque */
+  --p-5: 1.5rem;    /* 24px  -- entre bloques de una página */
+  --p-6: 2rem;      /* 32px  -- separación de secciones */
+  --p-7: 3rem;      /* 48px  -- respiro grande, antes de un h1 */
+
+  /* Un solo alto para todo lo que se puede pulsar o escribir.
+
+     Medido: los campos daban 30px en consultas, 34px en catálogo y
+     38px en servicios. Tres alturas para el mismo control, y se
+     notaba al pasar de una pantalla a otra con el ratón encima:
+     el botón crecía o menguaba solo.
+
+     38px es el más alto de los tres porque ya es el tamaño de destino
+     táctil razonable; unificar hacia abajo dejaría los botones por
+     debajo de lo que se puede pulsar con comodidad. */
+  --control-h: 2.375rem;   /* 38px */
 }
 
- 
+/* =========================================================
+   TABLAS: COLUMNAS FIJAS Y FILAS DEL MISMO ALTO
+   =========================================================
+   El problema medido: en clientes la columna del email medía 405px
+   —más ancha que el nombre de la empresa— y las filas alternaban 48
+   y 69px. En cobros, la columna de acciones medía 161px, más ancha
+   que la del importe.
+
+   ── POR QUÉ PASABA ──
+
+   `.panel-th-email` declaraba `max-width: 210px` y `text-overflow:
+   ellipsis`, y no cunplía ninguna de las dos cosas.
+
+   En una tabla con `table-layout: auto` —que es el valor por
+   defecto— el ancho de una columna lo decide el contenido más
+   largo, y el ancho máximo de una celda es una SUGERENCIA que el
+   navegador descarta. El navegador tiene una tabla de una fila con
+   un email largo, y el email largo gana.
+
+   De ahí las dos cosas: la columna se come el ancho, y las filas se
+   descuadran según lo que lleve dentro. La fila de 69px era la que
+   tenía algo que se partía en dos líneas.
+
+   ── LA SOLUCIÓN ──
+
+   `table-layout: fixed` hace que el navegador obedezca el ancho que
+   se le da, y no el que le dicta el contenido. Con eso:
+
+     · las columnas tienen la proporción que se ha elegido a mano
+     · las filas miden lo mismo porque el texto no engorda la celda
+     · el email se corta con puntos suspensivos, que es lo que se
+       había pedido y nunca ocurrió
+
+   ── POR QUÉ SOLO LAS LISTAS, Y NO TODAS ──
+
+   La tabla del catálogo también lleva `panel-table`, y con `fixed`
+   sus siete columnas se repartieron en partes iguales: 161px cada
+   una. Peor que antes. "Moneda" con 161px para un código de tres
+   letras, y "Producto" con 161px para un nombre de producto.
+
+   El catálogo no es una lista de texto: cada fila lleva un
+   formulario entero, con sus campos dentro. Repartir a partes
+   iguales aplasta justo las columnas que necesitan ancho, porque el
+   ancho se lo dan las más anchas y las cortas no lo necesitan.
+
+   Así que `fixed` va solo en las tres listas, que sí son texto
+   comparable, y el catálogo se queda con el reparto por contenido
+   que ya tenía.
+
+   ── POR QUÉ SOLO EN ESCRITORIO ──
+
+   Por debajo de 720px la tabla ya se ha convertido en tarjetas: todo
+   pasa a `display: block` y las celdas se apilan con su etiqueta.
+   En ese modo las columnas no existen, y `table-layout` no tiene
+   nada que repartir. Por eso va dentro de su `min-width`: no hace
+   falta tocar el modo tarjeta, que ya funciona. */
 @media (min-width: 721px) {
   .panel-table--clientes,
   .panel-table--servicios,
@@ -2477,9 +3150,15 @@ a.panel-stat--ambar:hover {
     table-layout: fixed;
   }
 
-   
+  /* El ancho se reparte a mano por pantalla. Se podría dejar que el
+     navegador lo hiciera sola —sin `fixed`—, y es lo que pasaba: se
+     lo dejaba y salía mal. Estas proporciones son de lectura, no de
+     contenido: lo que se compara entre filas va ancho, lo que solo
+     se reconoce va estrecho. */
 
-   
+  /* Clientes: la empresa manda, porque es por donde se busca. El
+     email va en monoespaciada y se corta: es un dato de referencia,
+     se copia, no se lee entero. */
   .panel-table--clientes th:nth-child(1),
   .panel-table--clientes td:nth-child(1) { width: 34%; }
   .panel-table--clientes th:nth-child(2),
@@ -2489,7 +3168,9 @@ a.panel-stat--ambar:hover {
   .panel-table--clientes th:nth-child(4),
   .panel-table--clientes td:nth-child(4) { width: 14%; }
 
-   
+  /* Servicios: el importe va siempre en la misma derecha para que
+     la columna de cifras se pueda leer de un tirón, sin seguirlas
+     con la vista. */
   .panel-table--servicios th:nth-child(1),
   .panel-table--servicios td:nth-child(1) { width: 32%; }
   .panel-table--servicios th:nth-child(2),
@@ -2501,7 +3182,8 @@ a.panel-stat--ambar:hover {
   .panel-table--servicios th:nth-child(5),
   .panel-table--servicios td:nth-child(5) { width: 14%; }
 
-   
+  /* Cobros: seis columnas y la que menos necesita ancho es la de
+     acciones. Antes ocupaba 161px, más que el importe. */
   .panel-table--cobros th:nth-child(1),
   .panel-table--cobros td:nth-child(1) { width: 30%; }
   .panel-table--cobros th:nth-child(2),
@@ -2515,7 +3197,24 @@ a.panel-stat--ambar:hover {
   .panel-table--cobros th:nth-child(6),
   .panel-table--cobros td:nth-child(6) { width: 9%; }
 
-   
+  /* ── La columna de acciones, cuando no hay nada en ella ──
+
+     En una tabla con `row-link` la fila entera es pulsable, así que
+     los botones de acción se ocultan: no hay nada que pulsar ahí. La
+     columna se queda vacía, con su cabecera invisible y sus 158px de
+     aire.
+
+     Medido: 158px de 1192, un 13% de la tabla, para nada.
+
+     Se colapsa a cero y el ancho vuelve a las columnas que sí
+     enseñan algo. Y la condición se lee del propio marcado, con
+     `:has()`, en vez de mantener a mano una lista de qué tablas son
+     de fila pulsable: esa lista se desactualiza en cuanto alguien
+     añade una tabla y no se da cuenta.
+
+     En móvil no se aplica: allí los botones sí se ven, al fondo de la
+     tarjeta y a lo ancho, que es lo que se hizo para que no quedaran
+     fuera de la pantalla. */
   .panel-table:has(tbody tr.panel-row--link) th:last-child,
   .panel-table:has(tbody tr.panel-row--link) td:last-child {
     width: 0;
@@ -2524,7 +3223,14 @@ a.panel-stat--ambar:hover {
   }
 }
 
- 
+/* La celda que puede partirse en dos líneas es la que descuadra las
+   filas. Se le da una sola línea con puntos suspensivos y el alto
+   queda garantizado.
+
+   Con `fixed` ya no debería pasar en escritorio, pero el modo tarjeta
+   de móvil apila todo en bloques y esta regla no le toca: solo
+   aplica a la tabla de verdad. Es la red de seguridad, no el
+   mecanismo. */
 @media (min-width: 721px) {
   .panel-table--clientes tbody td,
   .panel-table--servicios tbody td,
@@ -2534,7 +3240,9 @@ a.panel-stat--ambar:hover {
     white-space: nowrap;
   }
 
-   
+  /* Excepción: el importe y el estado no se cortan nunca. Son cortos
+     y si se cortan es que la columna se ha quedado sin sitio, que
+     es un problema de la proporción, no del texto. */
   .panel-table--clientes tbody td.panel-th-num,
   .panel-table--clientes tbody td.panel-th-actions,
   .panel-table--servicios tbody td.panel-th-num,
@@ -2546,19 +3254,38 @@ a.panel-stat--ambar:hover {
   }
 }
 
- 
+/* El email en monoespaciada. AntesOccupaba la columna más ancha de la
+   pantalla y no se entendía por qué: es una dirección, no una frase.
+   Al ponerla en monoespaciada se lee como lo que es, un identificador,
+   y ahora que la columna es estrecha se recorta sin que parezca un
+   error. */
 .panel-table tbody td.panel-th-email {
   font-family: var(--font-mono, ui-monospace, monospace);
   font-size: var(--fs-xs);
   color: var(--text-muted);
 }
 
- 
+/* ── La cabecera, que se leía a 10.88px ──
+
+   Medido en las cuatro tablas. Es un tamaño por debajo de lo que se
+   lee de un vistazo, y la cabecera es justo lo que tiene que leerse
+   de un vistazo para saber en qué columna se está uno.
+
+   De 10.88 a 11.5. Poco, pero salta de "no se lee sin apartar la
+   vista" a "se lee de reojo". */
 .panel-table thead th {
   font-size: 0.72rem;
 }
 
- 
+/* =========================================================
+   ALTO ÚNICO DE LOS CONTROLES
+   =========================================================
+   Es el segundo desacuerdo medido: los campos de texto daban 38px en
+   servicios, 34px en catálogo y 30px en consultas.
+
+   Tres alturas distintas para el mismo control. Passing el ratón de
+   una pantalla a otra, el botón de abajo crecía y menguaba sin que
+   nada lo explicara. */
 @media (min-width: 721px) {
   .panel-input,
   .panel-table input[type="text"],
@@ -2568,13 +3295,53 @@ a.panel-stat--ambar:hover {
     min-height: var(--control-h);
   }
 
-   
+  /* El botón principal y el secundario también. Los botones con
+     `padding` en vez de alto se les da alto, porque si no el
+     relleno y la escala de espaciado se pelean. */
   .panel-btn:not(.panel-btn--xs) {
     min-height: var(--control-h);
   }
 }
 
- 
+/* =========================================================
+   CONTADORES DEL LATERAL
+   =========================================================
+   El número que va al lado de una sección.
+
+   ── POR QUÉ NO ES SOLO EL COLOR ──
+
+   Un 3 rojo junto a "Cobros" se lee como "los cobros están mal". Y a
+   lo mejor no lo están: lo que está mal son tres facturas concretas
+   que se pasaron de fecha. La sección está bien; lo que urge está
+   dentro.
+
+   Por eso cada uno lleva su `title` diciendo qué cuenta. El color
+   ordena por urgencia, que es lo único que tiene que hacer; el
+   título explica qué es. Un color solo no se puede leer, y un número
+   solo no se distingue de otro número.
+
+   ── TRES COLORES Y PARA QUÉ ──
+
+     rojo    lo que se pasó de fecha. Requiere una acción hoy.
+     ámbar   lo que está quieto y va a pedir atención pronto.
+     cian    lo nuevo. No es un problema: es una bandeja de entrada.
+
+   El cian es `--info`, no el acento. Con el acento el número se
+   confundía con "activo" y con el estado de la sección, que ya usa
+   ese color para otra cosa.
+
+   ── POR QUÉ SE OCULTA EN 0 ──
+
+   Un "0" al lado de cada sección es ruido que no enseña nada y
+   empuja el resto de la lista. Si no hay nada pendiente, no hay nada
+   que recordar. Y el hueco se queda: si el número crece, aparece en
+   su sitio sin que nada se mueva de golpe.
+
+   ── MÁS DE 99 ──
+
+   Se corta en "99+". Un número de cuatro cifras no cabe en el ancho
+   del lateral y empuja el texto de la sección hacia fuera. El
+   `title` lleva el número exacto, que es donde hace falta. */
 .panel-badge {
   display: inline-flex;
   align-items: center;
@@ -2591,7 +3358,8 @@ a.panel-stat--ambar:hover {
   line-height: 1;
   letter-spacing: 0;
 
-   
+  /* El borde de 1px compensa el `box-sizing`: sin él el círculo sale
+     2px más grande de lo que dice el alto y descuadra la fila. */
   border: 1px solid transparent;
 }
 
@@ -2613,13 +3381,23 @@ a.panel-stat--ambar:hover {
   background: color-mix(in srgb, var(--info) 14%, transparent);
 }
 
- 
+/* En móvil el lateral es un cajón con el ancho de la pantalla, así
+   que el `margin-left: auto` funciona igual. Pero en pantallas
+   muy estrechas, con las tres secciones con contador, el número
+   empuja el texto: se permite que la sección ocupe dos líneas en vez
+   de dejar el nombre cortado. */
 .panel-menu-item {
   flex-wrap: wrap;
   row-gap: 0.15rem;
 }
 
- 
+/* =========================================================
+   PALETA DE COMANDOS (Ctrl+K)
+   =========================================================
+   La capa va sobre todo, con `backdrop-filter` para que se vea que
+   hay algo encima. Sin oscurecer, la lista de resultados se mezcla
+   con la tabla que hay debajo y no se sabe dónde termina una cosa y
+   empieza la otra. */
 
 .cmd-capa {
   position: fixed;
@@ -2629,7 +3407,18 @@ a.panel-stat--ambar:hover {
   align-items: flex-start;
   justify-content: center;
   padding: clamp(3rem, 12vh, 8rem) 1rem 2rem;
-   
+  /* Fondo del menú en el celular.
+
+     Sale de `--bg`, que es de donde sale el de la home. Estaba como un
+     hexadecimal suelto —un negro azulado que no existe en la paleta— y
+     por eso el menú se veía de un negro distinto al header de la portada.
+
+     No es un detalle menor: es lo que tapa toda la pantalla en el celular.
+     Y un color suelto es de los que nadie revisa nunca, porque no rompe
+     nada y no se nota hasta que se compara con otra pantalla.
+
+     El `color-mix` con `transparent` es para que se vea el contenido de
+     detrás, que es lo que hace también la cabecera. */
   background: color-mix(in srgb, var(--bg) 62%, transparent);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
@@ -2640,7 +3429,10 @@ a.panel-stat--ambar:hover {
   display: none;
 }
 
- 
+/* `overflow-y: auto` en la CAPA y no en la caja: si la lista crece,
+   lo que scrollea es el fondo y la caja se queda en su sitio. Con el
+   scroll en la caja, el encabezado se iba con el contenido y ya no
+   se veía qué se estaba escribiendo. */
 .cmd-capa {
   overflow-y: auto;
 }
@@ -2659,7 +3451,7 @@ a.panel-stat--ambar:hover {
   overflow: hidden;
 }
 
- 
+/* ---------- El campo ---------- */
 
 .cmd-cabecera {
   display: flex;
@@ -2678,7 +3470,7 @@ a.panel-stat--ambar:hover {
   position: relative;
 }
 
- 
+/* El mango de la lupa: un palito, no otra forma. */
 .cmd-icono::after {
   content: "";
   position: absolute;
@@ -2701,7 +3493,9 @@ a.panel-stat--ambar:hover {
   font-size: 1.05rem;
 }
 
- 
+/* El contorno del foco va en la CAJA, no en el input. Si se dejara en
+   el input se vería un rectángulo dentro de otro rectángulo, y el
+   input no llega al borde: queda hueco. */
 .cmd-input:focus {
   outline: none;
 }
@@ -2711,7 +3505,7 @@ a.panel-stat--ambar:hover {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-2) 22%, transparent);
 }
 
- 
+/* ---------- La lista ---------- */
 
 .cmd-lista {
   max-height: min(24rem, 55vh);
@@ -2740,7 +3534,10 @@ a.panel-stat--ambar:hover {
   cursor: pointer;
 }
 
- 
+/* La marcada se pinta con el MISMO fondo que el hover, para que pasar
+   el ratón y bajar con el teclado den el mismo aviso de dónde
+   estás. Con dos estilos distintos, con el ratón no sabes cuál es
+   la que va a abrir Enter. */
 .cmd-item:hover,
 .cmd-item.es-marcada {
   background: var(--raise);
@@ -2785,7 +3582,7 @@ a.panel-stat--ambar:hover {
   color: var(--text-dim);
 }
 
- 
+/* ---------- El pie ---------- */
 
 .cmd-pie {
   display: flex;
@@ -2807,14 +3604,22 @@ a.panel-stat--ambar:hover {
   font-size: 0.65rem;
 }
 
- 
+/* ---------- El botón de la barra ---------- */
 
 .panel-buscar {
   display: flex;
   align-items: center;
   gap: 0.55rem;
 
-   
+  /* SIN margin auto aquí.
+
+     El selector de tema ya lo lleva, y son los dos hijos últimos de
+     la barra. Con dos `margin-inline-start: auto` en la misma fila,
+     el hueco se reparte entre los dos y el tema queda flotando en
+     mitad de la pantalla en vez de pegado a la derecha.
+
+     En la barra del portal no hay selector de tema, y entonces sí lo
+     necesita: se le da más abajo. */
   padding: 0.35rem 0.5rem 0.35rem 0.7rem;
   border: 1px solid var(--border);
   border-radius: 999px;
@@ -2831,7 +3636,8 @@ a.panel-stat--ambar:hover {
   color: var(--text);
 }
 
- 
+/* La barra del cliente no lleva selector de tema, así que aquí el
+   botón sí tiene que empujar el resto. */
 .panel-topbar--simple .panel-buscar {
   margin-inline-start: auto;
 }
@@ -2866,12 +3672,14 @@ a.panel-stat--ambar:hover {
   color: var(--text-dim);
 }
 
- 
+/* Con la paleta abierta, el fondo no se mueve: scroll sigue
+   funcionando detrás, que es lo que se espera. */
 body.cmd-abierto {
   overflow: hidden;
 }
 
- 
+/* En móvil no hay sitio para un botón con texto y atajo, y además
+   el atajo no existe en un teléfono. Se queda solo la lupa. */
 @media (max-width: 560px) {
   .panel-buscar-texto,
   .panel-buscar-atajo {
@@ -2888,7 +3696,34 @@ body.cmd-abierto {
   }
 }
 
- 
+/* =========================================================
+   TICKETS DE SOPORTE
+   =========================================================
+   El equipo atiende y el cliente escribe. Las dos mitades se
+   parecen a proposito —es el mismo hilo— pero la del equipo tiene
+   una cosa que la del cliente no: las notas internas.
+
+   ── POR QUE UNA NOTA INTERNA NO SE DISTINGUE SOLO POR EL COLOR ──
+
+   El color solo no se puede leer. Un ticket de cliente y uno del
+   equipo ya se distinguen por quien escribe; la nota interna se
+   distingue por la palabra "interno" y por el fondo rayado. El
+   color reinforces, no informa.
+
+   El rayado (repeating-linear-gradient) se elige por una razon
+   concreta: es lo unico que sigue leyendose en una captura
+   impresa en gris, y un ticket impreso en la oficina ya no tiene
+   color. Un color se pierde al imprimir; el rayado no.
+
+   ── LOS ESTADOS ──
+
+   abierto   --info      hay algo que hacer
+   en_curso  --warning   alguien lo esta cogiendo
+   resuelto  --success   hecho
+
+   Y el texto va SIEMPRE al lado del color. Un circulo rojo solo
+   obliga a pasar por el texto para saber que significa; con las
+   dos cosas se lee de reojo, que es de como se mira una lista. */
 
 .ticket-estado {
   display: inline-flex;
@@ -2928,9 +3763,12 @@ body.cmd-abierto {
   background: transparent;
 }
 
- 
+/* Un ticket resuelto no necesita color: se salen del color porque ya
+   no piden nada. El gris lo dice sin ensuciar la lista. */
 
- 
+/* La fecha en monoespaciada y atenuada. Es una referencia, no una
+   cifra que se comparen: va en el margen y no compite con el
+   asunto. */
 .ticket-cuando {
   font-family: var(--font-mono, ui-monospace, monospace);
   font-size: var(--fs-xs);
@@ -2938,7 +3776,13 @@ body.cmd-abierto {
   white-space: nowrap;
 }
 
- 
+/* Las columnas de la lista del equipo.
+
+   El ancho se reparte aqui y no por el contenido porque el
+   contenido cambia con los datos: si el reparto lo hiciera el
+   navegador, un cliente con el nombre largo ensancharia su
+   columna y moveria todas las de al lado. La lista tiene que
+   verse IGUAL vaya quien vaya tener abierto un ticket. */
 @media (min-width: 721px) {
   .panel-table--tickets th:nth-child(1),
   .panel-table--tickets td:nth-child(1) { width: 26%; }
@@ -2950,9 +3794,11 @@ body.cmd-abierto {
   .panel-table--tickets td:nth-child(4) { width: 18%; }
 }
 
- 
+/* ---------- El hilo ---------- */
 
- 
+/* `<ol>` y no `<div>` porque un hilo ES una lista ordenada: el
+   orden es lo que hace que se entienda. El `list-style` se quita
+   porque el numero no aporta: lo que importa es quien y cuando. */
 .ticket-hilo {
   list-style: none;
   margin: var(--p-5) 0;
@@ -2969,7 +3815,11 @@ body.cmd-abierto {
   background: var(--surface);
 }
 
- 
+/* El equipo se distingue por el LADO, no por el color.
+
+   Alineado a la derecha y con el borde de acento: la disposicion
+   ya dice de quien es sin depender del color, y asi funciona en
+   los tres temas y en una impresion. */
 .ticket-msg--staff {
   margin-inline-start: var(--p-5);
   border-color: color-mix(in srgb, var(--accent) 32%, transparent);
@@ -2980,7 +3830,8 @@ body.cmd-abierto {
   margin-inline-end: var(--p-5);
 }
 
- 
+/* La nota interna. El rayado es el aviso que sobrevive a imprimir
+   en gris; el color solo hace ruido si se lee en pantalla. */
 .ticket-msg--interno {
   background:
     repeating-linear-gradient(
@@ -3028,14 +3879,20 @@ body.cmd-abierto {
   color: var(--text-dim);
 }
 
- 
+/* El cuerpo conserva los saltos de línea que escribió quien lo
+  Mandó.
+
+   Sin `white-space: pre-line`, los saltos del textarea se pierden
+   al pintar y un texto con tres lineas sale en un parrafo largo
+   que no se puede leer. Es un detalle de una linea que cambia
+   del todo si el texto es largo. */
 .ticket-msg-cuerpo {
   white-space: pre-line;
   overflow-wrap: anywhere;
   line-height: 1.6;
 }
 
- 
+/* ---------- Contestar ---------- */
 
 .ticket-responder {
   margin-top: var(--p-5);
@@ -3046,7 +3903,12 @@ body.cmd-abierto {
   justify-content: space-between;
 }
 
- 
+/* La casilla de "solo para el equipo" va con el raton al principio
+   de la frase y no al final.
+
+   Es la casilla que cambia lo que va a pasar —si se marca, el
+   cliente NO lo vera—, asi que tiene que leerse antes de decidir,
+   no despues de leer todo lo demas. */
 .ticket-interno {
   display: flex;
   align-items: center;
@@ -3062,7 +3924,7 @@ body.cmd-abierto {
   height: 1rem;
 }
 
- 
+/* ---------- La lista del cliente ---------- */
 
 .ticket-lista {
   list-style: none;
@@ -3102,9 +3964,11 @@ body.cmd-abierto {
   gap: var(--p-2) var(--p-3);
 }
 
- 
+/* ---------- Volver ---------- */
 
- 
+/* El enlace de vuelta va arriba y pegado al margen, sin flecha
+   grande. Es una ayuda de orientacion, no un boton: si destaca
+   mas que el titulo, el ojo va al sitio equivocado. */
 .panel-volver {
   margin: 0 0 var(--p-4);
   font-size: var(--fs-sm);
@@ -3120,7 +3984,11 @@ body.cmd-abierto {
   text-decoration: underline;
 }
 
- 
+/* El selector de estado, en la cabecera de la ficha.
+
+   Es un `<form>` propio y no un boton por estado porque cambiar de
+   estado a "resuelto" sin confirmar es un accidentte, y un
+   `<select>` obliga a elegir explicitamente. */
 .ticket-estado-cambiar form {
   display: flex;
   align-items: center;
@@ -3132,9 +4000,13 @@ body.cmd-abierto {
   color: var(--text-dim);
 }
 
- 
+/* ---------- Movil ---------- */
 
- 
+/* En movil el margen lateral del hilo se quita: con 390px de
+   ancho, 24px por lado se comen una parte grande de la pantalla y
+   el texto queda en una columna estrecha. El lado ya no dice de
+   quien es el mensaje —que ademas va escrito arriba—, asi que no
+   se pierde nada. */
 @media (max-width: 720px) {
   .ticket-msg--staff,
   .ticket-msg--cliente {
@@ -3156,7 +4028,49 @@ body.cmd-abierto {
   }
 }
 
- 
+/* =========================================================
+   SISTEMA DE MOVIMIENTO Y ELEVACION
+   =========================================================
+   Lo que faltaba no era decoracion: era un SISTEMA. Trece
+   `transition` sueltas repartidas por el archivo, cada una con su
+   duracion escrita a mano, y ni un token.
+
+   Eso hace que dos animaciones que se supone gemelas duren cosas
+   distintas, y que nadie pueda acelerar el panel entero cuando le
+   parece lento.
+
+   ── LAS TRES DURACIONES Y POR QUE TRES ──
+
+   Menos de tres y no se distinguen los momentos; mas de tres y
+   acabas eligiendo al azar.
+
+     --mov-1  120ms  micro. Hover, foco, pulsado.
+                       Por debajo de 100ms no se perceived; por
+                       encima de 150 el raton va por delante del
+                       boton y da la sensacion de que elraton se
+                       arrastra.
+
+     --mov-2  200ms  cambio de estado. Abrir, cerrar, expandir,
+                       cambiar de pestaña. Donde se nota que algo
+                       ha cambiado.
+
+     --mov-3  320ms  entrar en pantalla. Panel lateral, paleta,
+                       avisos. Solo lo que APARECE y por tanto
+                       tiene un sitio de donde salir.
+
+   ── LAS DOS CURVAS, Y POR QUE NO UNA ──
+
+     --ease-out    algo ENTRA: arranca rapido y frena. Se percibe
+                   como inmediato, que es lo que se quiere de una
+                   cosa que aparece.
+
+     --ease-in-out algo SE MUEVE: de un sitio a otro. Frena al
+                   arrancar y al llegar, que es lo que hace que se
+                   lea como movimiento y no como salto.
+
+   Escribirlos al reves —entrar lento, salir rapido— es el error
+   clasico: la cosa que aparece tarde en arrancar parece lenta
+   aunque tarde lo mismo en terminar. */
 
 :root {
   --mov-1: 120ms;
@@ -3166,21 +4080,68 @@ body.cmd-abierto {
   --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
 
-   
+  /* ── ELEVACION: TRES NIVELES Y NI UNO MAS ──
+
+     Antes habia nueve sombras distintas, y solo dos eran elevation
+     real; las demas eran anillos de foco y tramas. Nueve niveles
+     de sombra no significan nueve niveles de altura: significan
+     que nadie sabe cuando usar cada una, y acabas poniendo
+     `box-shadow` cuando lo que hace falta es un borde.
+
+     Tres niveles, y una regla: si dudas entre dos, usa el mas bajo.
+
+       --elev-0  nada. Plano. El nivel por defecto de TODO.
+       --elev-1  una tarjeta que se apoya en la pagina.
+       --elev-2  algo que flota: menu, paleta, aviso.
+
+     La diferencia entre 0 y 1 no es una sombra, es un BORDE. Una
+     tarjeta pegada a la pagina se separa con una linea, y el hueco
+     de sombra se reserva para lo que de verdad flota. Un borde es
+     mas barato de pintar y se lee mejor en un tema oscuro, donde
+     las sombras casi no se ven. */
   --elev-0: none;
   --elev-1: 0 1px 2px rgba(0, 0, 0, 0.14);
   --elev-2: 0 12px 32px -8px rgba(0, 0, 0, 0.45);
 
-     
+    /* La sombra de tarjeta, que es otra cosa que --elev-2.
+
+       --elev-2 es "esto flota por encima de la pagina": un menu, una
+       paleta de busqueda, un dialogo. Es una sombra profunda y
+       direccional, con desplazamiento, porque el elemento esta
+       DESPEGADO.
+
+       La tarjeta al reves esta PEGADA al lienzo y lo que quiero es
+       que se destaque por un pelo, no que parezca flotando. Por eso
+       no lleva desplazamiento y el desenfoque es grande: muchos
+       pixeles de difuminacion y ninguno de recorrido.
+
+       Es la sombra de Argon, `0 0 2rem rgba(136,152,170,.15)`, y el
+       2rem sale de ahi, no de elegir a ojo. El gris azulado tambien
+       es el suyo porque en oscuro una sombra con tinte cold se
+       distingue de la superficie; una gris neutra se mezcla con
+       ella y no dibuja nada. */
 
     --elev-card: 0 0 2rem rgba(136, 152, 170, 0.10);
     --elev-card-fuerte: 0 0 2.5rem rgba(136, 152, 170, 0.16);
 
-   
+  /* Una sola sombra para el tema oscuro tambien. Las sombras
+     sobre fondo casi negro no se ven; el relieve lo hace el
+     borde. Y al ponerla como token, el tema claro la cambia sin
+     tener que buscar nueve reglas. */
 }
 
 
- 
+/* ── CUANDO EL USUARIO PIDE MENOS MOVIMIENTO ──
+
+   No es un detalle de accesibilidad: es que hay gente a quien el
+   movimiento en pantalla le cae mal de verdad, y en el panel se
+   pasa horas.
+
+   Ponerlo a `0.01ms` en vez de a `none` deja las transiciones en su
+   sitio, asi que los estados finales se siguen aplicando y nada
+   se queda a medio camino. Con `none` un elemento con `transition`
+   y un estado final sigue mostrando el estado inicial en algunos
+   navegadores. */
 @media (prefers-reduced-motion: reduce) {
   .panel-body *,
   .panel-body *::before,
@@ -3190,23 +4151,46 @@ body.cmd-abierto {
     animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;
   }
-}.panel-btn,
+}
+
+
+/* =========================================================
+   TRANSICIONES EN LO INTERACTIVO
+   =========================================================
+   Aqui hay una exclusion importante, y es la que mas se nota.
+
+   El hover de fila y de boton NO lleva transicion.
+
+   Un boton con `transition: 120ms` tarda esos 120ms en responder al
+   raton. En una pantalla en la que el usuario va moviendo el
+   raton de un elemento a otro, lo que ve no es "suave": es que el
+   raton va por delante. El hover tiene que ser INMEDIATO; lo que
+   se anima es la SALIDA, que es lo que no molesta.
+
+   Por eso el patron de abajo pone transicion solo en el estado de
+   reposo y no en el activo: el elemento llega al hover de golpe y
+   sale de él despacio. */
+.panel-btn,
 .panel-menu-item,
+.panel-tab,
 .panel-tabs a,
 .panel-filters input,
 .panel-filters select,
 .panel-chip,
 .panel-badge,
 .ticket-fila a,
-.panel-searchearch {
+.panel-search {
   transition:
     background-color var(--mov-1) var(--ease-out),
     border-color var(--mov-1) var(--ease-out),
     color var(--mov-1) var(--ease-out),
     box-shadow var(--mov-1) var(--ease-out);
-}.panel-btn--primary,
+}
+
+.panel-btn--primary,
+.panel-theme,
 .cmd-caja,
-.cmd-itemem {
+.cmd-item {
   transition:
     background-color var(--mov-2) var(--ease-out),
     border-color var(--mov-2) var(--ease-out),
@@ -3215,31 +4199,95 @@ body.cmd-abierto {
     transform var(--mov-1) var(--ease-out);
 }
 
- 
+/* El foco visible tambien se anima. Sin transicion aparece de
+   golpe con el Tab y da un tirón; con transicion se ve de donde
+   viene el foco. */
 :where(a, button, input, select, textarea, [tabindex]):focus-visible {
   transition: box-shadow var(--mov-1) var(--ease-out);
 }
 
- 
+/* =========================================================
+   CABECERA PEGADA AL HACER SCROLL
+   =========================================================
+   El contenedor `.panel-table-wrap` lleva desde el principio un
+   comentario que dice "la cabecera sticky se ancla al contenedor
+   que hace scroll". O sea: se planeo, se dejo el sitio preparado y
+   nunca se aplico el `position: sticky`. Por eso al bajar en una
+   tabla de 40 cobros ya no sabes en que columna estas, y subes a
+   mirarlo.
+
+   ── POR QUE HAY QUE SACARLE EL SCROLL ──
+
+   Para que `position: sticky` funcione, el elemento se ancla al
+   ancestro con scroll mas cercano. Ahora el wrap es
+   `overflow-x: auto` + `overflow-y: auto`, asi que es contenedor de
+   scroll en los dos ejes, pero no tiene alto: crece hasta llenar la
+   tabla y nunca scrollea. El sticky se ancla a un contenedor que
+   no se mueve, y no pasa nada.
+
+   Y no se puede poner `overflow-y: visible` con `overflow-x: auto`
+   porque CSS no lo permite: si un eje no es `visible`, el otro
+   computes a `auto`. O los dos scrollean, o ninguno.
+
+   En escritorio el contenedor se abre. Las tablas tienen
+   `min-width: 560px` y el area de contenido mide 1192px a 1440, asi
+   que en la practica no hay scroll horizontal. En movil el modo
+   tarjeta ya pone `overflow: visible` y no hay tabla que anclar.
+
+   ── LA SOMBRA AL SCROLLEAR ──
+
+   Aqui no vale la sombra siempre puesta: la sombra indica que hay
+   algo por encima, y si esta siempre dice que lo hay aunque no lo
+   haya. Es un aviso que miente, y por eso no se pone.
+
+   La sombra la anade `panel.js` cuando la cabecera deja de verse
+   entera. No es decoracion: la sombra es la que separa el fondo
+   del texto, porque un fondo traslucido con las filas pasando por
+   debajo es ilegible, y ese es el problema que resuelve. */
 
 @media (min-width: 721px) {
   .panel-table-wrap {
-     
+    /* Solo hay dos pares validos en CSS para esto:
+       `visible visible` y `auto auto`. Y `visible visible` es lo
+       mismo que `visible`, que no scrollea: justo lo que se
+       quiere. */
     overflow: visible;
   }
 }
 
 .panel-table thead th {
   position: sticky;
-   
+  /* Se ancla DEBAJO de la barra superior, no en 0: si en 0, la
+     cabecera se esconde detras de la barra al bajar, y una
+     cabecera pegada que desaparece no esta pegada a nada. */
   top: var(--panel-topbar);
   z-index: 2;
 
-   
+  /* El fondo va SOLID. Traslucido es mas elegante e ilegible: las
+     filas de detras se leen a traves del texto. Con `backdrop-filter`
+     encima solo se ve en los navegadores que lo soportan, y el resto
+     se queda sin fondo, que es peor. */
   background: var(--surface);
 }
 
- 
+/* La sombra, cuando toca. La pone `panel.js` cuando el borde superior
+   de la tabla pasa por debajo de la barra: a partir de ahi, lo que
+   asoma por debajo de la cabecera es una fila de datos.
+
+   ── POR QUE DOS SOMBRAS Y NO UNA ──
+
+   La primera es la linea de 1px que separa la cabecera de la fila
+   que tiene pegada debajo. La segunda es la difuminacion que dice
+   "por aqui hay algo tapado".
+
+   Con solo la linea se ve un recuadro plano pegado a la tabla. Con
+   solo la difuminacion no se distingue donde acaba la cabecera. Las
+   dos juntas hacen lo que hace un papel al que se pasa algo por
+   encima.
+
+   Y el borde de abajo se quita cuando la sombra esta puesta: los dos
+   juntos dan una linea doble que engorda la cabecera un pixel y se
+   nota como un fallo de calibrado. */
 .panel-table-wrap--scrolled > .panel-table > thead th {
   box-shadow:
     0 1px 0 var(--border-strong),
@@ -3247,7 +4295,43 @@ body.cmd-abierto {
   border-bottom-color: transparent;
 }
 
- 
+/* =========================================================
+   "QUÉ HAY QUE HACER"
+   =========================================================
+   Lo primero de la portada.
+
+   ── POR QUÉ NO ES OTRA TARJETA MÁS ──
+
+   Porque la portada ya tenía tarjetas sueltas, y con cuatro
+   tarjetas al lado la pregunta "qué hago ahora" hay que
+   contestársela a uno mismo: leer los números, compararlos y decidir.
+   Eso es trabajo, y lo que esta pantalla tiene que hacer es
+   quitárselo.
+
+   Así que no enseña cuatro datos: enseña cuatro COSAS, en orden de
+   urgencia, y en ese orden el orden ES el mensaje. Lo vencido
+   primero porque es dinero que ya no está. Lo demás detrás, porque
+   tiene dueño y se está esperando.
+
+   ── LA FILA ──
+
+   El número va en un círculo a la izquierda, no encima y no dentro
+   de una caja. Es el primer dato que hay que ver al entrar y
+   cuanto más grande y menos ruido tenga alrededor, antes se lee.
+
+   Y el botón de la derecha dice la ACCIÓN, no "ver". "Ver" obliga a
+   adivinar qué va a pasar; "Cobrar" dice qué hay que hacer. Es la
+   diferencia entre un enlace y un botón, y aquí el botón es
+   correcto.
+
+   ── EL VACÍO ──
+
+   Cuando no hay nada, se dice que no hay nada y se dice por qué no
+   está lleno. Un bloque en blanco con "pendientes: 0" es un aviso
+   de que algo no se está leyendo. Esta frase dice "no hay cobros
+   vencidos, ni consultas sin responder..." —o sea, explica el
+   alcance de lo que se ha mirado— y la nota pequeña debajo recuerda
+   que es un estado, no un sitio vacío. */
 
 .panel-hacer {
   margin-bottom: var(--p-6);
@@ -3292,7 +4376,9 @@ body.cmd-abierto {
   background: var(--raise);
 }
 
- 
+/* El número en círculo. El color va en el borde y en la cifra, no
+   en el fondo de la fila: cuatro filas de color entero parecen
+   cuatro alarmas, y solo una lo es. */
 .panel-hacer-n {
   flex: 0 0 auto;
   display: inline-flex;
@@ -3344,7 +4430,16 @@ body.cmd-abierto {
   white-space: nowrap;
 }
 
- 
+/* ── La pista: POR QUÉ está en la lista ──
+
+   "Caducó hace 38 días" sin más es un dato suelto. "Caducó hace 38
+   días" debajo de "Panadería López · tienda online" ya es una tarea:
+   se sabe a quién hay que llamar y por qué.
+
+   Va en un tono apagado y más pequeña que el nombre, porque el
+   orden de lectura tiene que ser empresa primero. Al revés — el
+   motivo encima y la empresa debajo — el ojo lee el motivo, ve
+   "caducó", y no tiene con quién. */
 .panel-hacer-pista {
   font-size: var(--fs-xs);
   color: var(--text-dim);
@@ -3362,7 +4457,7 @@ body.cmd-abierto {
   text-decoration: underline;
 }
 
- 
+/* ── El vacío ── */
 
 .panel-hacer-vacio {
   margin: 0;
@@ -3377,7 +4472,12 @@ body.cmd-abierto {
   color: var(--text-dim);
 }
 
- 
+/* ── Movil ──
+
+   En una columna estrecha, la fila pasa a dos líneas: el texto
+   arriba y el botón debajo, a lo ancho. Con el número, el texto y el
+   botón en la misma línea a 390px, el texto se come el botón y la
+   acción queda ilegible. */
 
 @media (max-width: 560px) {
   .panel-hacer-item {
@@ -3399,9 +4499,53 @@ body.cmd-abierto {
     justify-content: center;
   }
 }
- 
+/* =========================================================
+   ARGON: EL VOCABULARIO DE COMPONENTES
+   =========================================================
+   Argon Dashboard es MIT (Creative Tim), así que su lenguaje
+   visual se puede tomar. Lo que NO se ha traido es Bootstrap
+   4 ni su paso de SASS: eso habria Meaning un reset de estilos,
+   una dependencia de 150 KB y una cadena de compilacion que este
+   proyecto no tiene, todo para acabar escribiendo el CSS a mano
+   igual.
 
- 
+   Asi que de Argon se toma la ANATOMIA de las piezas, que es lo
+   que la gente reconoce, y se mide con los tokens de aqui.
+
+   ── LOS VALORES DE ARGON, Y QUE SE USA CADA UNO ──
+
+     tarjeta      0 0 2rem rgba(136,152,170,.15)   -> --elev-card
+     radio        .375rem (6px)                    -> --radius (12px)
+     boton        peso 600, translateY(-1px) hover  -> el nuestro ya es 600
+     cabecera th  .65rem, mayusculas, ls 1px        -> el nuestro ya es asi
+     rejilla      col-xl-8 + col-xl-4, xl = 1200px -> .panel-rejilla
+
+   Dos de los cuatro ya coincidian con lo que teniamos. No es
+   casualidad: las cabeceras de tabla en versalitas con 1px de
+   separacion son un patron de la casa desde antes de que
+   Argon se mirara.
+
+   ── LO QUE SI SE APLICA ──
+
+     .panel-rejilla   la division 8/4
+     .panel-card      la tarjeta con cabecera
+     .panel-stat      cifra con icono
+     .panel-meter     la barra de progreso
+     .panel-tendencia la flecha con porcentaje
+     .panel-timeline  la linea de tiempo
+     .panel-segmented las pastillas de periodo
+   ========================================================= */
+
+/* ── La tarjeta ──
+
+   El fondo tiene que poder separarse de la pagina, y en tema
+   oscuro eso no se consigue con una sombra: una sombra negra
+   sobre negro no se ve. Se consigue con un borde claro y una
+   superficie un punto por encima del fondo.
+
+   Por eso el borde no es decorativo aqui, es lo que dibuja la
+   tarjeta. En tema claro vuelve a hacer lo de siempre, que es
+   dar un contorno. */
 
 .panel-card {
   background: var(--surface);
@@ -3411,7 +4555,14 @@ body.cmd-abierto {
   overflow: hidden;
 }
 
- 
+/* ── La cabecera de la tarjeta ──
+
+   Cintillo pequeno encima, titulo debajo, y a la derecha la
+   accion. Ese orden es el de Argon y el motivo esta en el peso
+   tipografico: el cintillo va en 0.7rem y el titulo en 1.05rem,
+   asi que aunque los dos sean grandes, el titulo gana por
+   tamaño y el cintillo no compite. Se leen los dos y el ojo
+   se queda en el titulo. */
 
 .panel-card-head {
   display: flex;
@@ -3448,7 +4599,26 @@ body.cmd-abierto {
   padding: var(--p-5);
 }
 
- 
+/* Cuando el cuerpo es una tabla, el padding estorba: la tabla
+   ya trae el suyo y con los dos quedan celdas metidas hacia
+   dentro y una fila que no llega al borde de la tarjeta. */
+.panel-card-cuerpo--sin-padding {
+  padding: 0;
+}
+
+/* ── La rejilla 8/4 ──
+
+   El reparto de Argon es 8 y 4, no 6 y 6. No es estetica: la
+   columna ancha es donde va una tabla de cinco columnas y la
+   estrecha es donde va una lista de una. Con 6/6 las dos
+   columnas estarian igual de anchas para dos cosas que no lo
+   necesitan.
+
+   Por debajo de 1000px cae a una columna. El ancho de Argon
+   para ese reparto es 1200px, y se baja antes porque aqui el
+   lateral fijo se come 248px del viewport: a 1200 de ventana
+   el contenido son 950, y una columna estrecha ya esta
+   pidiendo que le den la suya entera. */
 
 .panel-rejilla {
   display: grid;
@@ -3456,7 +4626,15 @@ body.cmd-abierto {
   gap: var(--panel-gap-lg);
   align-items: start;
 }
- 
+/* ── Lo que sustituye a las cajas y a la rejilla viejas ──
+
+   `.panel-card--peligro`: el borde en rojo de la caja de archivar.
+   No se queda el nombre viejo porque "peligro" ya no es un matiz de
+   estilo: es la unica accion de la ficha que no se puede deshacer, y
+   por eso tiene que destacar sin tener que leer el boton.
+
+   La cabecera tambien se tiñe, y solo ella. Si se tiñera el cuerpo
+   entero, el texto de aviso dejaria de leerse. */
 
 .panel-card--peligro {
   border-color: color-mix(in srgb, var(--danger) 34%, transparent);
@@ -3466,7 +4644,9 @@ body.cmd-abierto {
   background: color-mix(in srgb, var(--danger) 8%, transparent);
 }
 
- 
+/* La columna estrecha de la rejilla 8/4. Es una pila de tarjetas con
+   su propio ritmo, independiente del de la pagina. Antes era
+   `.panel-split-side`. */
 .panel-rejilla-lado {
   display: grid;
   gap: var(--panel-gap);
@@ -3479,14 +4659,35 @@ body.cmd-abierto {
   }
 }
 
- 
+/* ── La cifra con icono ──
+
+   La caja de color a la izquierda es lo que hace la tarjeta de
+   Argon reconocible. Sin ella son cuatro numeros en cuatro cajas
+   iguales, que es exactamente lo que habia antes.
+
+   El tamano es 2.75rem de caja con el trazo a 1.15rem dentro.
+   La proporcion importa: con el icono casi tan grande como la
+   caja se lee como un bloque de color, y con el icono pequeno
+   se lee como un icono. A mitad de camino se lee como los dos.
+
+   El color va en el fondo translucido y en el icono, no en la
+   tarjeta entera. Cuatro tarjetas de color entero parecen cuatro
+   alarmas, y solo una lo es: la del dinero vencido. */
 
 .panel-stat {
   display: flex;
   align-items: center;
   gap: var(--p-4);
 
-   
+  /* ─────────────────────────────────────────────────────
+     ESTA TARJETA ES UN CONTENEDOR
+
+     Para que la cifra de dentro pueda ajustarse a su ancho con `cqi`,
+     en vez de al ancho de la ventana con `vw`. La diferencia se ve
+     cuando hay rejillas de distintas anchuras en la misma pantalla:
+     con `vw` las dos tarjetas reciben el mismo tamaño y la estrecha se
+     queda sin sitio.
+     ───────────────────────────────────────────────────── */
   container-type: inline-size;
 
   padding: var(--p-4) var(--p-5);
@@ -3507,14 +4708,44 @@ body.cmd-abierto {
   box-shadow: var(--elev-card-fuerte);
 }
 
- 
+/* ─────────────────────────────────────────────────────────
+   LA TARJETA QUE NO LLEVA ICONO, EN COLUMNA
+
+   `.panel-stat` es una fila: un icono a la izquierda y el texto en
+   `.panel-stat-cuerpo` a la derecha. Ese es el diseño del resumen, y
+   `index.ejs` es la única vista que lo usa.
+
+   Las OTRAS cuatro —cobros, bots, servidores y generar cobros— ponen
+   la cifra, la etiqueta y el pie directamente en la tarjeta, sin
+   envoltorio. Con la fila, esos tres se colocan uno al lado del otro:
+   220px de cifra + 53 de etiqueta + 95 de pie = 368 en una tarjeta de
+   358 a 390px de ancho, y el pie se salía 67px de la tarjeta, encima
+   de la de al lado.
+
+   ── POR QUÉ NO SE ARREGLA EN LAS CUATRO VISTAS ──
+
+   Porque el problema no está en las cuatro: está en la regla, que
+   espera un hijo que casi nadie tiene. Arreglar las vistas sería
+   cambiar cuatro ficheros para que se parezcan al quinto, y la
+   quinta vez que se escriba una tarjeta con cifra y etiqueta, el
+   problema vuelve sin que nadie lo vea.
+
+   ── Y POR QUÉ `:has()` Y NO UNA CLASE NUEVA ──
+
+   Porque la pregunta es «¿esta tarjeta tiene el envoltorio?», y eso lo
+   contesta el marcado, no el CSS. Con `:not(:has(...))` la tarjeta
+   que no lo tiene apila sola, y no hay que acordarse de marcar nada.
+   ───────────────────────────────────────────────────────── */
 .panel-stat:not(:has(.panel-stat-cuerpo)) {
   flex-direction: column;
   align-items: flex-start;
   gap: 0;
 }
 
- 
+/* Y el pie, a lo ancho entero de la tarjeta, que es lo que se espera
+   de un pie. Con la columna, ya no tiene al lado nada con lo que
+   pelearse, pero sigue haciendo falta que pueda partir: un importe
+   largo más un texto de recuento no caben en una línea. */
 .panel-stat:not(:has(.panel-stat-cuerpo)) .panel-stat-pie {
   width: 100%;
   overflow-wrap: anywhere;
@@ -3537,7 +4768,11 @@ body.cmd-abierto {
   height: 1.15rem;
 }
 
- 
+/* El cuerpo es un contenedor aparte porque sin el, `strong` y
+   `span`serian hermanos directos de la caja del icono y
+   necesitarian cada uno su propio margen. Con el, el bloque de
+   texto se comporta como una unidad y se puede alinear con el
+   icono sin tocar los hijos. */
 .panel-stat-cuerpo {
   min-width: 0;
 }
@@ -3546,7 +4781,39 @@ body.cmd-abierto {
   display: block;
   font-family: var(--font-display, "Outfit", sans-serif);
 
-   
+  /* ─────────────────────────────────────────────────────
+     LA CIFRA SE AJUSTA A LA TARJETA, NO A LA PANTALLA
+
+     A 1.9rem fijo, «15.917.863,00 €» necesita 220px. La rejilla de
+     cobros deja tarjetas de 195px (`minmax(195px, 1fr)`), o sea que a
+     partir de los 900px de ancho ya no cabía: la cifra se salía 42px
+     de la tarjeta en tablet, no solo en móvil.
+
+     Y con un `vw` tampoco se arregla: el problema no es la pantalla,
+     es cuánto ancho tiene ESTA tarjeta. La misma cifra se sale en una
+     tarjeta estrecha de una rejilla de cuatro columnas y cabe en una
+     ancha de dos, y las dos pueden estar en la misma pantalla.
+
+     ── POR QUÉ UNA CONSULTA DE CONTENEDOR ──
+
+     Porque el `font-size` se decide con el ancho de la tarjeta, que es
+     justo lo que mide `cqi`. Un `vw` decidiría con el ancho de la
+     ventana, que es una pista y no la medida.
+
+     ── EL NÚMERO ──
+
+     11cqi es el ancho del cuerpo de la cifra dividido entre el número
+     de caracteres, medido sobre el caso más largo que hay. El mínimo
+     de 1.1rem es por debajo de eso: más pequeño no se lee, y una cifra
+     ilegible en una tarjeta estrecha es mejor que una que se sale.
+
+     ── Y EL `anywhere` DE RESPALDO ──
+
+     Con el `clamp` no hace falta, y se deja a propósito: si algún día
+     un importe tiene dos cifras más —un saldo con centavos de una
+     compra por API—, prefiero que parta en dos líneas a que se salga de
+     la tarjeta. Partir un importe es feo; salirse del todo es peor.
+     ───────────────────────────────────────────────────── */
   font-size: clamp(1.1rem, 11cqi, 1.9rem);
 
   font-weight: 700;
@@ -3567,7 +4834,9 @@ body.cmd-abierto {
   color: var(--text-dim);
 }
 
- 
+/* Las dos de dinero no son "cifras", son avisos. Por eso el
+   numero va en el color del aviso y el texto no: si los dos
+   fueran rojo, la tarjeta gritaria. */
 .panel-stat--alerta { --stat-color: var(--danger); --stat-tinte: color-mix(in srgb, var(--danger) 15%, transparent); }
 .panel-stat--ambar  { --stat-color: var(--warning); --stat-tinte: color-mix(in srgb, var(--warning) 15%, transparent); }
 .panel-stat--info   { --stat-color: var(--info);    --stat-tinte: color-mix(in srgb, var(--info) 15%, transparent); }
@@ -3578,7 +4847,17 @@ body.cmd-abierto {
   color: var(--stat-color);
 }
 
- 
+/* ── La barra de progreso ──
+
+   La de Argon, que es solo una pista y un relleno. El ancho se
+   pone en linea con `style="width: 62%"` porque es un dato, y
+   un dato no puede estar en una hoja de estilos: son 62 filas y
+   habria que escribir 62 clases.
+
+   El relleno va con transicion para que al cargar se vea crecer,
+   que es lo que dice que la cifra se esta formando. Con
+   `prefers-reduced-motion` la transicion se apaga, como en el
+   resto del panel. */
 
 .panel-meter {
   display: block;
@@ -3595,13 +4874,198 @@ body.cmd-abierto {
   border-radius: inherit;
   background: var(--meter-color, var(--accent-2));
   transition: width var(--mov-3) var(--ease-out);
-}vo {
+}
+
+/* ── La tendencia ──
+
+   Flecha y porcentaje. El color es el de la flecha, no el del
+   texto: "sube" en verde con un 4% en blanco se lee, y en rojo
+   tambien, que es justo donde hace falta leerlo. */
+.panel-tendencia {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.panel-tendencia svg {
+  width: 0.8rem;
+  height: 0.8rem;
+}
+
+.panel-tendencia--sube { color: var(--success); }
+.panel-tendencia--baja { color: var(--danger); }
+.panel-tendencia--igual { color: var(--text-dim); }
+
+/* ── Las pastillas de periodo ──
+
+   Las nav-pills de Argon, para cambiar de semana a mes o de
+   30 dias a 12 meses. Van dentro de la cabecera de la tarjeta.
+
+   El interior lleva `border: 1px` en vez de relleno porque un
+   grupo de pastillas rellenas del color de acento pesa mas que
+   el grafico que controlan. */
+.panel-segmented {
+  display: inline-flex;
+  padding: 0.15rem;
+  gap: 0.15rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm, 8px);
+  background: var(--bg-soft);
+}
+
+.panel-segmented a,
+.panel-segmented button {
+  padding: 0.3rem 0.7rem;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color var(--mov-1) var(--ease-out),
+              color var(--mov-1) var(--ease-out);
+}
+
+.panel-segmented a:hover,
+.panel-segmented button:hover {
+  color: var(--text);
+}
+
+.panel-segmented [aria-current="true"],
+.panel-segmented .activo {
   background: var(--surface);
   color: var(--text);
   box-shadow: var(--elev-1);
 }
 
- 
+/* ── La linea de tiempo ──
+
+   Argon la usa para el historial de una persona. Aqui encaja
+   para la actividad reciente, y el icono a la izquierda es el
+   que marca el tipo de movimiento.
+
+   El punto de la linea va en el pseudoelemento y no como un
+   hijo mas: asi el marcado sigue siendo una lista, que es lo
+   que necesita un lector de pantalla, y la linea se dibuja sola
+   sin una fila por cada elemento. */
+.panel-timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 var(--p-2);
+}
+
+.panel-timeline li {
+  position: relative;
+  padding: 0 0 var(--p-5) var(--p-6);
+}
+
+.panel-timeline li:last-child {
+  padding-bottom: 0;
+}
+
+.panel-timeline li::before {
+  content: "";
+  position: absolute;
+  left: 0.3125rem;
+  top: 0.45rem;
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 50%;
+  background: var(--punto, var(--accent-2));
+  box-shadow: 0 0 0 3px var(--surface);
+}
+
+.panel-timeline li::after {
+  content: "";
+  position: absolute;
+  left: 0.5775rem;
+  top: 1.2rem;
+  bottom: 0.15rem;
+  width: 1px;
+  background: var(--border);
+}
+
+.panel-timeline li:last-child::after {
+  display: none;
+}
+
+.panel-timeline strong {
+  display: block;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.panel-timeline span {
+  display: block;
+  margin-top: 0.1rem;
+  font-size: var(--fs-xs);
+  color: var(--text-dim);
+}
+
+/* =========================================================
+   RITMO VERTICAL: UN SOLO ESPACIO ENTRE BLOQUES
+   =========================================================
+   Este bloque va AL FINAL del archivo a proposito, y lleva `[class]`
+   en el selector. Las dos cosas son necesarias:
+
+   ── POR QUE AL FINAL ──
+
+   Porque portal.css se carga DESPUES de panel.css. Dos reglas con la
+   misma especificidad las gana la ultima del orden de carga, no la
+   ultima del archivo.
+
+   ── POR QUE [class] ──
+
+   Porque `.panel-page > *` tiene especificidad (0,1,0), la misma que
+   `.portal-catalogo`, y el `margin: 0` de esa lista —que está en
+   portal.css— le gana por orden de carga. Con `[class]` el selector
+   sube a (0,2,0) y ya no hay empate.
+
+   La alternativa era subir la especificidad a la fuerza con un
+   `!important` o un selector inventado. Esto al menos dice lo que
+   quiere decir: "los hijos de la pagina que son componentes", que es
+   exactamente lo que son, y deja fuera los `<script>` y los `<style>`
+   que no son nada.
+
+   ── POR QUE ESTA REGLA Y NO UN MARGEN EN CADA BLOQUE ──
+
+   Porque cada bloque se inventaba el suyo y no coincidían:
+
+     .portal-cab          2.25rem
+     .portal-sec          2.25rem
+     .panel-requiere      1.5rem
+     .panel-empty         1.35rem
+     .panel-alert         1.15rem
+     .panel-note          NINGUNO
+
+   El último es el que rompía. En /servicios-disponibles el aviso de
+   "¿Falta algo? Dinos qué necesitas" se quedaba PEGADO al final de
+   la lista de tarjetas. Medido: el <ul> acababa en 537 y el aviso
+   empezaba en 537. Cero píxeles.
+
+   Y con el ritmo único, /panel/perfil pasó a 36-24-24 y el hueco de
+   18px entre un aviso y las métricas de /panel/mis-servicios
+   desapareció: ahora son los mismos 36 que entre secciones.
+
+   ── POR QUE NO SE BORRAN LOS MARGENES VIEJOS ──
+
+   Porque los márgenes verticales adyacentes se funden y se queda el
+   MAYOR. Un margen de 1.15rem al lado de este de 2.25rem da 2.25rem:
+   los valores viejos se vuelven irrelevantes solos, y si alguno hace
+   falta para algo raro sigue ahí. Borrarlos sería work sin ganho y
+   dejaría sin margen a lo que hoy lo tiene.
+
+   ── EL VALOR ──
+
+   --panel-gap-xl, que ya usaban las secciones. Si el ritmo de
+   fuera fuera otro distinto de este, habría dos ritmos y el problema
+   volvería con otros números.
+   ========================================================= */
 
 .panel-page > [class] {
   margin-bottom: var(--panel-gap-xl);
@@ -3611,7 +5075,35 @@ body.cmd-abierto {
   margin-bottom: 0;
 }
 
- 
+/* ─────────────────────────────────────────────────────────
+   LOS FORMULARIOS TAMBIÉN SON BLOQUES DE LA PÁGINA
+
+   La regla de arriba necesita `[class]`, y casi ningún `<form>` del
+   panel tiene clase. Lo normal es que no se note, porque un formulario
+   suele ser el último bloque y el último no lleva margen.
+
+   Se nota justo en `planes.ejs`, donde después del formulario hay una
+   nota al pie: el formulario se quedaba sin margen y la nota se
+   pegaba a la tabla. El verificador de CSS lo marcó como hueco cero.
+
+   ── POR QUÉ NO SE LE PONE CLASE A CADA FORMULARIO ──
+
+   Porque son treinta y un formularios y la clase habría que ponerla en
+   treinta y un sitios. Se olvida en uno —que es exactamente lo que pasó
+   con `panel-foot-note`, una clase inventada que no existe en ningún
+   CSS y por eso no separaba nada— y el problema vuelve sin que nadie
+   lo note.
+
+   Y poner la clase no sirve igual: `.panel-form` es `display: grid`,
+   así que añadírsela al formulario de planes cambiaría el layout de
+   las tarjetas. El ritmo no debería depender de una clase que además
+   maqueta.
+
+   ── Y POR QUÉ NO AFECTA A LAS DEMÁS PÁGINAS ──
+
+   Porque `:last-child` deja el margen a cero, igual que hace la regla
+   de arriba. Un formulario que es lo último se sigue viendo igual.
+   ───────────────────────────────────────────────────────── */
 .panel-page > form {
   margin-bottom: var(--panel-gap-xl);
 }
@@ -3620,7 +5112,33 @@ body.cmd-abierto {
   margin-bottom: 0;
 }
 
- 
+/* =========================================================
+   EL BLOQUE DE REPARTO
+   =========================================================
+   La anatomia es la de "Total Earning" de Materio: cifra grande,
+   barra fina con el reparto, y filas con nombre, cifra y punto de
+   color.
+
+   ── LA BARRA ──
+
+   Va con `display: flex` y cada trozo crece con `flex-grow` segun su
+   cuenta. NO se usan porcentajes.
+
+   El motivo: con porcentajes hay que calcular el 100 - a - b en
+   algun sitio, el mas pequeno se come los decimales y la barra no
+   llega al borde. Con `flex-grow` cada trozo pide su parte de lo que
+   sobra, y siempre llena.
+
+   Y el hueco entre trozos es un `gap` de 2px y no un margen: un
+   margen se suma con el del vecino y el hueco interior queda al
+   doble que los exteriores.
+
+   ── LOS COLORES ──
+
+   Los estados usan los MISMOS tonos que los chips del panel, para
+   que "pausado" sea el mismo violeta aqui y en la tabla de servicios.
+   Una pieza que cambia de color segun donde se mire es peor que no
+   tener color. */
 .panel-dist-filas {
   display: flex;
   flex-direction: column;
@@ -3642,7 +5160,11 @@ body.cmd-abierto {
   }
 }
 
- 
+/* ── La cifra ──
+   El numero grande y, al lado y mas pequeno, lo que cuenta. En
+   Materio van en la misma linea el numero, la flecha y el
+   porcentaje; aqui la flecha y el porcentaje solo salen cuando hay
+   algo real que comparar, y casi nunca lo hay. */
 .panel-dist-cab {
   display: flex;
   align-items: baseline;
@@ -3668,7 +5190,7 @@ body.cmd-abierto {
   color: var(--text-dim);
 }
 
- 
+/* ── La barra ── */
 
 .panel-dist-barra {
   display: flex;
@@ -3683,7 +5205,9 @@ body.cmd-abierto {
   border-radius: 999px;
   background: var(--tono, var(--accent-2));
 
-   
+  /* El primer y el ultimo son mas cuadrados por fuera, para que la
+     barra entera se lea como una pieza y no como tres rectangulos
+     pegados con un hueco. */
   transition: flex-grow var(--mov-3) var(--ease-out);
 }
 
@@ -3697,7 +5221,8 @@ body.cmd-abierto {
   border-bottom-right-radius: 3px;
 }
 
- 
+/* Los tonos coinciden con los de .panel-chip--estado-* y con las
+   franjas de las filas del portal. */
 .panel-dist-trozo--en_curso,
 .panel-dist-punto.panel-dist-trozo--en_curso { --tono: var(--accent-2); }
 
@@ -3716,7 +5241,9 @@ body.cmd-abierto {
 .panel-dist-trozo--cancelado,
 .panel-dist-punto.panel-dist-trozo--cancelado { --tono: var(--danger); }
 
- 
+/* El embudo: lo que espera a que le contesten va en el color de la
+   alerta, y lo ya atendido en un tono apagado. Una consulta atendida no
+   es una alerta. */
 .panel-dist-trozo--nuevo { --tono: var(--warning); }
 .panel-dist-trozo--respondidas { --tono: var(--border-strong); }
 
@@ -3725,7 +5252,11 @@ body.cmd-abierto {
 .panel-dist-trozo--moneda2 { --tono: var(--success); }
 .panel-dist-trozo--moneda3 { --tono: var(--warning); }
 
- 
+/* ── El detalle ──
+   Las filas van en dos columnas: el nombre crece y la cifra se
+   apila a la derecha. El punto de color esta pegado al nombre, y no
+   suelto en una columna aparte, porque si no hay que alinear la
+   fila entera para que los puntos formen una columna. */
 
 .panel-dist-detalle {
   list-style: none;
@@ -3766,7 +5297,30 @@ body.cmd-abierto {
   color: var(--text);
 }
 
- 
+/* ── La tendencia ──
+   Es la pieza que teniamos escrita y sin usar. Ahora tiene su
+   icono: los tres iconos nuevos del parcial. */
+.panel-tendencia svg {
+  width: 0.85rem;
+  height: 0.85rem;
+}
+
+/* =========================================================
+   BOTS Y CAJAS DE EVOLUTION
+   ---------------------------------------------------------
+   Los chips del estado de un número de WhatsApp.
+
+   Se nombran `bot-*` y no `salud-*` a propósito. `salud-*` ya lo usan
+   los microservicios (verde / rojo / ámbar) y `estado-*` los servicios.
+   Un bot tiene cuatro estados y uno de ellos (`close`, "sin conectar")
+   NO es un fallo: es el estado normal de un bot recién dado de alta, que
+   todavía no ha escaneado el QR. Pintarlo en rojo sería mentir, y con la
+   tabla entera en rojo nadie distinguiría "está mal" de "todavía no lo
+   ha conectado".
+
+   Por eso el rojo se reserva para lo que sí requiere intervención: un
+   servidor que no responde.
+   ========================================================= */
 .panel-chip--bot-open {
   color: var(--success);
   border-color: var(--success-border);
@@ -3779,20 +5333,27 @@ body.cmd-abierto {
   background: var(--raise);
 }
 
- 
+/* Conectando y esperando QR comparten color a propósito: los dos son
+   "está en ello" y no necesitan distinguirse. El texto ya los
+   distingue. */
 .panel-chip--bot-espera {
   color: var(--warning);
   border-color: color-mix(in srgb, var(--warning) 40%, transparent);
   background: color-mix(in srgb, var(--warning) 12%, transparent);
 }
 
- 
+/* ---------- La entrada de menú que cuelga de otra ----------
+
+   "Cajas de bots" es hijo de "Bots" en el menú: se usa con el mismo bot
+   abierto delante. El sangrado va en `padding-inline-start` y no en un
+   margen, para que el hover siga siendo un rectángulo y no un rectángulo
+   con un hueco al lado. */
 .panel-menu-item--hijillo {
   padding-inline-start: 1.75rem;
   font-size: 0.82rem;
 }
 
- 
+/* ---------- El menú «Nuevo» de la barra superior ---------- */
 
 .panel-topbar-acciones {
   display: flex;
@@ -3800,7 +5361,12 @@ body.cmd-abierto {
   gap: 0.5rem;
   flex-wrap: wrap;
 
-   
+  /* Empujado al extremo derecho de la barra.
+
+     No es solo estética: el menú que cuelga de aquí se ancla a la
+     derecha del botón, y con el botón pegado a la izquierda el
+     desplegable se metía debajo del lateral fijo de 248px. A la
+     derecha crece hacia dentro y nunca choca. */
   margin-inline-start: auto;
 }
 
@@ -3809,7 +5375,12 @@ body.cmd-abierto {
   display: inline-block;
 }
 
- 
+/* Solo la mecánica del `<details>`.
+
+   La pinta la pone `.panel-btn--primary`, que ya está en el HTML del
+   `<summary>`. Repetir aquí fondo, borde y color no era solo
+   redundante: esta regla va después y gana, así que el botón de
+   «Nuevo» salía del color del fondo en vez del verde de la marca. */
 .panel-rapido summary {
   list-style: none;
   cursor: pointer;
@@ -3830,7 +5401,11 @@ body.cmd-abierto {
   height: 0.85rem;
 }
 
- 
+/* Abierto: se marca con un anillo, no cambiando de color.
+
+   Si al abrirse perdiera el degradado, el botón parecería desactivado
+   justo mientras está en uso. El anillo dice «está abierto» sin
+   tocar el color de la marca. */
 .panel-rapido[open] .panel-rapido-abrir {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent), var(--btn-glow);
 }
@@ -3839,7 +5414,12 @@ body.cmd-abierto {
   position: absolute;
   inset-block-start: calc(100% + 6px);
 
-   
+  /* Anclado a la DERECHA del botón, no a su izquierda.
+
+     El botón vive en la barra superior, cerca del borde derecho, y
+     el menú mide 180px: anclado a la izquierda se salía de la
+     pantalla justo en el sitio donde más se usa, que es el móvil.
+     Anclado a la derecha crece hacia dentro y nunca desborda. */
   inset-inline-end: 0;
   inset-inline-start: auto;
   z-index: 20;
@@ -3872,7 +5452,12 @@ body.cmd-abierto {
   white-space: nowrap;
 }
 
- 
+/* Los iconos del menú, con el mismo trato que los del lateral.
+
+   Sin esto cada fila medía 124px de alto: un `<svg>` con `viewBox`
+   pero SIN `width`/`height` toma el tamaño de reserva del navegador
+   —unos 150px— y el enlace crecía con él. Un icono no se dimensiona
+   solo porque lo parezca: hay que decirle cuánto mide. */
 .panel-rapido .panel-menu-rapido a svg {
   flex: 0 0 auto;
   width: 1rem;
@@ -3900,18 +5485,30 @@ body.cmd-abierto {
   visibility: visible;
 }
 
- 
+/* El cajón del lateral se cierra a la vez que entra el menú «Nuevo». */
 .panel-scrim {
   display: none;
 }
 
- 
+/* La lupa deja de empujar cuando comparte barra con el menú «Nuevo».
+
+   El buscador lleva `margin-inline-start: auto` para pegarse a la
+   derecha, y el grupo de acciones lo lleva ahora también. Dos `auto`
+   en la misma fila se reparten el hueco, así que en móvil el botón de
+   crear quedaba flotando en mitad de la barra en vez de junto a la
+   lupa. El que empuja es el grupo: el buscador solo acompaña.
+
+   Se acota con `:has()` y no se quita la regla del buscador porque en
+   el portal del cliente —barra `--simple`, sin grupo de acciones— el
+   buscador sí tiene que hacerlo. */
 .panel-topbar:has(.panel-topbar-acciones) .panel-buscar {
   margin-inline-start: 0;
 }
 
 @media (max-width: 1000px) {
-   
+  /* En el cajón, la barra tiene burger, título, «Nuevo» y la lupa:
+     el título es lo que sobra, así que se deja truncar en vez de
+     empujar los botones fuera. */
   .panel-topbar-titulo {
     overflow: hidden;
     text-overflow: ellipsis;
@@ -3939,7 +5536,10 @@ body.cmd-abierto {
     gap: 0.35rem;
   }
 
-   
+  /* Con el texto fuera, el botón queda en el icono «+» y cabe junto a
+     la lupa en un teléfono de 390px. La etiqueta sigue estando para
+     quien navega con lector de pantalla: el `<summary>` la lleva
+     puesta en `aria-label` (ver panel-head.ejs). */
   .panel-rapido-abrir span {
     display: none;
   }

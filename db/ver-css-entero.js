@@ -46,7 +46,58 @@ let fallos = 0;
 
 console.log("\n═══ ¿Quedó todo? ═══\n");
 
+/* ── 0. Líneas partidas ──
+   ESTA COMPROBACIÓN ES LA QUE FALTABA.
+
+   Un archivo con las llaves cuadradas puede estar roto. Lo que pasó
+   al borrar las reglas muertas:
+
+       .price.precio-mensual .amount { … }
+                                        }sual {
+
+   La segunda línea es el final de una regla pegado al principio de la
+   siguiente. Las llaves CUADRAN —una abre y una cierra— y el
+   verificador daba verde.
+
+   El archivo es válido, el navegador no protesta, y media regla deja
+   de aplicarse. No hay ningún error: solo un panelraro.
+
+   Y por eso aquí se mira el texto de las líneas, no el balance. */
+console.log("  0. líneas partidas");
+
+let partidas = 0;
+
+for (const f of Object.keys(css)) {
+  const lineas = css[f].split("\n");
+  const malas = [];
+
+  lineas.forEach((l, i) => {
+    const t = l.trim();
+    if (!t) return;
+
+    /* Una llave que cierra pegada a texto: }algo */
+    if (/^\}[^\s}]/.test(t)) malas.push({ i: i + 1, t });
+    /* Una llave que abre pegada a texto al final de línea: algo{ */
+    else if (/[^\s{]\{$/.test(t) && !/^[^{]*\{$/.test(t)) malas.push({ i: i + 1, t });
+    /* Dos llaves en la misma línea sin nada entre medio. */
+    else if (/\}[^\s;}]/.test(t) && !/\/\*/.test(t)) malas.push({ i: i + 1, t });
+  });
+
+  if (malas.length) {
+    console.log("     × " + f);
+    for (const m of malas.slice(0, 6)) {
+      console.log("         L" + m.i + ": " + m.t.slice(0, 60));
+    }
+    if (malas.length > 6) console.log("         … y " + (malas.length - 6) + " más");
+    partidas += malas.length;
+    fallos += malas.length;
+  } else {
+    console.log("     ✓ " + f);
+  }
+}
+
 /* ── 1. Las llaves ── */
+console.log("");
 console.log("  1. llaves por fichero");
 
 for (const f of Object.keys(css)) {
