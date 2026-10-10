@@ -337,6 +337,14 @@
   --grid-line: rgba(255, 255, 255, 0.05);
 }
 
+html:not([data-panel]) {
+  --border: rgba(255, 255, 255, 0.09);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --font-display: "Outfit", "Plus Jakarta Sans", "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
 /* ---------- Reset ---------- */
 *,
 *::before,
