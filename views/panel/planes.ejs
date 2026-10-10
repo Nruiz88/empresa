@@ -336,13 +336,25 @@
                 <div class="plan-apps-lista">
                   <% microservicios.forEach(function (m) { %>
                     <input type="hidden" name="<%= campo(p.id, 'aplicaciones') %>" value="" />
-                    <label class="plan-app<%= marcadas.has(m.modulo) ? ' is-on' : '' %><%= m.activo ? '' : ' plan-app--inactiva' %>">
+                    <%# ── VENDIBLE, NO ACTIVO ──
+
+     `m.activo` es de infraestructura: dice si el microservicio
+     responde, que es lo que muestra la pantalla de salud. No dice si
+     lo estamos vendiendo.
+
+     Con `activo` aquí, una aplicación con el precio puesto salía
+     marcada como «no se está vendiendo» solo porque su microservicio
+     no estuviera levantado en ningún servidor. Es lo contrario de como
+     funciona un negocio: primero se anuncia, después se instala.
+
+     `vendible` es la decisión de negocio, y es este campo el que va. ── %>
+                    <label class="plan-app<%= marcadas.has(m.modulo) ? ' is-on' : '' %><%= m.vendible ? '' : ' plan-app--inactiva' %>">
                       <input type="checkbox"
                              name="<%= campo(p.id, 'aplicaciones') %>"
                              value="<%= m.modulo %>"
                              <%= marcadas.has(m.modulo) ? 'checked' : '' %> />
                       <span class="plan-app-nombre"><%= m.nombre %></span>
-                      <% if (!m.activo) { %>
+                      <% if (!m.vendible) { %>
                         <span class="plan-app-nota">no se está vendiendo</span>
                       <% } %>
                     </label>

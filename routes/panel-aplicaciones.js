@@ -84,7 +84,7 @@ const ESQUEMA = {
    Los periodos, con el vocabulario de `microservicios.periodo`, que no
    es el de `services.periodicidad`. La traducción la hace
    `lib/aplicaciones.js`, en un solo sitio. */
-const EDITABLES_CATALOGO = ["nombre", "descripcion", "precio", "moneda", "periodo", "activo"];
+const EDITABLES_CATALOGO = ["nombre", "descripcion", "precio", "moneda", "periodo", "vendible"];
 
 const PERIODOS_CATALOGO = [
   { valor: "mes", label: "Cada mes" },
@@ -134,7 +134,7 @@ async function todosLosServicios(db) {
   const [apps, planes] = await Promise.all([
     db
       .from("microservicios")
-      .select("modulo,nombre,descripcion,precio,moneda,periodo,activo")
+      .select("modulo,nombre,descripcion,precio,moneda,periodo,vendible")
       .order("nombre", { ascending: true }),
     db
       .from("plans")
@@ -329,7 +329,7 @@ module.exports = function rutasAplicaciones({ db, sitio, csrf, requiereStaff }) 
       const [apps, servicios, planes] = await Promise.all([
         db
           .from("microservicios")
-          .select("modulo,nombre,descripcion,precio,moneda,periodo,activo")
+          .select("modulo,nombre,descripcion,precio,moneda,periodo,vendible")
           .order("nombre", { ascending: true }),
 
         /* Sólo las de tipo aplicación. Un plan no cuenta: sus
@@ -565,11 +565,15 @@ module.exports = function rutasAplicaciones({ db, sitio, csrf, requiereStaff }) 
           limpio.periodo = periodo;
         }
 
-        /* ---- activo ----
+        /* ---- vendible ----
            El patrón de toda la casa: un campo oculto con "0" delante,
            para que el desmarcado llegue de verdad. Sin él, quitar la
-           marca no se puede guardar. */
-        limpio.activo = String(cuerpo[campoCatalogo(mod, "activo")] || "") === "1";
+           marca no se puede guardar.
+
+           Este campo decide si el producto se ofrece, no si su
+           microservicio responde. `activo` sigue siendo lo que mira
+           la pantalla de salud, y no se toca al guardar el catálogo. */
+        limpio.vendible = String(cuerpo[campoCatalogo(mod, "vendible")] || "") === "1";
 
         /* ¿Ha cambiado algo? Se compara campo a campo y no se manda un
            update por fila sin motivo. Un update que no cambia nada
@@ -666,7 +670,7 @@ module.exports = function rutasAplicaciones({ db, sitio, csrf, requiereStaff }) 
       const [apps, planes, clientes] = await Promise.all([
         db
           .from("microservicios")
-          .select("modulo,nombre,descripcion,precio,moneda,periodo,activo")
+          .select("modulo,nombre,descripcion,precio,moneda,periodo,vendible")
           .order("nombre", { ascending: true }),
         db
           .from("plans")
@@ -680,10 +684,19 @@ module.exports = function rutasAplicaciones({ db, sitio, csrf, requiereStaff }) 
       ]);
 
       return {
-        /* Solo las activas. Una aplicación dada de baja no se vende; si
-           aparece en el desplegable, alguien la va a vender. */
-        microservicios: (apps.data || []).filter((m) => m.activo),
-        microserviciosInactivos: (apps.data || []).filter((m) => !m.activo),
+        /* `vendible`, no `activo`.
+
+         `activo` es de infraestructura: dice si el microservicio
+         responde, que es lo que mira la pantalla de salud. Con
+         `activo` aquí, las tres aplicaciones salían como dadas de
+         baja porque sus microservicios no están levantados en
+         ningún servidor, y una con el precio puesto no aparecía en
+         el desplegable de venta.
+
+         Se puede vender algo que todavía no está instalado. Es lo
+         normal: se anuncia y después se levanta. */
+        microservicios: (apps.data || []).filter((m) => m.vendible),
+        microserviciosInactivos: (apps.data || []).filter((m) => !m.vendible),
         planes: planes.data || [],
         clientes: clientes.data || [],
         errores: {},

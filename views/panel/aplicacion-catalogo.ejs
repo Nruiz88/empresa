@@ -100,7 +100,7 @@
               <%# Una fila que se da de baja no se pincha como un error:
                    está bien, es una decisión. El error de guardado sí
                    marca la fila, porque ese sí es un fallo. %>
-              <tr class="<%= filaErr ? 'panel-tr--error' : (a.activo ? '' : 'panel-tr--apagada') %>">
+              <tr class="<%= filaErr ? 'panel-tr--error' : (a.vendible ? '' : 'panel-tr--apagada') %>">
 
                 <%# ── La aplicación ──
                      La clave no se edita y sale a la vista como texto
@@ -231,15 +231,22 @@
                 <%# ── Se vende ──
                      El patrón de toda la casa: un campo oculto con "0"
                      delante, para que el desmarcado llegue de verdad.
-                     Sin él, quitar la marca no se puede guardar. %>
+                     Sin él, quitar la marca no se puede guardar.
+
+                     `vendible`, no `activo`. `activo` es de
+                     infraestructura: dice si el microservicio
+                     responde. Con `activo` aquí, una aplicación con el
+                     precio puesto salía sin marcar solo porque su
+                     servicio no estuviera levantado, que no es lo
+                     mismo que no querer venderla. ── %>
                 <td data-label="Se vende" class="panel-th-num">
-                  <input type="hidden" name="<%= campo(a.modulo, 'activo') %>" value="0" />
-                  <label class="panel-check" for="activo_<%= a.modulo %>">
+                  <input type="hidden" name="<%= campo(a.modulo, 'vendible') %>" value="0" />
+                  <label class="panel-check" for="vendible_<%= a.modulo %>">
                     <input type="checkbox"
-                           id="activo_<%= a.modulo %>"
-                           name="<%= campo(a.modulo, 'activo') %>"
+                           id="vendible_<%= a.modulo %>"
+                           name="<%= campo(a.modulo, 'vendible') %>"
                            value="1"
-                           <%= a.activo ? 'checked' : '' %> />
+                           <%= a.vendible ? 'checked' : '' %> />
                     <span class="sr-only">Vender <%= a.nombre %></span>
                   </label>
                 </td>

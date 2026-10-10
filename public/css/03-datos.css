@@ -235,10 +235,25 @@ a.panel-stat--ambar:hover {
 
 .panel-table-wrap {
   max-width: 100%;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+
+  /* ── LA TABLA ES UNA CAJA ──
+
+     Antes usaba `--surface` con `--radius` de 8px y un borde de 1px,
+     que es el sistema viejo: el que había antes de que existiera
+     `--caja-*`. Resultado: la tabla de clientes y la tarjeta de
+     métricas se construían con dos vocabularios distintos, y al lado
+     una de la otra se notaba: una con borde y radio 8, otra sin
+     borde y radio 12, y ninguna decisión era a propósito.
+
+     Las dos lecturas del panel —las cifras y las listas— son la
+     misma pieza: una caja sobre la página. Así que la tabla usa la
+     de una caja: fondo de plano 1, radio de caja, sombra de caja, y
+     sin borde, que es lo que la sombra ya dibuja. */
+  border: 1px solid var(--caja-borde);
+  border-radius: var(--caja-radio);
+  box-shadow: var(--caja-sombra);
   overflow-x: auto;
-  background: var(--surface);
+  background: var(--caja-fondo);
 
   /* `auto` en vez de `visible` a propósito: la cabecera sticky se
      ancla al contenedor que hace scroll, y para eso el padre no
@@ -367,7 +382,14 @@ a.panel-stat--ambar:hover {
   text-transform: uppercase;
   text-align: start;
   color: var(--text-dim);
-  background: var(--bg-soft);
+
+  /* La cabecera va un plano por DEBAJO de la caja que la contiene.
+     Antes era `--bg-soft`, casi el fondo de la página: el encabezado
+     y el cuerpo se leían como dos zonas separadas por una línea, y
+     el borde de abajo pesaba tanto que la tabla parecía partida en
+     dos. Con el plano 2 se lee "la misma caja, con una franja
+     distinta arriba", que es lo que es. */
+  background: var(--plano-2);
   border-bottom: 1px solid var(--border);
   white-space: nowrap;
 

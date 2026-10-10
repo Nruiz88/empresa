@@ -24,7 +24,14 @@ import crypto from "node:crypto";
 import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
-const RAIZ = path.resolve(import.meta.dirname, "..");
+/* Dos niveles, no uno.
+
+   El archivo está en `db/herramientas/`, así que subir uno deja en
+   `db/`, donde no está el `.env`. Con un solo nivel el script no
+   encontraba las claves de Supabase y moría con
+   «supabaseUrl is required», que no dice que el problema era la
+   ruta. */
+const RAIZ = path.resolve(import.meta.dirname, "..", "..");
 const NL = String.fromCharCode(10);
 
 function arg(n, d) {

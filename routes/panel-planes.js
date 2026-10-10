@@ -101,7 +101,7 @@ module.exports = function rutasPlanes({ db, sitio, csrf, requiereStaff }) {
   async function leerMicroservicios() {
     const { data, error } = await db
       .from("microservicios")
-      .select("modulo,nombre,activo")
+      .select("modulo,nombre,vendible")
       .order("nombre", { ascending: true });
 
     if (error) {

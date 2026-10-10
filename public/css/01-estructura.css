@@ -65,7 +65,26 @@
   width: var(--panel-sidebar);
   display: flex;
   flex-direction: column;
-  background: var(--caja-fondo);
+
+  /* ── LA BARRA NO ES UNA TARJETA MÁS ──
+
+     Antes llevaba `--caja-fondo`: el mismo plano que las tarjetas
+     del contenido. Con el mismo tono y la misma sombra, la barra
+     y las tarjetas se leen como la misma clase de cosa, y como la
+     barra está quieta y las tarjetas no, el ojo no sabe cuál va
+     con cuál. Es exactamente el «todo se ve del mismo material»
+     del que nadie sabe explicar el motivo al mirarlo.
+
+     Un paso por debajo de las tarjetas. La barra es el RIEL por
+     donde se anda la aplicación, no una pieza del contenido: el
+     contenido flota por encima del riel, no al revés.
+
+     No al plano 2: ese está casi fundido con la página (1,05:1) y
+     una barra invisible no se puede usar. `--bg-soft` es el tono
+     medio: la barra se distingue del fondo y sigue por debajo de
+     las tarjetas, y las tres superficies se leen de izquierda a
+     derecha sin explicación. */
+  background: var(--bg-soft);
   border: 1px solid transparent;
   border-radius: var(--caja-radio);
   box-shadow: var(--caja-sombra);

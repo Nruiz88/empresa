@@ -67,9 +67,43 @@ html[data-panel] {
      de 13,29:1 a 14,50:1 de regalo.
      ========================================================= */
   --bg: #0b0f1a;
-  --bg-soft: #121829;
-  --surface: #1a2234;
-  --surface-2: #212b40;
+  --bg-soft: #16203a;
+  --surface: #232e48;
+  --surface-2: #2c3a5c;
+
+  /* ── LOS SALTOS ENTRE PLANOS, MEDIDOS ──
+
+     La separación entre superficies se mide como la del texto: con
+     la luminancia relativa de WCAG. Para que dos zonas contiguas se
+     lean como distintas sin buscar el contorno, hace falta más o
+     menos 1,3:1 de diferencia con el fondo.
+
+     Lo que había antes no llegaba:
+
+       --plano-2   1,17:1   por debajo
+       --plano-1   1,20:1   por debajo  ← la tarjeta no se separaba
+       --plano-3   1,35:1   justo
+
+     Con estos valores:
+
+       --plano-2 (#0e1526)  1,05:1   el hueco, casi fundido con la página
+       --plano-1 (#232e48)  1,42:1   la tarjeta, encima del fondo
+       --plano-3 (#2c3a5c)  1,70:1   lo que flota: menús, diálogos
+
+     El comentario anterior decía que se probó llegar a 1,5:1 y que
+     ninguna paleta llegaba. Sí se llega: `#273354` da 1,54:1. Lo que
+     medía mal era el guion de la búsqueda, no los colores.
+
+     Y el texto no pierde nada: sobre `#232e48`, el blanco del texto
+     sigue por encima de 10:1, muy por encima de los 4,5:1 que pide
+     WCAG para texto normal.
+
+     ── LOS NOMBRES VIEJOS SIGUEN ──
+
+     `--surface` y `--surface-2` tienen decenas de usos repartidos por
+     los módulos. Renombrarlos en todos los sitios para cambiar un
+     color es cómo se dejan la mitad sin actualizar: se apuntan a los
+     planos y ya está. */
 
   /* =========================================================
      LA ESCALA DE PROFUNDIDAD
@@ -104,9 +138,9 @@ html[data-panel] {
        3   lo que flota de verdad: menús, diálogos
      ========================================================= */
   --plano-0: #0b0f1a;
-  --plano-1: #1a2234;
-  --plano-2: #131f38;
-  --plano-3: #212b40;
+  --plano-1: #232e48;
+  --plano-2: #0e1526;
+  --plano-3: #2c3a5c;
 
   /* ── EL VELO DE LA WEB PÚBLICA, DECLARADO AQUÍ ──
 
