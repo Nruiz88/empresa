@@ -70,6 +70,9 @@
        Va DESPUÉS de panel.css a propósito: aquí va lo del portal, y
        tiene que poder ganar cuando coincide. -->
   <link rel="stylesheet" href="/css/portal.css" />
+  <% if (typeof rol !== 'undefined' && rol === 'staff') { %>
+  <link rel="stylesheet" href="/css/panel-admin.css" />
+  <% } %>
 <!-- Que hay JavaScript, antes de pintar.
 
      La clase `js` de arriba es lo que activa el estado inicial
@@ -87,7 +90,7 @@
   </script>
 
 </head>
-<body class="panel-body<%= _rol === 'staff' ? '' : ' panel-body--lateral-off' %>">
+<body class="panel-body<%= _rol === 'staff' ? ' panel-body--staff' : ' panel-body--lateral-off' %>">
 <%# rol, nombre y csrf vienen de res.locals (los pone el middleware
     de routes/panel.js), no de esta llamada. De ahí los typeof: este
     partial lo usan el login, el resumen, las fichas, el portal del

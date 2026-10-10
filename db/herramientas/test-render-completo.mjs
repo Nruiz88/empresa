@@ -1,6 +1,6 @@
 /* Que los dos caminos de render de una pantalla lleven lo mismo.
  *
- * node db/test-render-completo.mjs
+ * node db/herramientas/test-render-completo.mjs
  *
  * ── POR QUÉ ESTE ──
  *
@@ -32,7 +32,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const RAIZ = path.resolve(import.meta.dirname, "..");
+const RAIZ = path.resolve(import.meta.dirname, "..", "..");
 const NL = String.fromCharCode(10);
 
 const RUTA = path.join(RAIZ, "routes", "panel-portal.js");

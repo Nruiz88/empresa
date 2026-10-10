@@ -55,11 +55,11 @@ function motivo(texto) {
   const clientId = idDe("cliente@ejemplo.com");
   if (!staffId) throw new Error("no se encuentra el usuario staff");
 
-  const staff = await sesionDePrueba(staffId, "staff");
+  const staffToken = await sesionDePrueba(staffId, "staff");
 
   let fallos = 0;
   const comprobar = async (ruta, esperado) => {
-    const { status, texto } = await pedir(ruta, staff);
+    const { status, texto } = await pedir(ruta, staffToken);
     const ok = status === esperado;
     if (!ok) fallos++;
     console.log(`  ${ok ? "✓" : "✗"} ${ruta.padEnd(28)} ${status}${ok ? "" : "  (esperaba " + esperado + ")"}`);
@@ -78,6 +78,12 @@ function motivo(texto) {
   await comprobar("/panel/cobros/nuevo", 200);
   await comprobar("/panel/accesos", 200);
   await comprobar("/panel/accesos/nuevo", 200);
+  await comprobar("/panel/catalogo", 200);
+  await comprobar("/panel/planes", 200);
+  await comprobar("/panel/aplicaciones", 200);
+  await comprobar("/panel/aplicaciones/catalogo", 200);
+  await comprobar("/panel/tickets", 200);
+  await comprobar("/panel/salud", 200);
 
   /* Bots y cajas. Van aparte porque no existían antes y son las rutas
      que más se pueden romper en silencio: una vista con una variable que
@@ -104,7 +110,7 @@ function motivo(texto) {
   {
     const res = await fetch(BASE + "/panel/servidores/no-existe/editar", {
       redirect: "manual",
-      headers: { cookie: COOKIE + "=" + staff },
+      headers: { cookie: COOKIE + "=" + staffToken },
     });
     const ok = res.status === 302 && String(res.headers.get("location")).includes("error=servidor:no-existe");
     if (!ok) fallos++;

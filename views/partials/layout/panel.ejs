@@ -32,6 +32,9 @@
   <% modulosDelPanel.forEach(function (hoja) { %>
   <link rel="stylesheet" href="/css/<%= hoja %>" />
   <% }); %>
+  <% if (typeof rol !== 'undefined' && rol === 'staff') { %>
+  <link rel="stylesheet" href="/css/panel-admin.css" />
+  <% } %>
 
   <%# El panel no carga GSAP ni Lenis: no los necesita y son
       ~70 KB que no queremos en la parte privada. %>
@@ -39,7 +42,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700&display=swap" rel="stylesheet" />
 </head>
-<body class="panel-body">
+<body class="panel-body<%= typeof rol !== 'undefined' && rol === 'staff' ? ' panel-body--staff' : '' %>">
   <%- body %>
 </body>
 </html>

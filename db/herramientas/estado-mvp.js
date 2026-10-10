@@ -57,7 +57,7 @@ const PREGUNTAS = [
   {
     grupo: "ENTREGA",
     t: "microservicios",
-    q: (d) => [d.length, d.filter((m) => m.activo).length],
+    q: (d) => [d.length, d.filter((m) => m.vendible).length],
     lee: (v) => [v[0] + " microservicios, " + v[1] + " vendibles"],
   },
   {

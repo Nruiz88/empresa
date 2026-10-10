@@ -20,14 +20,17 @@ const COMPROBAR = [
   [/panel-skip/, "enlace de salto"],
   [/<svg viewBox="0 0 20 20"/, "iconos del menú"],
   [/\/js\/panel\.js/, "script del panel"],
+  [/\/css\/panel-admin\.css/, "estilos nuevos del panel de equipo"],
   [/gsap/i, "NO debe cargar GSAP"],
   [/class="panel-topbar"/, "barra superior"],
 ];
 
 (async () => {
-  const { data: usuarios } = await supabase.getAdmin().auth.admin.listUsers({ perPage: 200 });
+  const { data: usuarios, error: errorUsuarios } = await supabase.getAdmin().auth.admin.listUsers({ perPage: 200 });
+  if (errorUsuarios) throw new Error("no se pudieron leer los usuarios: " + errorUsuarios.message);
   const staff = await staffOParar();
   const cliente = usuarios.users.find((u) => u.email === "cliente@ejemplo.com");
+  if (!staff) throw new Error("no se encuentra el usuario staff");
 
   const token = crypto.randomBytes(24).toString("hex");
   await db.from("sessions").insert({
@@ -52,23 +55,27 @@ const COMPROBAR = [
 
   /* El cliente NO debe ver lateral: tiene una sola sección. */
   await db.from("sessions").delete().eq("csrf_token", CSRF);
-  const t2 = crypto.randomBytes(24).toString("hex");
-  await db.from("sessions").insert({
-    token_hash: hash(t2),
-    user_id: cliente.id,
-    rol: "client",
-    csrf_token: CSRF,
-    expira_en: new Date(Date.now() + 3600e3).toISOString(),
-  });
-  const htmlCli = await (
-    await fetch("http://127.0.0.1:3000/panel/mis-servicios", { headers: { cookie: "nexo_panel=" + t2 } })
-  ).text();
+  if (cliente) {
+    const t2 = crypto.randomBytes(24).toString("hex");
+    await db.from("sessions").insert({
+      token_hash: hash(t2),
+      user_id: cliente.id,
+      rol: "client",
+      csrf_token: CSRF,
+      expira_en: new Date(Date.now() + 3600e3).toISOString(),
+    });
+    const htmlCli = await (
+      await fetch("http://127.0.0.1:3000/panel/mis-servicios", { headers: { cookie: "nexo_panel=" + t2 } })
+    ).text();
 
-  const sinLateral = !/<aside class="panel-side"/.test(htmlCli);
-  const sinClientes = !htmlCli.includes("Cobros");
-  console.log(`  ${sinLateral ? "✓" : "✗"} el cliente no ve el lateral de gestión`);
-  console.log(`  ${sinClientes ? "✓" : "✗"} el cliente no ve los enlaces de cobros`);
-  if (!sinLateral || !sinClientes) fallos++;
+    const sinLateral = !/<aside class="panel-side"/.test(htmlCli);
+    const sinClientes = !htmlCli.includes("Cobros");
+    console.log(`  ${sinLateral ? "✓" : "✗"} el cliente no ve el lateral de gestión`);
+    console.log(`  ${sinClientes ? "✓" : "✗"} el cliente no ve los enlaces de cobros`);
+    if (!sinLateral || !sinClientes) fallos++;
+  } else {
+    console.log("  · se omite la verificación de cliente: falta cliente@ejemplo.com");
+  }
 
   await db.from("sessions").delete().eq("csrf_token", CSRF);
 
