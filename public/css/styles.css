@@ -1106,32 +1106,62 @@ h4 {
 }
 
 .price-card {
-  background: linear-gradient(160deg, color-mix(in srgb, var(--surface) 92%, var(--accent) 8%), var(--surface) 48%);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: clamp(1.35rem, 2.4vw, 2rem);
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 1.15rem;
-  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
-  position: relative;
+  gap: 1.25rem;
+  padding: clamp(1.5rem, 2.6vw, 2.1rem);
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  background:
+    radial-gradient(120% 80% at 50% -20%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 60%),
+    linear-gradient(180deg, color-mix(in srgb, var(--surface) 94%, var(--accent) 6%), var(--surface));
+  transition: translate 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
+              scale 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
+              border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
+/* El levante va con `translate`, no con `transform`: `.reveal.is-visible`
+   pone `transform: none` y pisaría un `transform` de aquí. */
 .price-card:hover {
-  transform: translateY(-4px);
-  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
-  box-shadow: var(--shadow-soft);
+  translate: 0 -6px;
+  border-color: color-mix(in srgb, var(--accent) 50%, transparent);
+  box-shadow: 0 26px 60px -28px color-mix(in srgb, var(--accent) 55%, rgba(0, 0, 0, 0.6));
 }
 
+/* Una línea de acento que aparece arriba al pasar el ratón. */
+.price-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 1.5rem auto;
+  height: 3px;
+  border-radius: 0 0 4px 4px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.price-card:hover::before {
+  opacity: 1;
+}
+
+/* ── El plan destacado ──
+   Sube, se agranda un poco y lleva un halo verde. Es el que se quiere
+   vender y la diferencia tiene que verse antes de leer el nombre. */
 .price-card.featured {
-  background: linear-gradient(160deg, color-mix(in srgb, var(--featured-bg) 82%, var(--accent) 18%), var(--featured-bg) 58%);
   border-color: color-mix(in srgb, var(--accent) 55%, transparent);
-  box-shadow: var(--featured-glow);
-  transform: translateY(-0.5rem);
+  background:
+    radial-gradient(120% 80% at 50% -20%, color-mix(in srgb, var(--accent) 20%, transparent), transparent 62%),
+    linear-gradient(180deg, color-mix(in srgb, var(--surface) 86%, var(--accent) 14%), var(--surface));
+  box-shadow: 0 30px 70px -34px color-mix(in srgb, var(--accent) 75%, transparent);
+  translate: 0 -0.75rem;
+  scale: 1.035;
+  z-index: 1;
 }
 
 .price-card.featured:hover {
-  transform: translateY(calc(-0.5rem - 4px));
+  translate: 0 -1rem;
+  box-shadow: 0 42px 90px -34px color-mix(in srgb, var(--accent) 85%, transparent);
 }
 
 .price-card__header {
@@ -1139,35 +1169,26 @@ h4 {
   gap: 0.4rem;
 }
 
-.price-card__eyebrow,
-.price-card__label {
-  display: block;
-  margin-bottom: 0.45rem;
-  color: var(--accent);
-  font-size: var(--fs-xs);
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
+/* El badge asoma por el borde de arriba, centrado. */
 .badge {
   position: absolute;
-  top: -13px;
+  top: 0;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
   background: var(--accent-grad);
   color: var(--on-accent);
   font-size: var(--fs-xs);
-  font-weight: 700;
-  padding: 0.3rem 0.9rem;
+  font-weight: 800;
+  padding: 0.38rem 1.05rem;
   border-radius: 999px;
   white-space: nowrap;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
+  box-shadow: 0 10px 24px -8px color-mix(in srgb, var(--accent) 80%, transparent);
 }
 
 .price-card h3 {
-  font-size: clamp(1.25rem, 1.8vw, 1.5rem);
+  font-size: clamp(1.3rem, 1.9vw, 1.6rem);
   letter-spacing: -0.02em;
   margin: 0;
 }
@@ -1186,17 +1207,21 @@ h4 {
   display: flex;
   align-items: baseline;
   gap: 0.5rem;
-  padding-bottom: 1.15rem;
+  padding-bottom: 1.25rem;
   border-bottom: 1px solid var(--border);
 }
 
 .price-card__amount {
   font-family: var(--font-display, "Outfit", sans-serif);
-  font-size: clamp(1.9rem, 3vw, 2.4rem);
-  font-weight: 700;
-  letter-spacing: -0.03em;
+  font-size: clamp(2.1rem, 3.4vw, 2.7rem);
+  font-weight: 800;
+  letter-spacing: -0.035em;
   line-height: 1;
   font-variant-numeric: tabular-nums;
+}
+
+.price-card.featured .price-card__amount {
+  color: var(--accent);
 }
 
 .price-card__amount--consultar {
@@ -1221,10 +1246,10 @@ h4 {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  padding: 0.32rem 0.7rem;
+  padding: 0.35rem 0.75rem;
   border: 1px solid color-mix(in srgb, var(--brand) 34%, transparent);
   border-radius: 999px;
-  background: color-mix(in srgb, var(--brand) 10%, transparent);
+  background: color-mix(in srgb, var(--brand) 12%, transparent);
   color: var(--text);
   font-size: var(--fs-xs);
   font-weight: 600;
@@ -1236,10 +1261,38 @@ h4 {
   color: var(--brand);
 }
 
-/* El botón al fondo: las tarjetas son de la misma altura y así los tres
-   botones quedan a la misma línea. */
+/* ── El CTA ──
+   Más alto, con flecha y ancho completo: es la acción de la tarjeta y
+   tiene que parecer un botón, no un enlace. */
 .price-card .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  min-height: 50px;
   margin-top: auto;
+  font-size: 1rem;
+  font-weight: 700;
+  border-radius: 14px;
+}
+
+.price-card .btn svg {
+  width: 18px;
+  height: 18px;
+  transition: translate 0.2s ease;
+}
+
+.price-card .btn:hover svg {
+  translate: 3px 0;
+}
+
+.price-card .btn-primary {
+  box-shadow: 0 16px 34px -16px color-mix(in srgb, var(--accent) 80%, transparent);
+}
+
+.price-card .btn-primary:hover {
+  box-shadow: 0 22px 44px -16px color-mix(in srgb, var(--accent) 90%, transparent);
 }
 
 .price-card__investment {
@@ -1311,9 +1364,18 @@ h4 {
 
 .price-features li::before {
   content: "✓";
-  color: var(--success);
-  font-weight: 700;
-  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: 0.05rem;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  color: var(--accent);
+  font-size: 0.7rem;
+  font-weight: 800;
+  line-height: 1;
 }
 
 .price-features li.muted {
@@ -1322,6 +1384,7 @@ h4 {
 
 .price-features li.muted::before {
   content: "—";
+  background: var(--raise);
   color: var(--text-dim);
 }
 
@@ -2144,7 +2207,8 @@ table.compare .no {
   }
 
   .price-card.featured {
-    transform: none;
+    translate: none;
+    scale: 1;
   }
 
   .footer-grid {
