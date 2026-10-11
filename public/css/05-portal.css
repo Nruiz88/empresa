@@ -24,38 +24,6 @@
    12. PORTAL DEL CLIENTE
    ========================================================= */
 
-  grid-template-columns: minmax(0, 1fr) auto;
-  padding: 1.2rem 1.4rem;
-
-  border-radius: var(--radius-lg);
-
-  text-align: end;
-  white-space: nowrap;
-
-  display: block;
-  font-family: var(--font-display, "Outfit", sans-serif);
-  font-size: var(--fs-xl);
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-
-  font-size: var(--fs-xs);
-  color: var(--text-dim);
-
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.4rem;
-  margin: 0.7rem 0 0;
-
-  font-size: var(--fs-label);
-  font-weight: 700;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  color: var(--text-dim);
-
-  margin: 0.15rem 0 0;
-  font-size: var(--fs-sm);
-  font-weight: 600;
-
 /* =========================================================
    PORTAL DEL CLIENTE — ESTADO DE ACCESO
    ------------------------------------------------------------
@@ -68,8 +36,6 @@
      oferta    → morado: por decidir
      inactivo  → gris: no en marcha
    ========================================================= */
-
-  border-inline-start: 3px solid var(--border-strong);
 
 .panel-serv--activo    { border-inline-start-color: var(--accent); }
 .panel-serv--bloqueado { border-inline-start-color: var(--danger); }
