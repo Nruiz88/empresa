@@ -10,7 +10,7 @@
    forzar desde aquí: un mensaje enviado al propio número no genera
    webhook, porque WhatsApp no lo trata como un mensaje entrante. */
 
-const BOT = process.env.TEST_BOT || "https://bot.panel-niconqn.duckdns.org";
+const BOT = process.env.TEST_BOT || "https://bot.shopcito.com.ar";
 const EVO = process.env.EVO_URL;
 const KEY = process.env.EVO_KEY;
 

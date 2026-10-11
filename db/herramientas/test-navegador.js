@@ -27,8 +27,8 @@
    fallar sin saber por qué, antes que seguir dando verde.
    ========================================================= */
 
-const PANEL = process.env.TEST_PANEL || "https://empresa.panel-niconqn.duckdns.org";
-const BOT = process.env.TEST_BOT || "https://bot.panel-niconqn.duckdns.org";
+const PANEL = process.env.TEST_PANEL || "https://shopcito.com.ar";
+const BOT = process.env.TEST_BOT || "https://bot.shopcito.com.ar";
 const API_ENTRAR = process.env.TEST_API_ENTRAR || BOT + "/api/entrar";
 
 let ok = 0;

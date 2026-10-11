@@ -198,7 +198,7 @@ let moduloAntes = null;
    Es la misma idea que la nota de `microservicios`: un dominio
    inventado guardado como si fuera real es el peor fallo posible
    aquí, porque no se ve hasta que un cliente pincha en "Abrir". */
-const URL_REAL_BOT = "https://bot.panel-niconqn.duckdns.org";
+const URL_REAL_BOT = "https://bot.shopcito.com.ar";
 
 async function crearClienteConSuscripcion(estado, terminaEn) {
   const email = MARCA + "x@ejemplo.com";

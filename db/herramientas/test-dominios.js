@@ -198,25 +198,24 @@ console.log("\n── NO se coge solo el dominio pelado ──");
 /* Este bloque existe por un fallo del primer despliegue. La deducción
    se quedaba con las dos últimas etiquetas del host, así que:
 
-     empresa.panel-niconqn.duckdns.org → duckdns.org → bot.duckdns.org
+     empresa.panel.nexoestudio.es → nexoestudio.es → bot.nexoestudio.es
 
-   y el botón "Abrir" mandaba a un subdominio de DuckDNS que no es
-   nuestro. Las pruebas de arriba pasaban porque todas usaban
-   dominios de dos etiquetas, que es justo el caso donde el recorte
-   acierta.
+   y el botón "Abrir" mandaba a un subdominio que no es nuestro. Las
+   pruebas de arriba pasaban porque todas usaban dominios de dos
+   etiquetas, que es justo el caso donde el recorte acierta.
 
    Con más de dos niveles hay que anteponer el subdominio al host
    ENTERO, quitando solo el www. */
 {
-  const { site, restaurar } = cargar("https://empresa.panel-niconqn.duckdns.org");
-  ok(site.dominio === "empresa.panel-niconqn.duckdns.org", "conserva todos los niveles", site.dominio);
+  const { site, restaurar } = cargar("https://empresa.panel.nexoestudio.es");
+  ok(site.dominio === "empresa.panel.nexoestudio.es", "conserva todos los niveles", site.dominio);
   ok(
-    site.urlDeServicio("bot", "", 3200) === "https://bot.empresa.panel-niconqn.duckdns.org",
+    site.urlDeServicio("bot", "", 3200) === "https://bot.empresa.panel.nexoestudio.es",
     "el bot va detrás, con la cadena entera",
     site.urlDeServicio("bot", "", 3200)
   );
   ok(
-    !site.urlDeServicio("bot", "", 3200).includes("https://bot.duckdns.org"),
+    !site.urlDeServicio("bot", "", 3200).includes("https://bot.nexoestudio.es"),
     "y NO a un dominio ajeno que casualmente comparte sufijo"
   );
 }
