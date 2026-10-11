@@ -6105,6 +6105,82 @@ section[id],
   font-size: 0.82rem;
 }
 
+/* ── El chat se "reproduce" ──
+   Los mensajes entran uno a uno y, antes de la respuesta del bot,
+   aparece un "escribiendo…". Es la animación que VENDE el producto: no
+   dice "contesta solo", lo enseña. Va en `no-preference` para no
+   animar a quien pidió menos movimiento. */
+.wa-typing {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0.7rem 0.8rem;
+  border-radius: 10px;
+  background: var(--wa-burbuja);
+  overflow: hidden;
+}
+
+.wa-typing span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--wa-tenue);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .wa-body > *:not(.wa-typing) {
+    animation: wa-in 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+
+  .wa-body > *:not(.wa-typing):nth-child(1) { animation-delay: 0.2s; }
+  .wa-body > *:not(.wa-typing):nth-child(2) { animation-delay: 0.7s; }
+  .wa-body > *:not(.wa-typing):nth-child(4) { animation-delay: 3s; }
+  .wa-body > *:not(.wa-typing):nth-child(5) { animation-delay: 3.6s; }
+  .wa-body > *:not(.wa-typing):nth-child(6) { animation-delay: 4.2s; }
+
+  .wa-typing {
+    max-height: 0;
+    opacity: 0;
+    animation: wa-typing 2s ease both;
+    animation-delay: 1.4s;
+  }
+
+  .wa-typing span {
+    animation: wa-dot 0.9s ease-in-out infinite;
+  }
+  .wa-typing span:nth-child(2) { animation-delay: 0.15s; }
+  .wa-typing span:nth-child(3) { animation-delay: 0.3s; }
+
+  @keyframes wa-in {
+    from { opacity: 0; transform: translateY(8px) scale(0.98); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  @keyframes wa-typing {
+    0%   { opacity: 0; max-height: 0; }
+    15%  { opacity: 1; max-height: 48px; }
+    78%  { opacity: 1; max-height: 48px; }
+    100% { opacity: 0; max-height: 0; }
+  }
+
+  @keyframes wa-dot {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+    30%           { transform: translateY(-3px); opacity: 1; }
+  }
+
+  /* El degradado del titular recorre despacio. */
+  .gradient-text {
+    background-size: 200% auto;
+    animation: grad-shift 7s linear infinite;
+  }
+
+  @keyframes grad-shift {
+    from { background-position: 0% center; }
+    to   { background-position: -200% center; }
+  }
+}
+
 /* ─────────────────────────────────────────────────────────
    PROBLEMA VS. SOLUCIÓN
    ─────────────────────────────────────────────────────────

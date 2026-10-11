@@ -207,7 +207,7 @@
      5. Tilt 3D + brillo en tarjetas (solo puntero fino)
      ========================================================= */
   if (finePointer) {
-    var tiltTargets = q(".project-card, .price-card, .quote, .info-item, .blog-card");
+    var tiltTargets = q(".project-card, .price-card, .producto-card, .quote, .info-item, .blog-card");
     tiltTargets.forEach(function (card) {
       card.classList.add("tilt-3d");
 
