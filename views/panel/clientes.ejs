@@ -39,9 +39,9 @@
       <table class="panel-table panel-table--clientes">
         <thead>
           <tr>
-            <th>Empresa</th>
-            <th>Contacto</th>
+            <th>Cliente</th>
             <th class="panel-th-email">Email</th>
+            <th>Teléfono</th>
             <th class="panel-th-actions"><span class="sr-only">Acciones</span></th>
           </tr>
         </thead>
@@ -72,20 +72,25 @@
             -->
             <tr class="panel-row--link">
               <td data-principal>
-                <a href="<%= base %>/clientes/<%= c.id %>" class="panel-cell-main panel-stretch">
-                  <%= c.empresa || c.nombre %>
-                </a>
-                <% if (c.empresa && c.nombre !== c.empresa) { %>
-                  <span class="panel-cell-sub"><%= c.nombre %></span>
-                <% } %>
-                <% if (c.archivado) { %><span class="panel-chip panel-chip--mute">Archivado</span><% } %>
+                <span class="panel-cliente">
+                  <span class="panel-avatar panel-avatar--fila" aria-hidden="true"><%= (c.empresa || c.nombre || '?').trim().charAt(0).toUpperCase() %></span>
+                  <span class="panel-cliente-datos">
+                    <a href="<%= base %>/clientes/<%= c.id %>" class="panel-cell-main panel-stretch">
+                      <%= c.empresa || c.nombre %>
+                    </a>
+                    <% if (c.empresa && c.nombre !== c.empresa) { %>
+                      <span class="panel-cell-sub"><%= c.nombre %></span>
+                    <% } %>
+                    <% if (c.archivado) { %><span class="panel-chip panel-chip--mute">Archivado</span><% } %>
+                  </span>
+                </span>
               </td>
-              <td data-label="Contacto"><%= c.telefono || "—" %></td>
               <td data-label="Email" class="panel-th-email">
                 <% if (c.email) { %>
                   <a href="mailto:<%= c.email %>"><%= c.email %></a>
                 <% } else { %>—<% } %>
               </td>
+              <td data-label="Teléfono"><%= c.telefono || "—" %></td>
               <td class="panel-th-actions">
                 <!-- Solo se ve en la tarjeta (celular). En escritorio la
                      fila entera se abre con el enlace del nombre, y

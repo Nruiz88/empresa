@@ -1029,62 +1029,6 @@
 }
 
 /* =========================================================
-   16. AVISOS FLOTANTES (TOASTS)
-   =========================================================
-   Un "guardado" no debería empujar el contenido hacia abajo. La
-   alerta de página se convierte en un aviso flotante que aparece
-   abajo a la derecha y se va solo, y solo cuando el aviso es un
-   resultado de acción (los que llevan `data-toast`). Las alertas que
-   explican un estado —como las de Salud— se quedan donde están. */
-
-.panel-toasts {
-  position: fixed;
-  right: 1.25rem;
-  bottom: 1.25rem;
-  z-index: 90;
-  display: grid;
-  gap: 0.5rem;
-  max-width: min(380px, calc(100vw - 2rem));
-}
-
-.panel-toast {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.6rem;
-  padding: 0.75rem 1rem;
-  border: 1px solid var(--success-border);
-  border-radius: var(--staff-radio);
-  background: var(--caja-alta-fondo);
-  color: var(--text);
-  box-shadow: var(--sombra-2);
-  font-size: var(--fs-sm);
-  animation: panel-toast-in 0.22s ease both;
-}
-
-.panel-toast::before {
-  content: "";
-  flex: none;
-  margin-top: 0.35rem;
-  width: 0.5rem;
-  height: 0.5rem;
-  border-radius: 50%;
-  background: var(--accent);
-}
-
-.panel-toast--fuera {
-  opacity: 0;
-  transform: translateY(8px);
-  transition: opacity 0.25s ease, transform 0.25s ease;
-}
-
-@keyframes panel-toast-in {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-}
-
-/* =========================================================
    17. DENSIDAD
    =========================================================
    Un panel se usa con datos reales, y con cuarenta filas apretadas
@@ -1237,17 +1181,67 @@ html[data-densidad="compacta"] .panel-body--staff .panel-page > [class] {
 }
 
 /* =========================================================
+   18 BIS. CLIENTES (LISTA Y FICHA)
+   =========================================================
+   La lista de clientes y su ficha comparten un avatar con la inicial:
+   es lo que hace que una lista de empresas se reconozca de un vistazo
+   en vez de tener que leer cada nombre. Es el mismo avatar del
+   lateral, así que la marca de color es una sola. */
+
+.panel-cliente {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.panel-avatar--fila {
+  width: 34px;
+  height: 34px;
+  font-size: var(--fs-xs);
+}
+
+.panel-cliente-datos {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.35;
+}
+
+.panel-cliente-datos .panel-cell-main {
+  font-weight: 650;
+}
+
+/* ── La cabecera de la ficha ── */
+.cliente-ident {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.panel-avatar--lg {
+  width: 52px;
+  height: 52px;
+  font-size: 1.25rem;
+}
+
+@media (max-width: 560px) {
+  .cliente-ident {
+    align-items: flex-start;
+  }
+
+  .panel-avatar--lg {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+/* =========================================================
    19. RESPONSIVE FINAL
    ========================================================= */
 
 @media (max-width: 720px) {
-  .panel-toasts {
-    left: 1rem;
-    right: 1rem;
-    bottom: 1rem;
-    max-width: none;
-  }
-
   /* El desplegable se queda anclado al botón y no pasa a `fixed`: la
      barra superior lleva `backdrop-filter`, que crea un bloque
      contenedor y descolocaría un elemento fijo. Solo se ajusta el

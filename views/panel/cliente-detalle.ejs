@@ -16,12 +16,15 @@
   <% } %>
 
   <div class="panel-page-head">
-    <div>
-      <span class="panel-kicker">Cliente</span>
-      <h1><%= cliente.empresa || cliente.nombre %></h1>
-      <p class="panel-count">
-        <%= cliente.nombre %><% if (cliente.telefono) { %> · <%= cliente.telefono %><% } %>
-      </p>
+    <div class="cliente-ident">
+      <span class="panel-avatar panel-avatar--lg" aria-hidden="true"><%= (cliente.empresa || cliente.nombre || '?').trim().charAt(0).toUpperCase() %></span>
+      <div>
+        <span class="panel-kicker">Cliente</span>
+        <h1><%= cliente.empresa || cliente.nombre %></h1>
+        <p class="panel-count">
+          <%= cliente.nombre %><% if (cliente.telefono) { %> · <%= cliente.telefono %><% } %><% if (servicios.length) { %> · <%= servicios.length %> servicio<%= servicios.length === 1 ? '' : 's' %><% } %>
+        </p>
+      </div>
     </div>
     <div class="panel-head-actions">
       <a href="<%= base %>/clientes" class="panel-btn panel-btn--ghost">← Volver</a>
@@ -145,7 +148,8 @@
             <dt>Nombre</dt><dd><%= cliente.nombre %></dd>
             <dt>Email</dt>
             <dd><% if (cliente.email) { %><a href="mailto:<%= cliente.email %>"><%= cliente.email %></a><% } else { %>—<% } %></dd>
-            <dt>Teléfono</dt><dd><%= cliente.telefono || "—" %></dd>
+            <dt>Teléfono</dt>
+            <dd><% if (cliente.telefono) { %><a href="tel:<%= String(cliente.telefono).replace(/\s/g, '') %>"><%= cliente.telefono %></a><% } else { %>—<% } %></dd>
           </dl>
         </div>
       </section>
