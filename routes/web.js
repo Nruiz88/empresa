@@ -136,11 +136,47 @@ const router = express.Router();
      una agencia que ya no existe nos encuentra a nosotros. */
   router.get("/", (req, res) => {
     res.locals.current = "inicio";
+
+    /* El FAQPage de la home.
+
+       Se monta con las MISMAS preguntas que pinta el bloque de la
+       vista, así el schema y el HTML no pueden divergir: Google exige
+       que la respuesta del schema esté en la página, y un schema que
+       dice algo que el HTML no dice es una penalización esperando. */
+    res.locals.structuredFaq = faq.home;
+
+    /* Los dos productos como SoftwareApplication. Es lo que le dice a
+       Google, sin ambigüedad, que esto es un software y cuáles son las
+       DOS búsquedas que atiende: el bot de WhatsApp y el inventario. */
+    res.locals.structuredData = {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "SoftwareApplication",
+          "name": "Bot de WhatsApp de Shopcito",
+          "applicationCategory": "BusinessApplication",
+          "operatingSystem": "Web",
+          "url": site.url + "/",
+          "description":
+            "Bot de WhatsApp para comercios que responde solo las 24 horas, vende desde un mini shop y agenda turnos.",
+        },
+        {
+          "@type": "SoftwareApplication",
+          "name": "Sistema de inventario de Shopcito",
+          "applicationCategory": "BusinessApplication",
+          "operatingSystem": "Web",
+          "url": site.url + "/",
+          "description":
+            "Sistema de inventario para comercios: control de stock en tiempo real, entradas y salidas, aviso de stock bajo y proveedores.",
+        },
+      ],
+    };
+
     res.render("index", {
-      title: "Shopcito — El copiloto digital para tu comercio o emprendimiento",
+      title: "Bot de WhatsApp e inventario para tu comercio — Shopcito",
       description:
-        "Automatizá tus respuestas de WhatsApp, agendá turnos y vendé desde tu propio mini shop. " +
-        "Tu bot atiende las 24 horas y a vos te llega todo ordenado al celular. Sin comisiones ni letra chica.",
+        "El bot de WhatsApp que atiende solo las 24 horas y el sistema de inventario que controla tu stock. " +
+        "Vendé desde tu mini shop y ordená tu comercio. Sin comisiones por venta ni instalación.",
     });
   });
 

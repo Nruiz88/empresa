@@ -46,22 +46,22 @@
    HERO
    ───────────────────────────────────────────────────────── */
 const HERO = {
-  etiqueta: "El copiloto digital para tu comercio",
+  etiqueta: "Bot de WhatsApp e inventario para tu comercio",
 
   /* Se parte en líneas porque el título se arma con un
      degradado en una sola de ellas, y romperlo con un salto
      manual cambia dónde cae el degradado. */
-  titulo: ["El copiloto digital", "para tu comercio", "o emprendimiento"],
+  titulo: ["El bot de WhatsApp", "y el inventario para", "tu comercio"],
 
   /* La palabra que lleva el degradado. Va separada del resto
      del título porque el efecto se aplica a UNA frase: si se
      aplicara al titular entero, el degradado lo recorre de
      punta a punta y deja de destacar nada. */
-  destacado: "comercio",
+  destacado: "bot de WhatsApp",
 
   subtitulo:
-    "Automatizá tus respuestas de WhatsApp, agendá turnos y vendé desde tu propio mini shop. " +
-    "Todo conectado en un solo lugar.",
+    "Automatizá las respuestas de tu WhatsApp, vendé desde tu mini shop y controlá el stock " +
+    "de tu negocio. El bot atiende y el inventario ordena, en un solo lugar.",
 
   cta: {
     texto: "Probar gratis por 14 días",
@@ -177,6 +177,59 @@ const SOLUCION = {
 };
 
 /* ─────────────────────────────────────────────────────────
+   PRODUCTOS — el bot y el inventario
+   ─────────────────────────────────────────────────────────
+   Va entre el problema/solución y los planes. Es la sección que
+   dice, con nombre y apellido, las dos herramientas que se
+   contratan: el bot de WhatsApp y el sistema de inventario.
+
+   Antes el inventario no existía en la portada, y quien buscaba
+   "control de stock" o "sistema de inventario" no encontraba
+   nada. Es el hueco de SEO más grande que tenía la home. */
+const PRODUCTOS = {
+  etiqueta: "Dos herramientas, un solo lugar",
+  titulo: "El bot que atiende y el inventario que ordena",
+  texto:
+    "Shopcito no es solo un bot que contesta. También lleva el stock de tu negocio: " +
+    "lo que entra, lo que sale y lo que está por acabarse.",
+
+  items: [
+    {
+      id: "bot",
+      icono: "bot",
+      destacado: true,
+      nombre: "Bot de WhatsApp",
+      descripcion:
+        "Atiende solo, a toda hora. Responde precios y horarios, vende desde tu mini shop " +
+        "y agenda turnos sin que toques el celular.",
+      puntos: [
+        "Contesta 24/7, aunque el local esté cerrado",
+        "Mini shop con fotos y precios reales",
+        "Agenda de turnos automática",
+        "Sin comisiones por venta",
+      ],
+      cta: { texto: "Probar el bot", href: "/cuenta/crear" },
+    },
+    {
+      id: "inventario",
+      icono: "caja",
+      destacado: false,
+      nombre: "Sistema de inventario",
+      descripcion:
+        "Sabés qué tenés y qué te falta sin abrir una planilla. El stock de tu comercio, " +
+        "ordenado y al día.",
+      puntos: [
+        "Stock actualizado en tiempo real",
+        "Entradas, salidas y movimientos",
+        "Aviso cuando algo se está acabando",
+        "Proveedores en un solo sitio",
+      ],
+      cta: { texto: "Ver el inventario", href: "/contacto" },
+    },
+  ],
+};
+
+/* ─────────────────────────────────────────────────────────
    LOS TRES PLANES
    ─────────────────────────────────────────────────────────
    El mismo objeto que usarán la portada y /precios.
@@ -251,6 +304,7 @@ module.exports = {
   HERO,
   PROBLEMA,
   SOLUCION,
+  PRODUCTOS,
   PLANES,
   CIERRE,
 };

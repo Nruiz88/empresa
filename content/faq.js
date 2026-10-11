@@ -46,22 +46,32 @@ module.exports.servicios = [
   },
 ];
 
-/* Preguntas frecuentes de la home (objetivo SEO y objeciones) */
+/* Preguntas frecuentes de la home (objetivo SEO y objeciones).
+   Escritas alrededor de las dos búsquedas que interesan: "bot de
+   WhatsApp" y "sistema de inventario" para comercios. */
 module.exports.home = [
   {
-    q: "¿Cuánto cuesta?",
-    a: "Todavía no lo hemos publicado, y se sabe por qué: lo estamos ajustando con los primeros comercios que lo prueban. Escríbenos y te decimos el precio del plan que te sirve. Los tres planes son mensuales y no tienen permanencia.",
+    q: "¿Qué es Shopcito?",
+    a: "Shopcito es el copiloto digital de tu comercio: un bot de WhatsApp que atiende solo las 24 horas y un sistema de inventario para controlar el stock. Se conecta a tu número de siempre, sin que tus clientes instalen nada.",
   },
   {
-    q: "¿Trabajáis con clientes fuera de Argentina?",
-    a: "Trabajamos desde Argentina con clientes de toda la región. Nos adaptamos a su huso horario y facturamos en la moneda que corresponda a cada caso.",
+    q: "¿Cómo funciona el bot de WhatsApp?",
+    a: "El bot responde las consultas de siempre —precios, horarios, disponibilidad— con el tono de tu negocio, vende desde tu mini shop y agenda turnos. Contesta al instante, aunque el local esté cerrado.",
   },
   {
-    q: "¿Cada cuánto necesito renovar la web?",
-    a: "Una web bien hecha aguanta entre 3 y 5 años sin tocar el diseño. Lo que sí hay que renovar son las actualizaciones y el contenido, y eso se gestiona con el mantenimiento mensual.",
+    q: "¿Qué hace el sistema de inventario?",
+    a: "Lleva el stock de tu comercio en tiempo real: registra lo que entra y lo que sale, te avisa cuando un producto se está acabando y guarda tus proveedores. Reemplaza las planillas y las cuentas a mano.",
   },
   {
-    q: "¿Y si no me gusta el resultado final?",
-    a: "Pagas por fases y ves cada entrega en un entorno de pruebas. En las dos primeras fases puedes pedir cambios sin coste. No se factura nada hasta que apruebes el diseño.",
+    q: "¿Cuánto cuesta Shopcito?",
+    a: "Los planes son mensuales, sin permanencia y sin comisiones por venta. Hay tres planes y se diferencian por lo que incluyen. Escribinos y te decimos cuál te sirve y su precio.",
+  },
+  {
+    q: "¿Necesito instalar algo?",
+    a: "No. Funciona sobre tu WhatsApp de siempre, sin que tus clientes tengan que bajar ninguna aplicación. Vos tampoco instalás nada: se conecta una vez y queda funcionando.",
+  },
+  {
+    q: "¿Puedo probarlo antes de pagar?",
+    a: "Sí. Probás 14 días sin tarjeta de crédito y sin compromiso. Si no te sirve, lo das de baja y no pasa nada.",
   },
 ];

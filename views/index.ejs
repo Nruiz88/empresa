@@ -243,6 +243,34 @@
     </div>
   </section>
 
+  <!-- ================= PRODUCTOS =================
+       El bot y el inventario, con nombre y apellido. Es la sección
+       que le da a Google el contenido que hoy no tenía: "bot de
+       WhatsApp" y "sistema de inventario" para comercios. -->
+  <section class="section" id="productos">
+    <div class="container">
+      <div class="section-head section-head--center reveal">
+        <span class="eyebrow"><%= shopcito.PRODUCTOS.etiqueta %></span>
+        <h2><%= shopcito.PRODUCTOS.titulo %></h2>
+        <p><%= shopcito.PRODUCTOS.texto %></p>
+      </div>
+
+      <div class="producto-grid">
+        <% shopcito.PRODUCTOS.items.forEach(function (p) { %>
+          <article class="producto-card reveal<%= p.destacado ? ' producto-card--destacado' : '' %>">
+            <span class="producto-icono" aria-hidden="true"><%- include('partials/icono-shop', { nombre: p.icono }) %></span>
+            <h3><%= p.nombre %></h3>
+            <p class="producto-desc"><%= p.descripcion %></p>
+            <ul class="producto-lista">
+              <% p.puntos.forEach(function (pt) { %><li><%= pt %></li><% }); %>
+            </ul>
+            <a href="<%= p.cta.href %>" class="btn <%= p.destacado ? 'btn-primary' : 'btn-ghost' %> btn-block"><%= p.cta.texto %></a>
+          </article>
+        <% }); %>
+      </div>
+    </div>
+  </section>
+
   <!-- ================= C. PLANES ================= -->
   <section class="section" id="precios">
     <div class="container">
@@ -287,6 +315,17 @@
       </div>
     </div>
   </section>
+
+  <!-- ================= FAQ =================
+       Preguntas frecuentes de la home. Además de bajar las
+       objeciones, el bloque genera el FAQPage de JSON-LD (lo monta
+       el <head> con `structuredFaq`), que es lo que hace que Google
+       pueda mostrar las respuestas directamente en los resultados. -->
+  <%- include('partials/faq', {
+        items: faq.home,
+        title: "Preguntas frecuentes sobre el bot y el inventario",
+        lead: "Si tu pregunta no está aquí, escribinos: respondemos en menos de 24 horas."
+      }) %>
 
   <!-- ================= CIERRE ================= -->
   <section class="section section--soft">

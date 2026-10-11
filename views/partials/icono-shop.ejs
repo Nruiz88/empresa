@@ -91,7 +91,12 @@
   /* Celular: un teléfono con un check, porque el paso no es
      "recibir mensajes" sino "recibir la venta ya ordenada". */
   celular:
-    '<rect x="6" y="2" width="12" height="20" rx="3"/><path d="M10.5 18.5h3"/><path d="m9.5 12 1.8 1.8 3.4-3.6"/>'
+    '<rect x="6" y="2" width="12" height="20" rx="3"/><path d="M10.5 18.5h3"/><path d="m9.5 12 1.8 1.8 3.4-3.6"/>',
+
+  /* Caja: el inventario. Una caja isométrica, que es lo que un
+     comerciante reconoce como "mercadería" y "stock". */
+  caja:
+    '<path d="M3 7.4 12 3l9 4.4v9.2L12 21l-9-4.4V7.4Z"/><path d="m3 7.4 9 4.4 9-4.4M12 11.8V21"/>'
 };
 var _trazoShop = _shop[nombre];
 if (_trazoShop) { %>
