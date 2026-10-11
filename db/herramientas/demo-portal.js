@@ -43,7 +43,7 @@ const supabase = require("../../lib/supabase");
 require("../../lib/env").load();
 const db = supabase.getAdmin();
 
-const EMAIL = "cliente@ejemplo.com";
+const EMAIL = "cliente@shopcito.com.ar";
 
 /* El nombre de la instancia dentro de Evolution: es decir, el número de
    WhatsApp.

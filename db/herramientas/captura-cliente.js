@@ -24,13 +24,13 @@ const hash = (s) => crypto.createHash("sha256").update(s).digest("hex");
 
 (async () => {
   const { data: usuarios } = await db.auth.admin.listUsers({ perPage: 200 });
-  const cliente = usuarios.users.find((u) => u.email === "cliente@ejemplo.com");
+  const cliente = usuarios.users.find((u) => u.email === "cliente@shopcito.com.ar");
   if (!cliente) throw new Error("no está el cliente de ejemplo; ejecuta npm run seed");
 
   /* Access_token real del usuario: el portal lo usa para reconstruir
      la sesión y que sea RLS quien filtre. */
   const { data: sesion, error } = await supabase.getPublico().auth.signInWithPassword({
-    email: "cliente@ejemplo.com",
+    email: "cliente@shopcito.com.ar",
     password: "ClienteDemo123",
   });
   if (error) throw new Error("login: " + error.message);
