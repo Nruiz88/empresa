@@ -57,15 +57,15 @@ const ok = (c, n, extra) => {
 console.log("\n── el subdominio se saca del dominio que haya ──");
 
 {
-  const { site, restaurar } = cargar("https://nexoestudio.es");
-  ok(site.dominio === "nexoestudio.es", "de un dominio pelado sale el mismo", site.dominio);
+  const { site, restaurar } = cargar("https://shopcito.com.ar");
+  ok(site.dominio === "shopcito.com.ar", "de un dominio pelado sale el mismo", site.dominio);
   ok(
-    site.urlDeServicio("bot", "", 3200) === "https://bot.nexoestudio.es",
-    "el bot va a bot.nexoestudio.es",
+    site.urlDeServicio("bot", "", 3200) === "https://bot.shopcito.com.ar",
+    "el bot va a bot.shopcito.com.ar",
     site.urlDeServicio("bot", "", 3200)
   );
   ok(
-    site.urlDeServicio("inventario", "", 3300) === "https://inventario.nexoestudio.es",
+    site.urlDeServicio("inventario", "", 3300) === "https://inventario.shopcito.com.ar",
     "otro servicio va a su propio subdominio"
   );
   restaurar();
@@ -73,11 +73,11 @@ console.log("\n── el subdominio se saca del dominio que haya ──");
 
 {
   /* Con www delante sale el dominio pelado, que es lo que se quiere:
-     www.nexoestudio.es y nexoestudio.es son el mismo sitio. */
-  const { site, restaurar } = cargar("https://www.nexoestudio.es");
-  ok(site.dominio === "nexoestudio.es", "quita el www", site.dominio);
+     www.shopcito.com.ar y shopcito.com.ar son el mismo sitio. */
+  const { site, restaurar } = cargar("https://www.shopcito.com.ar");
+  ok(site.dominio === "shopcito.com.ar", "quita el www", site.dominio);
   ok(
-    site.urlDeServicio("bot", "", 3200) === "https://bot.nexoestudio.es",
+    site.urlDeServicio("bot", "", 3200) === "https://bot.shopcito.com.ar",
     "y el bot sigue detrás, sin www delante",
     site.urlDeServicio("bot", "", 3200)
   );
@@ -97,9 +97,9 @@ console.log("\n── el subdominio se saca del dominio que haya ──");
 console.log("\n── http se respeta ──");
 
 {
-  const { site, restaurar } = cargar("http://nexoestudio.es");
+  const { site, restaurar } = cargar("http://shopcito.com.ar");
   ok(
-    site.urlDeServicio("bot", "", 3200) === "http://bot.nexoestudio.es",
+    site.urlDeServicio("bot", "", 3200) === "http://bot.shopcito.com.ar",
     "si la web va en http, el bot también (no se inventa https)",
     site.urlDeServicio("bot", "", 3200)
   );
@@ -150,7 +150,7 @@ console.log("\n── BOT_URL manda sobre lo deducido ──");
 {
   /* Para un servicio que no va en el subdominio del dominio
      principal, o que está en otro dominio entero. */
-  const { site, restaurar } = cargar("https://nexoestudio.es", {
+  const { site, restaurar } = cargar("https://shopcito.com.ar", {
     BOT_URL: "https://proveedor-externo.net",
   });
   ok(
@@ -163,7 +163,7 @@ console.log("\n── BOT_URL manda sobre lo deducido ──");
 
 {
   /* Sin https delante se añade. */
-  const { site, restaurar } = cargar("https://nexoestudio.es", { BOT_URL: "api.ejemplo.com" });
+  const { site, restaurar } = cargar("https://shopcito.com.ar", { BOT_URL: "api.ejemplo.com" });
   ok(
     site.urlDeServicio("bot", process.env.BOT_URL, 3200) === "https://api.ejemplo.com",
     "una URL sin protocolo pone https",
@@ -174,7 +174,7 @@ console.log("\n── BOT_URL manda sobre lo deducido ──");
 
 {
   /* Una barra al final no rompe el subdominio. */
-  const { site, restaurar } = cargar("https://nexoestudio.es/", { BOT_URL: "https://api.ejemplo.com/" });
+  const { site, restaurar } = cargar("https://shopcito.com.ar/", { BOT_URL: "https://api.ejemplo.com/" });
   ok(
     site.urlDeServicio("bot", process.env.BOT_URL, 3200) === "https://api.ejemplo.com",
     "quita la barra del final",
@@ -184,9 +184,9 @@ console.log("\n── BOT_URL manda sobre lo deducido ──");
 }
 
 {
-  const { site, restaurar } = cargar("https://nexoestudio.es", { BOT_URL: "   " });
+  const { site, restaurar } = cargar("https://shopcito.com.ar", { BOT_URL: "   " });
   ok(
-    site.urlDeServicio("bot", process.env.BOT_URL, 3200) === "https://bot.nexoestudio.es",
+    site.urlDeServicio("bot", process.env.BOT_URL, 3200) === "https://bot.shopcito.com.ar",
     "BOT_URL vacía no pisa nada",
     site.urlDeServicio("bot", process.env.BOT_URL, 3200)
   );
@@ -198,7 +198,7 @@ console.log("\n── NO se coge solo el dominio pelado ──");
 /* Este bloque existe por un fallo del primer despliegue. La deducción
    se quedaba con las dos últimas etiquetas del host, así que:
 
-     empresa.panel.nexoestudio.es → nexoestudio.es → bot.nexoestudio.es
+     empresa.panel.shopcito.com.ar → shopcito.com.ar → bot.shopcito.com.ar
 
    y el botón "Abrir" mandaba a un subdominio que no es nuestro. Las
    pruebas de arriba pasaban porque todas usaban dominios de dos
@@ -207,15 +207,15 @@ console.log("\n── NO se coge solo el dominio pelado ──");
    Con más de dos niveles hay que anteponer el subdominio al host
    ENTERO, quitando solo el www. */
 {
-  const { site, restaurar } = cargar("https://empresa.panel.nexoestudio.es");
-  ok(site.dominio === "empresa.panel.nexoestudio.es", "conserva todos los niveles", site.dominio);
+  const { site, restaurar } = cargar("https://empresa.panel.shopcito.com.ar");
+  ok(site.dominio === "empresa.panel.shopcito.com.ar", "conserva todos los niveles", site.dominio);
   ok(
-    site.urlDeServicio("bot", "", 3200) === "https://bot.empresa.panel.nexoestudio.es",
+    site.urlDeServicio("bot", "", 3200) === "https://bot.empresa.panel.shopcito.com.ar",
     "el bot va detrás, con la cadena entera",
     site.urlDeServicio("bot", "", 3200)
   );
   ok(
-    !site.urlDeServicio("bot", "", 3200).includes("https://bot.nexoestudio.es"),
+    !site.urlDeServicio("bot", "", 3200).includes("https://bot.shopcito.com.ar"),
     "y NO a un dominio ajeno que casualmente comparte sufijo"
   );
 }
@@ -232,10 +232,10 @@ console.log("\n── NO se coge solo el dominio pelado ──");
 }
 
 {
-  const { site, restaurar } = cargar("https://www.empresa.nexoestudio.es");
-  ok(site.dominio === "empresa.nexoestudio.es", "quita el www y nada más", site.dominio);
+  const { site, restaurar } = cargar("https://www.empresa.shopcito.com.ar");
+  ok(site.dominio === "empresa.shopcito.com.ar", "quita el www y nada más", site.dominio);
   ok(
-    site.urlDeServicio("bot", "", 3200) === "https://bot.empresa.nexoestudio.es",
+    site.urlDeServicio("bot", "", 3200) === "https://bot.empresa.shopcito.com.ar",
     "y el bot sale bien",
     site.urlDeServicio("bot", "", 3200)
   );
@@ -244,10 +244,10 @@ console.log("\n── NO se coge solo el dominio pelado ──");
 {
   /* Con subdominio de servicio ya presente, se antepone el suyo: no
      se come el que hay. */
-  const { site, restaurar } = cargar("https://panel.nexoestudio.es");
-  ok(site.dominio === "panel.nexoestudio.es", "con panel delante", site.dominio);
+  const { site, restaurar } = cargar("https://panel.shopcito.com.ar");
+  ok(site.dominio === "panel.shopcito.com.ar", "con panel delante", site.dominio);
   ok(
-    site.urlDeServicio("bot", "", 3200) === "https://bot.panel.nexoestudio.es",
+    site.urlDeServicio("bot", "", 3200) === "https://bot.panel.shopcito.com.ar",
     "el bot delante, sin comerse el panel",
     site.urlDeServicio("bot", "", 3200)
   );
