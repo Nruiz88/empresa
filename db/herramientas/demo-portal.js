@@ -306,7 +306,7 @@ async function limpiar(cliente) {
      Lo que sí NO se hace es volver al dominio de ejemplo
      ("bot.midominio.com"), que es lo que había antes. Ese no enruta. */
   const BOT_URL =
-    process.env.BOT_URL || "https://bot.panel-niconqn.duckdns.org";
+    process.env.BOT_URL || "https://bot.shopcito.com.ar";
 
   for (const m of MODULOS) {
     const { error } = await db.from("modules").upsert(
