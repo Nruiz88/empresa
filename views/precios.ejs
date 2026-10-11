@@ -13,21 +13,27 @@
     <div class="container">
       <div class="price-grid">
         <% planes.forEach(function (p) { %>
+          <% var _pr = precioPartes(p); %>
           <article class="price-card reveal<%= p.destacado ? " featured" : "" %>">
-            <% if (p.destacado) { %><span class="badge">Recomendado</span><% } %>
+            <% if (p.destacado) { %><span class="badge">Más elegido</span><% } %>
 
             <header class="price-card__header">
-              <span class="price-card__eyebrow">Plan</span>
               <h3><%= p.nombre %></h3>
               <p class="plan-desc"><%= p.descripcion %></p>
             </header>
 
-            <div class="price-card__investment">
-              <span class="price-card__label">Inversión</span>
-              <div class="price">
-                <span class="amount<%= p.precio === null || p.precio === undefined ? ' amount--consultar' : '' %>"><%= precioDePlan(p) %></span>
-              </div>
+            <div class="price-card__precio">
+              <span class="price-card__amount<%= _pr.consultar ? ' price-card__amount--consultar' : '' %>"><%= _pr.numero %></span>
+              <% if (_pr.unidad) { %><span class="price-card__period"><%= _pr.unidad %></span><% } %>
             </div>
+
+            <% if (p.herramientas && p.herramientas.length) { %>
+              <div class="price-card__herramientas">
+                <% p.herramientas.forEach(function (h) { %>
+                  <span class="plan-tool"><%- h.icono %><%= h.nombre %></span>
+                <% }); %>
+              </div>
+            <% } %>
 
             <div class="price-card__includes">
               <h4>Qué incluye</h4>
@@ -36,9 +42,9 @@
               </ul>
             </div>
 
-            <p class="price-note"><%= p.nota %></p>
-
             <a href="<%= p.cta.href %>" class="<%= p.cta.clase %> btn-block"><%= p.cta.texto %></a>
+
+            <% if (p.nota) { %><p class="price-note"><%= p.nota %></p><% } %>
           </article>
         <% }); %>
       </div>

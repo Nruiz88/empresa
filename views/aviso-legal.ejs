@@ -20,9 +20,13 @@
         <% if (site.cuit) { %>
           <li><strong>CUIT:</strong> <%= site.cuit %></li>
         <% } %>
+        <% if (site.address) { %>
         <li><strong>Domicilio:</strong> <%= site.address %></li>
+        <% } %>
         <li><strong>Email:</strong> <a href="mailto:<%= site.email %>"><%= site.email %></a></li>
+        <% if (site.phone) { %>
         <li><strong>Teléfono:</strong> <a href="tel:<%= site.phoneHref %>"><%= site.phone %></a></li>
+        <% } %>
         <li><strong>Actividad:</strong> prestación de servicios de atención automática para negocios por suscripción, incluyendo bots de WhatsApp, catálogos y sistemas de reservas.</li>
       </ul>
 

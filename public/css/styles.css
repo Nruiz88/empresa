@@ -1135,7 +1135,8 @@ h4 {
 }
 
 .price-card__header {
-  min-height: 9.5rem;
+  display: grid;
+  gap: 0.4rem;
 }
 
 .price-card__eyebrow,
@@ -1166,8 +1167,9 @@ h4 {
 }
 
 .price-card h3 {
-  font-size: clamp(1.35rem, 2vw, 1.65rem);
-  margin: 0 0 0.45rem;
+  font-size: clamp(1.25rem, 1.8vw, 1.5rem);
+  letter-spacing: -0.02em;
+  margin: 0;
 }
 
 .price-card .plan-desc {
@@ -1175,6 +1177,69 @@ h4 {
   font-size: var(--fs-sm);
   line-height: 1.55;
   margin: 0;
+}
+
+/* ── El precio, en dos niveles ──
+   La cifra manda y el periodo acompaña, en vez de la cadena larga
+   "25.000 ARS / mes" que competía consigo misma. */
+.price-card__precio {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding-bottom: 1.15rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.price-card__amount {
+  font-family: var(--font-display, "Outfit", sans-serif);
+  font-size: clamp(1.9rem, 3vw, 2.4rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.price-card__amount--consultar {
+  font-size: clamp(1.3rem, 2vw, 1.6rem);
+  color: var(--text-muted);
+}
+
+.price-card__period {
+  font-size: var(--fs-sm);
+  color: var(--text-dim);
+}
+
+/* ── Las herramientas que desbloquea el plan ──
+   Es "qué podés usar", distinto de la lista de características. */
+.price-card__herramientas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.plan-tool {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.32rem 0.7rem;
+  border: 1px solid color-mix(in srgb, var(--brand) 34%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--brand) 10%, transparent);
+  color: var(--text);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.plan-tool svg {
+  flex: none;
+  color: var(--brand);
+}
+
+/* El botón al fondo: las tarjetas son de la misma altura y así los tres
+   botones quedan a la misma línea. */
+.price-card .btn {
+  margin-top: auto;
 }
 
 .price-card__investment {
@@ -1197,8 +1262,8 @@ h4 {
 .price-card__includes h4 {
   margin: 0 0 0.8rem;
   font-size: var(--fs-xs);
-  color: var(--text);
-  letter-spacing: 0.06em;
+  color: var(--text-dim);
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
@@ -1224,9 +1289,8 @@ h4 {
 .price-note {
   font-size: var(--fs-xs);
   color: var(--text-dim);
-  padding-top: 0.9rem;
-  margin: auto 0 0;
-  border-top: 1px solid var(--border);
+  line-height: 1.5;
+  margin: 0;
 }
 
 .price-features {

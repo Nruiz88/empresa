@@ -122,6 +122,7 @@ const router = express.Router();
     const { planes, deRespaldo } = await planesLib.planes();
     res.locals.planes = planes;
     res.locals.precioDePlan = planesLib.precioDe;
+    res.locals.precioPartes = planesLib.precioPartes;
     res.locals.planesDeRespaldo = deRespaldo;
     next();
   });
