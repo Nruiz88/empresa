@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /panel
 
-Sitemap: https://nexostudio.es/sitemap.xml
+Sitemap: https://shopcito.com.ar/sitemap.xml
