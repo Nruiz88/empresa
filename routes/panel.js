@@ -669,6 +669,11 @@ const router = express.Router();
        portada vacia. */
     let vivos = [];
 
+    /* El mini-gráfico de consultas por mes. Se declara fuera del try
+       por el mismo motivo que `resumen`: la vista la necesita siempre
+       y el catch la deja como está. */
+    let consultasMes = [];
+
     if (db) {
       try {
         const [leads, clientes, servicios, sinLeer, _vivos, recientes, cobrosPendientes] = await Promise.all([
@@ -703,6 +708,43 @@ const router = express.Router();
             .select("importe,vence_en,services(moneda)")
             .in("estado", ["pendiente", "impagado"]),
         ]);
+
+        /* ── LAS CONSULTAS DE LOS ÚLTIMOS SEIS MESES ──
+           Alimenta el mini-gráfico de la portada. Se pide solo la
+           fecha y se agrupa aquí: traer seis filas de fecha es más
+           barato que una función de base de datos para pintar seis
+           barras. */
+        const inicioPeriodo = new Date();
+        inicioPeriodo.setDate(1);
+        inicioPeriodo.setMonth(inicioPeriodo.getMonth() - 5);
+        const desdeMes = inicioPeriodo.toISOString().slice(0, 10);
+
+        const { data: leadsMes } = await db
+          .from("leads")
+          .select("recibido_en")
+          .gte("recibido_en", desdeMes);
+
+        const ahora = new Date();
+        const meses = [];
+        for (let i = 5; i >= 0; i--) {
+          const d = new Date(ahora.getFullYear(), ahora.getMonth() - i, 1);
+          meses.push({
+            clave: d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0"),
+            etiqueta: d.toLocaleDateString("es-ES", { month: "short" }).replace(".", ""),
+            n: 0,
+          });
+        }
+        const porClave = new Map(meses.map((m, i) => [m.clave, i]));
+        (leadsMes || []).forEach((l) => {
+          const k = String(l.recibido_en || "").slice(0, 7);
+          if (porClave.has(k)) meses[porClave.get(k)].n++;
+        });
+        const mayor = Math.max(1, ...meses.map((m) => m.n));
+        consultasMes = meses.map((m) => ({
+          etiqueta: m.etiqueta,
+          n: m.n,
+          pct: Math.round((m.n / mayor) * 100),
+        }));
 
         /* ── POR QUÉ EL FILTRO VA EN LA CONSULTA Y NO AQUÍ ──
          *
@@ -816,6 +858,7 @@ const router = express.Router();
          tiene de donde sacar los datos. */
       vivos,
       consultas,
+      consultasMes,
       aviso: req.query.aviso || null,
       etiquetaLead: L.etiquetaLead,
       /* Para el bloque de reparto: los servicios van agrupados por

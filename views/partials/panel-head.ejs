@@ -30,6 +30,14 @@
 
   <script>
     document.documentElement.classList.add("js");
+    /* La densidad se aplica ANTES de pintar. Si se hiciera al cargar
+       panel.js, la página aparecería cómoda y saltaría a compacta un
+       instante después: un parpadeo de densidad que se nota. */
+    try {
+      if (localStorage.getItem("nexo-densidad") === "compacta") {
+        document.documentElement.setAttribute("data-densidad", "compacta");
+      }
+    } catch (e) {}
   </script>
 
 </head>
@@ -81,7 +89,8 @@
               title="<%= contadores.servicios %> servicio<%= contadores.servicios === 1 ? "" : "s" %> pausado<%= contadores.servicios === 1 ? "" : "s" %>"><%= contadores.servicios > 99 ? "99+" : contadores.servicios %></span>
       <% } %>
     </a>
-    <p class="panel-menu-titulo">Planes y microservicios</p>
+
+    <p class="panel-menu-titulo">Producto</p>
 
     <a href="<%= base %>/aplicaciones" class="panel-menu-item<%= _current === 'aplicaciones' ? ' is-active' : '' %>"
        <%= _current === 'aplicaciones' ? 'aria-current="page"' : '' %>>
@@ -119,11 +128,11 @@
               title="<%= contadores.botsSinConectar %> bot(s) sin conectar"><%= _c.botsSinConectar > 99 ? "99+" : _c.botsSinConectar %></span>
       <% } %>
     </a>
-    <p class="panel-menu-titulo">Equipo</p>
-    <a href="<%= base %>/accesos" class="panel-menu-item<%= _current === 'accesos' ? ' is-active' : '' %>"
-       <%= _current === 'accesos' ? 'aria-current="page"' : '' %>>
-      <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="7.4" cy="12.6" r="4.2"/><path d="M10.4 9.6 17.4 2.6"/><path d="m14.4 5.6 2 2"/></svg>
-      Accesos
+
+    <a href="<%= base %>/servidores" class="panel-menu-item<%= _current === 'servidores' ? ' is-active' : '' %>"
+       <%= _current === 'servidores' ? 'aria-current="page"' : '' %>>
+      <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="4" width="14" height="5" rx="1"/><path d="M5 12.5h10M7 15.5h6"/></svg>
+      Cajas de bots
     </a>
 
     <p class="panel-menu-titulo">Operaciones</p>
@@ -154,10 +163,12 @@
               title="<%= contadores.vencidos %> cobro<%= contadores.vencidos === 1 ? "" : "s" %> fuera de plazo"><%= contadores.vencidos > 99 ? "99+" : contadores.vencidos %></span>
       <% } %>
     </a>
-    <a href="<%= base %>/servidores" class="panel-menu-item<%= _current === 'servidores' ? ' is-active' : '' %>"
-       <%= _current === 'servidores' ? 'aria-current="page"' : '' %>>
-      <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="4" width="14" height="5" rx="1"/><path d="M5 12.5h10M7 15.5h6"/></svg>
-      Cajas de bots
+
+    <p class="panel-menu-titulo">Sistema</p>
+    <a href="<%= base %>/accesos" class="panel-menu-item<%= _current === 'accesos' ? ' is-active' : '' %>"
+       <%= _current === 'accesos' ? 'aria-current="page"' : '' %>>
+      <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="7.4" cy="12.6" r="4.2"/><path d="M10.4 9.6 17.4 2.6"/><path d="m14.4 5.6 2 2"/></svg>
+      Accesos
     </a>
     <a href="<%= base %>/salud" class="panel-menu-item<%= _current === 'salud' ? ' is-active' : '' %>"
        <%= _current === 'salud' ? 'aria-current="page"' : '' %>>
@@ -165,26 +176,6 @@
       Salud
     </a>
   </nav>
-
-  <div class="panel-side-foot">
-    <a href="/" target="_blank" rel="noopener" class="panel-menu-item panel-menu-item--externo">
-      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M8 4H4v12h12v-4M12 3h5v5M17 3l-7 7"/></svg>
-      Ver la web
-    </a>
-
-    <div class="panel-side-user">
-      <span class="panel-avatar" aria-hidden="true"><%= (_nombre || '?').trim().charAt(0).toUpperCase() %></span>
-      <span class="panel-side-user-datos">
-        <strong><%= _nombre || 'Sin nombre' %></strong>
-        <small>Equipo</small>
-      </span>
-    </div>
-
-    <form method="post" action="<%= base %>/logout">
-      <input type="hidden" name="_csrf" value="<%= _csrf %>" />
-      <button type="submit" class="panel-btn panel-btn--ghost panel-btn--bloque">Cerrar sesión</button>
-    </form>
-  </div>
 </aside>
 
 <div class="panel-shell">
@@ -223,6 +214,37 @@
             <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="4" y="7" width="12" height="9" rx="2.5"/><path d="M10 7V4.6"/><circle cx="10" cy="3.4" r="1.2"/></svg>
             Bot
           </a>
+        </div>
+      </details>
+
+      <button type="button" class="panel-densidad" data-densidad-toggle
+              aria-pressed="false" title="Densidad compacta" aria-label="Cambiar densidad">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 4h14M3 8h14M3 12h14M3 16h14"/></svg>
+      </button>
+
+      <%# El usuario y la salida, en la barra de arriba y no en el pie
+          del lateral: es donde se busca la cuenta y lo que se usa
+          menos que el menú. %>
+      <details class="panel-user-menu" data-panel-usuario>
+        <summary class="panel-user-menu-btn" aria-label="Cuenta de <%= _nombre || 'equipo' %>">
+          <span class="panel-avatar" aria-hidden="true"><%= (_nombre || '?').trim().charAt(0).toUpperCase() %></span>
+        </summary>
+        <div class="panel-user-menu-lista">
+          <div class="panel-user-menu-cabeza">
+            <span class="panel-avatar" aria-hidden="true"><%= (_nombre || '?').trim().charAt(0).toUpperCase() %></span>
+            <span>
+              <strong><%= _nombre || 'Sin nombre' %></strong>
+              <small>Equipo</small>
+            </span>
+          </div>
+          <a href="/" target="_blank" rel="noopener">
+            <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="M8 4H4v12h12v-4M12 3h5v5M17 3l-7 7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Ver la web
+          </a>
+          <form method="post" action="<%= base %>/logout">
+            <input type="hidden" name="_csrf" value="<%= _csrf %>" />
+            <button type="submit" class="panel-btn panel-btn--ghost panel-btn--bloque">Cerrar sesión</button>
+          </form>
         </div>
       </details>
     </div>

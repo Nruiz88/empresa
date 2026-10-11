@@ -368,18 +368,6 @@
   justify-content: space-between;
 }
 
-/* El selector de tema, a la derecha de la barra.
-
-   Con `--simple` la barra ya es `space-between`, así que con el
-   `margin-inline-start: auto` de aquí el selector se va al extremo
-   derecho y no entre el título y el usuario. En la del equipo, que no
-   lleva `--simple`, el hueco que había a la derecha se llena con
-   algo útil. */
-.panel-theme {
-  margin-inline-start: auto;
-  flex: 0 0 auto;
-}
-
 /* La navegación del cliente: cuatro enlaces en fila, en el centro.
 
    EL BUG QUE ESTABA

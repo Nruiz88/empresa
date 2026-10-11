@@ -74,14 +74,14 @@
      Tres líneas: clic fuera, Escape y Escape también devuelve el
      foco al botón, para no perderlo en el body. */
   document.addEventListener("click", function (ev) {
-    document.querySelectorAll(".panel-rapido[open]").forEach(function (d) {
+    document.querySelectorAll(".panel-rapido[open], .panel-user-menu[open]").forEach(function (d) {
       if (!d.contains(ev.target)) d.removeAttribute("open");
     });
   });
 
   document.addEventListener("keydown", function (ev) {
     if (ev.key !== "Escape") return;
-    const abierto = document.querySelector(".panel-rapido[open]");
+    const abierto = document.querySelector(".panel-rapido[open], .panel-user-menu[open]");
     if (!abierto) return;
     abierto.removeAttribute("open");
     const resumen = abierto.querySelector("summary");
@@ -139,8 +139,113 @@
      que el susto. */
   document.addEventListener("submit", function (ev) {
     const aviso = ev.target.getAttribute("data-confirmar");
-    if (aviso && !window.confirm(aviso)) ev.preventDefault();
+    if (aviso && !window.confirm(aviso)) {
+      ev.preventDefault();
+      return;
+    }
+
+    /* Bloquear el reenvío.
+
+       En una conexión lenta el botón sigue vivo entre el clic y la
+       respuesta, y dos clics seguidos crean el cobro dos veces. Se
+       desactiva en cuanto el formulario se envía y se vuelve a
+       activar a los cinco segundos por si el envío no llegó a
+       navegar (por ejemplo, si el servidor responde con errores). */
+    const b = ev.target.querySelector('button[type="submit"]:not([disabled])');
+    if (b) {
+      /* Se desactiva en el siguiente turno, no ahora.
+
+         Desactivar el botón DENTRO del evento de envío puede dejar
+         fuera su `name`/`value` del formulario que se manda, porque el
+         navegador recoge los datos después. Con el `setTimeout(…, 0)`
+         ya se ha ido y solo entonces se apaga. */
+      window.setTimeout(function () {
+        b.disabled = true;
+        b.setAttribute("aria-busy", "true");
+        window.setTimeout(function () {
+          b.disabled = false;
+          b.removeAttribute("aria-busy");
+        }, 5000);
+      }, 0);
+    }
   });
+
+  /* ---------- 3 bis. Un cambio de estado, sin botón ----------
+     Los `select` con `data-auto` envían su formulario al cambiar.
+
+     Es lo que faltaba en el listado de servicios: se elegía otro
+     estado y no pasaba nada, porque el formulario no tenía botón ni
+     nada que lo enviara. El estado sí se podía cambiar desde la ficha
+     del cliente, que sí tiene su botón «Cambiar»; aquí no. */
+  document.addEventListener("change", function (ev) {
+    const s = ev.target.closest("select[data-auto]");
+    if (s && s.form) s.form.submit();
+  });
+
+  /* ---------- 3 ter. Los avisos flotantes ----------
+     Un «guardado» que empuja toda la página hacia abajo es un salto
+     en cada acción. Los avisos marcados con `data-toast` se sacan de
+     la página, se muestran abajo a la derecha y se van solos.
+
+     Las alertas que no llevan la marca (las de Salud, por ejemplo)
+     se quedan donde están: esas explican un estado y hay que poder
+     leerlas con calma. */
+  (function toasts() {
+    const avisos = document.querySelectorAll(".panel-alert--ok[data-toast]");
+    if (!avisos.length) return;
+
+    const capa = document.createElement("div");
+    capa.className = "panel-toasts";
+    capa.setAttribute("role", "status");
+    capa.setAttribute("aria-live", "polite");
+    document.body.appendChild(capa);
+
+    avisos.forEach(function (aviso, i) {
+      const texto = aviso.textContent.replace(/^[\s✓]+/, "").trim();
+      aviso.remove();
+
+      const t = document.createElement("div");
+      t.className = "panel-toast";
+      t.textContent = texto;
+      capa.appendChild(t);
+
+      window.setTimeout(function () {
+        t.classList.add("panel-toast--fuera");
+        window.setTimeout(function () { t.remove(); }, 300);
+      }, 4200 + i * 400);
+    });
+  })();
+
+  /* ---------- 3 quáter. La densidad ----------
+     Alterna entre cómoda y compacta y lo recuerda. El atributo va en
+     `<html>`; el script del <head> lo aplica antes de pintar para
+     que no haya un salto de densidad al cargar la página. */
+  (function densidad() {
+    const raiz = document.documentElement;
+    const boton = document.querySelector("[data-densidad-toggle]");
+    if (!boton) return;
+
+    function pintar() {
+      const compacta = raiz.getAttribute("data-densidad") === "compacta";
+      boton.setAttribute("aria-pressed", compacta ? "true" : "false");
+      boton.setAttribute("title", compacta ? "Densidad cómoda" : "Densidad compacta");
+    }
+
+    boton.addEventListener("click", function () {
+      const compacta = raiz.getAttribute("data-densidad") === "compacta";
+      if (compacta) raiz.removeAttribute("data-densidad");
+      else raiz.setAttribute("data-densidad", "compacta");
+      try {
+        localStorage.setItem("nexo-densidad", compacta ? "comoda" : "compacta");
+      } catch (e) {
+        /* Sin localStorage el ajuste dura la sesión; no merece un
+           error en pantalla. */
+      }
+      pintar();
+    });
+
+    pintar();
+  })();
 
   })();
   /* =========================================================

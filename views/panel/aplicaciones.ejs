@@ -176,8 +176,7 @@
               <% if (s.precio.importe === null) { %>
                 <span class="panel-valor-vacio">a consultar</span>
               <% } else { %>
-                <%= new Intl.NumberFormat("es-AR").format(s.precio.importe) %>
-                <span class="app-moneda"><%= s.precio.moneda %></span>
+                <%= new Intl.NumberFormat("es-ES", { style: "currency", currency: s.precio.moneda || "EUR" }).format(s.precio.importe) %>
               <% } %>
             </td>
 

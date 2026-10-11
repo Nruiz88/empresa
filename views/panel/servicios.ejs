@@ -132,12 +132,12 @@
         </thead>
         <tbody>
           <% servicios.forEach(function (s) { %>
-            <tr>
+            <tr class="panel-row--link">
               <td data-principal>
                 <span class="panel-chip panel-chip--<%= s.kind %>">
                   <%= etiquetaTipo(s.kind) %>
                 </span>
-                <span class="panel-cell-main"><%= s.titulo %></span>
+                <a href="<%= base %>/servicios/<%= s.id %>/editar" class="panel-cell-main panel-stretch"><%= s.titulo %></a>
               </td>
               <td data-label="Cliente">
                 <% var cli = s.clients; %>
@@ -149,7 +149,7 @@
                 <form method="post" action="<%= base %>/servicios/<%= s.id %>/estado">
                   <input type="hidden" name="_csrf" value="<%= csrf %>" />
                   <input type="hidden" name="volver" value="<%= base %>/servicios" />
-                  <select name="estado" class="panel-select-mini" aria-label="Estado">
+                  <select name="estado" class="panel-select-mini" aria-label="Estado" data-auto>
                     <% estados.forEach(function (e) { %>
                       <option value="<%= e.valor %>" <%= s.estado === e.valor ? 'selected' : '' %>><%= e.label %></option>
                     <% }); %>
@@ -162,7 +162,11 @@
                 <% } else { %>—<% } %>
               </td>
               <td class="panel-th-actions">
-                <a href="<%= base %>/servicios/<%= s.id %>/editar" class="panel-btn panel-btn--ghost panel-btn--xs">Editar</a>
+                <a href="<%= base %>/servicios/<%= s.id %>/editar" class="panel-btn panel-btn--ghost panel-btn--xs">
+                  Editar
+                  <span class="sr-only"><%= s.titulo %></span>
+                </a>
+                <span class="panel-chevron" aria-hidden="true"></span>
               </td>
             </tr>
           <% }); %>

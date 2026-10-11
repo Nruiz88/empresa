@@ -23,7 +23,7 @@
     <a href="<%= base %>/cobros" class="panel-btn panel-btn--ghost">← Volver a cobros</a>
   </div>
 
-  <% if (aviso) { %><div class="panel-alert panel-alert--ok">✓ <%= aviso %></div><% } %>
+  <% if (aviso) { %><div class="panel-alert panel-alert--ok" data-toast>✓ <%= aviso %></div><% } %>
   <% if (error) { %><div class="panel-alert"><%= error %></div><% } %>
 
   <!-- ---------- Qué periodo ---------- -->

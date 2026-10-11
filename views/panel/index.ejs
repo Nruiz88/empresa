@@ -13,7 +13,7 @@
 <div class="panel-page">
 
   <% if (aviso) { %>
-    <div class="panel-alert panel-alert--ok">✓ <%= aviso %></div>
+    <div class="panel-alert panel-alert--ok" data-toast>✓ <%= aviso %></div>
   <% } %>
 
   <div class="panel-page-head">
@@ -280,6 +280,32 @@
           </a>
         <% }); %>
       </div>
+
+    <% if (consultasMes && consultasMes.length) { %>
+      <section class="panel-card">
+        <div class="panel-card-head">
+          <div class="panel-card-head-texto">
+            <span class="panel-card-cintillo">Actividad</span>
+            <h2 class="panel-card-titulo">Consultas recibidas</h2>
+          </div>
+          <span class="panel-hint" style="margin:0">Últimos 6 meses</span>
+        </div>
+        <div class="panel-card-cuerpo">
+          <div class="panel-chart" role="img"
+               aria-label="<%= consultasMes.map(function (m) { return m.etiqueta + ': ' + m.n; }).join(', ') %>">
+            <% consultasMes.forEach(function (m) { %>
+              <div class="panel-chart-col">
+                <span class="panel-chart-num"><%= m.n %></span>
+                <span class="panel-chart-track">
+                  <span class="panel-chart-barra<%= m.n === 0 ? ' panel-chart-barra--vacia' : '' %>" style="height: <%= m.pct %>%"></span>
+                </span>
+                <span class="panel-chart-mes"><%= m.etiqueta %></span>
+              </div>
+            <% }); %>
+          </div>
+        </div>
+      </section>
+    <% } %>
 
     <div class="panel-rejilla">
 

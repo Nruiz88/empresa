@@ -56,16 +56,32 @@
      "cob" debe encontrar la sección de cobros. */
   const SECCIONES = [
     { titulo: "Resumen", url: BASE + "/", atajo: "G H" },
-    { titulo: "Consultas", url: BASE + "/consultas" },
     { titulo: "Clientes", url: BASE + "/clientes" },
     { titulo: "Servicios", url: BASE + "/servicios" },
     { titulo: "Cobros", url: BASE + "/cobros" },
+    { titulo: "Consultas", url: BASE + "/consultas" },
+    { titulo: "Soporte", url: BASE + "/tickets" },
+    { titulo: "Aplicaciones", url: BASE + "/aplicaciones" },
+    { titulo: "Catálogo de aplicaciones", url: BASE + "/aplicaciones/catalogo" },
     { titulo: "Catálogo", url: BASE + "/catalogo" },
+    { titulo: "Planes", url: BASE + "/planes" },
+    { titulo: "Bots", url: BASE + "/bots" },
+    { titulo: "Cajas de bots", url: BASE + "/servidores" },
     { titulo: "Accesos", url: BASE + "/accesos" },
     { titulo: "Salud del sistema", url: BASE + "/salud" },
+
+    /* ── Las acciones ──
+       No son destinos del menú: son cosas que se HACEN. Van marcadas
+       con `accion` para pintarlas distinto y para que escribir
+       "nuevo" las agrupe todas, que es como se busca «crear algo»
+       cuando no se recuerda en qué pantalla vive. */
     { titulo: "Nuevo cliente", url: BASE + "/clientes/nuevo", accion: true },
-    { titulo: "Nuevo cobro", url: BASE + "/cobros/nuevo", accion: true },
     { titulo: "Nuevo servicio", url: BASE + "/servicios/nuevo", accion: true },
+    { titulo: "Nueva aplicación", url: BASE + "/aplicaciones/nuevo", accion: true },
+    { titulo: "Nuevo cobro", url: BASE + "/cobros/nuevo", accion: true },
+    { titulo: "Generar cobros del mes", url: BASE + "/cobros/generar", accion: true },
+    { titulo: "Nuevo bot", url: BASE + "/bots/nuevo", accion: true },
+    { titulo: "Nueva caja de bots", url: BASE + "/servidores/nuevo", accion: true },
   ];
 
   /* De dónde sale cada grupo de resultados, y a dónde lleva.
@@ -229,7 +245,7 @@
       const icon = document.createElement("span");
       icon.className = "cmd-item-icono";
       icon.setAttribute("aria-hidden", "true");
-      icon.textContent = r.tipo === "seccion" ? "›" : "·";
+      icon.textContent = r.tipo === "seccion" ? (r.accion ? "+" : "›") : "·";
 
       const textos = document.createElement("span");
       textos.className = "cmd-item-textos";
@@ -479,7 +495,15 @@
   boton.addEventListener("click", abrir);
 
   const barra = document.querySelector(".panel-topbar");
-  if (barra) barra.appendChild(boton);
+  if (barra) {
+    /* Se coloca DELANTE de las acciones (Nuevo, densidad, usuario), no
+       al final. Buscar es la forma principal de llegar a algo, y con
+       `appendChild` acababa detrás del menú de usuario. En la barra
+       del portal, que no tiene acciones, se sigue añadiendo al final. */
+    const acciones = barra.querySelector(".panel-topbar-acciones");
+    if (acciones) barra.insertBefore(boton, acciones);
+    else barra.appendChild(boton);
+  }
 
   /* El atajo que se pinta depende del sistema, y poner "Ctrl K" en un
      Mac es tan inútil como poner "Cmd" en un Windows. */
