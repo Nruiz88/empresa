@@ -569,6 +569,26 @@ module.exports = function rutasBots({ db, sitio, requiereStaff }) {
       req,
     });
 
+    /* El contrato: dar de alta el bot tiene que dejar TAMBIÉN el
+       servicio, para que el cliente lo vea en su portal y aparezca en
+       Servicios/Aplicaciones (y se pueda cobrar). Sin esto quedaba un
+       número sin contrato: el problema que reportó un cliente nuevo. */
+    try {
+      const servicio = await botsLib.asegurarServicioDeBot(db, clientId);
+      if (servicio.creado) {
+        await auth.auditar(db, {
+          actor: { id: req.sesion.user_id, email: null },
+          accion: "crear",
+          entidad: "services",
+          entidadId: servicio.serviceId,
+          detalle: { microservicio_clave: botsLib.MODULO_BOT, origen: "alta-bot" },
+          req,
+        });
+      }
+    } catch (e) {
+      console.error("[bots] no se pudo crear el servicio del bot:", e.message);
+    }
+
     /* Los avisos de la preparación (webhook reenganchado, sin dominio)
        se pasan por la URL porque la redirección es lo único que sobrevive
        a un POST. El texto va truncado: una URL no es un sitio para
