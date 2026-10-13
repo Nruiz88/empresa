@@ -159,20 +159,24 @@
                   <span class="panel-sitio-num panel-th-num"><%= n.sitio %></span>
                   <span class="panel-sitio-texto">
                     <% if (n.botId) { %>
-                      <span class="panel-sitio-principal"><%= n.botNombre %></span>
-                      <% if (n.empresa) { %>
-                        <span class="panel-cell-sub"><%= n.empresa %></span>
-                      <% } %>
+                      <%# El CLIENTE primero: es lo que se busca para saber
+                          «de quién es este número». El nombre técnico del
+                          bot va debajo, porque a nadie le dice quién es. %>
+                      <span class="panel-sitio-principal"><%= n.empresa || n.botNombre %></span>
+                      <span class="panel-cell-sub">
+                        <%= n.botNombre %>
+                        <% if (n.telefono) { %> · <span class="panel-cell-mono"><%= n.telefono %></span><% } %>
+                        <% if (!n.enEvolution) { %>
+                          · <span class="panel-chip panel-chip--mute">sin número en la caja</span>
+                        <% } %>
+                      </span>
                     <% } else if (n.enEvolution) { %>
-                      <%# El número existe en la caja pero nadie lo tiene
-                          asignado en la base. Esa es una incongruencia
-                          real: ocupa sitio en la caja y no lo paga
-                          nadie, así que se dice, no se esconde. %>
+                      <%# Existe en la caja y no en la base: ocupa sitio y no
+                          lo paga nadie. Se dice, no se esconde. %>
                       <span class="panel-sitio-principal">Sin asignar</span>
                       <span class="panel-cell-sub">
-                        Hay una instancia con este nombre en la caja
-                        <% if (n.nombre) { %>(<%= n.nombre %>)<% } %>,
-                        pero no hay ningún bot en la base.
+                        Instancia <code><%= n.nombre %></code> en la caja, sin bot en la base
+                        <% if (n.telefono) { %> · <span class="panel-cell-mono"><%= n.telefono %></span><% } %>
                       </span>
                     <% } else if (c.consultada) { %>
                       <span class="panel-sitio-principal">Libre</span>
@@ -185,7 +189,7 @@
                     <% } %>
                   </span>
                   <% if (n.enEvolution) { %>
-                    <span class="panel-sitio-estado<%= n.estadoEvolution === 'stateStart' || n.estadoBot === 'en_linea' ? ' es-online' : '' %>">
+                    <span class="panel-sitio-estado<%= /open|connected|stateopen/i.test(n.estadoEvolution || '') ? ' es-online' : '' %>">
                       <%= n.estadoEvolution || 'creado' %>
                     </span>
                   <% } %>
