@@ -1,0 +1,142 @@
+<%#
+  Configuración de servicios externos. Hoy: MercadoPago.
+
+  Variables: config, webhookUrl, errores, aviso, prueba
+%>
+<%- include('../partials/panel-head', { title, site, base, current }) %>
+
+<div class="panel-page panel-page--form">
+  <div class="panel-page-head">
+    <div>
+      <span class="panel-kicker">Sistema</span>
+      <h1>Configuración</h1>
+      <p class="panel-page-lead">
+        Las claves de los servicios externos. Solo las ve el equipo.
+      </p>
+    </div>
+    <a href="<%= base %>/salud" class="panel-btn panel-btn--ghost">Ver salud del sistema</a>
+  </div>
+
+  <% if (aviso) { %>
+    <div class="panel-alert panel-alert--ok"><%= aviso %></div>
+  <% } %>
+
+  <% if (prueba) { %>
+    <div class="<%= prueba.ok ? 'panel-alert panel-alert--ok' : 'panel-alert' %>">
+      <%= prueba.texto %>
+    </div>
+  <% } %>
+
+  <% if (errores.general) { %>
+    <div class="panel-alert"><%= errores.general %></div>
+  <% } %>
+
+  <!-- ============ MERCADOPAGO ============ -->
+  <div class="panel-card" style="margin-bottom:1.1rem">
+    <div class="panel-card-head">
+      <div class="panel-card-head-texto">
+        <span class="panel-card-cintillo">
+          <%= config.activo ? 'Activo' : 'Desactivado' %>
+        </span>
+        <h2 class="panel-card-titulo">MercadoPago</h2>
+        <span class="panel-cell-sub">
+          Cobra la suscripción del bot sola cada mes (suscripción / preapproval).
+        </span>
+      </div>
+      <div class="panel-cell-sub" style="text-align:end">
+        <span class="panel-chip <%= config.modo === 'prod' ? 'panel-chip--estado-activo' : 'panel-chip--mute' %>">
+          <%= config.modo === 'prod' ? 'Producción' : 'Prueba' %>
+        </span>
+      </div>
+    </div>
+
+    <div class="panel-card-cuerpo">
+      <div class="panel-note">
+        <p>
+          <strong>URL del webhook</strong> — pegá esta dirección en
+          MercadoPago (Tus integraciones → tu aplicación → Webhooks),
+          evento <code>subscription_preapproval</code> y
+          <code>subscription_authorized_payment</code>:
+        </p>
+        <p><code><%= webhookUrl %></code></p>
+        <p class="panel-cell-sub">
+          El <strong>Access Token</strong> y la <strong>Public Key</strong> están en
+          Tus integraciones → Datos de integración → Pruebas (o Producción).
+          La <strong>clave secreta</strong> la genera MercadoPago al configurar el
+          webhook, y es con la que se valida cada aviso.
+        </p>
+      </div>
+
+      <form method="post" action="<%= base %>/configuracion" class="panel-form">
+        <input type="hidden" name="_csrf" value="<%= csrf %>" />
+        <%# Campo oculto para que el desmarcado del checkbox llegue. %>
+        <input type="hidden" name="activo" value="0" />
+
+        <div class="panel-form-grid">
+          <label class="panel-field">
+            <span>Cobrar con MercadoPago</span>
+            <input type="checkbox" name="activo" value="1" <%= config.activo ? 'checked' : '' %> />
+            <em class="panel-help">
+              Desactivado, el botón de pago del portal no aparece y el webhook
+              se ignora. No borra nada de lo ya cobrado.
+            </em>
+          </label>
+
+          <label class="panel-field">
+            <span>Modo</span>
+            <select name="modo">
+              <option value="test" <%= config.modo !== 'prod' ? 'selected' : '' %>>Prueba (test)</option>
+              <option value="prod" <%= config.modo === 'prod' ? 'selected' : '' %>>Producción</option>
+            </select>
+            <em class="panel-help">
+              Es solo para que la pantalla diga en qué modo estás: lo que manda
+              es el Access Token que pegues (el de prueba empieza por
+              <code>TEST-</code>, el real por <code>APP_USR-</code>).
+            </em>
+          </label>
+
+          <label class="panel-field panel-field--ancho">
+            <span>Access Token</span>
+            <input type="password" name="access_token"
+                   placeholder="<%= config.access_token ? '(guardado — dejá vacío para no cambiarlo)' : 'APP_USR-... o TEST-...' %>"
+                   autocomplete="off" />
+            <em class="panel-help">
+              Clave privada, se usa en el servidor. No se muestra la que hay.
+            </em>
+          </label>
+
+          <label class="panel-field">
+            <span>Public Key</span>
+            <input type="text" name="public_key" value="<%= config.public_key || '' %>"
+                   placeholder="APP_USR-... o TEST-..." autocomplete="off" />
+            <em class="panel-help">Clave pública (frontend).</em>
+          </label>
+
+          <label class="panel-field">
+            <span>Clave secreta del webhook</span>
+            <input type="password" name="webhook_secret"
+                   placeholder="<%= config.webhook_secret ? '(guardada — dejá vacío para no cambiarla)' : 'la que genera MercadoPago' %>"
+                   autocomplete="off" />
+            <em class="panel-help">
+              Con ella se valida la firma <code>x-signature</code>. Sin ella, el
+              webhook rechaza todo.
+            </em>
+          </label>
+        </div>
+
+        <div class="panel-form-actions">
+          <button type="submit" class="panel-btn panel-btn--primary">Guardar</button>
+        </div>
+      </form>
+
+      <%# Probar va en su propio formulario: guardar y probar son dos
+          acciones distintas, y probar no debe tocar nada. %>
+      <form method="post" action="<%= base %>/configuracion/probar" style="margin-top:0.6rem">
+        <input type="hidden" name="_csrf" value="<%= csrf %>" />
+        <button type="submit" class="panel-btn panel-btn--ghost">Probar la credencial guardada</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/panel-foot', { site }) %>

@@ -61,6 +61,12 @@
     <div class="panel-alert"><%= errorServicio %></div>
   <% } %>
 
+  <% if (typeof avisoPago !== 'undefined' && avisoPago) { %>
+    <div class="<%= avisoPago.tipo === 'ok' ? 'panel-alert panel-alert--ok' : (avisoPago.tipo === 'aviso' ? 'panel-alert panel-alert--warn' : 'panel-alert') %>">
+      <%= avisoPago.texto %>
+    </div>
+  <% } %>
+
   <!-- Métricas: las tres preguntas al entrar. La del dinero va la
        primera y destacada SI hay algo pendiente: si debe, es lo único
        que importa en ese momento. -->
@@ -221,6 +227,13 @@
              var acc = s.acceso || {};
              var nivel = acc.nivel || 'activo';
              var pendiente = (acc.detalle && acc.detalle.pendiente) || 0;
+             // Se puede pagar online: suscripción, con importe, y con un
+             // período que MercadoPago sepa cobrar solo (no "pago único").
+             var pagable = typeof mpActivo !== 'undefined' && mpActivo &&
+               (s.kind === 'aplicacion' || s.kind === 'plan') &&
+               Number(s.importe) > 0 &&
+               ['mensual', 'trimestral', 'anual'].indexOf(String(s.periodicidad || '')) >= 0 &&
+               s.estado !== 'cancelado' && s.estado !== 'finalizado';
           %>
           <li class="portal-serv portal-serv--<%= nivel %>"
               <%= nivel === 'bloqueado' ? 'id="pendiente"' : '' %>>
@@ -313,6 +326,15 @@
                 <a href="mailto:<%= site.email %>?subject=<%= encodeURIComponent('Consulta sobre ' + s.titulo) %>"
                    class="panel-btn panel-btn--ghost panel-btn--xs">
                   <%= acc.accion %>
+                </a>
+              </div>
+            <% } %>
+
+            <% if (pagable) { %>
+              <div class="portal-serv-accion">
+                <a href="<%= base %>/pagar/<%= s.id %>"
+                   class="panel-btn panel-btn--primary panel-btn--xs">
+                  <%= nivel === 'bloqueado' ? 'Pagar y regularizar' : 'Pagar suscripción' %>
                 </a>
               </div>
             <% } %>

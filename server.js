@@ -168,6 +168,12 @@ app.use(require("./routes/panel"));
    come todo lo que no reconozca, y /cuenta/* no está en su lista. */
 app.use(require("./routes/cuenta"));
 
+/* El webhook de MercadoPago es público: lo llama MercadoPago, sin
+   sesión. Va antes de la web pública porque el 404 de esa se come todo
+   lo que no reconozca, y esta ruta quedaría inalcanzable. Se protege
+   con la firma `x-signature`, no con login (ver routes/pagos.js). */
+app.use(require("./routes/pagos"));
+
 /* Y después la web pública, con su 404 al final */
 app.use(require("./routes/web"));
 

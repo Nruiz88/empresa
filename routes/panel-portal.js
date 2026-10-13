@@ -27,6 +27,7 @@ const tickets = require("../lib/tickets");
 const L = require("../lib/labels");
 const acceso = require("../lib/acceso");
 const iconos = require("../lib/iconos");
+const mp = require("../lib/mercadopago");
 
 /* `clientIdDe` vive en lib/client-id.js: lo usan este archivo y
    panel-perfil.js, y una copia en cada uno es una copia que algún día
@@ -111,6 +112,17 @@ const ERRORES_SERVICIO = {
   /* Los de soporte, en /soporte/:moduleId. */
   cliente: "Ese cliente ya no está en la base. Elige otro de la lista.",
   staff: "Esta pantalla es solo para el equipo.",
+};
+
+/* Los ?pago= de /pagar/:id y /pago/resultado. Se redactan aquí para que
+   la URL no lleve el texto y la vista no tenga que inventarlo. */
+const AVISOS_PAGO = {
+  error: { tipo: "error", texto: "No se pudo iniciar el pago. Inténtalo otra vez en un momento." },
+  nodisponible: { tipo: "error", texto: "Ese servicio todavía no se puede pagar online." },
+  "sin-correo": { tipo: "error", texto: "Falta un correo en tu ficha para poder generar el pago. Escríbenos y lo completamos." },
+  cancelado: { tipo: "error", texto: "El pago se canceló. Puedes intentarlo de nuevo cuando quieras." },
+  pendiente: { tipo: "aviso", texto: "El pago quedó pendiente de confirmación. En cuanto MercadoPago lo confirme, tu servicio se activa solo." },
+  aprobado: { tipo: "ok", texto: "¡Pago confirmado! Tu servicio queda activo." },
 };
 
 /* Los textos salen de lib/labels.js, la misma fuente que usan el
@@ -325,6 +337,12 @@ module.exports = function rutasPortal({ db, sitio, requiereLogin }) {
       }
     }
 
+    /* ¿Se puede cobrar online? Si MercadoPago no está configurado o
+       está desactivado, el botón de pagar no aparece: es mejor no
+       ofrecer un botón que lleva a un error. */
+    const configMp = await mp.leerConfig(supabase.getAdmin());
+    const mpActivo = mp.estaLista(configMp).ok;
+
     const datos = {
       title: "Mis servicios",
       site: sitio,
@@ -347,6 +365,9 @@ module.exports = function rutasPortal({ db, sitio, requiereLogin }) {
       fecha,
       modulos,
       errorServicio: ERRORES_SERVICIO[req.query.error] || null,
+      /* El resultado de un pago que vuelve de MercadoPago. */
+      avisoPago: AVISOS_PAGO[String(req.query.pago || "").trim()] || null,
+      mpActivo,
     };
 
     /* Sin token no se puede consultar con identidad: mejor decirlo
@@ -439,6 +460,121 @@ module.exports = function rutasPortal({ db, sitio, requiereLogin }) {
          igual las dos formas. */
       esStaff: req.sesion.rol === "staff",
       error: error ? "No se pudieron cargar tus servicios ahora mismo." : null,
+    });
+  });
+
+  /* ---------- Pagar una suscripción (MercadoPago) ----------
+     Crea la suscripción en MercadoPago y manda al cliente a su pantalla
+     de pago.
+
+     ── EL SERVICIO NO SE ACTIVA AQUÍ ──
+     Lo activa el webhook (/mp/webhook) cuando MercadoPago confirma. Si
+     se activara también aquí, habría dos caminos y el día que uno falle
+     el cliente tendría el bot sin haber pagado, o al revés. Una sola
+     puerta: `confirmarPago()` (lib/pagos.js). */
+  router.get("/pagar/:serviceId", requiereLogin, async (req, res) => {
+    const volver = (estado) => res.redirect("/panel/mis-servicios?pago=" + estado);
+
+    const clientId = await clientIdDe(req.sesion.user_id);
+    if (!clientId) return volver("error");
+
+    const admin = supabase.getAdmin();
+    const config = await mp.leerConfig(admin);
+    if (!mp.estaLista(config).ok) return volver("nodisponible");
+
+    const { data: servicio } = await admin
+      .from("services")
+      .select("id,client_id,kind,titulo,importe,moneda,periodicidad,estado")
+      .eq("id", req.params.serviceId)
+      .maybeSingle();
+
+    /* La comprobación de dueño va explícita: un servicio de otro cliente
+       no se puede pagar aunque se adivine el id. */
+    if (!servicio || servicio.client_id !== clientId) return volver("error");
+
+    const FREC = {
+      mensual: { frecuencia: 1, tipoFrecuencia: "months" },
+      trimestral: { frecuencia: 3, tipoFrecuencia: "months" },
+      anual: { frecuencia: 12, tipoFrecuencia: "months" },
+    }[String(servicio.periodicidad || "")];
+
+    const cobrable =
+      (servicio.kind === "aplicacion" || servicio.kind === "plan") &&
+      Number(servicio.importe) > 0 &&
+      Boolean(FREC);
+    if (!cobrable) return volver("nodisponible");
+
+    const { data: cliente } = await admin
+      .from("clients")
+      .select("email,nombre,empresa")
+      .eq("id", clientId)
+      .maybeSingle();
+
+    const email = (cliente && cliente.email) || "";
+    if (!email) return volver("sin-correo");
+
+    const base = String(sitio.panelUrl || sitio.url).replace(/\/+$/, "");
+
+    const r = await mp.crearPreapproval(config, {
+      reason: "Shopcito — " + servicio.titulo,
+      externalReference: servicio.id,
+      payerEmail: email,
+      monto: Number(servicio.importe),
+      moneda: servicio.moneda || "ARS",
+      frecuencia: FREC.frecuencia,
+      tipoFrecuencia: FREC.tipoFrecuencia,
+      backUrl: base + "/panel/pago/resultado",
+    });
+
+    if (!r.ok) {
+      console.error("[portal] no se pudo crear la suscripción de MercadoPago:", r.mensaje);
+      return volver("error");
+    }
+
+    const pre = r.data || {};
+    const urlPago =
+      config.modo === "prod" ? pre.init_point : pre.sandbox_init_point || pre.init_point;
+    if (!urlPago) return volver("error");
+
+    /* El puente, antes de mandar a pagar: si el cliente autoriza, el
+       webhook lo pondrá en 'authorized'. Guardarlo ya deja la
+       suscripción atada al servicio aunque el aviso llegue sin
+       `external_reference`. */
+    await admin.from("suscripciones_mp").upsert(
+      {
+        preapproval_id: String(pre.id),
+        service_id: servicio.id,
+        client_id: clientId,
+        estado: String(pre.status || "pending"),
+        monto: Number(servicio.importe),
+        moneda: servicio.moneda || "ARS",
+        actualizado_en: new Date().toISOString(),
+      },
+      { onConflict: "preapproval_id" }
+    );
+
+    return res.redirect(urlPago);
+  });
+
+  /* ---------- Volver del pago ----------
+     MercadoPago redirige aquí al cliente. NO se activa nada: eso lo hace
+     el webhook. Esto es solo la pantalla que le dice cómo salió. */
+  router.get("/pago/resultado", requiereLogin, (req, res) => {
+    const bruto = String(req.query.status || req.query.collection_status || "").toLowerCase();
+
+    const estado = /approved/.test(bruto)
+      ? "aprobado"
+      : /pending|in_process|authorized/.test(bruto)
+      ? "pendiente"
+      : "cancelado";
+
+    res.render("panel/pago-resultado", {
+      title: "Pago",
+      site: sitio,
+      base: "/panel",
+      noindex: true,
+      current: "servicios",
+      estado,
     });
   });
 

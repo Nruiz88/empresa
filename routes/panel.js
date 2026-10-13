@@ -909,6 +909,10 @@ const router = express.Router();
        portal: es la pregunta "¿está todo bien?", y cuando algo no lo
        está el sitio donde se mira es aquí. */
     router.use(BASE, require("./panel-salud")(comunes));
+    /* Configuración: las claves de los servicios externos (MercadoPago).
+       Va con Sistema, junto a salud: son las dos pantallas de "cómo está
+       montado esto", no de clientes. */
+    router.use(BASE, require("./panel-configuracion")(comunes));
     router.use(BASE, require("./panel-tickets")({ db, sitio: site, requiereStaff, requiereLogin }));
   router.use(BASE, require("./panel-portal")({ db, sitio: site, requiereLogin }));
     router.use(BASE, require("./panel-perfil")({ sitio: site, requiereLogin }));

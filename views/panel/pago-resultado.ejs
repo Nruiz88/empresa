@@ -1,0 +1,47 @@
+<%#
+  Pantalla a la que vuelve el cliente después de pagar en MercadoPago.
+
+  NO activa nada: la activación la hace el webhook (/mp/webhook) cuando
+  MercadoPago confirma el pago. Aquí solo se le dice cómo salió, porque
+  el cliente que vuelve de pagar necesita saber qué pasó.
+
+  Variables: estado (aprobado | pendiente | cancelado)
+%>
+<%- include('../partials/panel-head', { title, site, base, current }) %>
+
+<div class="panel-page panel-page--form">
+  <div class="panel-page-head">
+    <div>
+      <span class="panel-kicker">Pago</span>
+      <h1>
+        <% if (estado === 'aprobado') { %>Pago confirmado<% } %>
+        <% if (estado === 'pendiente') { %>Pago pendiente<% } %>
+        <% if (estado === 'cancelado') { %>El pago no se completó<% } %>
+      </h1>
+    </div>
+    <a href="<%= base %>/mis-servicios" class="panel-btn panel-btn--ghost">← Mis servicios</a>
+  </div>
+
+  <% if (estado === 'aprobado') { %>
+    <div class="panel-alert panel-alert--ok">
+      MercadoPago confirmó el pago. Tu servicio queda activo y, si incluía el
+      bot de WhatsApp, se da de alta solo. Puede tardar unos segundos en
+      reflejarse en «Mis servicios».
+    </div>
+  <% } else if (estado === 'pendiente') { %>
+    <div class="panel-alert panel-alert--warn">
+      El pago quedó <strong>pendiente</strong> de confirmación (algunos medios
+      tardan un rato, o MercadoPago está revisando la operación). En cuanto se
+      confirme, tu servicio se activa solo. No hace falta que hagas nada.
+    </div>
+  <% } else { %>
+    <div class="panel-alert">
+      El pago no se completó. No se cobró nada. Puedes intentarlo de nuevo
+      desde «Mis servicios».
+    </div>
+  <% } %>
+
+  <a href="<%= base %>/mis-servicios" class="panel-btn panel-btn--primary">Volver a Mis servicios</a>
+</div>
+
+<%- include('../partials/panel-foot', { site }) %>
