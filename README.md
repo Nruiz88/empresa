@@ -1,4 +1,4 @@
-# Nexo Studio
+# Shopcito
 
 Web pública y panel privado de gestión, en un solo repositorio.
 Express + EJS, sin build step. Los datos y el login están en Supabase.

@@ -1,5 +1,5 @@
 -- =====================================================================
--- Nexo Studio — Registro de microservicios (migración 016)
+-- Shopcito — Registro de microservicios (migración 016)
 -- =====================================================================
 -- POR QUÉ
 -- -------

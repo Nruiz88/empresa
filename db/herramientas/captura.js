@@ -1,5 +1,5 @@
 /* =========================================================
-   Nexo Studio — Captura del panel para revisión visual
+   Shopcito — Captura del panel para revisión visual
    ------------------------------------------------------------
    Uso:  node db/captura.js [ruta] [nombre]
 

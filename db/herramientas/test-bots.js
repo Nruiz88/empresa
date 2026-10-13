@@ -1,5 +1,5 @@
 /* =========================================================
-   Nexo Studio — Bots y cajas (pruebas)
+   Shopcito — Bots y cajas (pruebas)
    ------------------------------------------------------------
    Qué se comprueba aquí, y por qué son estas y no otras.
 

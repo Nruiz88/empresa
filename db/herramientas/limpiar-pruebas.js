@@ -1,5 +1,5 @@
 /* =========================================================
-   Nexo Studio — Limpiar los datos que dejaron las pruebas
+   Shopcito — Limpiar los datos que dejaron las pruebas
    ------------------------------------------------------------
    Cada suite de db/ crea clientes, usuarios y bots de prueba, y
    debería borrarlos al terminar. Los que quedan son de ejecuciones

@@ -1,5 +1,5 @@
 /* =========================================================
-   Nexo Studio — El flujo completo, por HTTPS y entre dominios
+   Shopcito — El flujo completo, por HTTPS y entre dominios
    ------------------------------------------------------------
    Esto NO es una prueba de código: es una prueba del
    despliegue. Va a los servicios de verdad, por su dominio de
@@ -30,7 +30,7 @@ const MODULO = process.env.TEST_MODULO || "bot_whatsapp";
 /* ─────────────────────────────────────────────────────────
    LAS CREDENCIALES VIENEN DEL ENTORNO, Y SI FALTAN SE PARA
 
-   Antes había un `|| "admin@nexostudio.es"` y un
+   Antes había un `|| "admin@shopcito.com.ar"` y un
    `|| "PanelPrueba2026"`: una contraseña de verdad escrita en el
    repositorio, de relleno, que funcionaba con el admin viejo y por
    eso nadie la miró.

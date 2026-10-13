@@ -1,5 +1,5 @@
 /* =========================================================
-   Nexo Studio — Panel: clientes
+   Shopcito — Panel: clientes
    ------------------------------------------------------------
    Listado con búsqueda y paginación, alta, ficha y edición.
 

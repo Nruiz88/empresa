@@ -1,5 +1,5 @@
 /* =========================================================
-   Nexo Studio — Prueba de aislamiento entre clientes
+   Shopcito — Prueba de aislamiento entre clientes
    ------------------------------------------------------------
    Comprueba que las políticas RLS hacen su trabajo: un cliente
    solo ve lo suyo.

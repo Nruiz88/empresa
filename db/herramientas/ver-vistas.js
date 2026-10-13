@@ -1,5 +1,5 @@
 /* =========================================================
-   Nexo Studio - Lint de las vistas EJS
+   Shopcito - Lint de las vistas EJS
    ------------------------------------------------------------
    node db/ver-vistas.js
 

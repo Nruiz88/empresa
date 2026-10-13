@@ -1,5 +1,5 @@
 -- =====================================================================
--- Nexo Studio — Cupos de los servidores de bots (migración 021)
+-- Shopcito — Cupos de los servidores de bots (migración 021)
 -- =====================================================================
 --
 -- QUÉ AÑADE

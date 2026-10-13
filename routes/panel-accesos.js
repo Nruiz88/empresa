@@ -1,5 +1,5 @@
 /* =========================================================
-   Nexo Studio — Altas de acceso y usuarios del panel
+   Shopcito — Altas de acceso y usuarios del panel
    ------------------------------------------------------------
    Crear el acceso de un cliente, quitarlo, reactivarlo.
 

@@ -1,5 +1,5 @@
 ﻿/* =========================================================
-   Nexo Studio — Panel: consultas (leads)
+   Shopcito — Panel: consultas (leads)
    ------------------------------------------------------------
    Lo que llega del formulario de contacto. Aquí se les da
    estado para poder seguir el embudo.

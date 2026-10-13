@@ -1,5 +1,5 @@
 -- =====================================================================
--- Nexo Studio — El bot de WhatsApp como módulo (011)
+-- Shopcito — El bot de WhatsApp como módulo (011)
 -- =====================================================================
 -- QUÉ ES ESTO
 -- -----------
@@ -9,9 +9,9 @@
 -- Lo que desaparece con este cambio (porque ya no tiene sentido):
 --
 --   · profiles propio con role admin/user  → los usuarios son los
---     clientes de Nexo Studio (profiles.role = 'client' + client_id).
+--     clientes de Shopcito (profiles.role = 'client' + client_id).
 --   · subscriptions / plan_config / payments / mercado_pago_config  →
---     el cobro lo hace Nexo Studio, no el bot.
+--     el cobro lo hace Shopcito, no el bot.
 --   · instance_addons / user_instances → un cliente, un bot. Los bots
 --     extra se montan más adelante, cuando haya un panel para ellos.
 --   · invitations → no hay autoservicio, el alta la hace el panel.
@@ -36,7 +36,7 @@
 --
 -- Traducir solo la base crearía dos idiomas en la misma tabla. Traducir
 -- ambos no vale el riesgo. Así que el esquema del bot habla inglés, que
--- es como habla su código, y la traducción ocurre en el panel de Nexo
+-- es como habla su código, y la traducción ocurre en el panel de Shopcito
 -- Studio, que es donde el usuario la ve.
 --
 -- Lo que sí se renombró aquí, porque NO colisiona con nada:

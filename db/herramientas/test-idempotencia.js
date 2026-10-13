@@ -1,5 +1,5 @@
 /* =========================================================
-   Nexo Studio — ¿Las migraciones se pueden aplicar dos veces?
+   Shopcito — ¿Las migraciones se pueden aplicar dos veces?
    ------------------------------------------------------------
    Aplica TODAS las migraciones dos veces seguidas en un schema aparte
    (_prueba). Si son idempotentes, las dos pasadas tienen que salir

@@ -1,5 +1,5 @@
 /* =========================================================
-   Nexo Studio — Perfil del cliente (rutas)
+   Shopcito — Perfil del cliente (rutas)
    ------------------------------------------------------------
    GET  /panel/perfil          ver y editar la ficha y la facturación
    POST /panel/perfil/ficha    guardar la ficha del negocio

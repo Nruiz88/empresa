@@ -1,5 +1,5 @@
 /* =========================================================
-   Nexo Studio — Sembrar datos de demostración
+   Shopcito — Sembrar datos de demostración
    ------------------------------------------------------------
    Crea clientes y servicios de ejemplo para poder trabajar con
    el panel sin tener que teclear todo a mano.

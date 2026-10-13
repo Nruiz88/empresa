@@ -1,5 +1,5 @@
 /* =========================================================
-   Nexo Studio — Entrada del MICROSERVICIO (proceso aparte)
+   Shopcito — Entrada del MICROSERVICIO (proceso aparte)
    ------------------------------------------------------------
    Este es el patrón para bot.midominio.com, inventario.midominio.com
    y los que vengan.(server.js y panel.js hacen lo mismo con sus
@@ -160,7 +160,7 @@ app.use((req, res) => {
 
 app.listen(PORT, HOST || "0.0.0.0", () => {
   console.log(
-    `Bot Nexo Studio escuchando en http://${HOST || "0.0.0.0"}:${PORT}` +
+    `Bot Shopcito escuchando en http://${HOST || "0.0.0.0"}:${PORT}` +
       (HOST ? "" : "  (sin BOT_HOST: escucha en todas las interfaces)")
   );
 

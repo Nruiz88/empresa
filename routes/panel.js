@@ -1,5 +1,5 @@
 /* =========================================================
-   Nexo Studio — Panel de gestión (rutas)
+   Shopcito — Panel de gestión (rutas)
    ------------------------------------------------------------
    Montado en /panel. Aquí vive TODO lo que requiere identidad:
    el panel del equipo y el portal de clientes.

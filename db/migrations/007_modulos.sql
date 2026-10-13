@@ -1,5 +1,5 @@
 -- =====================================================================
--- Nexo Studio — Catálogo de módulos y suscripciones (migración 007)
+-- Shopcito — Catálogo de módulos y suscripciones (migración 007)
 -- =====================================================================
 -- POR QUÉ
 -- -------

@@ -1,5 +1,5 @@
 /* =========================================================
-   Nexo Studio — Datos de demostración del portal del cliente
+   Shopcito — Datos de demostración del portal del cliente
    ------------------------------------------------------------
    Monta lo justo para PROBAR el flujo entero: la suscripción, la
    ficha, la facturación y el bot con contenido dentro, para que al

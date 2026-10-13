@@ -1,5 +1,5 @@
 /**
- * Nexo Studio — Punto de entrada de la WEB PÚBLICA
+ * Shopcito — Punto de entrada de la WEB PÚBLICA
  *
  * Este archivo ya no contiene rutas: solo configura Express y
  * monta las dos aplicaciones.
@@ -201,7 +201,7 @@ if (process.env.NODE_ENV === "production" && HOST === "127.0.0.1") {
 
 const servidor = app.listen(PORT, HOST || "0.0.0.0", () => {
   console.log(
-    `Nexo Studio escuchando en http://${HOST || "0.0.0.0"}:${PORT}` +
+    `Shopcito escuchando en http://${HOST || "0.0.0.0"}:${PORT}` +
       (HOST ? "" : "  (sin HOST: todas las interfaces)")
   );
 

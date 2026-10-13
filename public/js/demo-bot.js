@@ -1,5 +1,5 @@
 /* =========================================================
-   Nexo Studio — Demo del bot de WhatsApp
+   Shopcito — Demo del bot de WhatsApp
    ------------------------------------------------------------
    La conversación de demostración de la sección de WhatsApp.
 

@@ -1,5 +1,5 @@
 -- =====================================================================
--- Nexo Studio — Tickets de soporte (migración 018)
+-- Shopcito — Tickets de soporte (migración 018)
 -- =====================================================================
 --
 -- ⚠️  POR QUÉ SE LLAMA `soporte_tickets` Y NO `tickets`

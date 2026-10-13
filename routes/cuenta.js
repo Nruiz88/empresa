@@ -1,5 +1,5 @@
 /* =========================================================
-   Nexo Studio — Cuenta de cliente (alta y acceso)
+   Shopcito — Cuenta de cliente (alta y acceso)
    ------------------------------------------------------------
    Estas rutas viven en la WEB PÚBLICA, no en el panel. Es a
    propósito: quien se registra es alguien que llega desde la home, sin
@@ -131,7 +131,7 @@ router.get("/cuenta/crear", (req, res) => {
 
   vista(res, "crear", {
     title: "Crear cuenta",
-    description: "Crea tu cuenta de cliente de Nexo Studio.",
+    description: "Crea tu cuenta de cliente de Shopcito.",
     datos: {},
     errores: {},
     csrfPre: tokenPre,
@@ -160,7 +160,7 @@ router.post("/cuenta/crear", async (req, res) => {
     console.warn("[cuenta] CSRF de alta rechazado desde " + ip);
     return vista(res, "crear", {
       title: "Crear cuenta",
-      description: "Crea tu cuenta de cliente de Nexo Studio.",
+      description: "Crea tu cuenta de cliente de Shopcito.",
       datos: { email, nombre, empresa },
       errores: { general: "La sesión del formulario caducó. Vuelve a intentarlo." },
       csrfPre: reintentar(),
@@ -177,7 +177,7 @@ router.post("/cuenta/crear", async (req, res) => {
     console.warn("[cuenta] alta desde un formulario automatizado, ip " + ip);
     return vista(res, "crear", {
       title: "Crear cuenta",
-      description: "Crea tu cuenta de cliente de Nexo Studio.",
+      description: "Crea tu cuenta de cliente de Shopcito.",
       datos: { email, nombre, empresa },
       errores: {},
       csrfPre: reintentar(),
@@ -212,7 +212,7 @@ router.post("/cuenta/crear", async (req, res) => {
   if (Object.keys(errores).length) {
     return vista(res, "crear", {
       title: "Crear cuenta",
-      description: "Crea tu cuenta de cliente de Nexo Studio.",
+      description: "Crea tu cuenta de cliente de Shopcito.",
       datos: { email, nombre, empresa },
       errores,
       csrfPre: reintentar(),
@@ -234,7 +234,7 @@ router.post("/cuenta/crear", async (req, res) => {
   if (!limite.permitido) {
     return vista(res, "crear", {
       title: "Crear cuenta",
-      description: "Crea tu cuenta de cliente de Nexo Studio.",
+      description: "Crea tu cuenta de cliente de Shopcito.",
       datos: { email, nombre, empresa },
       errores: { general: "Demasiados intentos desde esta conexión. Prueba en un rato." },
       csrfPre: reintentar(),
@@ -296,7 +296,7 @@ router.post("/cuenta/crear", async (req, res) => {
         await auth.registrarIntento(supabase.getAdmin(), email, ip, true);
         return vista(res, "crear", {
           title: "Crear cuenta",
-          description: "Crea tu cuenta de cliente de Nexo Studio.",
+          description: "Crea tu cuenta de cliente de Shopcito.",
           datos: {},
           errores: {},
           aviso:
@@ -309,7 +309,7 @@ router.post("/cuenta/crear", async (req, res) => {
       console.error("[cuenta] no se pudo crear el usuario:", error.message);
       return vista(res, "crear", {
         title: "Crear cuenta",
-        description: "Crea tu cuenta de cliente de Nexo Studio.",
+        description: "Crea tu cuenta de cliente de Shopcito.",
         datos: { email, nombre, empresa },
         errores: { general: "No pudimos crear la cuenta. Inténtalo en un momento." },
         csrfPre: reintentar(),
@@ -321,7 +321,7 @@ router.post("/cuenta/crear", async (req, res) => {
     console.error("[cuenta] Auth fallsó:", e.message);
     return vista(res, "crear", {
       title: "Crear cuenta",
-      description: "Crea tu cuenta de cliente de Nexo Studio.",
+      description: "Crea tu cuenta de cliente de Shopcito.",
       datos: { email, nombre, empresa },
       errores: { general: "No pudimos crear la cuenta. Inténtalo en un momento." },
       csrfPre: reintentar(),
@@ -384,7 +384,7 @@ router.post("/cuenta/crear", async (req, res) => {
     console.error("[cuenta] alta a medias (Auth ok, ficha no):", e.message);
     return vista(res, "crear", {
       title: "Crear cuenta",
-      description: "Crea tu cuenta de cliente de Nexo Studio.",
+      description: "Crea tu cuenta de cliente de Shopcito.",
       datos: { email, nombre, empresa },
       errores: {
         general:
@@ -449,7 +449,7 @@ router.get("/cuenta/entrar", (req, res) => {
 
   vista(res, "entrar", {
     title: "Entrar",
-    description: "Accede a tu cuenta de Nexo Studio.",
+    description: "Accede a tu cuenta de Shopcito.",
     datos: {},
     error: null,
     csrfPre: tokenPre,
@@ -471,7 +471,7 @@ router.post("/cuenta/entrar", async (req, res) => {
   if (!auth.comprobarCsrfPre(req.cookies && req.cookies[CSRF_PRE], cuerpo._csrf)) {
     return vista(res, "entrar", {
       title: "Entrar",
-      description: "Accede a tu cuenta de Nexo Studio.",
+      description: "Accede a tu cuenta de Shopcito.",
       datos: { email },
       error: "La sesión del formulario caducó. Vuelve a intentarlo.",
       csrfPre: reintentar(),
@@ -481,7 +481,7 @@ router.post("/cuenta/entrar", async (req, res) => {
   const fallo = (mensaje, status = 401) =>
     vista(res, "entrar", {
       title: "Entrar",
-      description: "Accede a tu cuenta de Nexo Studio.",
+      description: "Accede a tu cuenta de Shopcito.",
       datos: { email },
       error: mensaje,
       csrfPre: (req.cookies && req.cookies[CSRF_PRE]) || reintentar(),

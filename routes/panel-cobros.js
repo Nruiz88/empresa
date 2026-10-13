@@ -1,5 +1,5 @@
 ﻿/* =========================================================
-   Nexo Studio — Panel: cobros
+   Shopcito — Panel: cobros
    ------------------------------------------------------------
    Qué se ha emitido y qué se ha cobrado. Es la vista que se mira al
    cerrar el mes, así que el foco NO es el listado completo (eso ya

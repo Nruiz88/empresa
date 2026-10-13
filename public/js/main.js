@@ -1,5 +1,5 @@
 /* =========================================================
-   Nexo Studio — Comportamientos del sitio
+   Shopcito — Comportamientos del sitio
    ========================================================= */
 (function () {
   "use strict";
@@ -345,7 +345,7 @@
         .catch(function () {
           finish();
           if (errorBox) {
-            errorBox.textContent = "✗ No se pudo conectar con el servidor. Inténtalo de nuevo o escríbenos a hola@nexostudio.es.";
+            errorBox.textContent = "✗ No se pudo conectar con el servidor. Inténtalo de nuevo o escríbenos a hola@shopcito.com.ar.";
             errorBox.classList.add("is-visible");
             errorBox.scrollIntoView({ behavior: "smooth", block: "center" });
           }

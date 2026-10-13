@@ -1,5 +1,5 @@
 /* =========================================================
-   Nexo Studio — Coolify (API)
+   Shopcito — Coolify (API)
    ------------------------------------------------------------
    Hablar con la API de Coolify para ver y tocar lo que hay
    desplegado: qué proyectos y servicios existen, qué dominios tienen

@@ -1,7 +1,7 @@
 const { createClient } = require("@supabase/supabase-js");
 
 /* =========================================================
-   Nexo Studio — El acceso de soporte, contra la base real
+   Shopcito — El acceso de soporte, contra la base real
    ---------------------------------------------------------
    ESTA PRUEBA NO ES DE CÓDIGO, ES DE LA BASE DE DATOS.
 

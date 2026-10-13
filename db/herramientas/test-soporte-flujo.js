@@ -1,5 +1,5 @@
 /* =========================================================
-   Nexo Studio — El acceso de soporte, de extremo a extremo
+   Shopcito — El acceso de soporte, de extremo a extremo
    ------------------------------------------------------------
    db/test-soporte.js comprueba que la BASE deja y no deja. Esta
    comprueba que los dos SERVICIOS se pasan la información correcta:

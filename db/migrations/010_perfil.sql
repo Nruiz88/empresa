@@ -1,5 +1,5 @@
 -- =====================================================================
--- Nexo Studio — Ficha del negocio y datos de facturación (010)
+-- Shopcito — Ficha del negocio y datos de facturación (010)
 -- =====================================================================
 -- POR QUÉ DOS TABLAS Y NO UNA
 -- ----------------------------

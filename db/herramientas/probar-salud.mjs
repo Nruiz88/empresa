@@ -41,7 +41,7 @@ function arg(n, d) {
 }
 
 const PANEL = arg("--url", process.env.PANEL_URL || "http://127.0.0.1:3000");
-const EMAIL = arg("--email", "admin@nexostudio.es");
+const EMAIL = arg("--email", "admin@shopcito.com.ar");
 const CLAVE = arg("--clave", process.env.DC || "");
 
 function leerEnv(ruta) {

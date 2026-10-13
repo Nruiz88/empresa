@@ -1,5 +1,5 @@
 /* =========================================================
-   Nexo Studio — Motor de motion (GSAP + ScrollTrigger + Lenis)
+   Shopcito — Motor de motion (GSAP + ScrollTrigger + Lenis)
    ------------------------------------------------------------
    Se carga DESPUÉS de main.js y solo actúa si las librerías
    están disponibles (CDN). Si fallan, el sitio sigue siendo

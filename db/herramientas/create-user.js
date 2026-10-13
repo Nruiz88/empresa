@@ -1,5 +1,5 @@
 /* =========================================================
-   Nexo Studio — Crear un usuario
+   Shopcito — Crear un usuario
    ------------------------------------------------------------
    El panel NO tiene registro abierto, a propósito. Las cuentas
    se crean aquí, desde la línea de comandos.

@@ -1,5 +1,5 @@
 /* =========================================================
-   Nexo Studio — Reinicio del servidor local
+   Shopcito — Reinicio del servidor local
    ------------------------------------------------------------
    Uso:  node db/restart.js
 
@@ -125,7 +125,7 @@ class Saliendo extends Error {}
 function parar() {
   try {
     // /FI evita matar node de otras cosas (editores, etc).
-    execSync('taskkill /F /IM node.exe /FI "WINDOWTITLE eq NexoServer*"', {
+    execSync('taskkill /F /IM node.exe /FI "WINDOWTITLE eq Shopcito*"', {
       stdio: "ignore",
     });
   } catch {

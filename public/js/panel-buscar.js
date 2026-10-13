@@ -1,5 +1,5 @@
 /* =========================================================
-   Nexo Studio — Paleta de comandos (Ctrl+K)
+   Shopcito — Paleta de comandos (Ctrl+K)
    ------------------------------------------------------------
    Un campo de búsqueda que está siempre a una tecla, para llegar a
    cualquier pantalla o registro sin recorrer el menú.

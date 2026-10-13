@@ -1,5 +1,5 @@
 /* =========================================================
-   Nexo Studio — Flujo de acceso entre el panel y un servicio
+   Shopcito — Flujo de acceso entre el panel y un servicio
    ------------------------------------------------------------
    Prueba el camino COMPLETO, con los dos servidores de verdad:
 

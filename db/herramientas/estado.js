@@ -1,5 +1,5 @@
 /* =========================================================
-   Nexo Studio — Estado real del proyecto
+   Shopcito — Estado real del proyecto
    ------------------------------------------------------------
    Uso:  npm run estado
 

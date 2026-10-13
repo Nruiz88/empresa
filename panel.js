@@ -1,5 +1,5 @@
 /**
- * Nexo Studio — Punto de entrada del PANEL (proceso separado)
+ * Shopcito — Punto de entrada del PANEL (proceso separado)
  *
  * No se usa en desarrollo: ahí server.js monta las dos cosas.
  * Existe para el día que quieras aislarlas, que es lo que
@@ -71,7 +71,7 @@ app.use((req, res) => {
 
 app.listen(PORT, HOST || "0.0.0.0", () => {
   console.log(
-    `Panel Nexo Studio escuchando en http://${HOST || "0.0.0.0"}:${PORT}` +
+    `Panel Shopcito escuchando en http://${HOST || "0.0.0.0"}:${PORT}` +
       (HOST ? "" : "  (sin PANEL_HOST: escucha en todas las interfaces)")
   );
 

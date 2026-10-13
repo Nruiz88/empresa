@@ -1,5 +1,5 @@
 /* =========================================================
-   Nexo Studio — Aislamiento de módulos y suscripciones
+   Shopcito — Aislamiento de módulos y suscripciones
    ------------------------------------------------------------
    Comprueba lo mismo que db/test-isolation.js pero para las tablas
    nuevas: módulos y suscripciones.

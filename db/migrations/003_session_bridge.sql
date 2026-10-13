@@ -1,5 +1,5 @@
 -- =====================================================================
--- Nexo Studio — Puente de sesión con Supabase Auth (migración 003)
+-- Shopcito — Puente de sesión con Supabase Auth (migración 003)
 -- =====================================================================
 -- POR QUÉ
 -- --------

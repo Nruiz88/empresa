@@ -1,5 +1,5 @@
 /* =========================================================
-   Nexo Studio — Tickets de soporte
+   Shopcito — Tickets de soporte
    ------------------------------------------------------------
    node db/probar-tickets.mjs [--url http://127.0.0.1:3000]
 

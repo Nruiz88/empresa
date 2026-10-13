@@ -1,5 +1,5 @@
 /* =========================================================
-   Nexo Studio — Verificación del esquema
+   Shopcito — Verificación del esquema
    ------------------------------------------------------------
    Comprobación de que la base de datos está BIEN, no solo de
    que la migración dijo que pasó.

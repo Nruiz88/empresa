@@ -1,5 +1,5 @@
 -- =====================================================================
--- Nexo Studio — Panel de gestión (esquema inicial)
+-- Shopcito — Panel de gestión (esquema inicial)
 -- =====================================================================
 -- Pegar en: Supabase > SQL Editor > New query > Run
 --

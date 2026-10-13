@@ -1,5 +1,5 @@
 -- =====================================================================
--- Nexo Studio — Refresh token para acceso entre servicios (migración 008)
+-- Shopcito — Refresh token para acceso entre servicios (migración 008)
 -- =====================================================================
 -- POR QUÉ
 -- -------

@@ -1,5 +1,5 @@
 -- =====================================================================
--- Nexo Studio — Sesiones, CSRF y límite de intentos (migración 002)
+-- Shopcito — Sesiones, CSRF y límite de intentos (migración 002)
 -- =====================================================================
 -- Por qué esto cambia lo que ya había:
 --

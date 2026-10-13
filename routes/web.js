@@ -1,5 +1,5 @@
 /* =========================================================
-   Nexo Studio — Rutas públicas (web)
+   Shopcito — Rutas públicas (web)
    ------------------------------------------------------------
    TODO lo que ve un visitante sin_IDENTIFICarse va aquí.
 

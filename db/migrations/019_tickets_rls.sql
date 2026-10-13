@@ -1,5 +1,5 @@
 -- =====================================================================
--- Nexo Studio — RLS de los tickets de soporte (migración 019)
+-- Shopcito — RLS de los tickets de soporte (migración 019)
 -- =====================================================================
 --
 -- POR QUÉ ESTA MIGRACIÓN VA SEPARADA DE LA 018

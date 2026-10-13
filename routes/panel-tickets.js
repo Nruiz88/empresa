@@ -1,5 +1,5 @@
 /* =========================================================
-   Nexo Studio — Tickets de soporte
+   Shopcito — Tickets de soporte
    ------------------------------------------------------------
    Lo que avisa un cliente y atiende el equipo.
 

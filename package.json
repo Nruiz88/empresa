@@ -1,8 +1,8 @@
 {
-    "name":  "nexo-studio",
+    "name":  "shopcito",
     "version":  "1.0.0",
     "private":  true,
-    "description":  "Web de Nexo Studio — sitio corporativo en Node.js (Express + EJS)",
+    "description":  "Web de Shopcito — sitio corporativo en Node.js (Express + EJS)",
     "main":  "server.js",
     "scripts":  {
                     "start":  "node server.js",

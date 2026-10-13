@@ -1,5 +1,5 @@
 /* =========================================================
-   Nexo Studio — Portal del cliente
+   Shopcito — Portal del cliente
    ------------------------------------------------------------
    Lo único que ve un cliente: sus propios servicios.
 

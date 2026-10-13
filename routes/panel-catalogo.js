@@ -1,5 +1,5 @@
 /* =========================================================
-   Nexo Studio — Panel: catálogo de productos
+   Shopcito — Panel: catálogo de productos
    ------------------------------------------------------------
    Lo que se VENDE. No confundir con `services`, que es lo que cada
    cliente ha contratado:

@@ -1,5 +1,5 @@
 /* =========================================================
-   Nexo Studio — Bots y cajas de Evolution (rutas)
+   Shopcito — Bots y cajas de Evolution (rutas)
    ------------------------------------------------------------
    Lo que el equipo necesita para dar de alta un bot y para saber por
    qué el de un cliente no contesta.

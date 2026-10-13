@@ -1,5 +1,5 @@
 /* =========================================================
-   Nexo Studio — Aislamiento del bot
+   Shopcito — Aislamiento del bot
    ------------------------------------------------------------
    Comprueba lo que hace falta para que un cliente no pueda tocar lo
    de otro, y que la base de datos (no el código) impida la doble

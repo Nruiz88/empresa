@@ -1,5 +1,5 @@
 /* =========================================================
-   Nexo Studio — Comportamiento del panel
+   Shopcito — Comportamiento del panel
    ------------------------------------------------------------
    Solo lo que el HTML no puede resolver por sí solo. Cuatro cosas:
 

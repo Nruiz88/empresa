@@ -1,5 +1,5 @@
 /* =========================================================
-   Nexo Studio — Ejecutor de migraciones
+   Shopcito — Ejecutor de migraciones
    ------------------------------------------------------------
    Para que no tengas que pegar SQL a mano cada vez.
 

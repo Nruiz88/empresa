@@ -1,5 +1,5 @@
 /* =========================================================
-   Nexo Studio — Tickets de acceso entre servicios
+   Shopcito — Tickets de acceso entre servicios
    ------------------------------------------------------------
    Un ticket es lo que permite que alguien que entró en
    panel.midominio.com llegue a bot.midominio.com sin volver a

@@ -1,5 +1,5 @@
 /* =========================================================
-   Nexo Studio — Comprobación de sintaxis de TODO el proyecto
+   Shopcito — Comprobación de sintaxis de TODO el proyecto
    ------------------------------------------------------------
    Uso:  node db/check.js
 

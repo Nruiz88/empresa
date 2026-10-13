@@ -1,5 +1,5 @@
 /* =========================================================
-   Nexo Studio — Perfil: validación y aislamiento
+   Shopcito — Perfil: validación y aislamiento
    ------------------------------------------------------------
    Comprueba dos cosas distintas:
 

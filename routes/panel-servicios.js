@@ -1,5 +1,5 @@
 /* =========================================================
-   Nexo Studio — Panel: servicios
+   Shopcito — Panel: servicios
    ------------------------------------------------------------
    Los tres tipos (mantenimiento, proyecto, presupuesto) viven
    en la misma tabla y se distinguen por `kind`. Menos tablas

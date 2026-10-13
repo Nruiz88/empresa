@@ -1,5 +1,5 @@
 -- =====================================================================
--- Nexo Studio — Un módulo no a la venta sigue siendo suyo (009)
+-- Shopcito — Un módulo no a la venta sigue siendo suyo (009)
 -- =====================================================================
 -- EL PROBLEMA
 -- -----------

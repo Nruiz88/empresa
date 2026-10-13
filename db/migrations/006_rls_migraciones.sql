@@ -1,5 +1,5 @@
 -- =====================================================================
--- Nexo Studio — Cerrar schema_migrations (migración 006)
+-- Shopcito — Cerrar schema_migrations (migración 006)
 -- =====================================================================
 -- POR QUÉ HACE FALTA UNA MIGRACIÓN ENTERA PARA UNA LÍNEA
 -- ------------------------------------------------------
