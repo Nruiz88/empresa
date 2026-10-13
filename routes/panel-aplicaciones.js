@@ -34,6 +34,8 @@
 const express = require("express");
 const { validar, vacioANull } = require("../lib/validate");
 const { MONEDAS, esMonedaConocida } = require("../lib/monedas");
+const auth = require("../lib/auth");
+const botsLib = require("../lib/bots");
 const A = require("../lib/aplicaciones");
 
 const POR_PAGINA = 25;
@@ -246,6 +248,52 @@ module.exports = function rutasAplicaciones({ db, sitio, csrf, requiereStaff }) 
         ? filas.find((s) => s.id === altaId) || null
         : null;
 
+      /* ─────────────────────────────────────────────────────────
+         LO QUE PASÓ CON EL BOT
+
+         Si lo asignado incluye el bot de WhatsApp, el alta intenta
+         crearlo y reservar su sitio en una caja. El resultado viaja en
+         la URL porque la redirección es lo único que sobrevive a un
+         POST:
+
+           creado     el número quedó dado de alta y ocupa un cupo;
+           ya-tenia   el cliente ya tenía bot, no se ha creado otro
+                      (no es un error: puede venir de un plan que lo
+                      incluye);
+           pendiente  el servicio se guardó, pero el número NO: no hay
+                      caja con sitio, la caja no tiene secreto, o la
+                      caja no respondió. Hay que resolverlo a mano.
+         ───────────────────────────────────────────────────────── */
+      const botParam = String(req.query.bot || "").trim();
+      const avisoBot =
+        botParam === "creado"
+          ? {
+              tipo: "ok",
+              texto: "El bot de WhatsApp quedó dado de alta y asignado a una caja.",
+            }
+          : botParam === "ya-tenia"
+          ? {
+              tipo: "ok",
+              texto: "Ese cliente ya tenía un bot: no se ha creado otro.",
+            }
+          : botParam === "espera-pago"
+          ? {
+              tipo: "warn",
+              texto:
+                "El servicio todavía no da acceso (está pendiente de pago o su " +
+                "inicio es futuro): el bot se dará de alta automáticamente cuando " +
+                "entre en vigencia.",
+            }
+          : botParam === "pendiente"
+          ? {
+              tipo: "warn",
+              texto:
+                "El servicio quedó guardado, pero el bot NO se pudo dar de alta: " +
+                (String(req.query.motivo || "").slice(0, 300) || "sin detalle") +
+                " Resuélvelo y dalo de alta en Bots.",
+            }
+          : null;
+
       res.render("panel/aplicaciones", {
         title: "Aplicaciones",
         site: sitio,
@@ -266,6 +314,9 @@ module.exports = function rutasAplicaciones({ db, sitio, csrf, requiereStaff }) 
 
         /* La fila que se acaba de dar de alta, si viene del POST. */
         alta,
+
+        /* Lo que pasó con el bot de WhatsApp, si lo asignado lo incluía. */
+        avisoBot,
 
         /* Se pasan a la vista para que no tenga que saber los números. */
         margen: A.DIAS_DE_MARGEN,
@@ -1069,7 +1120,88 @@ module.exports = function rutasAplicaciones({ db, sitio, csrf, requiereStaff }) 
          con nombre y todo. Un `POST` que responde con un redirect vacío
          deja a quien lo hizo pensando que no pasó nada, y va a darle otra
          vez. */
-      res.redirect("/panel/aplicaciones?alta=" + encodeURIComponent(data.id));
+      const destino = "/panel/aplicaciones?alta=" + encodeURIComponent(data.id);
+
+      /* ─────────────────────────────────────────────────────────
+         SI LO ASIGNADO INCLUYE EL BOT, SE DA DE ALTA AQUÍ
+
+         El cliente contrató el bot: el servicio se cobra igual, pero el
+         número tiene que existir y ocupar su sitio en una caja. Antes
+         esto se hacía a mano después, y si nadie se acordaba el bot no
+         existía y el cupo de la caja no se descontaba.
+
+         Vale para la aplicación suelta Y para un plan que la incluye:
+         al cliente le da igual de qué manera llegó el bot, lo que
+         quiere es el bot.
+         ───────────────────────────────────────────────────────── */
+      const CLAVE_BOT = "bot_whatsapp";
+      const otorgaBot =
+        datos.tipo === "aplicacion"
+          ? datos.microservicio_clave === CLAVE_BOT
+          : !!ref.planes.find(
+              (p) =>
+                p.id === datos.plan_id &&
+                (p.aplicaciones || []).some((a) => (a.modulo || a) === CLAVE_BOT)
+            );
+
+      if (!otorgaBot) return res.redirect(destino);
+
+      let botResultado;
+      try {
+        botResultado = await botsLib.ponerBotSiTieneAcceso(db, datos.client_id);
+      } catch (e) {
+        /* El servicio YA está guardado. Un fallo al crear el bot no
+           puede deshacer la asignación, así que se avisa y se sigue. */
+        console.error("[aplicaciones] no se pudo dar de alta el bot:", e.message);
+        botResultado = {
+          creado: false,
+          motivo: "No se pudo dar de alta el bot: " + e.message,
+        };
+      }
+
+      if (botResultado.creado) {
+        try {
+          await auth.auditar(db, {
+            actor: { id: req.sesion.user_id, email: null },
+            accion: "crear-bot",
+            entidad: "bots",
+            entidadId: botResultado.botId,
+            /* El nombre de la caja va en el log porque "el bot no
+               contesta" se depura empezando por dónde vive el número.
+               La clave NO: nunca. */
+            detalle: {
+              client_id: datos.client_id,
+              server_id: botResultado.caja.id,
+              server_name: botResultado.caja.name,
+              slug: botResultado.slug,
+              origen: "aplicacion",
+            },
+            req,
+          });
+        } catch (e) {
+          console.error("[aplicaciones] no se pudo auditar el bot:", e.message);
+        }
+      }
+
+      /* El resultado del bot viaja en la URL porque la redirección es
+         lo único que sobrevive a un POST. */
+      if (botResultado.creado) {
+        return res.redirect(destino + "&bot=creado");
+      }
+      if (botResultado.yaTenia) {
+        return res.redirect(destino + "&bot=ya-tenia");
+      }
+      /* El servicio no da acceso todavía (por ejemplo quedó en
+         `pendiente` a la espera del pago). El bot se creará solo
+         cuando el cobro se confirme. */
+      if (botResultado.sinAcceso) {
+        return res.redirect(destino + "&bot=espera-pago");
+      }
+      return res.redirect(
+        destino +
+          "&bot=pendiente&motivo=" +
+          encodeURIComponent(String(botResultado.motivo || "").slice(0, 300))
+      );
     });
 
   return router;

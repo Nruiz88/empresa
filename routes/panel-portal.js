@@ -208,18 +208,18 @@ module.exports = function rutasPortal({ db, sitio, requiereLogin }) {
       .eq("disponible", true)
       .order("nombre");
 
-    /* Qué tiene ya, para no ofrecerle lo que ya compró. */
+    /* Qué tiene ya, para no ofrecerle lo que ya compró. Sale de
+       `modulos_del_cliente`, que es la MISMA regla que usa su portal
+       para mostrar sus servicios: suscripciones + services + planes
+       (migración 032). Antes leía solo `suscripciones`, y por eso a un
+       cliente con el bot contratado por `services` se le seguía
+       ofreciendo como si no lo tuviera. */
     const clientId = await clientIdDe(req.sesion.user_id);
     const { data: suyos } = clientId
-      ? await supabase
-          .getAdmin()
-          .from("suscripciones")
-          .select("module_id,estado,termina_en")
-          .eq("client_id", clientId)
-          .in("estado", ["activo", "prueba"])
+      ? await supabase.getAdmin().rpc("modulos_del_cliente", { cliente_uuid: clientId })
       : { data: [] };
 
-    const yaTiene = new Map((suyos || []).map((s) => [s.module_id, s]));
+    const yaTiene = new Map((suyos || []).map((m) => [m.module_id, m]));
 
     res.render("panel/catalogo", {
       title: "Contratar",

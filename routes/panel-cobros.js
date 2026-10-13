@@ -25,6 +25,7 @@
 
 const express = require("express");
 const auth = require("../lib/auth");
+const botsLib = require("../lib/bots");
 const L = require("../lib/labels");
 const cm = require("../lib/cobros-mensuales");
 const { iso, aDia, aFecha, vencio } = require("../lib/fechas");
@@ -415,7 +416,7 @@ module.exports = function rutasCobros({ db, sitio, requiereStaff }) {
      Es la acción que más se usa del bloque: por eso no pide
      formulario, se resuelve con un clic. */
   router.post("/cobros/:id/pagado", requiereStaff, async (req, res) => {
-    const { data: actual } = await db.from("cobros").select("estado,importe").eq("id", req.params.id).maybeSingle();
+    const { data: actual } = await db.from("cobros").select("estado,importe,service_id").eq("id", req.params.id).maybeSingle();
 
     if (!actual) return res.redirect("/panel/cobros");
 
@@ -437,6 +438,16 @@ module.exports = function rutasCobros({ db, sitio, requiereStaff }) {
       entidad: "cobros",
       entidadId: req.params.id,
       detalle: { antes: actual.estado, importe: actual.importe },
+      req,
+    });
+
+    /* Un pago confirmado es el segundo momento en que el bot puede
+       nacer: el cliente contrató y pagó. El primero es el alta de la
+       aplicación, cuando el servicio ya está activo. Ver
+       `confirmarPago()`. */
+    await confirmarPago(db, {
+      serviceId: actual.service_id,
+      actor: { id: req.sesion.user_id, email: null },
       req,
     });
 
@@ -643,3 +654,96 @@ function volver(req) {
   const v = (req.body && req.body.volver) || "";
   return String(v).startsWith("/panel") ? v : "/panel/cobros";
 }
+
+/**
+ * Lo que pasa cuando un pago se confirma.
+ *
+ * ── POR QUÉ EXISTE ──
+ *
+ * Porque "el cliente pagó" es uno de los dos momentos en que su bot
+ * debe quedar listo sin que nadie tenga que acordarse (el otro es el
+ * alta de la aplicación, en panel/aplicaciones). El cobro se marca a
+ * mano hoy; cuando se integre MercadoPago, la webhook de confirmación
+ * llama a ESTA función y no a una copia, para que "pagado" signifique
+ * lo mismo en los dos sitios.
+ *
+ * ── QUÉ HACE ──
+ *
+ *   1. Si el servicio estaba en `pendiente` (una venta cerrada a la
+ *      espera del primer pago), lo pasa a `activo`. Solo desde
+ *      `pendiente`: un servicio pausado, finalizado o cancelado no se
+ *      reactiva por cobrar una factura.
+ *   2. Si con eso el cliente tiene derecho al bot y no lo tiene, se lo
+ *      da de alta. Quién decide "tiene derecho" es `tiene_modulo` en la
+ *      base (migración 032), no esta función: aquí no hay una segunda
+ *      regla de acceso.
+ *
+ * Todo es idempotente, y no lanza: un fallo al crear el bot no puede
+ * tumbar el registro del pago, que es lo que de verdad acaba de pasar.
+ *
+ * @param {object} db
+ * @param {{serviceId: string, actor: object, req?: object}} opciones
+ * @returns {Promise<object|void>}
+ */
+async function confirmarPago(db, opciones) {
+  const { serviceId, actor, req } = opciones || {};
+  if (!serviceId) return;
+
+  const { data: servicio } = await db
+    .from("services")
+    .select("id,client_id,estado")
+    .eq("id", serviceId)
+    .maybeSingle();
+
+  if (!servicio) return;
+
+  if (servicio.estado === "pendiente") {
+    const { error } = await db
+      .from("services")
+      .update({ estado: "activo" })
+      .eq("id", servicio.id);
+
+    if (error) {
+      console.error("[cobros] no se pudo activar el servicio tras el pago:", error.message);
+      return;
+    }
+  }
+
+  let bot;
+  try {
+    bot = await botsLib.ponerBotSiTieneAcceso(db, servicio.client_id);
+  } catch (e) {
+    console.error("[cobros] no se pudo dar de alta el bot tras el pago:", e.message);
+    return;
+  }
+
+  if (bot && bot.creado) {
+    try {
+      await auth.auditar(db, {
+        actor: actor || { id: null, email: null },
+        accion: "crear-bot",
+        entidad: "bots",
+        entidadId: bot.botId,
+        /* La caja va en el log porque "el bot no contesta" se depura
+           empezando por dónde vive el número. La clave NO. */
+        detalle: {
+          client_id: servicio.client_id,
+          server_id: bot.caja.id,
+          server_name: bot.caja.name,
+          slug: bot.slug,
+          origen: "pago",
+        },
+        req,
+      });
+    } catch (e) {
+      console.error("[cobros] no se pudo auditar el bot:", e.message);
+    }
+  }
+
+  return bot;
+}
+
+/* Se exporta para que la confirmación de un pago que NO venga de este
+   panel (la webhook de MercadoPago que está pendiente) use exactamente
+   el mismo camino. */
+module.exports.confirmarPago = confirmarPago;

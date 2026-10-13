@@ -95,6 +95,14 @@ async function csrfDe(ruta) {
   /* ── 2. Asignarlo de verdad ── */
   console.log("\n  2. doy de alta el bot para ese cliente:");
 
+  /* ¿Tenía bot antes? Sirve para saber si el que aparezca es nuevo y
+     poder borrarlo en la limpieza sin tocar el que ya existiera. */
+  const { data: botAntes } = await db
+    .from("bots")
+    .select("id")
+    .eq("client_id", cliente.id)
+    .maybeSingle();
+
   const cuerpoPost = new URLSearchParams({
     _csrf: await csrfDe("/panel/aplicaciones/nuevo"),
     client_id: cliente.id,
@@ -149,10 +157,52 @@ async function csrfDe(ruta) {
     console.log("     " + String(s.microservicio_clave || "—").padEnd(18) + s.titulo);
   }
 
+  /* ── 4. ¿Se creó el bot y ocupó su sitio? ──
+     Es lo que este script vino a comprobar después del cambio: asignar
+     la aplicación del bot tiene que dar de alta el número y reservar el
+     cupo de una caja, sin pasar por /panel/bots/nuevo. */
+  const { data: botDespues } = await db
+    .from("bots")
+    .select("id,slug,instance_name,server_id,evolution_servers(name,max_instances)")
+    .eq("client_id", cliente.id)
+    .maybeSingle();
+
+  const caja = botDespues
+    ? Array.isArray(botDespues.evolution_servers)
+      ? botDespues.evolution_servers[0]
+      : botDespues.evolution_servers
+    : null;
+
+  console.log("\n  4. el bot:");
+  if (botDespues) {
+    console.log("     ✓ bot:      " + botDespues.slug + "  (instancia " + botDespues.instance_name + ")");
+    console.log("       caja:     " + (caja ? caja.name + " (cupo " + caja.max_instances + ")" : "(sin caja)"));
+  } else {
+    console.log("     × NO se creó el bot. Revisa que haya una caja activa con sitio y webhook_secret.");
+  }
+
   /* ── Limpiar ── */
   await db.from("services").delete().eq("id", nuevo.id);
+
+  let botBorrado = false;
+  if (botDespues && !botAntes) {
+    await db.from("bots").delete().eq("id", botDespues.id);
+    botBorrado = true;
+  }
+
   console.log("\n  ── limpieza ──");
   console.log("     fila de prueba borrada: sí");
+  console.log(
+    "     bot de prueba borrado:  " +
+      (botBorrado ? "sí" : botAntes ? "no (ya existía antes)" : "no había")
+  );
+  if (botBorrado) {
+    /* La instancia vive en Evolution y borrarla es destructivo; este
+       script no lo hace. Se avisa para que nadie acumule números de
+       prueba en la caja real. */
+    console.log("     ⚠ La INSTANCIA sigue en Evolution: " + botDespues.instance_name);
+    console.log("       Bórrala a mano desde la caja si era de prueba.");
+  }
 
   console.log("");
 })().catch((e) => {

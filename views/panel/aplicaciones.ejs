@@ -66,6 +66,25 @@
     </div>
   <% } %>
 
+  <%# ─────────────────────────────────────────────────────
+      LO QUE PASÓ CON EL BOT DE WHATSAPP
+
+      Si lo asignado incluye el bot, el alta también intenta crear su
+      número y reservar el sitio en una caja. Va pegado a la
+      confirmación del alta porque es parte del mismo resultado: quien
+      acaba de asignar quiere saber si el bot quedó listo o si hay que
+      resolver algo antes de que el cliente lo use.
+
+      `warn` para el caso «servicio guardado pero bot pendiente»: no es
+      un fallo del alta (el servicio existe y se cobra), pero sí algo
+      que no está terminado.
+      ───────────────────────────────────────────────────── %>
+  <% if (typeof avisoBot !== 'undefined' && avisoBot) { %>
+    <div class="panel-alert panel-alert--<%= avisoBot.tipo %>">
+      <%= avisoBot.texto %>
+    </div>
+  <% } %>
+
   <%# ── EL RESUMEN ──
       Va arriba y SIEMPRE sobre el total, no sobre lo que haya después
       de filtrar. La pregunta al entrar es «cuántos hay», y si el
