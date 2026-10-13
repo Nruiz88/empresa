@@ -7,7 +7,7 @@
   del negocio es una cosa y a quién se factura es otra, y a veces son
   empresas distintas (ver la cabecera de db/migrations/010_perfil.sql).
   Meterlo todo en un formulario y un botón sería más corto de escribir,
-  pero si el cliente se equivoca en el IBAN perdería también la
+  pero si el cliente se equivoca en la cuenta perdería también la
   dirección. Con tres, cada uno guarda lo suyo.
 
   Lo que NO se puede editar aquí
@@ -124,7 +124,7 @@
     <div class="panel-field<%= errores.codigo_postal ? " has-error" : "" %>">
       <span class="panel-field-label" id="lbl-codigo_postal">Código postal</span>
       <input type="text" id="codigo_postal" name="codigo_postal" placeholder="C1414"
-             maxlength="5" inputmode="text"
+             maxlength="8" inputmode="text"
              value="<%= ficha.codigo_postal || '' %>" />
       <% if (errores.codigo_postal) { %><p class="panel-field-error"><%= errores.codigo_postal %></p><% } %>
     </div>
@@ -273,7 +273,7 @@
 
     <div class="panel-field">
       <span class="panel-field-label" id="lbl-cp_fact">Código postal</span>
-      <input type="text" id="cp_fact" name="codigo_postal" maxlength="5" inputmode="text"
+      <input type="text" id="cp_fact" name="codigo_postal" maxlength="8" inputmode="text"
              placeholder="C1414" value="<%= facturacion.codigo_postal || '' %>" />
       <% if (errores.codigo_postal) { %><p class="panel-field-error"><%= errores.codigo_postal %></p><% } %>
     </div>
@@ -291,8 +291,8 @@
     </div>
 
     <div class="panel-field panel-field--ancho">
-      <span class="panel-field-label" id="lbl-iban">IBAN o cuenta</span>
-      <input type="text" id="iban" name="iban" placeholder="AR29 0000 0000 0000 0000 0000 0"
+      <span class="panel-field-label" id="lbl-iban">CBU / CVU o alias</span>
+      <input type="text" id="iban" name="iban" placeholder="0000003100010000000001 o mi.alias"
              value="<%= facturacion.iban || '' %>" />
       <p class="panel-field-ayuda">Para pagarte por transferencia sin escribirla cada vez.</p>
     </div>
