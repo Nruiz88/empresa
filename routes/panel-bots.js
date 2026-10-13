@@ -589,6 +589,23 @@ module.exports = function rutasBots({ db, sitio, requiereStaff }) {
       console.error("[bots] no se pudo crear el servicio del bot:", e.message);
     }
 
+    /* Las respuestas y los horarios de arranque, para que el bot ya
+       conteste algo y la palabra *turno* muestre la agenda sin esperar
+       a que nadie configure nada. Son editables desde el panel del
+       cliente. */
+    try {
+      const { data: cli } = await db
+        .from("clients")
+        .select("empresa,nombre")
+        .eq("id", clientId)
+        .maybeSingle();
+      await botsLib.sembrarDefaultsDelBot(db, creado.id, {
+        negocio: (cli && (cli.empresa || cli.nombre)) || nombre,
+      });
+    } catch (e) {
+      console.error("[bots] no se pudieron sembrar los defaults del bot:", e.message);
+    }
+
     /* Los avisos de la preparación (webhook reenganchado, sin dominio)
        se pasan por la URL porque la redirección es lo único que sobrevive
        a un POST. El texto va truncado: una URL no es un sitio para
