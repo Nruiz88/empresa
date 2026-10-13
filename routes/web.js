@@ -146,9 +146,10 @@ const router = express.Router();
        dice algo que el HTML no dice es una penalización esperando. */
     res.locals.structuredFaq = faq.home;
 
-    /* Los dos productos como SoftwareApplication. Es lo que le dice a
-       Google, sin ambigüedad, que esto es un software y cuáles son las
-       DOS búsquedas que atiende: el bot de WhatsApp y el inventario. */
+    /* Las tres herramientas como SoftwareApplication. Es lo que le dice
+       a Google, sin ambigüedad, que esto es un software y cuáles son las
+       búsquedas que atiende: el bot de WhatsApp, la tienda online y el
+       inventario. */
     res.locals.structuredData = {
       "@context": "https://schema.org",
       "@graph": [
@@ -163,6 +164,15 @@ const router = express.Router();
         },
         {
           "@type": "SoftwareApplication",
+          "name": "Mini Shop de Shopcito",
+          "applicationCategory": "BusinessApplication",
+          "operatingSystem": "Web",
+          "url": site.url + "/",
+          "description":
+            "Tienda online para comercios: catálogo con fotos y precios, carrito y pedidos, con pago por Mercado Pago y sin comisiones por venta.",
+        },
+        {
+          "@type": "SoftwareApplication",
           "name": "Sistema de inventario de Shopcito",
           "applicationCategory": "BusinessApplication",
           "operatingSystem": "Web",
@@ -174,10 +184,10 @@ const router = express.Router();
     };
 
     res.render("index", {
-      title: "Bot de WhatsApp e inventario para tu comercio — Shopcito",
+      title: "Bot de WhatsApp, tienda online e inventario para tu comercio — Shopcito",
       description:
-        "El bot de WhatsApp que atiende solo las 24 horas y el sistema de inventario que controla tu stock. " +
-        "Vendé desde tu mini shop y ordená tu comercio. Sin comisiones por venta ni instalación.",
+        "El bot de WhatsApp que atiende solo las 24 horas, tu tienda online para vender y el sistema " +
+        "de inventario que controla tu stock. Sin comisiones por venta ni instalación.",
     });
   });
 

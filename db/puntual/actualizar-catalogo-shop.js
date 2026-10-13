@@ -10,7 +10,8 @@
      1. da de alta el microservicio del shop (vendible, $30.000/mes);
      2. retira `reservas_web` del catálogo;
      3. en el plan Full cambia `reservas_web` por `mini-shop`;
-     4. imprime el estado final para revisarlo.
+     4. en el plan Comercio cambia `inventario` por `mini-shop`;
+     5. imprime el estado final para revisarlo.
 
    Es idempotente: repetirlo no duplica ni rompe nada. */
 require("../../lib/env").load();
@@ -69,7 +70,29 @@ const db = require("../../lib/supabase").getAdmin();
     );
   }
 
-  /* 4. Estado final, para revisar de un vistazo. */
+  /* 4. El plan Comercio anunciaba el mini shop en su texto («Mini shop /
+     catálogo web con fotos y precios») pero en `aplicaciones` daba
+     `inventario`, que el plan no anuncia en ninguna parte. Se deja con
+     lo que dice su propio texto: el bot y la tienda. */
+  const { data: comercio } = await db
+    .from("plans")
+    .select("id,nombre,aplicaciones")
+    .eq("id", "comercio")
+    .maybeSingle();
+
+  if (!comercio) {
+    console.log("  · no hay plan «comercio». No se toca.");
+  } else {
+    const apps = ["bot_whatsapp", "mini-shop"];
+    const { error } = await db.from("plans").update({ aplicaciones: apps }).eq("id", "comercio");
+    console.log(
+      error
+        ? "  x plan Comercio: " + error.message
+        : "  ✓ plan Comercio ahora incluye: " + apps.join(", ")
+    );
+  }
+
+  /* 5. Estado final, para revisar de un vistazo. */
   const micro = await db
     .from("microservicios")
     .select("modulo,nombre,vendible,activo,url_base,precio")
