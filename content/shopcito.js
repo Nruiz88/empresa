@@ -46,12 +46,12 @@
    HERO
    ───────────────────────────────────────────────────────── */
 const HERO = {
-  etiqueta: "Bot de WhatsApp e inventario para tu comercio",
+  etiqueta: "Bot de WhatsApp, tienda online e inventario",
 
   /* Se parte en líneas porque el título se arma con un
      degradado en una sola de ellas, y romperlo con un salto
      manual cambia dónde cae el degradado. */
-  titulo: ["El bot de WhatsApp", "y el inventario para", "tu comercio"],
+  titulo: ["El bot de WhatsApp,", "tu tienda online", "y el inventario"],
 
   /* La palabra que lleva el degradado. Va separada del resto
      del título porque el efecto se aplica a UNA frase: si se
@@ -60,8 +60,8 @@ const HERO = {
   destacado: "bot de WhatsApp",
 
   subtitulo:
-    "Automatizá las respuestas de tu WhatsApp, vendé desde tu mini shop y controlá el stock " +
-    "de tu negocio. El bot atiende y el inventario ordena, en un solo lugar.",
+    "Automatizá tu WhatsApp, vendé desde tu propia tienda online y controlá el stock de tu " +
+    "negocio. El bot atiende, la tienda vende y el inventario ordena, en un solo lugar.",
 
   cta: {
     texto: "Probar gratis por 14 días",
@@ -187,11 +187,11 @@ const SOLUCION = {
    "control de stock" o "sistema de inventario" no encontraba
    nada. Es el hueco de SEO más grande que tenía la home. */
 const PRODUCTOS = {
-  etiqueta: "Dos herramientas, un solo lugar",
-  titulo: "El bot que atiende y el inventario que ordena",
+  etiqueta: "Tres herramientas, un solo lugar",
+  titulo: "El bot que atiende, la tienda que vende y el inventario que ordena",
   texto:
-    "Shopcito no es solo un bot que contesta. También lleva el stock de tu negocio: " +
-    "lo que entra, lo que sale y lo que está por acabarse.",
+    "Shopcito no es solo un bot que contesta. También es tu tienda online con tus productos " +
+    "y el control de stock de tu negocio, todo en el mismo lugar.",
 
   items: [
     {
@@ -211,6 +211,22 @@ const PRODUCTOS = {
       cta: { texto: "Probar el bot", href: "/cuenta/crear" },
     },
     {
+      id: "mini-shop",
+      icono: "tienda",
+      destacado: false,
+      nombre: "Mini Shop",
+      descripcion:
+        "Tu tienda online con tus productos, fotos y precios. El cliente compra desde el " +
+        "celular y el pedido te llega armado, sin perseguir el chat.",
+      puntos: [
+        "Catálogo con fotos y precios reales",
+        "El cliente arma el carrito y pide solo",
+        "Cobrás con Mercado Pago",
+        "Sin comisiones por venta",
+      ],
+      cta: { texto: "Conocer la tienda", href: "#mini-shop" },
+    },
+    {
       id: "inventario",
       icono: "caja",
       destacado: false,
@@ -227,6 +243,47 @@ const PRODUCTOS = {
       cta: { texto: "Ver el inventario", href: "/contacto" },
     },
   ],
+};
+
+/* ─────────────────────────────────────────────────────────
+   TU MINI SHOP — la tienda online
+   ─────────────────────────────────────────────────────────
+   Sección propia porque la portada explicaba el bot con
+   detalle y la tienda solo aparecía de refilón, dentro de la
+   tarjeta del bot. El mini shop es un producto que se contrata
+   solo y hay que poder entenderlo sin abrir nada.
+
+   Los cuatro pasos usan la clase `.flow`, la misma del diagrama
+   de automatización: no hay CSS nuevo. */
+const MINI_SHOP = {
+  etiqueta: "Tu tienda online",
+  titulo: "Tu mini shop, con tus productos y tu dominio",
+  texto:
+    "Una tienda online propia, sin depender de un marketplace ni de una app que el cliente " +
+    "tenga que bajar. Cargás tus productos y tus clientes compran desde el celular.",
+  pasos: [
+    {
+      numero: "01",
+      titulo: "Cargás tus productos",
+      texto: "Con fotos, precios y variantes. Los actualizás y la tienda queda al día sola.",
+    },
+    {
+      numero: "02",
+      titulo: "Tu cliente entra y elige",
+      texto: "Abre tu tienda desde el celular, arma el carrito y no tiene que bajar nada.",
+    },
+    {
+      numero: "03",
+      titulo: "Paga en línea",
+      texto: "Con Mercado Pago o los medios que uses. Sin comisiones nuestras por venta.",
+    },
+    {
+      numero: "04",
+      titulo: "El pedido te llega armado",
+      texto: "Con el detalle, el contacto y la dirección. Lo preparás y listo.",
+    },
+  ],
+  cta: { texto: "Quiero mi tienda", href: "/cuenta/crear" },
 };
 
 /* ─────────────────────────────────────────────────────────
@@ -305,6 +362,7 @@ module.exports = {
   PROBLEMA,
   SOLUCION,
   PRODUCTOS,
+  MINI_SHOP,
   PLANES,
   CIERRE,
 };

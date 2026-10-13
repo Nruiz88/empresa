@@ -1399,7 +1399,7 @@ h4 {
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: clamp(1rem, 2vw, 1.5rem);
   align-items: stretch;
-  max-width: 920px;
+  max-width: 1040px;
   margin-inline: auto;
 }
 
@@ -3268,6 +3268,13 @@ table.compare .no {
   color: var(--text-muted);
   margin: 0;
   line-height: 1.55;
+}
+
+/* Botón centrado que cierra una sección de pasos (el mini shop).
+   El `.flow` ya trae su margen de abajo, así que este no necesita. */
+.section-cta {
+  text-align: center;
+  margin: 0;
 }
 
 /* ---------- Tarjetas de servicio ---------- */

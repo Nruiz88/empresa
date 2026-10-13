@@ -246,9 +246,10 @@
   </section>
 
   <!-- ================= PRODUCTOS =================
-       El bot y el inventario, con nombre y apellido. Es la sección
-       que le da a Google el contenido que hoy no tenía: "bot de
-       WhatsApp" y "sistema de inventario" para comercios. -->
+       Las tres herramientas, con nombre y apellido: el bot, la
+       tienda y el inventario. Es la sección que le da a Google el
+       contenido que antes no tenía: "bot de WhatsApp", "tienda
+       online" y "sistema de inventario" para comercios. -->
   <section class="section" id="productos">
     <div class="container">
       <div class="section-head section-head--center reveal">
@@ -273,6 +274,39 @@
           </article>
         <% }); %>
       </div>
+    </div>
+  </section>
+
+  <!-- ================= MINI SHOP =================
+       La tienda online, explicada aparte. Antes solo se nombraba
+       dentro de la tarjeta del bot; ahora tiene su sección con el
+       flujo de cómo se usa, para que se entienda como producto
+       suelto. Reusa `.flow`, el mismo diagrama de pasos que la
+       sección de automatización (no hay CSS nuevo). -->
+  <section class="section section--soft" id="mini-shop">
+    <div class="container">
+      <div class="section-head section-head--center reveal">
+        <span class="eyebrow"><%= shopcito.MINI_SHOP.etiqueta %></span>
+        <h2><%= shopcito.MINI_SHOP.titulo %></h2>
+        <p><%= shopcito.MINI_SHOP.texto %></p>
+      </div>
+
+      <ol class="flow reveal">
+        <% shopcito.MINI_SHOP.pasos.forEach(function (f) { %>
+          <li class="flow-step">
+            <span class="flow-num"><%= f.numero %></span>
+            <h3><%= f.titulo %></h3>
+            <p><%= f.texto %></p>
+          </li>
+        <% }); %>
+      </ol>
+
+      <p class="section-cta reveal">
+        <a href="<%= shopcito.MINI_SHOP.cta.href %>" class="btn btn-primary btn-lg magnetic">
+          <%= shopcito.MINI_SHOP.cta.texto %>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+      </p>
     </div>
   </section>
 
@@ -337,7 +371,7 @@
        pueda mostrar las respuestas directamente en los resultados. -->
   <%- include('partials/faq', {
         items: faq.home,
-        title: "Preguntas frecuentes sobre el bot y el inventario",
+        title: "Preguntas frecuentes sobre el bot, la tienda y el inventario",
         lead: "Si tu pregunta no está aquí, escribinos: respondemos en menos de 24 horas."
       }) %>
 

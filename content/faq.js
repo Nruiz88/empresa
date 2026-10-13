@@ -52,7 +52,11 @@ module.exports.servicios = [
 module.exports.home = [
   {
     q: "¿Qué es Shopcito?",
-    a: "Shopcito es el copiloto digital de tu comercio: un bot de WhatsApp que atiende solo las 24 horas y un sistema de inventario para controlar el stock. Se conecta a tu número de siempre, sin que tus clientes instalen nada.",
+    a: "Shopcito es el copiloto digital de tu comercio: un bot de WhatsApp que atiende solo las 24 horas, una tienda online para vender tus productos y un sistema de inventario para controlar el stock. Se conecta a tu número de siempre, sin que tus clientes instalen nada.",
+  },
+  {
+    q: "¿Qué es el mini shop?",
+    a: "Es tu tienda online dentro de Shopcito: cargás tus productos con fotos y precios, y tus clientes compran desde el celular sin bajar ninguna app. El pedido te llega armado, con el contacto y el detalle, y podés cobrar con Mercado Pago, sin comisiones nuestras por venta.",
   },
   {
     q: "¿Cómo funciona el bot de WhatsApp?",
