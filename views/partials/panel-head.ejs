@@ -26,6 +26,7 @@
   <link rel="stylesheet" href="/css/portal.css" />
   <% if (typeof rol !== 'undefined' && rol === 'staff') { %>
   <link rel="stylesheet" href="/css/panel-admin.css" />
+  <link rel="stylesheet" href="/css/panel-pro.css" />
   <% } %>
 
   <script>
@@ -66,121 +67,123 @@
     <button type="button" class="panel-side-cerrar" data-panel-cerrar aria-label="Cerrar menú">&times;</button>
   </div>
 
+  <%
+    /* El menú se pinta desde datos: mismos iconos, rutas, contadores
+       y regla de «sección actual» que antes, sin repetir catorce
+       bloques casi iguales. Los grupos son <details>: se pliegan sin
+       JavaScript y el pequeño script de abajo solo recuerda cuáles
+       dejó cerrados la persona. */
+    function _pl(n, uno, varios) { return n + ' ' + (n === 1 ? uno : varios); }
+    var _I = {
+      inicio: '<path d="M3 10.5 10 4l7 6.5M5.5 9v7h9V9"/>',
+      clientes: '<circle cx="8" cy="7" r="3"/><path d="M2.5 16c0-3 2.5-4.5 5.5-4.5s5.5 1.5 5.5 4.5M14 5.5a2.5 2.5 0 1 1 0 5"/>',
+      servicios: '<path d="M10 3v6l4 2"/><circle cx="10" cy="10" r="7"/>',
+      aplicaciones: '<rect x="3" y="3" width="6" height="6" rx="1.5"/><rect x="11" y="3" width="6" height="6" rx="1.5"/><rect x="3" y="11" width="6" height="6" rx="1.5"/><rect x="11" y="11" width="6" height="6" rx="1.5"/>',
+      'aplicaciones-catalogo': '<path d="M3 5.5 10 2.5l7 3v9l-7 3-7-3v-9Z"/><path d="M3 5.5 10 8.5l7-3M10 8.5v9"/>',
+      catalogo: '<path d="M17.16 11.18l-5.98 5.98a1.67 1.67 0 0 1-2.36 0L1.67 10V1.67h6.66l7.16 7.16a1.67 1.67 0 0 1 0 2.36z"/><circle cx="5.8" cy="5.8" r="1.1"/>',
+      planes: '<path d="M10 2.6 2.4 6.4 10 10.2l7.6-3.8z"/><path d="m2.4 13.6 7.6 3.8 7.6-3.8"/><path d="m2.4 10 7.6 3.8L17.6 10"/>',
+      bots: '<rect x="4" y="7" width="12" height="9" rx="2.5"/><path d="M10 7V4.6"/><circle cx="10" cy="3.4" r="1.2"/><circle cx="7.6" cy="11" r="1" fill="currentColor" stroke="none"/><circle cx="12.4" cy="11" r="1" fill="currentColor" stroke="none"/><path d="M1.8 10.6v2.4M18.2 10.6v2.4"/>',
+      servidores: '<rect x="3" y="4" width="14" height="5" rx="1"/><path d="M5 12.5h10M7 15.5h6"/>',
+      consultas: '<rect x="2.5" y="4.5" width="15" height="11" rx="2"/><path d="m3.4 6.2 6.6 4.6 6.6-4.6"/>',
+      tickets: '<path d="M3 5h14v10H7l-4 3V5z"/>',
+      cobros: '<path d="M10 3v14M13 6.5H8.5a2 2 0 0 0 0 4h3a2 2 0 0 1 0 4H6.5"/>',
+      accesos: '<circle cx="7.4" cy="12.6" r="4.2"/><path d="M10.4 9.6 17.4 2.6"/><path d="m14.4 5.6 2 2"/>',
+      salud: '<path d="M1 10h4l2.5-6 4 12L14 10h5"/>',
+      configuracion: '<circle cx="10" cy="10" r="3"/><path d="M10 1.5v2M10 16.5v2M1.5 10h2M16.5 10h2M4 4l1.4 1.4M14.6 14.6 16 16M16 4l-1.4 1.4M5.4 14.6 4 16"/>'
+    };
+    var _grupos = [
+      { id: 'clientes', t: 'Clientes', items: [
+        { k: 'clientes', href: '/clientes', txt: 'Clientes' },
+        { k: 'servicios', href: '/servicios' + (_c.servicios > 0 ? '?estado=pausado' : ''), txt: 'Servicios',
+          badge: { n: _c.servicios, cls: 'pausa', title: _pl(_c.servicios, 'servicio pausado', 'servicios pausados') } }
+      ] },
+      { id: 'producto', t: 'Producto', items: [
+        { k: 'aplicaciones', href: '/aplicaciones', txt: 'Aplicaciones' },
+        { k: 'aplicaciones-catalogo', href: '/aplicaciones/catalogo', txt: 'Catálogo de aplicaciones', sub: true },
+        { k: 'catalogo', href: '/catalogo', txt: 'Catálogo' },
+        { k: 'planes', href: '/planes', txt: 'Planes' }
+      ] },
+      { id: 'whatsapp', t: 'WhatsApp', items: [
+        { k: 'bots', href: '/bots', txt: 'Bots',
+          badge: { n: _c.botsSinConectar, cls: 'vencido', title: _c.botsSinConectar + ' bot(s) sin conectar' } },
+        { k: 'servidores', href: '/servidores', txt: 'Cajas de bots' }
+      ] },
+      { id: 'operaciones', t: 'Operaciones', items: [
+        { k: 'consultas', href: '/consultas' + (_c.consultas > 0 ? '?estado=nuevo' : ''), txt: 'Consultas',
+          badge: { n: _c.consultas, cls: 'nuevo', title: _pl(_c.consultas, 'consulta sin responder', 'consultas sin responder') } },
+        { k: 'tickets', href: '/tickets' + (_c.tickets > 0 ? '?estado=abierto' : ''), txt: 'Soporte',
+          badge: { n: _c.tickets, cls: 'nuevo', title: _pl(_c.tickets, 'ticket sin resolver', 'tickets sin resolver') } },
+        { k: 'cobros', href: '/cobros' + (_c.vencidos > 0 ? '?estado=vencido' : ''), txt: 'Cobros',
+          badge: { n: _c.vencidos, cls: 'vencido', title: _pl(_c.vencidos, 'cobro fuera de plazo', 'cobros fuera de plazo') } }
+      ] },
+      { id: 'sistema', t: 'Sistema', items: [
+        { k: 'accesos', href: '/accesos', txt: 'Accesos' },
+        { k: 'salud', href: '/salud', txt: 'Salud' },
+        { k: 'configuracion', href: '/configuracion', txt: 'Configuración' }
+      ] }
+    ];
+  %>
   <nav class="panel-menu" aria-label="Secciones del panel">
-    <p class="panel-menu-titulo">Inicio</p>
     <a href="<%= base %>/" class="panel-menu-item<%= _current === 'inicio' ? ' is-active' : '' %>"
        <%= _current === 'inicio' ? 'aria-current="page"' : '' %>>
-      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10.5 10 4l7 6.5M5.5 9v7h9V9"/></svg>
+      <svg viewBox="0 0 20 20" aria-hidden="true"><%- _I.inicio %></svg>
       Resumen
     </a>
 
-    <p class="panel-menu-titulo">Clientes</p>
-    <a href="<%= base %>/clientes" class="panel-menu-item<%= _current === 'clientes' ? ' is-active' : '' %>"
-       <%= _current === 'clientes' ? 'aria-current="page"' : '' %>>
-      <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8" cy="7" r="3"/><path d="M2.5 16c0-3 2.5-4.5 5.5-4.5s5.5 1.5 5.5 4.5M14 5.5a2.5 2.5 0 1 1 0 5"/></svg>
-      Clientes
-    </a>
-    <a href="<%= base %>/servicios<%= _c.servicios > 0 ? "?estado=pausado" : "" %>" class="panel-menu-item<%= _current === 'servicios' ? ' is-active' : '' %>"
-       <%= _current === 'servicios' ? 'aria-current="page"' : '' %>>
-      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v6l4 2"/><circle cx="10" cy="10" r="7"/></svg>
-      Servicios
-      <% if (_c.servicios > 0) { %>
-        <span class="panel-badge panel-badge--pausa"
-              title="<%= contadores.servicios %> servicio<%= contadores.servicios === 1 ? "" : "s" %> pausado<%= contadores.servicios === 1 ? "" : "s" %>"><%= contadores.servicios > 99 ? "99+" : contadores.servicios %></span>
-      <% } %>
-    </a>
-
-    <p class="panel-menu-titulo">Producto</p>
-
-    <a href="<%= base %>/aplicaciones" class="panel-menu-item<%= _current === 'aplicaciones' ? ' is-active' : '' %>"
-       <%= _current === 'aplicaciones' ? 'aria-current="page"' : '' %>>
-      <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="3" width="6" height="6" rx="1.5"/><rect x="11" y="3" width="6" height="6" rx="1.5"/><rect x="3" y="11" width="6" height="6" rx="1.5"/><rect x="11" y="11" width="6" height="6" rx="1.5"/></svg>
-      Aplicaciones
-    </a>
-
-    <a href="<%= base %>/aplicaciones/catalogo" class="panel-menu-item panel-menu-item--hijillo<%= _current === 'aplicaciones-catalogo' ? ' is-active' : '' %>"
-       <%= _current === 'aplicaciones-catalogo' ? 'aria-current="page"' : '' %>>
-      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5.5 10 2.5l7 3v9l-7 3-7-3v-9Z"/><path d="M3 5.5 10 8.5l7-3M10 8.5v9"/></svg>
-      Catálogo de aplicaciones
-    </a>
-
-    <a href="<%= base %>/catalogo" class="panel-menu-item<%= _current === 'catalogo' ? ' is-active' : '' %>"
-       <%= _current === 'catalogo' ? 'aria-current="page"' : '' %>>
-      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M17.16 11.18l-5.98 5.98a1.67 1.67 0 0 1-2.36 0L1.67 10V1.67h6.66l7.16 7.16a1.67 1.67 0 0 1 0 2.36z"/><circle cx="5.8" cy="5.8" r="1.1"/></svg>
-      Catálogo
-    </a>
-
-    <a href="<%= base %>/planes" class="panel-menu-item<%= _current === 'planes' ? ' is-active' : '' %>"
-       <%= _current === 'planes' ? 'aria-current="page"' : '' %>>
-      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2.6 2.4 6.4 10 10.2l7.6-3.8z"/><path d="m2.4 13.6 7.6 3.8 7.6-3.8"/><path d="m2.4 10 7.6 3.8L17.6 10"/></svg>
-      Planes
-    </a>
-
-    <p class="panel-menu-titulo">WhatsApp</p>
-
-    <a href="<%= base %>/bots" class="panel-menu-item<%= _current === 'bots' ? ' is-active' : '' %>"
-       <%= _current === 'bots' ? 'aria-current="page"' : '' %>>
-      <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="4" y="7" width="12" height="9" rx="2.5"/><path d="M10 7V4.6"/><circle cx="10" cy="3.4" r="1.2"/><circle cx="7.6" cy="11" r="1" fill="currentColor" stroke="none"/><circle cx="12.4" cy="11" r="1" fill="currentColor" stroke="none"/><path d="M1.8 10.6v2.4M18.2 10.6v2.4"/></svg>
-      Bots
-
-      <% if (_c.botsSinConectar > 0) { %>
-        <span class="panel-badge panel-badge--vencido"
-              title="<%= contadores.botsSinConectar %> bot(s) sin conectar"><%= _c.botsSinConectar > 99 ? "99+" : _c.botsSinConectar %></span>
-      <% } %>
-    </a>
-
-    <a href="<%= base %>/servidores" class="panel-menu-item<%= _current === 'servidores' ? ' is-active' : '' %>"
-       <%= _current === 'servidores' ? 'aria-current="page"' : '' %>>
-      <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="4" width="14" height="5" rx="1"/><path d="M5 12.5h10M7 15.5h6"/></svg>
-      Cajas de bots
-    </a>
-
-    <p class="panel-menu-titulo">Operaciones</p>
-    <a href="<%= base %>/consultas<%= _c.consultas > 0 ? "?estado=nuevo" : "" %>" class="panel-menu-item<%= _current === 'consultas' ? ' is-active' : '' %>"
-       <%= _current === 'consultas' ? 'aria-current="page"' : '' %>>
-      <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="2.5" y="4.5" width="15" height="11" rx="2"/><path d="m3.4 6.2 6.6 4.6 6.6-4.6"/></svg>
-      Consultas
-      <% if (_c.consultas > 0) { %>
-        <span class="panel-badge panel-badge--nuevo"
-              title="<%= contadores.consultas %> consulta<%= contadores.consultas === 1 ? "" : "s" %> sin responder"><%= contadores.consultas > 99 ? "99+" : contadores.consultas %></span>
-      <% } %>
-    </a>
-    <a href="<%= base %>/tickets<%= _c.tickets > 0 ? "?estado=abierto" : "" %>" class="panel-menu-item<%= _current === 'tickets' ? ' is-active' : '' %>"
-       <%= _current === 'tickets' ? 'aria-current="page"' : '' %>>
-      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5h14v10H7l-4 3V5z"/></svg>
-      Soporte
-      <% if (_c.tickets > 0) { %>
-        <span class="panel-badge panel-badge--nuevo"
-              title="<%= contadores.tickets %> ticket<%= contadores.tickets === 1 ? "" : "s" %> sin resolver"><%= contadores.tickets > 99 ? "99+" : contadores.tickets %></span>
-      <% } %>
-    </a>
-    <a href="<%= base %>/cobros<%= _c.vencidos > 0 ? "?estado=vencido" : "" %>" class="panel-menu-item<%= _current === 'cobros' ? ' is-active' : '' %>"
-       <%= _current === 'cobros' ? 'aria-current="page"' : '' %>>
-      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v14M13 6.5H8.5a2 2 0 0 0 0 4h3a2 2 0 0 1 0 4H6.5"/></svg>
-      Cobros
-      <% if (_c.vencidos > 0) { %>
-        <span class="panel-badge panel-badge--vencido"
-              title="<%= contadores.vencidos %> cobro<%= contadores.vencidos === 1 ? "" : "s" %> fuera de plazo"><%= contadores.vencidos > 99 ? "99+" : contadores.vencidos %></span>
-      <% } %>
-    </a>
-
-    <p class="panel-menu-titulo">Sistema</p>
-    <a href="<%= base %>/accesos" class="panel-menu-item<%= _current === 'accesos' ? ' is-active' : '' %>"
-       <%= _current === 'accesos' ? 'aria-current="page"' : '' %>>
-      <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="7.4" cy="12.6" r="4.2"/><path d="M10.4 9.6 17.4 2.6"/><path d="m14.4 5.6 2 2"/></svg>
-      Accesos
-    </a>
-    <a href="<%= base %>/salud" class="panel-menu-item<%= _current === 'salud' ? ' is-active' : '' %>"
-       <%= _current === 'salud' ? 'aria-current="page"' : '' %>>
-      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M1 10h4l2.5-6 4 12L14 10h5"/></svg>
-      Salud
-    </a>
-    <a href="<%= base %>/configuracion" class="panel-menu-item<%= _current === 'configuracion' ? ' is-active' : '' %>"
-       <%= _current === 'configuracion' ? 'aria-current="page"' : '' %>>
-      <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="3"/><path d="M10 1.5v2M10 16.5v2M1.5 10h2M16.5 10h2M4 4l1.4 1.4M14.6 14.6 16 16M16 4l-1.4 1.4M5.4 14.6 4 16"/></svg>
-      Configuración
-    </a>
+    <% _grupos.forEach(function (g) { %>
+    <details class="panel-grupo" data-grupo="<%= g.id %>" open>
+      <summary class="panel-menu-titulo">
+        <span><%= g.t %></span>
+        <svg viewBox="0 0 12 12" aria-hidden="true"><path d="m3 4.5 3 3 3-3"/></svg>
+      </summary>
+      <div class="panel-grupo-items">
+        <% g.items.forEach(function (it) { %>
+        <a href="<%= base + it.href %>"
+           class="panel-menu-item<%= it.sub ? ' panel-menu-item--hijillo' : '' %><%= _current === it.k ? ' is-active' : '' %>"
+           <%= _current === it.k ? 'aria-current="page"' : '' %>>
+          <svg viewBox="0 0 20 20" aria-hidden="true"><%- _I[it.k] %></svg>
+          <%= it.txt %>
+          <% if (it.badge && it.badge.n > 0) { %>
+            <span class="panel-badge panel-badge--<%= it.badge.cls %>"
+                  title="<%= it.badge.title %>"><%= it.badge.n > 99 ? "99+" : it.badge.n %></span>
+          <% } %>
+        </a>
+        <% }); %>
+      </div>
+    </details>
+    <% }); %>
   </nav>
+
+  <div class="panel-side-foot">
+    <a href="/" target="_blank" rel="noopener">
+      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M8 4H4v12h12v-4M12 3h5v5M17 3l-7 7"/></svg>
+      Ver la web
+    </a>
+  </div>
+
+  <script>
+    /* Recuerda qué grupos del menú dejó cerrados la persona. Corre
+       antes de pintar y nunca cierra el grupo de la sección actual. */
+    (function () {
+      try {
+        var KEY = "nexo-menu-cerrado";
+        var cerrados = JSON.parse(localStorage.getItem(KEY) || "[]");
+        var grupos = document.querySelectorAll(".panel-grupo");
+        grupos.forEach(function (g) {
+          if (cerrados.indexOf(g.getAttribute("data-grupo")) > -1 && !g.querySelector(".is-active")) {
+            g.removeAttribute("open");
+          }
+        });
+        grupos.forEach(function (g) {
+          g.addEventListener("toggle", function () {
+            var lista = [];
+            grupos.forEach(function (x) { if (!x.open) lista.push(x.getAttribute("data-grupo")); });
+            localStorage.setItem(KEY, JSON.stringify(lista));
+          });
+        });
+      } catch (e) {}
+    })();
+  </script>
 </aside>
 
 <div class="panel-shell">
