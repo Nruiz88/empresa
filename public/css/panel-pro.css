@@ -1,0 +1,1325 @@
+/* =========================================================
+   PANEL PRO — REDISEÑO DEL PANEL DE EQUIPO
+   =========================================================
+   Última hoja del panel (va después de panel-admin.css). Todo
+   cuelga de `.panel-body--staff`, así que el portal del cliente no
+   se entera.
+
+   Para volver atrás basta con quitar el <link> de esta hoja en
+   views/partials/panel-head.ejs y views/partials/layout/panel.ejs.
+
+   Qué cambia, en el orden en que se ve la pantalla:
+     1. Sistema de color y tipografía (neutro frío, un solo acento)
+     2. Lateral: pegado al borde, grupos plegables, contadores finos
+     3. Barra superior: buscador a la izquierda, acciones a la derecha
+     4. Página y cabecera (se acaba la banda muerta de arriba)
+     5. Tarjetas
+     6. Cifras: una sola tira con separadores
+     7. «Qué hay que hacer», consultas, vencimientos, reparto, gráfico
+     8. Tablas y barra de filtros
+     9. Controles, chips y avatares
+    10. Responsive
+   ========================================================= */
+
+/* =========================================================
+   1. SISTEMA DE COLOR Y TIPOGRAFÍA
+   ========================================================= */
+
+html:has(.panel-body--staff) {
+  background: #090c11;
+  color-scheme: dark;
+}
+
+.panel-body--staff {
+  /* Planos: neutros fríos, ya no azul marino. Entre fondo y tarjeta
+     hay un paso claro y el resto de la separación lo hace el borde. */
+  --bg: #090c11;
+  --bg-soft: #0d1218;
+  --surface: #121821;
+  --surface-2: #19212c;
+  --plano-0: #090c11;
+  --plano-1: #10161e;
+  --plano-2: #0b1016;
+  --plano-3: #18202b;
+
+  --caja-fondo: var(--plano-1);
+  --caja-borde: rgba(255, 255, 255, 0.075);
+  --caja-alta-fondo: #161d27;
+  --caja-alta-borde: rgba(255, 255, 255, 0.11);
+  --caja-radio: 12px;
+  --caja-sombra: 0 1px 0 rgba(255, 255, 255, 0.035) inset,
+                 0 1px 2px rgba(0, 0, 0, 0.35);
+  --caja-hover-sombra: 0 1px 0 rgba(255, 255, 255, 0.05) inset,
+                       0 10px 28px -14px rgba(0, 0, 0, 0.7);
+
+  --border: rgba(255, 255, 255, 0.07);
+  --border-strong: rgba(255, 255, 255, 0.12);
+  --raise: rgba(255, 255, 255, 0.04);
+  --raise-strong: rgba(255, 255, 255, 0.07);
+
+  --text: #eef1f6;
+  --text-muted: #a5afbf;
+  --text-dim: #7d8799;
+
+  /* Una sola familia para todo el panel. Outfit se queda para la web
+     pública; en datos, Inter con cifras tabulares se lee mejor. */
+  --font-display: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  --panel-sidebar: 248px;
+  --panel-topbar: 56px;
+  --panel-page-max: 1360px;
+  --ui-pad-x: 2rem;
+
+  font-family: var(--font-body);
+  font-feature-settings: "tnum" 0, "calt" 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  background:
+    radial-gradient(
+      70rem 22rem at 78% -6rem,
+      color-mix(in srgb, var(--accent) 5.5%, transparent),
+      transparent 70%
+    ),
+    var(--bg);
+  background-attachment: fixed;
+}
+
+.panel-body--staff ::selection {
+  background: color-mix(in srgb, var(--accent) 32%, transparent);
+}
+
+.panel-body--staff * {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.14) transparent;
+}
+
+.panel-body--staff :focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* =========================================================
+   2. LATERAL
+   ========================================================= */
+
+.panel-body--staff .panel-side {
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: var(--panel-sidebar);
+  background: var(--bg-soft);
+  border: 0;
+  border-inline-end: 1px solid var(--border);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.panel-body--staff .panel-shell {
+  margin-inline-start: var(--panel-sidebar);
+}
+
+/* La marca mide lo mismo que la barra superior: las dos líneas de
+   abajo quedan en el mismo renglón y se leen como una sola. */
+.panel-body--staff .panel-side-brand {
+  height: var(--panel-topbar);
+  min-height: 0;
+  padding: 0 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.panel-body--staff .panel-brand .brand-mark {
+  transform: scale(0.82);
+  transform-origin: left center;
+  margin-inline-end: -0.35rem;
+}
+
+.panel-body--staff .panel-brand-text strong {
+  font-size: 0.9375rem;
+  font-weight: 650;
+  letter-spacing: -0.015em;
+}
+
+.panel-body--staff .panel-brand-text small {
+  margin-top: 0.1rem;
+  font-size: 0.6875rem;
+  color: var(--text-dim);
+}
+
+.panel-body--staff .panel-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.75rem 0.6rem 1rem;
+}
+
+/* ── Grupos plegables ── */
+.panel-body--staff .panel-grupo {
+  margin-top: 0.55rem;
+}
+
+.panel-body--staff .panel-grupo > summary.panel-menu-titulo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0.35rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  color: var(--text-dim);
+  list-style: none;
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.15s ease;
+}
+
+.panel-body--staff .panel-grupo > summary.panel-menu-titulo::after {
+  display: none;
+}
+
+.panel-body--staff .panel-grupo > summary::-webkit-details-marker {
+  display: none;
+}
+
+.panel-body--staff .panel-grupo > summary:hover {
+  color: var(--text-muted);
+}
+
+.panel-body--staff .panel-grupo > summary svg {
+  width: 12px;
+  height: 12px;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.18s ease;
+}
+
+.panel-body--staff .panel-grupo:not([open]) > summary svg {
+  transform: rotate(-90deg);
+}
+
+.panel-body--staff .panel-grupo-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding-top: 0.15rem;
+}
+
+/* ── Elemento de menú ── */
+.panel-body--staff .panel-menu-item {
+  position: relative;
+  min-height: 34px;
+  padding: 0 0.6rem;
+  gap: 0.65rem;
+  border-radius: 8px;
+  font-size: 0.84375rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  transition: background 0.14s ease, color 0.14s ease;
+}
+
+.panel-body--staff .panel-menu-item svg {
+  width: 16px;
+  height: 16px;
+  stroke-width: 1.6;
+  color: var(--text-dim);
+  opacity: 1;
+  transition: color 0.14s ease;
+}
+
+.panel-body--staff .panel-menu-item:hover {
+  background: var(--raise);
+  color: var(--text);
+}
+
+.panel-body--staff .panel-menu-item:hover svg {
+  color: var(--text-muted);
+}
+
+.panel-body--staff .panel-menu-item.is-active {
+  background: var(--raise-strong);
+  color: var(--text);
+  font-weight: 600;
+  box-shadow: none;
+}
+
+.panel-body--staff .panel-menu-item.is-active svg {
+  color: var(--accent);
+}
+
+.panel-body--staff .panel-menu-item.is-active::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: -0.6rem;
+  top: 50%;
+  width: 3px;
+  height: 16px;
+  border-radius: 0 3px 3px 0;
+  background: var(--accent);
+  transform: translateY(-50%);
+}
+
+.panel-body--staff .panel-menu-item--hijillo {
+  min-height: 30px;
+  padding-inline-start: 2.1rem;
+  font-size: 0.8125rem;
+}
+
+.panel-body--staff .panel-menu-item--hijillo svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* ── Contadores ── */
+.panel-body--staff .panel-badge {
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding: 0 0.4rem;
+  border: 0;
+  font-family: inherit;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.panel-body--staff .panel-badge--vencido {
+  color: #fca5a5;
+  background: color-mix(in srgb, var(--danger) 16%, transparent);
+}
+
+.panel-body--staff .panel-badge--pausa {
+  color: #fcd34d;
+  background: color-mix(in srgb, var(--warning) 15%, transparent);
+}
+
+.panel-body--staff .panel-badge--nuevo {
+  color: #93c5fd;
+  background: color-mix(in srgb, var(--info) 16%, transparent);
+}
+
+/* ── Pie ── */
+.panel-body--staff .panel-side-foot {
+  display: block;
+  padding: 0.6rem;
+  border-top: 1px solid var(--border);
+}
+
+.panel-body--staff .panel-side-foot a {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-height: 34px;
+  padding: 0 0.6rem;
+  border-radius: 8px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-dim);
+  text-decoration: none;
+  transition: background 0.14s ease, color 0.14s ease;
+}
+
+.panel-body--staff .panel-side-foot a:hover {
+  background: var(--raise);
+  color: var(--text);
+}
+
+.panel-body--staff .panel-side-foot svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* =========================================================
+   3. BARRA SUPERIOR
+   ========================================================= */
+
+.panel-body--staff .panel-topbar {
+  height: var(--panel-topbar);
+  padding-inline: var(--ui-pad-x);
+  gap: 0.75rem;
+  background: color-mix(in srgb, var(--bg) 78%, transparent);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(14px) saturate(1.3);
+}
+
+.panel-body--staff .panel-topbar-acciones {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-inline-start: auto;
+}
+
+/* El buscador: campo de verdad, no píldora. La lupa se dibuja con
+   máscara; la de CSS con dos bordes se desalineaba. */
+.panel-body--staff .panel-buscar {
+  width: min(360px, 100%);
+  height: 36px;
+  padding: 0 0.5rem 0 0.75rem;
+  gap: 0.6rem;
+  justify-content: flex-start;
+  margin-inline-start: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: 9px;
+  background: var(--plano-1);
+  color: var(--text-dim);
+  font-size: 0.84375rem;
+  transition: border-color 0.14s ease, background 0.14s ease, color 0.14s ease;
+}
+
+.panel-body--staff .panel-buscar:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: var(--plano-3);
+  color: var(--text-muted);
+}
+
+.panel-body--staff .panel-buscar-lupa {
+  width: 15px;
+  height: 15px;
+  border: 0;
+  border-radius: 0;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E") center / contain no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.panel-body--staff .panel-buscar-lupa::after {
+  display: none;
+}
+
+.panel-body--staff .panel-buscar-texto {
+  flex: 1;
+  text-align: left;
+}
+
+.panel-body--staff .panel-buscar-atajo {
+  margin-inline-start: auto;
+  padding: 0.12rem 0.4rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.03);
+  font-family: inherit;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--text-dim);
+}
+
+/* El botón «Nuevo»: el SVG era una línea sin trazo y no se veía. */
+.panel-body--staff .panel-rapido-abrir svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.panel-body--staff .panel-rapido-abrir {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.panel-body--staff .panel-densidad,
+.panel-body--staff .panel-user-menu-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  border-color: var(--border-strong);
+  background: var(--plano-1);
+}
+
+.panel-body--staff .panel-densidad:hover,
+.panel-body--staff .panel-user-menu-btn:hover,
+.panel-body--staff .panel-user-menu[open] .panel-user-menu-btn {
+  background: var(--plano-3);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.panel-body--staff .panel-menu-rapido,
+.panel-body--staff .panel-user-menu-lista {
+  background: var(--caja-alta-fondo);
+  border: 1px solid var(--caja-alta-borde);
+  border-radius: 12px;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.05) inset,
+              0 18px 40px -12px rgba(0, 0, 0, 0.75);
+}
+
+/* =========================================================
+   4. PÁGINA Y CABECERA
+   ========================================================= */
+
+/* La barra ya está en el flujo (sticky): sumarle su altura al
+   padding de la página abría una banda vacía de ~100px. */
+.panel-body--staff .panel-page {
+  max-width: var(--panel-page-max);
+  padding: 1.75rem var(--ui-pad-x) 3.5rem;
+}
+
+.panel-body--staff .panel-page-head {
+  align-items: center;
+  gap: 0.75rem 1.5rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.panel-body--staff .panel-page-head h1 {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 650;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+  color: var(--text);
+}
+
+/* El rótulo pasa a ser una miga de pan: «Panel / Gestión». */
+.panel-body--staff .panel-kicker {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 0.4rem;
+  font-size: 0.78125rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--text-dim);
+}
+
+.panel-body--staff .panel-kicker::before {
+  content: "Panel  /";
+  white-space: pre;
+  opacity: 0.65;
+}
+
+.panel-body--staff .panel-count {
+  margin-top: 0.3rem;
+  font-size: 0.84375rem;
+  color: var(--text-dim);
+}
+
+.panel-body--staff .panel-foot {
+  padding: 1.25rem var(--ui-pad-x) 1.75rem;
+  border-top: 0;
+  text-align: left;
+}
+
+.panel-body--staff .panel-foot p {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+
+/* =========================================================
+   5. TARJETAS
+   ========================================================= */
+
+.panel-body--staff .panel-card,
+.panel-body--staff .panel-hacer {
+  background: var(--plano-1);
+  border: 1px solid var(--caja-borde);
+  border-radius: var(--caja-radio);
+  box-shadow: var(--caja-sombra);
+  overflow: hidden;
+}
+
+.panel-body--staff .panel-card-head {
+  align-items: center;
+  min-height: 52px;
+  padding: 0.75rem 1.1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+/* El rótulo pequeño de encima repetía lo que dice el título. */
+.panel-body--staff .panel-card-cintillo {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.panel-body--staff .panel-card-titulo {
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+}
+
+.panel-body--staff .panel-card-cuerpo {
+  padding: 1.1rem;
+}
+
+/* Rejillas de la portada */
+.panel-body--staff .ui-cols {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+  gap: 1.25rem;
+  margin-bottom: 1.25rem;
+  align-items: stretch;
+}
+
+.panel-body--staff .ui-cols > * {
+  margin-bottom: 0;
+}
+
+.panel-body--staff .ui-cols .panel-card,
+.panel-body--staff .ui-cols .panel-hacer {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.panel-body--staff .ui-cols .panel-card > .panel-card-cuerpo {
+  flex: 1;
+}
+
+.panel-body--staff .ui-contador {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.35rem;
+  height: 1.35rem;
+  margin-inline-start: 0.5rem;
+  padding: 0 0.4rem;
+  border-radius: 999px;
+  background: var(--raise-strong);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  vertical-align: 1px;
+}
+
+/* =========================================================
+   6. CIFRAS (una tira con separadores)
+   ========================================================= */
+
+.panel-body--staff .ui-kpis {
+  display: grid;
+  grid-template-columns: repeat(var(--kpis, 4), minmax(0, 1fr));
+  margin-bottom: 1.25rem;
+  background: var(--plano-1);
+  border: 1px solid var(--caja-borde);
+  border-radius: var(--caja-radio);
+  box-shadow: var(--caja-sombra);
+  overflow: hidden;
+}
+
+.panel-body--staff .ui-kpis .panel-stat {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas:
+    "ico lab"
+    "num num"
+    "sub sub";
+  align-items: center;
+  column-gap: 0.5rem;
+  row-gap: 0.5rem;
+  min-height: 0;
+  padding: 1.1rem 1.25rem 1.15rem;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: -1px 0 0 var(--border), 0 -1px 0 var(--border);
+  transform: none;
+  transition: background 0.15s ease;
+  --kpi-color: var(--text-dim);
+}
+
+.panel-body--staff .ui-kpis a.panel-stat:hover {
+  background: var(--raise);
+  transform: none;
+  box-shadow: -1px 0 0 var(--border), 0 -1px 0 var(--border);
+}
+
+.panel-body--staff .ui-kpis .panel-stat-cuerpo {
+  display: contents;
+}
+
+.panel-body--staff .ui-kpis .panel-stat-icono {
+  grid-area: ico;
+  width: 16px;
+  height: 16px;
+  border-radius: 0;
+  background: none;
+  color: var(--kpi-color);
+}
+
+.panel-body--staff .ui-kpis .panel-stat-icono svg {
+  width: 16px;
+  height: 16px;
+}
+
+.panel-body--staff .ui-kpis .panel-stat-cuerpo > span {
+  grid-area: lab;
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--text-muted);
+  line-height: 1.25;
+}
+
+.panel-body--staff .ui-kpis .panel-stat strong {
+  grid-area: num;
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 2.1vw, 1.75rem);
+  font-weight: 650;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+
+.panel-body--staff .ui-kpis .ui-kpi-sub {
+  grid-area: sub;
+  margin-top: -0.25rem;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+
+.panel-body--staff .ui-kpis .panel-stat--alerta {
+  --kpi-color: var(--danger);
+}
+
+.panel-body--staff .ui-kpis .panel-stat--alerta strong {
+  color: #fca5a5;
+}
+
+.panel-body--staff .ui-kpis .panel-stat--ambar {
+  --kpi-color: var(--warning);
+}
+
+.panel-body--staff .ui-kpis .panel-stat--info {
+  --kpi-color: var(--info);
+}
+
+.panel-body--staff .ui-kpis .panel-stat--ok {
+  --kpi-color: var(--accent);
+}
+
+/* =========================================================
+   7. LISTAS Y BLOQUES DE LA PORTADA
+   ========================================================= */
+
+/* ── Qué hay que hacer ── */
+.panel-body--staff .panel-hacer {
+  margin-bottom: 0;
+  padding: 0;
+}
+
+.panel-body--staff .panel-hacer-titulo {
+  display: flex;
+  align-items: center;
+  min-height: 52px;
+  margin: 0;
+  padding: 0.75rem 1.1rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  text-transform: none;
+  color: var(--text);
+}
+
+.panel-body--staff .panel-hacer-lista {
+  gap: 0;
+}
+
+.panel-body--staff .panel-hacer-item {
+  gap: 0.85rem;
+  padding: 0.7rem 1.1rem;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  border-radius: 0;
+  background: transparent;
+}
+
+.panel-body--staff .panel-hacer-item:last-child {
+  border-bottom: 0;
+}
+
+.panel-body--staff .panel-hacer-item:hover {
+  background: var(--raise);
+}
+
+.panel-body--staff .panel-hacer-n {
+  min-width: 1.75rem;
+  height: 1.75rem;
+  padding: 0 0.45rem;
+  border: 0;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: 650;
+}
+
+.panel-body--staff .panel-hacer-item--rojo .panel-hacer-n {
+  color: #fca5a5;
+  background: color-mix(in srgb, var(--danger) 16%, transparent);
+}
+
+.panel-body--staff .panel-hacer-item--cian .panel-hacer-n {
+  color: #93c5fd;
+  background: color-mix(in srgb, var(--info) 16%, transparent);
+}
+
+.panel-body--staff .panel-hacer-item--ambar .panel-hacer-n {
+  color: #fcd34d;
+  background: color-mix(in srgb, var(--warning) 15%, transparent);
+}
+
+.panel-body--staff .panel-hacer-texto strong {
+  font-size: 0.875rem;
+  font-weight: 550;
+}
+
+.panel-body--staff .panel-hacer-texto:hover {
+  text-decoration: none;
+}
+
+.panel-body--staff .panel-hacer-pista {
+  font-size: 0.78125rem;
+}
+
+.panel-body--staff .panel-hacer-item .panel-btn {
+  border-color: transparent;
+  background: transparent;
+  color: var(--text-dim);
+}
+
+.panel-body--staff .panel-hacer-item .panel-btn::after {
+  content: "→";
+  margin-inline-start: 0.35rem;
+  opacity: 0.7;
+  transition: transform 0.15s ease;
+}
+
+.panel-body--staff .panel-hacer-item:hover .panel-btn {
+  border-color: var(--border-strong);
+  background: var(--raise);
+  color: var(--text);
+}
+
+.panel-body--staff .panel-hacer-item:hover .panel-btn::after {
+  transform: translateX(2px);
+  opacity: 1;
+}
+
+.panel-body--staff .panel-hacer-vacio {
+  padding: 1.25rem 1.1rem;
+}
+
+/* ── Consultas recientes ── */
+.panel-body--staff .ui-recientes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.panel-body--staff .ui-recientes li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem 1.1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.panel-body--staff .ui-recientes li:last-child {
+  border-bottom: 0;
+}
+
+.panel-body--staff .ui-recientes .ui-reciente-datos {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  line-height: 1.35;
+}
+
+.panel-body--staff .ui-recientes strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.875rem;
+  font-weight: 550;
+}
+
+.panel-body--staff .ui-recientes .ui-reciente-datos span {
+  font-size: 0.78125rem;
+  color: var(--text-dim);
+}
+
+.panel-body--staff .ui-pie-tarjeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.7rem 1.1rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.8125rem;
+}
+
+.panel-body--staff .ui-pie-tarjeta a {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.panel-body--staff .ui-pie-tarjeta a:hover {
+  color: var(--accent);
+}
+
+/* ── Vencimientos ── */
+.panel-body--staff .panel-card-cuerpo--lista {
+  padding: 0;
+}
+
+.panel-body--staff .panel-caducos {
+  gap: 0;
+}
+
+.panel-body--staff .panel-caduco {
+  position: relative;
+  gap: 1rem;
+  padding: 0.8rem 1.1rem 0.8rem 2.1rem;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  border-radius: 0;
+  background: transparent;
+}
+
+.panel-body--staff .panel-caduco:last-child {
+  border-bottom: 0;
+}
+
+.panel-body--staff .panel-caduco::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: 1.1rem;
+  top: 1.2rem;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--caduco-color, var(--accent));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--caduco-color, var(--accent)) 18%, transparent);
+}
+
+.panel-body--staff .panel-caduco--vencido { --caduco-color: var(--danger); }
+.panel-body--staff .panel-caduco--urgente { --caduco-color: var(--danger); }
+.panel-body--staff .panel-caduco--pendiente { --caduco-color: var(--warning); }
+.panel-body--staff .panel-caduco--aviso { --caduco-color: var(--warning); }
+.panel-body--staff .panel-caduco--tranquilo { --caduco-color: var(--accent); }
+
+.panel-body--staff .panel-caduco-main strong {
+  font-size: 0.875rem;
+  font-weight: 550;
+}
+
+.panel-body--staff .panel-caduco-empresa {
+  font-size: 0.78125rem;
+  color: var(--text-dim);
+}
+
+.panel-body--staff .panel-caduco-cuando {
+  font-size: 0.75rem;
+}
+
+.panel-body--staff .panel-serv-price {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+/* ── Reparto ── */
+.panel-body--staff .panel-dist-filas {
+  gap: 1.5rem;
+  padding: 1.25rem 1.1rem;
+}
+
+.panel-body--staff .panel-dist-fila {
+  grid-template-columns: 12rem minmax(0, 1fr);
+  gap: 1.5rem;
+}
+
+.panel-body--staff .panel-dist-grande {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-weight: 650;
+  letter-spacing: -0.03em;
+}
+
+.panel-body--staff .panel-dist-unidad {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--text-muted);
+}
+
+.panel-body--staff .panel-dist-barra {
+  gap: 3px;
+  height: 8px;
+  margin-bottom: 0.9rem;
+}
+
+.panel-body--staff .panel-dist-barra > i {
+  border-radius: 999px;
+}
+
+/* ── Gráfico de barras ── */
+.panel-body--staff .panel-chart {
+  height: 10rem;
+}
+
+.panel-body--staff .panel-chart-barra {
+  max-width: 34px;
+  border-radius: 5px 5px 2px 2px;
+}
+
+.panel-body--staff .panel-chart-col:hover .panel-chart-barra {
+  filter: brightness(1.2);
+}
+
+.panel-body--staff .panel-chart-mes {
+  font-size: 0.6875rem;
+  letter-spacing: 0.02em;
+}
+
+/* =========================================================
+   8. TABLAS Y FILTROS
+   ========================================================= */
+
+.panel-body--staff .panel-table-wrap {
+  background: var(--plano-1);
+  border: 1px solid var(--caja-borde);
+  border-radius: var(--caja-radio);
+  box-shadow: var(--caja-sombra);
+}
+
+.panel-body--staff .panel-table th,
+.panel-body--staff .panel-table thead th {
+  padding: 0.7rem 1.1rem;
+  background: var(--plano-1);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--text-dim);
+}
+
+.panel-body--staff .panel-table td {
+  padding: 0.75rem 1.1rem;
+  font-size: 0.875rem;
+  color: var(--text);
+}
+
+.panel-body--staff .panel-table tbody td.panel-th-email,
+.panel-body--staff .panel-table tbody td.panel-th-email a {
+  font-family: inherit;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.panel-body--staff .panel-table tbody tr:hover {
+  background: var(--raise);
+}
+
+.panel-body--staff .panel-table a:hover {
+  color: var(--text);
+}
+
+.panel-body--staff .panel-table tbody td.panel-th-email a:hover {
+  color: var(--accent);
+}
+
+.panel-body--staff .panel-cell-main {
+  font-weight: 600;
+  letter-spacing: -0.005em;
+}
+
+.panel-body--staff .panel-cell-sub {
+  font-size: 0.8125rem;
+  color: var(--text-dim);
+}
+
+/* ── Barra de filtros: sin caja, la búsqueda lleva su lupa ── */
+.panel-body--staff .panel-filters {
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.panel-body--staff .panel-search {
+  flex: 0 1 340px;
+  min-height: 36px;
+  padding: 0 0.85rem 0 2.3rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 9px;
+  background-color: var(--plano-1);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237d8799' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: 0.8rem center;
+  background-size: 15px;
+  font-size: 0.875rem;
+}
+
+.panel-body--staff .panel-filters select {
+  min-height: 36px;
+  border-radius: 9px;
+  background-color: var(--plano-1);
+  border-color: var(--border-strong);
+}
+
+/* =========================================================
+   9. CONTROLES, CHIPS Y AVATARES
+   ========================================================= */
+
+.panel-body--staff .panel-btn {
+  min-height: 36px;
+  padding-inline: 0.9rem;
+  border-radius: 9px;
+  font-size: 0.84375rem;
+  font-weight: 550;
+  letter-spacing: -0.003em;
+}
+
+.panel-body--staff .panel-btn--xs {
+  min-height: 30px;
+  padding-inline: 0.65rem;
+  border-radius: 8px;
+  font-size: 0.8125rem;
+}
+
+.panel-body--staff .panel-btn--primary {
+  background: var(--accent);
+  border-color: transparent;
+  color: #04140d;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.35) inset,
+              0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+.panel-body--staff .panel-btn--primary:hover {
+  background: color-mix(in srgb, var(--accent) 88%, white);
+  transform: none;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.4) inset,
+              0 4px 14px -4px color-mix(in srgb, var(--accent) 60%, transparent);
+}
+
+.panel-body--staff .panel-btn--ghost {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-strong);
+  color: var(--text);
+}
+
+.panel-body--staff .panel-btn--ghost:hover {
+  background: rgba(255, 255, 255, 0.075);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.panel-body--staff input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+.panel-body--staff select,
+.panel-body--staff textarea {
+  border-radius: 9px;
+  background-color: var(--plano-1);
+}
+
+/* ── Avatares: iniciales sobre un tinte suave, con 5 tonos ── */
+.panel-body--staff .panel-avatar--fila,
+.panel-body--staff .ui-recientes .panel-avatar {
+  --av: var(--accent);
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  border: 1px solid color-mix(in srgb, var(--av) 26%, transparent);
+  background: color-mix(in srgb, var(--av) 14%, transparent);
+  color: color-mix(in srgb, var(--av) 70%, white);
+  font-size: 0.8125rem;
+  font-weight: 650;
+}
+
+.panel-body--staff tr:nth-child(5n + 2) .panel-avatar--fila,
+.panel-body--staff .ui-recientes li:nth-child(5n + 2) .panel-avatar { --av: #60a5fa; }
+.panel-body--staff tr:nth-child(5n + 3) .panel-avatar--fila,
+.panel-body--staff .ui-recientes li:nth-child(5n + 3) .panel-avatar { --av: #a78bfa; }
+.panel-body--staff tr:nth-child(5n + 4) .panel-avatar--fila,
+.panel-body--staff .ui-recientes li:nth-child(5n + 4) .panel-avatar { --av: #fbbf24; }
+.panel-body--staff tr:nth-child(5n + 5) .panel-avatar--fila,
+.panel-body--staff .ui-recientes li:nth-child(5n + 5) .panel-avatar { --av: #fb7185; }
+
+/* El avatar de la cuenta sigue siendo circular y de marca. */
+.panel-body--staff .panel-user-menu .panel-avatar {
+  border: 0;
+  background: var(--accent);
+  color: #04140d;
+}
+
+.panel-body--staff .panel-chip {
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 550;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.panel-body--staff .panel-alert {
+  border-radius: 10px;
+}
+
+.panel-body--staff .panel-empty {
+  border-radius: var(--caja-radio);
+  background: var(--plano-1);
+  border: 1px dashed var(--border-strong);
+}
+
+.panel-body--staff .panel-pager a {
+  border-radius: 8px;
+}
+
+/* =========================================================
+   10. RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1200px) {
+  .panel-body--staff .ui-kpis {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1100px) {
+  .panel-body--staff .ui-cols {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .panel-body--staff .panel-dist-fila {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.75rem;
+  }
+}
+
+@media (max-width: 1000px) {
+  .panel-body--staff {
+    --ui-pad-x: 1.5rem;
+  }
+
+  .panel-body--staff .panel-shell {
+    margin-inline-start: 0;
+  }
+
+  .panel-body--staff .panel-side {
+    width: min(86vw, var(--panel-sidebar));
+  }
+
+  .panel-body--staff .panel-side.is-open {
+    box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.55);
+  }
+
+  .panel-body--staff .panel-burger {
+    border-radius: 9px;
+    border-color: var(--border-strong);
+    background: var(--plano-1);
+  }
+
+  .panel-body--staff .panel-buscar {
+    width: auto;
+  }
+}
+
+@media (max-width: 720px) {
+  .panel-body--staff {
+    --ui-pad-x: 1rem;
+  }
+
+  .panel-body--staff .panel-page {
+    padding: 1.25rem var(--ui-pad-x) 3rem;
+  }
+
+  .panel-body--staff .panel-topbar-titulo {
+    display: block;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .panel-body--staff .panel-topbar-acciones {
+    margin-inline-start: 0;
+  }
+
+  .panel-body--staff .panel-buscar {
+    width: 36px;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .panel-body--staff .panel-buscar-texto,
+  .panel-body--staff .panel-buscar-atajo {
+    display: none;
+  }
+
+  .panel-body--staff .panel-rapido-abrir {
+    width: 36px;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .panel-body--staff .panel-rapido-abrir span {
+    display: none;
+  }
+
+  .panel-body--staff .panel-densidad {
+    display: none;
+  }
+
+  .panel-body--staff .ui-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .panel-body--staff .ui-kpis .panel-stat {
+    padding: 0.95rem 1rem;
+  }
+
+  .panel-body--staff .panel-page-head h1 {
+    font-size: 1.3125rem;
+  }
+
+  .panel-body--staff .panel-search {
+    flex: 1 1 100%;
+  }
+}
+
+
+/* Densidad compacta: el interruptor ya existe, aquí solo se afina. */
+html[data-densidad="compacta"] .panel-body--staff .panel-table td {
+  padding-block: 0.4rem;
+}
+
+html[data-densidad="compacta"] .panel-body--staff .ui-kpis .panel-stat {
+  padding-block: 0.8rem;
+}
+
+html[data-densidad="compacta"] .panel-body--staff .panel-hacer-item,
+html[data-densidad="compacta"] .panel-body--staff .ui-recientes li,
+html[data-densidad="compacta"] .panel-body--staff .panel-caduco {
+  padding-block: 0.45rem;
+}
